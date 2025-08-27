@@ -1,0 +1,9 @@
+© 2025 Instituto de Innovación y Competitividad (I2C) / Sistema Estatal de Investigadores (SEI).
+Todos los derechos reservados.
+
+Este software es propiedad del Instituto de Innovación y Competitividad y del Sistema Estatal de Investigadores.
+No está permitida su copia, modificación, distribución ni uso fuera del SEI sin autorización
+expresa y por escrito de las autoridades competentes.
+
+El acceso al código fuente está restringido al equipo autorizado de desarrollo y mantenimiento.
+Cualquier uso no autorizado podrá ser sujeto a responsabilidades legales.
