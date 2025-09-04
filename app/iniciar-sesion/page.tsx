@@ -36,19 +36,24 @@ export default function IniciarSesionPage() {
       })
 
       const data = await response.json()
-
+      console.log("Respuesta login:", data)
       if (response.ok && data.success) {
         setSuccess("¡Login exitoso! Redirigiendo...")
-        
-        // Guardar información del usuario en localStorage o sessionStorage
+        // Guardar información del usuario y el token en localStorage
         localStorage.setItem("user", JSON.stringify(data.user))
-        
+        if (data.token) {
+          localStorage.setItem("token", data.token)
+          console.log("Token guardado en localStorage:", data.token)
+        } else {
+          console.log("No se recibió token en la respuesta.")
+        }
         // Redirigir después de un breve delay
         setTimeout(() => {
           router.push("/dashboard")
         }, 1500)
       } else {
         setError(data.error || "Error al iniciar sesión")
+        console.log("Error en login:", data.error)
       }
     } catch (error) {
       console.error("Error al iniciar sesión:", error)

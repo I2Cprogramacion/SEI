@@ -243,16 +243,24 @@ export default function RegistroPage() {
 
       console.log("Enviando datos:", dataToSendWithoutConfirm)
 
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       const response = await fetch("/api/registro", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(dataToSendWithoutConfirm),
       })
 
       const responseData = await response.json()
       console.log("Respuesta del servidor:", responseData)
+      if (responseData.token) {
+        localStorage.setItem("token", responseData.token)
+        console.log("Token guardado en localStorage (registro):", responseData.token)
+      } else {
+        console.log("No se recibió token en la respuesta de registro.")
+      }
 
       if (!response.ok) {
         // Manejar caso de duplicado (código 409)

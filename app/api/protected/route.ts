@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { obtenerInvestigadores } from "@/lib/db"
-import { verifyJWT } from "@/lib/auth/verify-jwt"
+import * as jwt from "jsonwebtoken"
+
+function verifyJWT(token: string): any {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET || "default_secret")
+  } catch (err) {
+    return null
+  }
+}
+
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization")
   if (!authHeader) {
@@ -12,12 +20,6 @@ export async function GET(request: NextRequest) {
   if (!payload) {
     return NextResponse.json({ error: "Token inválido o expirado" }, { status: 401 })
   }
-  try {
-    // Obtener todos los investigadores de la base de datos
-    const investigadores = await obtenerInvestigadores()
-    return NextResponse.json(investigadores)
-  } catch (error) {
-    console.error("Error al obtener investigadores:", error)
-    return NextResponse.json({ error: "Error al obtener los investigadores" }, { status: 500 })
-  }
+  // Aquí va la lógica protegida
+  return NextResponse.json({ success: true, message: "Acceso permitido", user: payload })
 }

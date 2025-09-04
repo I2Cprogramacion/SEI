@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { verificarCredenciales } from "@/lib/db"
+import * as jwt from "jsonwebtoken"
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,11 +20,22 @@ export async function POST(request: NextRequest) {
     const resultado = await verificarCredenciales(email, password)
 
     if (resultado.success) {
-      // Login exitoso
+      // Generar JWT
+      const token = jwt.sign(
+        {
+          id: resultado.user.id,
+          email: resultado.user.email,
+          nombre: resultado.user.nombre
+        },
+        process.env.JWT_SECRET || "default_secret",
+        { expiresIn: "7d" }
+      )
+      console.log("Login exitoso, token generado:", token)
       return NextResponse.json({
         success: true,
         message: "Login exitoso",
-        user: resultado.user
+        user: resultado.user,
+        token
       })
     } else {
       // Credenciales incorrectas
