@@ -1,7 +1,6 @@
 import { DatabaseInterface, DatabaseConfig } from "../database-interface"
+import argon2 from "argon2"
 
-// NOTA: Esta es una implementación de ejemplo
-// Para usar PostgreSQL, necesitarás instalar: npm install pg @types/pg
 export class PostgreSQLDatabase implements DatabaseInterface {
   private client: any = null
   private config: DatabaseConfig
@@ -204,6 +203,10 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         }
       }
 
+      // Si hay contraseña, hashearla antes de guardar
+      if (datos.contrasena) {
+        datos.contrasena = await argon2.hash(datos.contrasena, { type: argon2.argon2id })
+      }
       // Preparar los campos y valores para la inserción
       const campos = Object.keys(datos).filter((campo) => datos[campo] !== undefined)
       const placeholders = campos.map((_, index) => `$${index + 1}`).join(", ")
@@ -287,9 +290,15 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         }
       }
 
-      // Por ahora, verificamos solo que el usuario exista
-      // En una implementación real, deberías verificar la contraseña hasheada
-      
+      // Verificar hash de contraseña con argon2id
+      const hash = usuario.contrasena
+      const valido = await argon2.verify(hash, password)
+      if (!valido) {
+        return {
+          success: false,
+          message: "Contraseña incorrecta"
+        }
+      }
       // Login exitoso
       return {
         success: true,
