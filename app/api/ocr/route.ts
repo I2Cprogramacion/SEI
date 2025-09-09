@@ -47,21 +47,51 @@ export async function POST(request: NextRequest) {
     const pythonFormData = new FormData()
     pythonFormData.append("file", file)
 
-    // Enviar al servidor de procesamiento de PDFs
-    const response = await fetch(`${PDF_PROCESSOR_URL}/process-pdf`, {
-      method: "POST",
-      body: pythonFormData,
-    })
+    // Intentar conectar al servidor de procesamiento de PDFs
+    let response: Response
+    let result: any
 
-    if (!response.ok) {
-      const errorData = await response.json()
-      return NextResponse.json(
-        { error: `Error procesando PDF: ${errorData.detail || "Error desconocido"}` },
-        { status: response.status }
-      )
+    try {
+      response = await fetch(`${PDF_PROCESSOR_URL}/process-pdf`, {
+        method: "POST",
+        body: pythonFormData,
+        // Timeout de 30 segundos
+        signal: AbortSignal.timeout(30000),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(`Error del servidor OCR: ${errorData.detail || "Error desconocido"}`)
+      }
+
+      result = await response.json()
+    } catch (error) {
+      // Si el servidor Python no está disponible, usar fallback
+      console.warn("Servidor de OCR no disponible, usando fallback:", error)
+      
+      // Fallback: devolver formulario vacío para llenado manual
+      return NextResponse.json({
+        success: true,
+        data: {
+          nombre_completo: "",
+          curp: "",
+          rfc: "",
+          no_cvu: "",
+          correo: "",
+          telefono: "",
+          ultimo_grado_estudios: "",
+          empleo_actual: "",
+          fecha_nacimiento: "",
+          nacionalidad: "Mexicana",
+          linea_investigacion: "",
+        },
+        fields_found: [],
+        total_fields: 0,
+        filename: file.name,
+        fallback: true,
+        message: "El procesamiento automático no está disponible. Por favor, completa el formulario manualmente."
+      })
     }
-
-    const result = await response.json()
     
     // Mapear los datos extraídos al formato esperado por el frontend
     const mappedData = {
