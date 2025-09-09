@@ -5,14 +5,23 @@ import { verifyJWT } from "@/lib/auth/verify-jwt"
 const PDF_PROCESSOR_URL = process.env.PDF_PROCESSOR_URL || "http://localhost:8001"
 
 export async function POST(request: NextRequest) {
+  // Permitir procesamiento sin autenticación para el formulario de registro
+  // pero validar token si se proporciona
   const authHeader = request.headers.get("authorization")
-  if (!authHeader) {
-    return NextResponse.json({ error: "Token no proporcionado" }, { status: 401 })
+  let payload = null
+  
+  if (authHeader) {
+    const token = authHeader.replace("Bearer ", "")
+    payload = verifyJWT(token)
+    if (!payload) {
+      return NextResponse.json({ error: "Token inválido o expirado" }, { status: 401 })
+    }
   }
-  const token = authHeader.replace("Bearer ", "")
-  const payload = verifyJWT(token)
+  
+  // Si no hay token, permitir el procesamiento (para registro público)
+  // pero registrar la acción para auditoría
   if (!payload) {
-    return NextResponse.json({ error: "Token inválido o expirado" }, { status: 401 })
+    console.log("Procesamiento de PDF sin autenticación (registro público)")
   }
 
   try {

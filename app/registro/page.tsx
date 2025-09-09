@@ -125,15 +125,9 @@ export default function RegistroPage() {
       const formData = new FormData()
       formData.append("file", selectedFile)
 
-      // Obtener token de autenticación
-      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
-
-      // Enviar archivo al endpoint de OCR
+      // Enviar archivo al endpoint de OCR (sin autenticación para registro público)
       const response = await fetch("/api/ocr", {
         method: "POST",
-        headers: {
-          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
-        },
         body: formData,
       })
 
