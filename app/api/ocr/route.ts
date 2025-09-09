@@ -5,14 +5,23 @@ import { verifyJWT } from "@/lib/auth/verify-jwt"
 const PDF_PROCESSOR_URL = process.env.PDF_PROCESSOR_URL || "http://localhost:8001"
 
 export async function POST(request: NextRequest) {
+  // Permitir procesamiento sin autenticación para el formulario de registro
+  // pero validar token si se proporciona
   const authHeader = request.headers.get("authorization")
-  if (!authHeader) {
-    return NextResponse.json({ error: "Token no proporcionado" }, { status: 401 })
+  let payload = null
+  
+  if (authHeader) {
+    const token = authHeader.replace("Bearer ", "")
+    payload = verifyJWT(token)
+    if (!payload) {
+      return NextResponse.json({ error: "Token inválido o expirado" }, { status: 401 })
+    }
   }
-  const token = authHeader.replace("Bearer ", "")
-  const payload = verifyJWT(token)
+  
+  // Si no hay token, permitir el procesamiento (para registro público)
+  // pero registrar la acción para auditoría
   if (!payload) {
-    return NextResponse.json({ error: "Token inválido o expirado" }, { status: 401 })
+    console.log("Procesamiento de PDF sin autenticación (registro público)")
   }
 
   try {
@@ -38,21 +47,51 @@ export async function POST(request: NextRequest) {
     const pythonFormData = new FormData()
     pythonFormData.append("file", file)
 
-    // Enviar al servidor de procesamiento de PDFs
-    const response = await fetch(`${PDF_PROCESSOR_URL}/process-pdf`, {
-      method: "POST",
-      body: pythonFormData,
-    })
+    // Intentar conectar al servidor de procesamiento de PDFs
+    let response: Response
+    let result: any
 
-    if (!response.ok) {
-      const errorData = await response.json()
-      return NextResponse.json(
-        { error: `Error procesando PDF: ${errorData.detail || "Error desconocido"}` },
-        { status: response.status }
-      )
+    try {
+      response = await fetch(`${PDF_PROCESSOR_URL}/process-pdf`, {
+        method: "POST",
+        body: pythonFormData,
+        // Timeout de 30 segundos
+        signal: AbortSignal.timeout(30000),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(`Error del servidor OCR: ${errorData.detail || "Error desconocido"}`)
+      }
+
+      result = await response.json()
+    } catch (error) {
+      // Si el servidor Python no está disponible, usar fallback
+      console.warn("Servidor de OCR no disponible, usando fallback:", error)
+      
+      // Fallback: devolver formulario vacío para llenado manual
+      return NextResponse.json({
+        success: true,
+        data: {
+          nombre_completo: "",
+          curp: "",
+          rfc: "",
+          no_cvu: "",
+          correo: "",
+          telefono: "",
+          ultimo_grado_estudios: "",
+          empleo_actual: "",
+          fecha_nacimiento: "",
+          nacionalidad: "Mexicana",
+          linea_investigacion: "",
+        },
+        fields_found: [],
+        total_fields: 0,
+        filename: file.name,
+        fallback: true,
+        message: "El procesamiento automático no está disponible. Por favor, completa el formulario manualmente."
+      })
     }
-
-    const result = await response.json()
     
     // Mapear los datos extraídos al formato esperado por el frontend
     const mappedData = {

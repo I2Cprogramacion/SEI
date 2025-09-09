@@ -101,6 +101,21 @@ El sistema valida automáticamente:
 - Formato de email
 - Tamaño del archivo (máximo 10MB)
 
+### 4. Autenticación
+
+El endpoint de OCR maneja dos escenarios:
+
+**Registro Público** (sin autenticación):
+- Usado en el formulario de registro `/registro`
+- No requiere token JWT
+- Permite a nuevos usuarios procesar PDFs
+- Se registra en logs para auditoría
+
+**Usuarios Autenticados** (con token):
+- Usado por usuarios ya registrados
+- Requiere token JWT válido
+- Acceso completo a funcionalidades
+
 ## 🧪 Pruebas
 
 ### Probar el Procesador Directamente
@@ -179,9 +194,10 @@ Los logs del servidor Python muestran:
 
 - Validación de tipos de archivo (solo PDF)
 - Límite de tamaño de archivo (10MB)
-- Autenticación JWT requerida
+- **Autenticación JWT opcional** (requerida para usuarios autenticados, opcional para registro público)
 - Archivos temporales se eliminan automáticamente
 - CORS configurado para dominios específicos
+- Logging de acciones para auditoría
 
 ## 🚀 Despliegue
 

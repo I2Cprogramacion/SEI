@@ -125,15 +125,9 @@ export default function RegistroPage() {
       const formData = new FormData()
       formData.append("file", selectedFile)
 
-      // Obtener token de autenticación
-      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
-
-      // Enviar archivo al endpoint de OCR
+      // Enviar archivo al endpoint de OCR (sin autenticación para registro público)
       const response = await fetch("/api/ocr", {
         method: "POST",
-        headers: {
-          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
-        },
         body: formData,
       })
 
@@ -156,14 +150,42 @@ export default function RegistroPage() {
         setOcrCompleted(true)
         setError(null)
         
-        // Mostrar mensaje de éxito con información sobre los campos encontrados
-        console.log(`PDF procesado exitosamente. Campos encontrados: ${result.total_fields}`)
+        if (result.fallback) {
+          // Si es fallback, mostrar mensaje informativo
+          console.log("Procesamiento automático no disponible, formulario listo para llenado manual")
+        } else {
+          // Mostrar mensaje de éxito con información sobre los campos encontrados
+          console.log(`PDF procesado exitosamente. Campos encontrados: ${result.total_fields}`)
+        }
       } else {
         throw new Error("No se pudieron extraer datos del PDF")
       }
     } catch (error) {
       console.error("Error procesando PDF:", error)
-      setError(`Error al procesar el PDF: ${error instanceof Error ? error.message : "Error desconocido"}`)
+      
+      // Mostrar mensaje de error más específico
+      let errorMessage = "Error al procesar el PDF"
+      if (error instanceof Error) {
+        if (error.message.includes("Failed to fetch")) {
+          errorMessage = "No se pudo conectar al servidor de procesamiento. El formulario se ha preparado para llenado manual."
+        } else if (error.message.includes("timeout")) {
+          errorMessage = "El procesamiento tardó demasiado. El formulario se ha preparado para llenado manual."
+        } else {
+          errorMessage = `Error al procesar el PDF: ${error.message}`
+        }
+      }
+      
+      setError(errorMessage)
+      
+      // En caso de error, preparar formulario para llenado manual
+      setFormData((prev) => ({
+        ...prev,
+        nacionalidad: "Mexicana", // Asegurar valor por defecto
+        linea_investigacion: "", // Asegurar que esté vacío
+        password: "", // Asegurar que esté vacío
+        confirm_password: "", // Asegurar que esté vacío
+      }))
+      setOcrCompleted(true) // Permitir continuar con llenado manual
     } finally {
       setIsProcessingPDF(false)
     }
