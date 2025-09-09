@@ -121,35 +121,49 @@ export default function RegistroPage() {
     setError(null)
 
     try {
-      // Simular procesamiento de OCR (sin implementar la lógica real)
-      await new Promise((resolve) => setTimeout(resolve, 4000))
+      // Crear FormData para enviar el archivo
+      const formData = new FormData()
+      formData.append("file", selectedFile)
 
-      // Datos simulados que se "extraerían" del PDF
-      // NOTA: linea_investigacion se mantiene vacía para captura manual
-      const simulatedData = {
-        nombre_completo: "Dr. Juan Pérez García",
-        correo: "juan.perez@universidad.edu",
-        no_cvu: "123456",
-        telefono: "614-123-4567",
-        curp: "PEGJ800101HCHRNN09",
-        rfc: "PEGJ800101ABC",
-        ultimo_grado_estudios: "Doctorado en Ciencias de la Computación - Universidad Autónoma de Chihuahua",
-        empleo_actual: "Profesor-Investigador Titular C - Universidad Autónoma de Chihuahua",
-        fecha_nacimiento: "1980-01-01",
-        // linea_investigacion se mantiene vacía intencionalmente
-        // password y confirm_password también se mantienen vacías
+      // Obtener token de autenticación
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+
+      // Enviar archivo al endpoint de OCR
+      const response = await fetch("/api/ocr", {
+        method: "POST",
+        headers: {
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+        },
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || "Error procesando PDF")
       }
 
-      setFormData((prev) => ({
-        ...prev,
-        ...simulatedData,
-        linea_investigacion: "", // Asegurar que siempre esté vacía
-        password: "", // Asegurar que siempre esté vacía
-        confirm_password: "", // Asegurar que siempre esté vacía
-      }))
-      setOcrCompleted(true)
+      if (result.success && result.data) {
+        // Actualizar el formulario con los datos extraídos
+        setFormData((prev) => ({
+          ...prev,
+          ...result.data,
+          linea_investigacion: "", // Asegurar que siempre esté vacía para captura manual
+          password: "", // Asegurar que siempre esté vacía
+          confirm_password: "", // Asegurar que siempre esté vacía
+        }))
+
+        setOcrCompleted(true)
+        setError(null)
+        
+        // Mostrar mensaje de éxito con información sobre los campos encontrados
+        console.log(`PDF procesado exitosamente. Campos encontrados: ${result.total_fields}`)
+      } else {
+        throw new Error("No se pudieron extraer datos del PDF")
+      }
     } catch (error) {
-      setError("Error al procesar el PDF. Por favor intenta de nuevo.")
+      console.error("Error procesando PDF:", error)
+      setError(`Error al procesar el PDF: ${error instanceof Error ? error.message : "Error desconocido"}`)
     } finally {
       setIsProcessingPDF(false)
     }
