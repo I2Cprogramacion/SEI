@@ -12,7 +12,8 @@
     "test:table": "node scripts/test-table.js",
     "test:registro": "node scripts/test-registro.js",
     "test:api": "node scripts/test-api-registro.js",
-    "test:prisma": "node scripts/test-prisma.js"
+    "test:prisma": "node scripts/test-prisma.js",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
