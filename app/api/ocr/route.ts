@@ -99,19 +99,41 @@ export async function POST(request: NextRequest) {
       return value.trim().replace(/\s+/g, " ");
     }
 
-    const mappedData = {
-      nombre_completo: cleanField(result.extracted_data?.nombre_completo),
-      curp: cleanField(result.extracted_data?.curp),
-      rfc: cleanField(result.extracted_data?.rfc),
-      no_cvu: cleanField(result.extracted_data?.no_cvu),
-      correo: cleanField(result.extracted_data?.correo),
-      telefono: cleanField(result.extracted_data?.telefono),
-      ultimo_grado_estudios: cleanField(result.extracted_data?.ultimo_grado_estudios),
-      empleo_actual: cleanField(result.extracted_data?.empleo_actual),
-      fecha_nacimiento: cleanField(result.extracted_data?.fecha_nacimiento),
-      nacionalidad: cleanField(result.extracted_data?.nacionalidad) || "Mexicana",
-      linea_investigacion: "", // Este campo se mantiene vacío para captura manual
-    };
+    // Si el OCR no extrajo suficientes datos, dejar los campos faltantes en blanco
+    // Mapeo flexible: incluir todos los campos extraídos por el OCR
+    const camposBase = [
+      "nombre_completo",
+      "curp",
+      "rfc",
+      "no_cvu",
+      "correo",
+      "telefono",
+      "ultimo_grado_estudios",
+      "empleo_actual",
+      "fecha_nacimiento",
+      "nacionalidad",
+      "linea_investigacion"
+    ];
+
+    const mappedData: Record<string, string> = {};
+    // Primero, asignar los campos base
+    for (const campo of camposBase) {
+      if (campo === "linea_investigacion") {
+        mappedData[campo] = "";
+      } else if (campo === "nacionalidad") {
+        mappedData[campo] = cleanField(result.extracted_data?.nacionalidad) || "Mexicana";
+      } else {
+        mappedData[campo] = cleanField(result.extracted_data?.[campo]) || "";
+      }
+    }
+    // Luego, agregar cualquier campo adicional extraído por el OCR
+    if (result.extracted_data) {
+      for (const [key, value] of Object.entries(result.extracted_data)) {
+        if (!(key in mappedData)) {
+          mappedData[key] = cleanField(value) || "";
+        }
+      }
+    }
 
     // Validación adicional para formatos específicos
     // CURP: 18 caracteres alfanuméricos
