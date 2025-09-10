@@ -87,72 +87,26 @@ class PerfilUnicoProcessor:
             return ""
     
     def extract_data_from_text(self, text: str) -> Dict[str, str]:
-        """Extraer datos específicos del texto usando expresiones regulares"""
-        data = {}
-        
-        # Patrones de búsqueda para cada campo
+        """Extrae datos del texto usando patrones flexibles y permite campos vacíos para revisión manual"""
         patterns = {
-            'nombre_completo': [
-                r'Nombre\s*completo[:\s]*(.+?)(?:\n|$)',
-                r'Apellidos?\s*y\s*nombres?[:\s]*(.+?)(?:\n|$)',
-                r'Dr\.?\s*([A-ZÁÉÍÓÚÑ][a-záéíóúñ\s]+[A-ZÁÉÍÓÚÑ][a-záéíóúñ\s]+)',
-                r'Dra\.?\s*([A-ZÁÉÍÓÚÑ][a-záéíóúñ\s]+[A-ZÁÉÍÓÚÑ][a-záéíóúñ\s]+)',
-            ],
-            'curp': [
-                r'CURP[:\s]*([A-Z]{4}[0-9]{6}[HM][A-Z]{5}[0-9A-Z][0-9])',
-                r'Clave\s*Única\s*de\s*Registro\s*de\s*Población[:\s]*([A-Z]{4}[0-9]{6}[HM][A-Z]{5}[0-9A-Z][0-9])',
-            ],
-            'rfc': [
-                r'RFC[:\s]*([A-Z]{4}[0-9]{6}[A-Z0-9]{3})',
-                r'Registro\s*Federal\s*de\s*Contribuyentes[:\s]*([A-Z]{4}[0-9]{6}[A-Z0-9]{3})',
-            ],
-            'no_cvu': [
-                r'CVU[:\s]*([0-9]{6,})',
-                r'Código\s*de\s*Validación\s*Única[:\s]*([0-9]{6,})',
-                r'No\.?\s*CVU[:\s]*([0-9]{6,})',
-            ],
-            'correo': [
-                r'Correo\s*electrónico[:\s]*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})',
-                r'Email[:\s]*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})',
-                r'E-mail[:\s]*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})',
-            ],
-            'telefono': [
-                r'Teléfono[:\s]*([0-9\s\-\(\)\+]{10,})',
-                r'Tel[:\s]*([0-9\s\-\(\)\+]{10,})',
-                r'Teléfono\s*celular[:\s]*([0-9\s\-\(\)\+]{10,})',
-            ],
-            'ultimo_grado_estudios': [
-                r'Último\s*grado\s*de\s*estudios[:\s]*(.+?)(?:\n|$)',
-                r'Grado\s*académico[:\s]*(.+?)(?:\n|$)',
-                r'Formación\s*académica[:\s]*(.+?)(?:\n|$)',
-            ],
-            'empleo_actual': [
-                r'Empleo\s*actual[:\s]*(.+?)(?:\n|$)',
-                r'Puesto\s*actual[:\s]*(.+?)(?:\n|$)',
-                r'Cargo\s*actual[:\s]*(.+?)(?:\n|$)',
-            ],
-            'fecha_nacimiento': [
-                r'Fecha\s*de\s*nacimiento[:\s]*([0-9]{1,2}[/\-][0-9]{1,2}[/\-][0-9]{4})',
-                r'Nacimiento[:\s]*([0-9]{1,2}[/\-][0-9]{1,2}[/\-][0-9]{4})',
-            ],
-            'nacionalidad': [
-                r'Nacionalidad[:\s]*([A-Za-záéíóúñ\s]+)',
-                r'País[:\s]*([A-Za-záéíóúñ\s]+)',
-            ]
+            "nombre": r"(?:Nombre(?:s)?|Nombres y Apellidos|Nombre completo)\s*[:\-]?\s*([A-Za-zÁÉÍÓÚáéíóúÑñ\s]+)",
+            "apellido_paterno": r"(?:Apellido Paterno|Primer Apellido)\s*[:\-]?\s*([A-Za-zÁÉÍÓÚáéíóúÑñ\s]+)",
+            "apellido_materno": r"(?:Apellido Materno|Segundo Apellido)\s*[:\-]?\s*([A-Za-zÁÉÍÓÚáéíóúÑñ\s]+)",
+            "curp": r"(?:CURP|Curp)\s*[:\-]?\s*([A-Z0-9]{18})",
+            "rfc": r"(?:RFC|R.F.C.)\s*[:\-]?\s*([A-Z0-9]{10,13})",
+            "correo": r"(?:Correo(?: electrónico)?|Email)\s*[:\-]?\s*([\w\.-]+@[\w\.-]+\.\w+)",
+            "telefono": r"(?:Tel(?:éfono)?|Cel(?:ular)?)\s*[:\-]?\s*([\d\s\-]{7,})",
+            "institucion": r"(?:Institución|Universidad|Centro de trabajo)\s*[:\-]?\s*([A-Za-zÁÉÍÓÚáéíóúÑñ\s]+)",
+            "cargo": r"(?:Cargo|Puesto)\s*[:\-]?\s*([A-Za-zÁÉÍÓÚáéíóúÑñ\s]+)",
+            "grado": r"(?:Grado(?: académico)?|Nivel de estudios)\s*[:\-]?\s*([A-Za-zÁÉÍÓÚáéíóúÑñ\s]+)",
+            "area": r"(?:Área|Especialidad|Campo de estudio)\s*[:\-]?\s*([A-Za-zÁÉÍÓÚáéíóúÑñ\s]+)",
+            "proyecto": r"(?:Proyecto|Título del proyecto)\s*[:\-]?\s*([A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s]+)",
         }
-        
-        # Buscar cada patrón en el texto
-        for field, pattern_list in patterns.items():
-            for pattern in pattern_list:
-                match = re.search(pattern, text, re.IGNORECASE | re.MULTILINE)
-                if match:
-                    value = match.group(1).strip()
-                    # Limpiar el valor extraído
-                    value = re.sub(r'\s+', ' ', value)  # Normalizar espacios
-                    data[field] = value
-                    break
-        
-        return data
+        results = {}
+        for key, pattern in patterns.items():
+            match = re.search(pattern, text, re.IGNORECASE)
+            results[key] = match.group(1).strip() if match else ""
+        return results
     
     def process_pdf(self, pdf_path: str) -> Dict[str, str]:
         """Procesar PDF completo y extraer datos del Perfil Único"""
@@ -182,42 +136,12 @@ class PerfilUnicoProcessor:
         return cleaned_data
     
     def clean_extracted_data(self, data: Dict[str, str]) -> Dict[str, str]:
-        """Limpiar y validar los datos extraídos"""
+        """Limpiar los datos extraídos, permitir campos vacíos para revisión manual"""
         cleaned = {}
-        
-        # Mapeo de campos del formulario
-        field_mapping = {
-            'nombre_completo': 'nombre_completo',
-            'curp': 'curp',
-            'rfc': 'rfc',
-            'no_cvu': 'no_cvu',
-            'correo': 'correo',
-            'telefono': 'telefono',
-            'ultimo_grado_estudios': 'ultimo_grado_estudios',
-            'empleo_actual': 'empleo_actual',
-            'fecha_nacimiento': 'fecha_nacimiento',
-            'nacionalidad': 'nacionalidad'
-        }
-        
         for field, value in data.items():
-            if field in field_mapping and value:
-                # Limpiar el valor
-                cleaned_value = value.strip()
-                
-                # Validaciones específicas por campo
-                if field == 'curp' and not re.match(r'^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[0-9A-Z][0-9]$', cleaned_value):
-                    continue  # CURP inválida
-                elif field == 'rfc' and not re.match(r'^[A-Z]{4}[0-9]{6}[A-Z0-9]{3}$', cleaned_value):
-                    continue  # RFC inválido
-                elif field == 'correo' and not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', cleaned_value):
-                    continue  # Email inválido
-                
-                cleaned[field_mapping[field]] = cleaned_value
-        
-        # Agregar campos por defecto
-        if 'nacionalidad' not in cleaned:
+            cleaned[field] = value.strip() if value else ""
+        if 'nacionalidad' not in cleaned or not cleaned['nacionalidad']:
             cleaned['nacionalidad'] = 'Mexicana'
-        
         return cleaned
 
 def main():
