@@ -570,7 +570,7 @@ export default function RegistroPage() {
                           name="nombre_completo"
                           value={formData.nombre_completo}
                           onChange={handleChange}
-                          placeholder="Dr. Juan Pérez García"
+                          placeholder="Nombre completo"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.nombre_completo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
@@ -594,7 +594,7 @@ export default function RegistroPage() {
                           type="email"
                           value={formData.correo}
                           onChange={handleChange}
-                          placeholder="juan.perez@universidad.edu"
+                          placeholder="Correo electrónico"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.correo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
@@ -616,7 +616,7 @@ export default function RegistroPage() {
                           name="telefono"
                           value={formData.telefono}
                           onChange={handleChange}
-                          placeholder="614-123-4567"
+                          placeholder="Teléfono"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.telefono.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
@@ -693,7 +693,7 @@ export default function RegistroPage() {
                           name="ultimo_grado_estudios"
                           value={formData.ultimo_grado_estudios}
                           onChange={handleChange}
-                          placeholder="Doctorado en Ciencias de la Computación - Universidad Autónoma de Chihuahua"
+                          placeholder="Último grado de estudios"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.ultimo_grado_estudios.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
@@ -712,7 +712,7 @@ export default function RegistroPage() {
                           name="empleo_actual"
                           value={formData.empleo_actual}
                           onChange={handleChange}
-                          placeholder="Profesor-Investigador Titular C - Universidad Autónoma de Chihuahua"
+                          placeholder="Empleo actual"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.empleo_actual.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
@@ -741,7 +741,7 @@ export default function RegistroPage() {
                           name="no_cvu"
                           value={formData.no_cvu}
                           onChange={handleChange}
-                          placeholder="123456"
+                          placeholder="CVU/PU"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.no_cvu.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
@@ -760,7 +760,7 @@ export default function RegistroPage() {
                           name="curp"
                           value={formData.curp}
                           onChange={handleChange}
-                          placeholder="PEGJ800101HCHRNN09"
+                          placeholder="CURP"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.curp.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
@@ -779,7 +779,7 @@ export default function RegistroPage() {
                           name="rfc"
                           value={formData.rfc}
                           onChange={handleChange}
-                          placeholder="PEGJ800101ABC"
+                          placeholder="RFC"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.rfc.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
