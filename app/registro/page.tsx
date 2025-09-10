@@ -121,35 +121,71 @@ export default function RegistroPage() {
     setError(null)
 
     try {
-      // Simular procesamiento de OCR (sin implementar la lógica real)
-      await new Promise((resolve) => setTimeout(resolve, 4000))
+      // Crear FormData para enviar el archivo
+      const formData = new FormData()
+      formData.append("file", selectedFile)
 
-      // Datos simulados que se "extraerían" del PDF
-      // NOTA: linea_investigacion se mantiene vacía para captura manual
-      const simulatedData = {
-        nombre_completo: "Dr. Juan Pérez García",
-        correo: "juan.perez@universidad.edu",
-        no_cvu: "123456",
-        telefono: "614-123-4567",
-        curp: "PEGJ800101HCHRNN09",
-        rfc: "PEGJ800101ABC",
-        ultimo_grado_estudios: "Doctorado en Ciencias de la Computación - Universidad Autónoma de Chihuahua",
-        empleo_actual: "Profesor-Investigador Titular C - Universidad Autónoma de Chihuahua",
-        fecha_nacimiento: "1980-01-01",
-        // linea_investigacion se mantiene vacía intencionalmente
-        // password y confirm_password también se mantienen vacías
+      // Enviar archivo al endpoint de OCR (sin autenticación para registro público)
+      const response = await fetch("/api/ocr", {
+        method: "POST",
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || "Error procesando PDF")
       }
 
+      if (result.success && result.data) {
+        // Actualizar el formulario con los datos extraídos
+        setFormData((prev) => ({
+          ...prev,
+          ...result.data,
+          linea_investigacion: "", // Asegurar que siempre esté vacía para captura manual
+          password: "", // Asegurar que siempre esté vacía
+          confirm_password: "", // Asegurar que siempre esté vacía
+        }))
+
+        setOcrCompleted(true)
+        setError(null)
+        
+        if (result.fallback) {
+          // Si es fallback, mostrar mensaje informativo
+          console.log("Procesamiento automático no disponible, formulario listo para llenado manual")
+        } else {
+          // Mostrar mensaje de éxito con información sobre los campos encontrados
+          console.log(`PDF procesado exitosamente. Campos encontrados: ${result.total_fields}`)
+        }
+      } else {
+        throw new Error("No se pudieron extraer datos del PDF")
+      }
+    } catch (error) {
+      console.error("Error procesando PDF:", error)
+      
+      // Mostrar mensaje de error más específico
+      let errorMessage = "Error al procesar el PDF"
+      if (error instanceof Error) {
+        if (error.message.includes("Failed to fetch")) {
+          errorMessage = "No se pudo conectar al servidor de procesamiento. El formulario se ha preparado para llenado manual."
+        } else if (error.message.includes("timeout")) {
+          errorMessage = "El procesamiento tardó demasiado. El formulario se ha preparado para llenado manual."
+        } else {
+          errorMessage = `Error al procesar el PDF: ${error.message}`
+        }
+      }
+      
+      setError(errorMessage)
+      
+      // En caso de error, preparar formulario para llenado manual
       setFormData((prev) => ({
         ...prev,
-        ...simulatedData,
-        linea_investigacion: "", // Asegurar que siempre esté vacía
-        password: "", // Asegurar que siempre esté vacía
-        confirm_password: "", // Asegurar que siempre esté vacía
+        nacionalidad: "Mexicana", // Asegurar valor por defecto
+        linea_investigacion: "", // Asegurar que esté vacío
+        password: "", // Asegurar que esté vacío
+        confirm_password: "", // Asegurar que esté vacío
       }))
-      setOcrCompleted(true)
-    } catch (error) {
-      setError("Error al procesar el PDF. Por favor intenta de nuevo.")
+      setOcrCompleted(true) // Permitir continuar con llenado manual
     } finally {
       setIsProcessingPDF(false)
     }
