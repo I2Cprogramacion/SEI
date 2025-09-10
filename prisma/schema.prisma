@@ -1,10 +1,24 @@
+model Membership {
+  id              String         @id @default(cuid())
+  investigadorId  Int
+  institucionId   String
+  rol             String?
+  fechaInicio     DateTime?
+  fechaFin        DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  investigador    Investigador  @relation(fields: [investigadorId], references: [id])
+  institucion     Institution   @relation(fields: [institucionId], references: [id])
+
+  @@map("memberships")
+}
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("POSTGRES_URL")
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -64,6 +78,7 @@ model Institution {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   profiles  Profile[]
+  memberships Membership[]
 
   @@map("institutions")
 }
@@ -85,6 +100,7 @@ model Investigador {
   origen              String?
   archivoProcesado    String?
   password            String?
+  memberships         Membership[]
 
   @@map("investigadores")
 }
