@@ -93,19 +93,43 @@ export async function POST(request: NextRequest) {
       })
     }
     
-    // Mapear los datos extraídos al formato esperado por el frontend
+    // Normalizar y limpiar los datos extraídos
+    function cleanField(value: any) {
+      if (!value || typeof value !== "string") return "";
+      return value.trim().replace(/\s+/g, " ");
+    }
+
     const mappedData = {
-      nombre_completo: result.extracted_data.nombre_completo || "",
-      curp: result.extracted_data.curp || "",
-      rfc: result.extracted_data.rfc || "",
-      no_cvu: result.extracted_data.no_cvu || "",
-      correo: result.extracted_data.correo || "",
-      telefono: result.extracted_data.telefono || "",
-      ultimo_grado_estudios: result.extracted_data.ultimo_grado_estudios || "",
-      empleo_actual: result.extracted_data.empleo_actual || "",
-      fecha_nacimiento: result.extracted_data.fecha_nacimiento || "",
-      nacionalidad: result.extracted_data.nacionalidad || "Mexicana",
+      nombre_completo: cleanField(result.extracted_data?.nombre_completo),
+      curp: cleanField(result.extracted_data?.curp),
+      rfc: cleanField(result.extracted_data?.rfc),
+      no_cvu: cleanField(result.extracted_data?.no_cvu),
+      correo: cleanField(result.extracted_data?.correo),
+      telefono: cleanField(result.extracted_data?.telefono),
+      ultimo_grado_estudios: cleanField(result.extracted_data?.ultimo_grado_estudios),
+      empleo_actual: cleanField(result.extracted_data?.empleo_actual),
+      fecha_nacimiento: cleanField(result.extracted_data?.fecha_nacimiento),
+      nacionalidad: cleanField(result.extracted_data?.nacionalidad) || "Mexicana",
       linea_investigacion: "", // Este campo se mantiene vacío para captura manual
+    };
+
+    // Validación adicional para formatos específicos
+    // CURP: 18 caracteres alfanuméricos
+    if (mappedData.curp && !/^([A-Z]{4}[0-9]{6}[HM][A-Z]{5}[0-9]{2})$/i.test(mappedData.curp)) {
+      mappedData.curp = "";
+    }
+    // RFC: 10-13 caracteres alfanuméricos
+    if (mappedData.rfc && !/^([A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3})$/i.test(mappedData.rfc)) {
+      mappedData.rfc = "";
+    }
+    // Correo: formato email
+    if (mappedData.correo && !/^\S+@\S+\.\S+$/.test(mappedData.correo)) {
+      mappedData.correo = "";
+    }
+    // Teléfono: solo dígitos, 10 caracteres
+    if (mappedData.telefono) {
+      const tel = mappedData.telefono.replace(/\D/g, "");
+      mappedData.telefono = tel.length === 10 ? tel : "";
     }
 
     return NextResponse.json({
@@ -114,7 +138,7 @@ export async function POST(request: NextRequest) {
       fields_found: result.fields_found,
       total_fields: result.total_fields,
       filename: result.filename
-    })
+    });
 
   } catch (error) {
     console.error("Error en procesamiento de PDF:", error)

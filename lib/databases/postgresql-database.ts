@@ -1,5 +1,5 @@
 import { DatabaseInterface, DatabaseConfig } from "../database-interface"
-import argon2 from "argon2"
+import bcrypt from "bcryptjs"
 
 export class PostgreSQLDatabase implements DatabaseInterface {
   private client: any = null
@@ -203,9 +203,10 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         }
       }
 
-      // Si hay contraseña, hashearla antes de guardar
+      // Si hay contraseña, hashearla antes de guardar con bcryptjs
       if (datos.contrasena) {
-        datos.contrasena = await argon2.hash(datos.contrasena, { type: argon2.argon2id })
+        const salt = await bcrypt.genSalt(10);
+        datos.contrasena = await bcrypt.hash(datos.contrasena, salt);
       }
       // Preparar los campos y valores para la inserción
       const campos = Object.keys(datos).filter((campo) => datos[campo] !== undefined)
@@ -290,9 +291,9 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         }
       }
 
-      // Verificar hash de contraseña con argon2id
-      const hash = usuario.contrasena
-      const valido = await argon2.verify(hash, password)
+      // Verificar hash de contraseña con bcryptjs
+      const hash = usuario.contrasena;
+      const valido = await bcrypt.compare(password, hash);
       if (!valido) {
         return {
           success: false,
