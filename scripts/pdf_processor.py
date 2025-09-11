@@ -109,29 +109,21 @@ class PerfilUnicoProcessor:
         return results
     
     def process_pdf(self, pdf_path: str) -> Dict[str, str]:
-        """Procesar PDF completo y extraer datos del Perfil Único"""
+        """Procesar PDF completo y extraer datos del Perfil Único combinando texto y OCR"""
         logger.info(f"Procesando PDF: {pdf_path}")
-        
-        # Paso 1: Extraer texto directamente del PDF
+        # Extraer texto directamente del PDF
         text = self.extract_text_from_pdf(pdf_path)
         logger.info(f"Texto extraído del PDF: {len(text)} caracteres")
-        
-        # Paso 2: Si no hay texto suficiente, usar OCR en imágenes
-        if len(text.strip()) < 100:  # Si hay muy poco texto
-            logger.info("Poco texto extraído, aplicando OCR a imágenes...")
-            images = self.extract_images_from_pdf(pdf_path)
-            
-            for i, image in enumerate(images):
-                logger.info(f"Procesando imagen {i+1}/{len(images)}")
-                ocr_text = self.ocr_image(image)
-                text += "\n" + ocr_text
-        
-        # Paso 3: Extraer datos específicos del texto
+        # Extraer imágenes y aplicar OCR siempre
+        images = self.extract_images_from_pdf(pdf_path)
+        for i, image in enumerate(images):
+            logger.info(f"Procesando imagen {i+1}/{len(images)} para OCR")
+            ocr_text = self.ocr_image(image)
+            text += "\n" + ocr_text
+        # Extraer datos específicos del texto combinado
         data = self.extract_data_from_text(text)
-        
-        # Paso 4: Limpiar y validar datos
+        # Limpiar y validar datos
         cleaned_data = self.clean_extracted_data(data)
-        
         logger.info(f"Datos extraídos: {json.dumps(cleaned_data, indent=2, ensure_ascii=False)}")
         return cleaned_data
     
