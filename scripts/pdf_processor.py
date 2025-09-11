@@ -8,6 +8,9 @@ import fitz  # PyMuPDF
 import pytesseract
 from PIL import Image
 import io
+ 
+# Configurar la ruta de Tesseract en Windows
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 import re
 import json
 import sys
