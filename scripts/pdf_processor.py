@@ -28,20 +28,27 @@ class PerfilUnicoProcessor:
         # En Windows: pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
         pass
     
-    def extract_text_from_pdf(self, pdf_path: str) -> str:
-        """Extraer texto directamente del PDF usando PyMuPDF"""
+    def extract_text_and_ocr(self, pdf_path: str) -> str:
+        """Extrae texto embebido y aplica OCR a todas las imágenes del PDF"""
         try:
             doc = fitz.open(pdf_path)
             text = ""
-            
-            for page_num in range(len(doc)):
-                page = doc.load_page(page_num)
+            # Extraer texto embebido
+            for page in doc:
                 text += page.get_text()
-            
+            # Extraer imágenes y aplicar OCR
+            for page in doc:
+                for img in page.get_images(full=True):
+                    xref = img[0]
+                    base_image = doc.extract_image(xref)
+                    image_bytes = base_image["image"]
+                    img_pil = Image.open(io.BytesIO(image_bytes))
+                    ocr_text = pytesseract.image_to_string(img_pil, lang='spa')
+                    text += "\n" + ocr_text
             doc.close()
             return text
         except Exception as e:
-            logger.error(f"Error extrayendo texto del PDF: {e}")
+            logger.error(f"Error extrayendo texto/OCR del PDF: {e}")
             return ""
     
     def extract_images_from_pdf(self, pdf_path: str) -> List[Image.Image]:
@@ -109,20 +116,11 @@ class PerfilUnicoProcessor:
         return results
     
     def process_pdf(self, pdf_path: str) -> Dict[str, str]:
-        """Procesar PDF completo y extraer datos del Perfil Único combinando texto y OCR"""
+        """Procesar PDF completo y extraer datos del Perfil Único usando texto y OCR funcional"""
         logger.info(f"Procesando PDF: {pdf_path}")
-        # Extraer texto directamente del PDF
-        text = self.extract_text_from_pdf(pdf_path)
-        logger.info(f"Texto extraído del PDF: {len(text)} caracteres")
-        # Extraer imágenes y aplicar OCR siempre
-        images = self.extract_images_from_pdf(pdf_path)
-        for i, image in enumerate(images):
-            logger.info(f"Procesando imagen {i+1}/{len(images)} para OCR")
-            ocr_text = self.ocr_image(image)
-            text += "\n" + ocr_text
-        # Extraer datos específicos del texto combinado
+        text = self.extract_text_and_ocr(pdf_path)
+        logger.info(f"Texto total extraído: {len(text)} caracteres")
         data = self.extract_data_from_text(text)
-        # Limpiar y validar datos
         cleaned_data = self.clean_extracted_data(data)
         logger.info(f"Datos extraídos: {json.dumps(cleaned_data, indent=2, ensure_ascii=False)}")
         return cleaned_data
