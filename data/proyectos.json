@@ -1,0 +1,65 @@
+[
+  {
+    "id": 1,
+    "titulo": "Desarrollo de Energías Renovables en Chihuahua",
+    "descripcion": "Investigación sobre el potencial de implementación de energías renovables en el estado de Chihuahua, enfocándose en energía solar y eólica.",
+    "resumen": "Este proyecto analiza la viabilidad técnica y económica de implementar sistemas de energía renovable en diferentes regiones de Chihuahua.",
+    "categoria": "Energía",
+    "autor": {
+      "nombreCompleto": "Dr. María González López",
+      "estado": "Chihuahua",
+      "instituto": "Universidad Autónoma de Chihuahua",
+      "email": "maria.gonzalez@uach.mx",
+      "telefono": "+52 614 123 4567"
+    },
+    "fechaInicio": "2024-01-15",
+    "fechaFin": "2024-12-15",
+    "estadoProyecto": "Activo",
+    "palabrasClave": [
+      "energía renovable",
+      "sostenibilidad",
+      "Chihuahua",
+      "energía solar"
+    ],
+    "tags": [
+      "energía renovable",
+      "sostenibilidad",
+      "Chihuahua",
+      "energía solar"
+    ],
+    "archivo": null,
+    "slug": "desarrollo-de-energias-renovables-en-chihuahua",
+    "fechaCreacion": "2024-09-11T10:30:00.000Z",
+    "fechaPublicacion": "2024-09-11"
+  },
+  {
+    "id": 2,
+    "titulo": "esto es una prueba local",
+    "descripcion": "aaaaaaa test",
+    "resumen": "eeeeeeeee test",
+    "categoria": "Tecnología",
+    "estado": "Completado",
+    "fechaInicio": "2000-12-20",
+    "fechaFin": "2004-05-31",
+    "institucion": "UTCH Cantera",
+    "autor": {
+      "nombreCompleto": "Jesus Ojeda",
+      "estado": "Chihuahua",
+      "instituto": "UTCH Cantera",
+      "email": "jesus.ojeda@utch.edu.mx",
+      "telefono": "+52 614 987 6543"
+    },
+    "palabrasClave": [
+      "software",
+      "prueba"
+    ],
+    "tags": [
+      "software",
+      "prueba"
+    ],
+    "archivo": "/uploads/proyecto_1757612334005.pdf",
+    "slug": "esto-es-una-prueba-local",
+    "fechaCreacion": "2025-09-11T17:38:54.820Z",
+    "fechaPublicacion": "2025-09-11"
+  }
+]
