@@ -352,14 +352,20 @@ export default function RegistroPage() {
             </p>
           </div>
 
-          {/* Info Alert */}
+          {/* Info Alert OCR campos */}
           <div className="max-w-3xl mx-auto">
             <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-sm">
               <Info className="h-5 w-5 text-blue-600" />
-              <AlertTitle className="text-blue-900 font-semibold">Registro automático con OCR</AlertTitle>
+              <AlertTitle className="text-blue-900 font-semibold">¿Qué datos se extraen automáticamente?</AlertTitle>
               <AlertDescription className="text-blue-700">
-                Para garantizar la precisión de los datos, el registro se realiza únicamente mediante la carga de tu
-                Perfil Único en formato PDF. Nuestro sistema extraerá automáticamente tu información académica.
+                <ul className="list-disc pl-5 space-y-1">
+                  <li><b>CVU/PU</b> <span className="text-green-700">(extraído por OCR)</span></li>
+                  <li><b>CURP</b> <span className="text-green-700">(extraído por OCR)</span></li>
+                  <li><b>RFC</b> <span className="text-green-700">(extraído por OCR)</span></li>
+                </ul>
+                <div className="mt-2 text-blue-800">
+                  <b>Todos los demás campos deben ser llenados manualmente por el usuario.</b>
+                </div>
               </AlertDescription>
             </Alert>
           </div>
@@ -456,11 +462,7 @@ export default function RegistroPage() {
                             y corrijas:
                           </p>
                           <ul className="list-disc list-inside space-y-1 text-sm">
-                            <li>Nombres y apellidos completos</li>
                             <li>Números de identificación (CURP, RFC, CVU)</li>
-                            <li>Correo electrónico y teléfono</li>
-                            <li>Grados académicos e institución</li>
-                            <li>Empleo actual</li>
                             <li>
                               <strong>Línea de investigación (captura manual requerida)</strong>
                             </li>
@@ -1013,8 +1015,7 @@ export default function RegistroPage() {
                       <Edit className="h-4 w-4 text-blue-600" />
                       <AlertTitle className="text-blue-800 font-semibold">Captura manual requerida</AlertTitle>
                       <AlertDescription className="text-blue-700">
-                        Este campo requiere que describas manualmente tu línea de investigación principal. El OCR no
-                        extrae esta información para garantizar precisión y personalización.
+                        Este campo requiere que describas manualmente tu línea de investigación principal.
                       </AlertDescription>
                     </Alert>
                     <div className="space-y-2">

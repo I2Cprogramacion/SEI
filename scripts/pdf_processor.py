@@ -97,24 +97,15 @@ class PerfilUnicoProcessor:
             return ""
     
     def extract_data_from_text(self, text: str) -> Dict[str, str]:
-        """Extrae datos del texto usando patrones flexibles y permite campos vacíos para revisión manual"""
+        """Extrae solo CVU/PU, CURP y RFC del texto usando patrones robustos"""
         patterns = {
-            "nombre": r"(?:Nombre(?:s)?|Nombres y Apellidos|Nombre completo)\s*[:\-]?\s*([A-Za-zÁÉÍÓÚáéíóúÑñ\s]+)",
-            "apellido_paterno": r"(?:Apellido Paterno|Primer Apellido)\s*[:\-]?\s*([A-Za-zÁÉÍÓÚáéíóúÑñ\s]+)",
-            "apellido_materno": r"(?:Apellido Materno|Segundo Apellido)\s*[:\-]?\s*([A-Za-zÁÉÍÓÚáéíóúÑñ\s]+)",
-            "curp": r"(?:CURP|Curp)\s*[:\-]?\s*([A-Z0-9]{18})",
-            "rfc": r"(?:RFC|R.F.C.)\s*[:\-]?\s*([A-Z0-9]{10,13})",
-            "correo": r"(?:Correo(?: electrónico)?|Email)\s*[:\-]?\s*([\w\.-]+@[\w\.-]+\.\w+)",
-            "telefono": r"(?:Tel(?:éfono)?|Cel(?:ular)?)\s*[:\-]?\s*([\d\s\-]{7,})",
-            "institucion": r"(?:Institución|Universidad|Centro de trabajo)\s*[:\-]?\s*([A-Za-zÁÉÍÓÚáéíóúÑñ\s]+)",
-            "cargo": r"(?:Cargo|Puesto)\s*[:\-]?\s*([A-Za-zÁÉÍÓÚáéíóúÑñ\s]+)",
-            "grado": r"(?:Grado(?: académico)?|Nivel de estudios)\s*[:\-]?\s*([A-Za-zÁÉÍÓÚáéíóúÑñ\s]+)",
-            "area": r"(?:Área|Especialidad|Campo de estudio)\s*[:\-]?\s*([A-Za-zÁÉÍÓÚáéíóúÑñ\s]+)",
-            "proyecto": r"(?:Proyecto|Título del proyecto)\s*[:\-]?\s*([A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s]+)",
+            "no_cvu": r"(?:CVU|PU|No\.\s*CVU|No\.\s*PU|Número de CVU|Número de PU|ID PU|ID CVU)\s*[:\-]?\s*([A-Za-z0-9]{5,})",
+            "curp": r"(?:CURP|Curp|Clave Única de Registro de Población)\s*[:\-]?\s*([A-Z0-9]{18})",
+            "rfc": r"(?:RFC|R.F.C.|Registro Federal de Contribuyentes)\s*[:\-]?\s*([A-Z0-9]{10,13})",
         }
         results = {}
         for key, pattern in patterns.items():
-            match = re.search(pattern, text, re.IGNORECASE)
+            match = re.search(pattern, text, re.IGNORECASE | re.MULTILINE)
             results[key] = match.group(1).strip() if match else ""
         return results
     
@@ -137,21 +128,8 @@ class PerfilUnicoProcessor:
             cleaned['nacionalidad'] = 'Mexicana'
         return cleaned
 
-def main():
-    """Función principal para probar el procesador"""
-    if len(sys.argv) != 2:
-        print("Uso: python pdf_processor.py <ruta_al_pdf>")
-        sys.exit(1)
-    
-    pdf_path = sys.argv[1]
-    processor = PerfilUnicoProcessor()
-    
-    try:
-        data = processor.process_pdf(pdf_path)
-        print(json.dumps(data, indent=2, ensure_ascii=False))
-    except Exception as e:
-        logger.error(f"Error procesando PDF: {e}")
-        sys.exit(1)
 
-if __name__ == "__main__":
-    main()
+# Función para FastAPI
+def extract_data_from_pdf(pdf_path: str) -> dict:
+    processor = PerfilUnicoProcessor()
+    return processor.process_pdf(pdf_path)

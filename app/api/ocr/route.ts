@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { verifyJWT } from "@/lib/auth/verify-jwt"
 
-const PDF_PROCESSOR_URL = process.env.PDF_PROCESSOR_URL || "http://localhost:8001"
+const PDF_PROCESSOR_URL = process.env.PDF_PROCESSOR_URL || "http://localhost:8000"
 
 export async function POST(request: NextRequest) {
   // Permitir procesamiento sin autenticación para el formulario de registro
@@ -65,6 +65,15 @@ export async function POST(request: NextRequest) {
       }
 
       result = await response.json()
+      // Si la respuesta viene en formato local, adaptar
+      if (result.data) {
+        result = {
+          extracted_data: result.data,
+          fields_found: Object.keys(result.data).filter(k => result.data[k]),
+          total_fields: Object.keys(result.data).filter(k => result.data[k]).length,
+          filename: file.name
+        }
+      }
     } catch (error) {
       // Si el servidor Python no está disponible, usar fallback
       console.warn("Servidor de OCR no disponible, usando fallback:", error)
