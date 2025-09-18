@@ -14,6 +14,8 @@ async def process_pdf(file: UploadFile = File(...)):
         tmp_path = tmp.name
     try:
         data = extract_data_from_pdf(tmp_path)
+        # Log explícito para depuración
+        print("[OCR] Datos extraídos:", data)
     except Exception as e:
         os.remove(tmp_path)
         return JSONResponse(status_code=500, content={"error": str(e)})

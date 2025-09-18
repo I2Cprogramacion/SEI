@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
         method: "POST",
         body: pythonFormData,
         // Timeout de 30 segundos
-        signal: AbortSignal.timeout(30000),
+  signal: AbortSignal.timeout(90000),
       })
 
       if (!response.ok) {
