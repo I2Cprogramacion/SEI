@@ -12,6 +12,7 @@ import { EventRegistrationDialog } from "@/components/event-registration-dialog"
 
 // Datos de redes de colaboración (por ahora vacíos)
 const redesNacionales: any[] = []
+const redesInternacionales: any[] = []
 const eventos: any[] = []
 
 export default function RedesPage() {
