@@ -1,181 +1,101 @@
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
-import { verifyJWT } from "@/lib/auth/verify-jwt"
 
-const PDF_PROCESSOR_URL = process.env.PDF_PROCESSOR_URL || "http://localhost:8000"
+// Endpoint OCR: usa PDF_PROCESSOR_URL obligatoria (fail-fast en prod)
+const PDF_PROCESSOR_URL = process.env.PDF_PROCESSOR_URL;
+function requireProcessorURL() {
+  if (!PDF_PROCESSOR_URL) {
+    throw new Error("PDF_PROCESSOR_URL no está definida (prod). Configúrala en Vercel.");
+  }
+  return PDF_PROCESSOR_URL;
+}
+
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+import { guardarInvestigador } from "@/lib/db";
+
 
 export async function POST(request: NextRequest) {
-  // Permitir procesamiento sin autenticación para el formulario de registro
-  // pero validar token si se proporciona
-  const authHeader = request.headers.get("authorization")
-  let payload = null
-  
-  if (authHeader) {
-    const token = authHeader.replace("Bearer ", "")
-    payload = verifyJWT(token)
-    if (!payload) {
-      return NextResponse.json({ error: "Token inválido o expirado" }, { status: 401 })
-    }
-  }
-  
-  // Si no hay token, permitir el procesamiento (para registro público)
-  // pero registrar la acción para auditoría
-  if (!payload) {
-    console.log("Procesamiento de PDF sin autenticación (registro público)")
-  }
-
   try {
-    // Obtener el archivo del formulario
-    const formData = await request.formData()
-    const file = formData.get("file") as File
-    
+    const formData = await request.formData();
+    const file = formData.get("file") as File;
     if (!file) {
-      return NextResponse.json({ error: "No se proporcionó archivo" }, { status: 400 })
+      return NextResponse.json({ error: "No se proporcionó archivo" }, { status: 400 });
     }
-
-    // Validar que sea un PDF
     if (!file.type.includes("pdf")) {
-      return NextResponse.json({ error: "El archivo debe ser un PDF" }, { status: 400 })
+      return NextResponse.json({ error: "El archivo debe ser un PDF" }, { status: 400 });
     }
-
-    // Validar tamaño (máximo 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: "El archivo es demasiado grande (máximo 10MB)" }, { status: 400 })
+      return NextResponse.json({ error: "El archivo es demasiado grande (máximo 10MB)" }, { status: 400 });
     }
 
-    // Crear FormData para enviar al servidor de Python
-    const pythonFormData = new FormData()
-    pythonFormData.append("file", file)
+    // Reenviar el PDF al microservicio Node.js local (ocr-server.js)
+    const arrayBuffer = await file.arrayBuffer();
+    const blob = new Blob([arrayBuffer], { type: file.type });
+    const backendForm = new FormData();
+    backendForm.append("file", blob, file.name);
 
-    // Intentar conectar al servidor de procesamiento de PDFs
-    let response: Response
-    let result: any
 
-    try {
-      response = await fetch(`${PDF_PROCESSOR_URL}/process-pdf`, {
-        method: "POST",
-        body: pythonFormData,
-        // Timeout de 30 segundos
-  signal: AbortSignal.timeout(90000),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(`Error del servidor OCR: ${errorData.detail || "Error desconocido"}`)
-      }
-
-      result = await response.json()
-      // Si la respuesta viene en formato local, adaptar
-      if (result.data) {
-        result = {
-          extracted_data: result.data,
-          fields_found: Object.keys(result.data).filter(k => result.data[k]),
-          total_fields: Object.keys(result.data).filter(k => result.data[k]).length,
-          filename: file.name
-        }
-      }
-    } catch (error) {
-      // Si el servidor Python no está disponible, usar fallback
-      console.warn("Servidor de OCR no disponible, usando fallback:", error)
-      
-      // Fallback: devolver formulario vacío para llenado manual
-      return NextResponse.json({
-        success: true,
-        data: {
-          nombre_completo: "",
-          curp: "",
-          rfc: "",
-          no_cvu: "",
-          correo: "",
-          telefono: "",
-          ultimo_grado_estudios: "",
-          empleo_actual: "",
-          fecha_nacimiento: "",
-          nacionalidad: "Mexicana",
-          linea_investigacion: "",
-        },
-        fields_found: [],
-        total_fields: 0,
-        filename: file.name,
-        fallback: true,
-        message: "El procesamiento automático no está disponible. Por favor, completa el formulario manualmente."
-      })
-    }
-    
-    // Normalizar y limpiar los datos extraídos
-    function cleanField(value: any) {
-      if (!value || typeof value !== "string") return "";
-      return value.trim().replace(/\s+/g, " ");
-    }
-
-    // Si el OCR no extrajo suficientes datos, dejar los campos faltantes en blanco
-    // Mapeo flexible: incluir todos los campos extraídos por el OCR
-    const camposBase = [
-      "nombre_completo",
-      "curp",
-      "rfc",
-      "no_cvu",
-      "correo",
-      "telefono",
-      "ultimo_grado_estudios",
-      "empleo_actual",
-      "fecha_nacimiento",
-      "nacionalidad",
-      "linea_investigacion"
-    ];
-
-    const mappedData: Record<string, string> = {};
-    // Primero, asignar los campos base
-    for (const campo of camposBase) {
-      if (campo === "linea_investigacion") {
-        mappedData[campo] = "";
-      } else if (campo === "nacionalidad") {
-        mappedData[campo] = cleanField(result.extracted_data?.nacionalidad) || "Mexicana";
-      } else {
-        mappedData[campo] = cleanField(result.extracted_data?.[campo]) || "";
-      }
-    }
-    // Luego, agregar cualquier campo adicional extraído por el OCR
-    if (result.extracted_data) {
-      for (const [key, value] of Object.entries(result.extracted_data)) {
-        if (!(key in mappedData)) {
-          mappedData[key] = cleanField(value) || "";
-        }
-      }
-    }
-
-    // Validación adicional para formatos específicos
-    // CURP: 18 caracteres alfanuméricos
-    if (mappedData.curp && !/^([A-Z]{4}[0-9]{6}[HM][A-Z]{5}[0-9]{2})$/i.test(mappedData.curp)) {
-      mappedData.curp = "";
-    }
-    // RFC: 10-13 caracteres alfanuméricos
-    if (mappedData.rfc && !/^([A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3})$/i.test(mappedData.rfc)) {
-      mappedData.rfc = "";
-    }
-    // Correo: formato email
-    if (mappedData.correo && !/^\S+@\S+\.\S+$/.test(mappedData.correo)) {
-      mappedData.correo = "";
-    }
-    // Teléfono: solo dígitos, 10 caracteres
-    if (mappedData.telefono) {
-      const tel = mappedData.telefono.replace(/\D/g, "");
-      mappedData.telefono = tel.length === 10 ? tel : "";
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: mappedData,
-      fields_found: result.fields_found,
-      total_fields: result.total_fields,
-      filename: result.filename
+    const response = await fetch(`${requireProcessorURL()}/process-pdf`, {
+      method: "POST",
+      body: backendForm,
     });
 
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      return NextResponse.json({ error: error.error || "Error en backend OCR Node" }, { status: 500 });
+    }
+
+    const result = await response.json();
+    const fields = result.data;
+
+    if (!fields || (!fields.curp && !fields.rfc && !fields.no_cvu)) {
+      return NextResponse.json({
+        error: "No se pudieron extraer datos suficientes del PDF.",
+        ocr: fields || null,
+        filename: file.name
+      }, { status: 400 });
+    }
+
+    const datosAGuardar: any = {
+      curp: fields.curp || null,
+      rfc: fields.rfc || null,
+      no_cvu: fields.no_cvu || null,
+      correo: fields.correo || null,
+      telefono: fields.telefono || null,
+      origen: "ocr",
+      fecha_registro: new Date().toISOString(),
+    };
+
+    if (!datosAGuardar.curp && !datosAGuardar.rfc && !datosAGuardar.no_cvu) {
+      return NextResponse.json({
+        error: "No se detectó CURP, RFC ni CVU para guardar.",
+        ocr: fields,
+        filename: file.name
+      }, { status: 400 });
+    }
+
+    const resultadoGuardado = await guardarInvestigador(datosAGuardar);
+
+    if (resultadoGuardado.success) {
+      return NextResponse.json({
+        success: true,
+        message: resultadoGuardado.message,
+        id: resultadoGuardado.id,
+        data: datosAGuardar,
+        filename: file.name
+      });
+    } else {
+      return NextResponse.json({
+        error: resultadoGuardado.message,
+        ocr: fields,
+        filename: file.name
+      }, { status: 400 });
+    }
   } catch (error) {
-    console.error("Error en procesamiento de PDF:", error)
+    console.error("Error en procesamiento de PDF:", error);
     return NextResponse.json(
       { error: "Error interno del servidor al procesar PDF" },
       { status: 500 }
-    )
+    );
   }
 }
