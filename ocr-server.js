@@ -24,16 +24,19 @@ function extractFields(text) {
 
 app.post('/process-pdf', upload.single('file'), async (req, res) => {
   try {
+    console.log('OCR: petición recibida', req.file ? req.file.originalname : 'sin archivo');
     if (!req.file) {
+      console.error('OCR: No se proporcionó archivo');
       return res.status(400).json({ error: 'No se proporcionó archivo' });
     }
     const data = await pdf(req.file.buffer);
     const text = data.text || '';
     const fields = extractFields(text);
+    console.log('OCR: extracción exitosa', fields);
     res.json({ data: fields });
   } catch (error) {
     console.error('Error en OCR Node:', error);
-    res.status(500).json({ error: 'Error interno del servidor OCR Node' });
+    res.status(500).json({ error: 'Error interno del servidor OCR Node', details: error.message, stack: error.stack });
   }
 });
 
