@@ -28,6 +28,9 @@ export interface DatabaseInterface {
   
   // Métodos de migración
   ejecutarMigracion(sql: string): Promise<void>
+
+  // Consultar investigadores incompletos (sin CURP)
+  consultarInvestigadoresIncompletos(): Promise<any[]>
 }
 
 // Tipos de base de datos soportados

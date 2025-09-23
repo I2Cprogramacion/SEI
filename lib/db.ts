@@ -1,3 +1,11 @@
+// Consultar investigadores incompletos (sin CURP)
+export async function consultarInvestigadoresIncompletos() {
+  const db = await getDatabase();
+  if (typeof db.consultarInvestigadoresIncompletos === 'function') {
+    return await db.consultarInvestigadoresIncompletos();
+  }
+  throw new Error('Método consultarInvestigadoresIncompletos no implementado en la base de datos actual');
+}
 // Archivo de compatibilidad que mantiene las funciones existentes
 // pero ahora usa el nuevo sistema de interfaz de base de datos
 

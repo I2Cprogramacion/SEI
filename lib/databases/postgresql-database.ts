@@ -2,6 +2,17 @@ import { DatabaseInterface, DatabaseConfig } from "../database-interface"
 import bcrypt from "bcryptjs"
 
 export class PostgreSQLDatabase implements DatabaseInterface {
+  async consultarInvestigadoresIncompletos() {
+    if (!this.client) {
+      await this.conectar();
+    }
+    const result = await this.client.query(`
+      SELECT id, no_cvu, curp, nombre_completo, rfc, correo, nacionalidad, fecha_nacimiento, institucion
+      FROM investigadores
+      WHERE curp = 'NO DETECTADO' OR curp = '' OR curp IS NULL
+    `);
+    return result.rows;
+  }
   private client: any = null
   private config: DatabaseConfig
 

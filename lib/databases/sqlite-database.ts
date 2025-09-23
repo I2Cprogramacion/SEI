@@ -5,6 +5,17 @@ import fs from "fs"
 import { DatabaseInterface, DatabaseConfig } from "../database-interface"
 
 export class SQLiteDatabase implements DatabaseInterface {
+  async consultarInvestigadoresIncompletos() {
+    if (!this.db) {
+      await this.conectar();
+    }
+    const investigadores = await this.db.all(`
+      SELECT id, no_cvu, curp, nombre_completo, rfc, correo, nacionalidad, fecha_nacimiento, institucion
+      FROM investigadores
+      WHERE curp = 'NO DETECTADO' OR curp = '' OR curp IS NULL
+    `);
+    return investigadores;
+  }
   private db: any = null
   private config: DatabaseConfig
 

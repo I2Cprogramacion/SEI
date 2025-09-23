@@ -1,3 +1,8 @@
+// Log global para toda request entrante
+app.use((req, res, next) => {
+  console.log('[OCR LOG] Request recibida:', req.method, req.url, new Date().toISOString());
+  next();
+});
 // Archivo eliminado, ahora está en ocr-server/ para Railway
 const express = require('express');
 const pdf = require('pdf-parse');
@@ -42,5 +47,7 @@ app.post('/process-pdf', upload.single('file'), async (req, res) => {
 
 const PORT = process.env.PORT || 8001;
 app.listen(PORT, () => {
-  console.log(`OCR Node.js server running on port ${PORT}`);
+  console.log('==============================');
+  console.log(`[OCR LOG] SERVIDOR INICIADO en puerto ${PORT} (${new Date().toISOString()})`);
+  console.log('==============================');
 });
