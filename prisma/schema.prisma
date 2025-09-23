@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  roleId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  profile   Profile?
+  role      Role     @relation(fields: [roleId], references: [id])
+
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+
+  @@map("roles")
+}
+
+model Profile {
+  id                  String       @id @default(cuid())
+  userId              String       @unique
+  nombreCompleto      String
+  curp                String?      @unique
+  rfc                 String?
+  noCvu               String?
+  telefono            String?
+  ultimoGradoEstudios String?
+  empleoActual        String?
+  lineaInvestigacion  String?
+  nacionalidad        String       @default("Mexicana")
+  fechaNacimiento     DateTime?
+  institucionId       String?
+  origen              String?
+  archivoProcesado    String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  institucion         Institution? @relation(fields: [institucionId], references: [id])
+  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Institution {
+  id        String    @id @default(cuid())
+  nombre    String
+  tipo      String?
+  ubicacion String?
+  sitioWeb  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  profiles  Profile[]
+
+  @@map("institutions")
+}
+
+model Investigador {
+  id                  Int       @id @default(autoincrement())
+  nombre_completo     String    @map("nombre_completo")
+  curp                String?   @unique
+  rfc                 String?
+  no_cvu              String?   @map("no_cvu")
+  correo              String    @unique
+  telefono            String?
+  ultimo_grado_estudios String? @map("ultimo_grado_estudios")
+  empleo_actual       String?   @map("empleo_actual")
+  linea_investigacion String?   @map("linea_investigacion")
+  nacionalidad        String    @default("Mexicana")
+  fecha_nacimiento    DateTime? @map("fecha_nacimiento")
+  fecha_registro      DateTime  @default(now()) @map("fecha_registro")
+  origen              String?
+  archivo_procesado   String?   @map("archivo_procesado")
+  password            String?
+  is_admin            Boolean   @default(false) @map("is_admin")
+
+  @@map("investigadores")
+}
