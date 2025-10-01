@@ -4,10 +4,10 @@ import type { NextRequest } from 'next/server';
 import { guardarInvestigador } from '@/lib/db';
 
 export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'; // evita edge/prerender accidental
 
-function bad(status: number, msg: string, extra: Record<string, any> = {}) {
-  return NextResponse.json({ ok: false, error: msg, ...extra }, { status });
+function jsonError(status: number, message: string, extra: Record<string, any> = {}) {
+  return NextResponse.json({ ok: false, error: message, ...extra }, { status });
 }
 
 async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit = {}, ms = 55_000) {
@@ -20,139 +20,131 @@ async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit = {}
   }
 }
 
-async function tryEndpoints(BASE: string, buf: ArrayBuffer, filename: string, mime: string) {
-  const endpoints = ['/ocr', '/process-pdf', '/extract', '/upload'];
-  const fieldNames = ['file', 'pdf'];
+async function postMultipart(base: string, endpoint: string, buf: ArrayBuffer, filename: string, mime: string) {
+  const url = `${base}${endpoint}`;
+  const fd = new FormData();
+  fd.append('file', new Blob([buf], { type: mime }), filename);
+  const r = await fetchWithTimeout(url, { method: 'POST', body: fd });
+  const ct = r.headers.get('content-type')?.toLowerCase() ?? '';
 
-  for (const ep of endpoints) {
-    for (const field of fieldNames) {
-      const form = new FormData();
-      form.append(field, new Blob([buf], { type: mime }), filename);
-
-      const url = `${BASE}${ep}`;
-      const r = await fetchWithTimeout(url, { method: 'POST', body: form });
-
-      const ct = r.headers.get('content-type')?.toLowerCase() ?? '';
-      let payload: any;
-      if (ct.includes('application/json')) {
-        try {
-          payload = await r.json();
-        } catch {
-          payload = { data: null, note: 'upstream-claimed-json-but-empty' };
-        }
-      } else {
-        const txt = await r.text().catch(() => '');
-        payload = { data: txt || null, note: 'upstream-non-json' };
-      }
-
-      if (r.ok) {
-        return { ok: true as const, urlTried: url, field, payload, status: r.status };
-      }
-
-      // guarda último intento fallido para reportar
-      var lastFail = { ok: false as const, urlTried: url, field, payload, status: r.status };
+  let payload: any;
+  if (ct.includes('application/json')) {
+    try {
+      payload = await r.json();
+    } catch {
+      payload = { data: null, note: 'upstream-claimed-json-but-empty' };
     }
+  } else {
+    const txt = await r.text().catch(() => '');
+    payload = { data: txt || null, note: 'upstream-non-json' };
   }
-  return lastFail!;
+
+  return { url, ok: r.ok, status: r.status, payload };
 }
 
 export async function POST(request: NextRequest) {
-  // 1) ENV y normalización
+  // 1) ENV + normalización
   const RAW = process.env.PDF_PROCESSOR_URL ?? '';
   const BASE0 = RAW.trim().replace(/^["']|["']$/g, '').replace(/\/+$/, '');
-  if (!BASE0) return bad(500, 'PDF_PROCESSOR_URL no está definida');
+  if (!BASE0) return jsonError(500, 'PDF_PROCESSOR_URL no está definida');
 
+  // fuerza https si vino http o sin esquema
   const BASE = /^https?:\/\//i.test(BASE0) ? BASE0.replace(/^http:\/\//i, 'https://') : `https://${BASE0}`;
+
+  // permite localhost solo fuera de Vercel prod/preview
   const isProd = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
-  if (isProd && /localhost|127\.0\.0\.1/i.test(BASE)) {
-    return bad(500, 'PDF_PROCESSOR_URL no puede ser localhost en producción', { PDF_PROCESSOR_URL: BASE });
+  if (isProd && /(^|\/\/)(localhost|127\.0\.0\.1)(:|\/|$)/i.test(BASE)) {
+    return jsonError(500, 'PDF_PROCESSOR_URL no puede ser localhost en producción', { PDF_PROCESSOR_URL: BASE });
   }
 
   try {
-    // 2) archivo del cliente
+    // 2) Archivo
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
-    if (!file) return bad(400, 'No se proporcionó archivo');
-    if (!file.type?.includes('pdf')) return bad(400, 'El archivo debe ser PDF');
-    if (file.size > 10 * 1024 * 1024) return bad(400, 'PDF demasiado grande (máx 10MB)');
+    if (!file) return jsonError(400, 'No se proporcionó archivo');
+    if (!file.type?.includes('pdf')) return jsonError(400, 'El archivo debe ser PDF');
+    if (file.size > 10 * 1024 * 1024) return jsonError(400, 'PDF demasiado grande (máx 10MB)');
 
     const ab = await file.arrayBuffer();
 
-    // 3) (Opcional) health-check: no es fatal si falla, pero ayuda a depurar
+    // 3) Opcional: health (no fatal si falla)
     try {
-      const health = await fetchWithTimeout(`${BASE}/health`, { method: 'GET' }, 5000);
-      // no hacemos nada con el resultado; sólo verificar conectividad
-    } catch {
-      // seguimos; algunos backends no exponen /health
-    }
+      await fetchWithTimeout(`${BASE}/health`, { method: 'GET' }, 5000);
+    } catch { /* ignorar */ }
 
-    // 4) intentos contra el backend (rutas + nombres de campo)
-    const result = await tryEndpoints(BASE, ab, file.name, file.type);
+    // 4) Intentos contra backend (rutas comunes)
+    const attempts = ['/ocr', '/process-pdf'];
+    let last: { url: string; status: number; payload: any } | null = null;
 
-    if (!result.ok) {
-      return bad(502, `Backend OCR ${result.status}`, {
-        backend_url: result.urlTried,
-        fieldTried: result.field,
-        upstream: result.payload,
-      });
-    }
+    for (const ep of attempts) {
+      const res = await postMultipart(BASE, ep, ab, file.name, file.type);
+      if (res.ok) {
+        // 5) Normaliza campos esperados
+        const fields = (res.payload as any)?.data ?? null;
 
-    const fields = (result.payload as any)?.data ?? null;
-    if (!fields || (!fields.curp && !fields.rfc && !fields.no_cvu)) {
-      return bad(400, 'No se extrajeron datos suficientes del PDF', {
-        backend_url: result.urlTried,
-        fieldTried: result.field,
-        ocr: fields ?? null,
-        filename: file.name,
-      });
-    }
+        if (!fields || (!fields.curp && !fields.rfc && !fields.no_cvu)) {
+          return jsonError(400, 'No se extrajeron datos suficientes del PDF', {
+            backend_url: res.url,
+            ocr: fields ?? null,
+            filename: file.name,
+          });
+        }
 
-    // 5) guardar en BD (aislado)
-    const datosAGuardar: any = {
-      curp: fields.curp || null,
-      rfc: fields.rfc || null,
-      no_cvu: fields.no_cvu || null,
-      correo: fields.correo || null,
-      telefono: fields.telefono || null,
-      origen: 'ocr',
-      fecha_registro: new Date().toISOString(),
-    };
+        // 6) Guardar en BD (aislado)
+        const datosAGuardar: any = {
+          curp: fields.curp || null,
+          rfc: fields.rfc || null,
+          no_cvu: fields.no_cvu || null,
+          correo: fields.correo || null,
+          telefono: fields.telefono || null,
+          origen: 'ocr',
+          fecha_registro: new Date().toISOString(),
+        };
 
-    try {
-      const saved = await guardarInvestigador(datosAGuardar);
-      if (!saved?.success) {
-        return NextResponse.json(
-          {
-            ok: false,
-            error: saved?.message || 'Fallo al guardar',
+        try {
+          const saved = await guardarInvestigador(datosAGuardar);
+          if (!saved?.success) {
+            return NextResponse.json(
+              {
+                ok: false,
+                error: saved?.message || 'Fallo al guardar',
+                ocr: fields,
+                filename: file.name,
+                backend_url: res.url,
+              },
+              { status: 400 }
+            );
+          }
+
+          return NextResponse.json({
+            ok: true,
+            success: true,
+            message: saved.message,
+            id: saved.id,
+            data: datosAGuardar,
+            filename: file.name,
+            backend_url: res.url,
+          });
+        } catch (e: any) {
+          return jsonError(500, 'Error al guardar en BD', {
+            reason: e?.message || String(e),
             ocr: fields,
             filename: file.name,
-            backend_url: result.urlTried,
-            fieldUsed: result.field,
-          },
-          { status: 400 }
-        );
+            backend_url: res.url,
+          });
+        }
       }
-
-      return NextResponse.json({
-        ok: true,
-        success: true,
-        message: saved.message,
-        id: saved.id,
-        data: datosAGuardar,
-        filename: file.name,
-        backend_url: result.urlTried,
-        fieldUsed: result.field,
-      });
-    } catch (e: any) {
-      return bad(500, 'Error al guardar en BD', {
-        reason: e?.message || String(e),
-        ocr: fields,
-        filename: file.name,
-        backend_url: result.urlTried,
-        fieldUsed: result.field,
-      });
+      // guarda último fallo para informar
+      last = { url: res.url, status: res.status, payload: res.payload };
+      // si 404/405 seguimos al siguiente endpoint
+      if (res.status !== 404 && res.status !== 405) break;
     }
+
+    // si ninguno funcionó:
+    return jsonError(502, `Backend OCR ${last?.status ?? 502}`, {
+      backend_url: last?.url ?? `${BASE}${attempts[attempts.length - 1]}`,
+      upstream: last?.payload ?? null,
+    });
   } catch (err: any) {
     const isAbort = err?.name === 'AbortError';
     console.error('OCR proxy error', {
@@ -160,7 +152,7 @@ export async function POST(request: NextRequest) {
       message: err?.message,
       name: err?.name,
     });
-    return bad(isAbort ? 504 : 500, isAbort ? 'Timeout llamando al backend OCR' : `Proxy failed: ${err?.message}`);
+    return jsonError(isAbort ? 504 : 500, isAbort ? 'Timeout llamando al backend OCR' : `Proxy failed: ${err?.message}`);
   }
 }
 
