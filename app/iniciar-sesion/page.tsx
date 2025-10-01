@@ -11,19 +11,22 @@ import { useRouter } from "next/navigation"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
 
+
 export default function IniciarSesionPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState("")
-  const router = useRouter()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [pending2FA, setPending2FA] = useState(false);
+  const [code2FA, setCode2FA] = useState("");
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
-    setSuccess("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+    setSuccess("");
 
     try {
       // Llamar a la API de login
@@ -33,35 +36,62 @@ export default function IniciarSesionPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
-      })
+      });
 
-      const data = await response.json()
-      console.log("Respuesta login:", data)
-      if (response.ok && data.success) {
-        setSuccess("¡Login exitoso! Redirigiendo...")
-        // Guardar información del usuario y el token en localStorage
-        localStorage.setItem("user", JSON.stringify(data.user))
+      const data = await response.json();
+      console.log("Respuesta login:", data);
+      if (data.pending_2fa) {
+        setPending2FA(true);
+        setSuccess("Código de verificación enviado a tu email");
+      } else if (response.ok && data.success) {
+        setSuccess("¡Login exitoso! Redirigiendo...");
+        localStorage.setItem("user", JSON.stringify(data.user));
         if (data.token) {
-          localStorage.setItem("token", data.token)
-          console.log("Token guardado en localStorage:", data.token)
-        } else {
-          console.log("No se recibió token en la respuesta.")
+          localStorage.setItem("token", data.token);
         }
-        // Redirigir después de un breve delay
         setTimeout(() => {
-          router.push("/dashboard")
-        }, 1500)
+          router.push("/dashboard");
+        }, 1500);
       } else {
-        setError(data.error || "Error al iniciar sesión")
-        console.log("Error en login:", data.error)
+        setError(data.error || "Error al iniciar sesión");
       }
     } catch (error) {
-      console.error("Error al iniciar sesión:", error)
-      setError("Error de conexión. Intenta nuevamente.")
+      setError("Error de conexión. Intenta nuevamente.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+
+  const handle2FASubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+    setSuccess("");
+    try {
+      const response = await fetch("/api/auth/verify-2fa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code: code2FA }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setSuccess("¡Login exitoso! Redirigiendo...");
+        localStorage.setItem("user", JSON.stringify(data.user));
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1500);
+      } else {
+        setError(data.error || "Código incorrecto o expirado");
+      }
+    } catch (error) {
+      setError("Error de conexión. Intenta nuevamente.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="container max-w-md mx-auto py-10 px-4">
@@ -86,71 +116,42 @@ export default function IniciarSesionPage() {
 
         <Card className="bg-white border-blue-100">
           <CardHeader>
-            <CardTitle className="text-blue-900">Ingresa tus credenciales</CardTitle>
+            <CardTitle className="text-blue-900">{pending2FA ? "Verifica tu email" : "Ingresa tus credenciales"}</CardTitle>
             <CardDescription className="text-blue-600">
-              Introduce tu correo electrónico y contraseña para acceder
+              {pending2FA
+                ? "Introduce el código de verificación enviado a tu correo electrónico."
+                : "Introduce tu correo electrónico y contraseña para acceder"}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <label
-                  htmlFor="email"
-                  className="text-sm font-medium leading-none text-blue-900 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Correo electrónico
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="maria.rodriguez@universidad.edu"
-                  className="bg-white border-blue-200 text-blue-900 placeholder:text-blue-400"
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label
-                    htmlFor="password"
-                    className="text-sm font-medium leading-none text-blue-900 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Contraseña
-                  </label>
-                  <Link
-                    href="/recuperar-contrasena"
-                    className="text-sm text-blue-600 underline underline-offset-4 hover:text-blue-900"
-                  >
-                    ¿Olvidaste tu contraseña?
-                  </Link>
+            {!pending2FA ? (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <label htmlFor="email" className="text-sm font-medium leading-none text-blue-900 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Correo electrónico</label>
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="maria.rodriguez@universidad.edu" className="bg-white border-blue-200 text-blue-900 placeholder:text-blue-400" required disabled={isLoading} />
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="bg-white border-blue-200 text-blue-900"
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-              <Button 
-                type="submit" 
-                disabled={isLoading} 
-                className="w-full bg-blue-700 text-white hover:bg-blue-800"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Iniciando sesión...
-                  </>
-                ) : (
-                  "Iniciar sesión"
-                )}
-              </Button>
-            </form>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="password" className="text-sm font-medium leading-none text-blue-900 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Contraseña</label>
+                    <Link href="/recuperar-contrasena" className="text-sm text-blue-600 underline underline-offset-4 hover:text-blue-900">¿Olvidaste tu contraseña?</Link>
+                  </div>
+                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-white border-blue-200 text-blue-900" required disabled={isLoading} />
+                </div>
+                <Button type="submit" disabled={isLoading} className="w-full bg-blue-700 text-white hover:bg-blue-800">
+                  {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Iniciando sesión...</>) : ("Iniciar sesión")}
+                </Button>
+              </form>
+            ) : (
+              <form onSubmit={handle2FASubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <label htmlFor="code2fa" className="text-sm font-medium leading-none text-blue-900">Código de verificación</label>
+                  <Input id="code2fa" type="text" value={code2FA} onChange={(e) => setCode2FA(e.target.value)} placeholder="Ingresa el código recibido" className="bg-white border-blue-200 text-blue-900" required disabled={isLoading} maxLength={6} />
+                </div>
+                <Button type="submit" disabled={isLoading || code2FA.length !== 6} className="w-full bg-blue-700 text-white hover:bg-blue-800">
+                  {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Verificando...</>) : ("Verificar código")}
+                </Button>
+              </form>
+            )}
           </CardContent>
           <CardFooter className="border-t border-blue-100 flex flex-col items-center pt-6">
             <div className="relative w-full mb-4">

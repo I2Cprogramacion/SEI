@@ -1,3 +1,32 @@
+// Registro simple: crear usuario solo con correo y contraseña
+import bcrypt from 'bcryptjs';
+export async function crearUsuarioSimple(email: string, password: string) {
+  const db = await getDatabase();
+  // Verificar si ya existe
+  const existentes = await db.obtenerInvestigadores();
+  const existe = existentes.find((u: any) => u.correo === email);
+  if (existe) return null;
+  const hash = await bcrypt.hash(password, 10);
+  // Guardar solo correo y contraseña, los demás campos nulos
+  const datos = {
+    correo: email,
+    contrasena: hash,
+    nombre_completo: null,
+    curp: null,
+    rfc: null,
+    no_cvu: null,
+    nacionalidad: null,
+    fecha_nacimiento: null,
+    institucion: null,
+    nivel: null,
+    area: null
+  };
+  const res = await db.guardarInvestigador(datos);
+  if (res.success) {
+    return { id: res.id, correo: email };
+  }
+  return null;
+}
 // Consultar investigadores incompletos (sin CURP)
 export async function consultarInvestigadoresIncompletos() {
   const db = await getDatabase();
