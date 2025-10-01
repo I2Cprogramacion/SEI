@@ -1,59 +1,73 @@
 
 
+
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { guardarInvestigador } from '@/lib/db';
 
-// Usa la URL pública del backend OCR (Railway) desde variable de entorno
-const API_BASE_URL = process.env.PDF_PROCESSOR_URL || process.env.API_BASE_URL;
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic'; // evita prerender/edge accidental
 
 export async function POST(request: NextRequest) {
   try {
-    if (!API_BASE_URL) {
-      return NextResponse.json({ error: 'PDF_PROCESSOR_URL no está definida en entorno' }, { status: 500 });
+    const RAW = process.env.PDF_PROCESSOR_URL;
+    if (!RAW) {
+      return NextResponse.json(
+        { error: 'PDF_PROCESSOR_URL no está definida' },
+        { status: 500 }
+      );
     }
+    const BASE = RAW.replace(/\/$/, '');
+    if (!/^https:\/\//i.test(BASE) || /localhost|127\.0\.0\.1/i.test(BASE)) {
+      return NextResponse.json(
+        { error: 'PDF_PROCESSOR_URL inválida para producción' },
+        { status: 500 }
+      );
+    }
+
     const formData = await request.formData();
-    const file = formData.get('file') as File;
-    if (!file) {
-      return NextResponse.json({ error: 'No se proporcionó archivo' }, { status: 400 });
-    }
-    if (!file.type.includes('pdf')) {
-      return NextResponse.json({ error: 'El archivo debe ser un PDF' }, { status: 400 });
+    const file = formData.get('file') as File | null;
+
+    if (!file) return NextResponse.json({ error: 'No se proporcionó archivo' }, { status: 400 });
+    if (!file.type?.includes('pdf')) {
+      return NextResponse.json({ error: 'El archivo debe ser PDF' }, { status: 400 });
     }
     if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: 'El archivo es demasiado grande (máximo 10MB)' }, { status: 400 });
+      return NextResponse.json({ error: 'PDF demasiado grande (máx 10MB)' }, { status: 400 });
     }
 
-    // Prepara el formData para reenviar al backend OCR
-    const arrayBuffer = await file.arrayBuffer();
-    const blob = new Blob([arrayBuffer], { type: file.type });
-    const backendForm = new FormData();
-    backendForm.append('file', blob, file.name);
+    // Reenvío al backend OCR en Railway
+    const ab = await file.arrayBuffer();
+    const blob = new Blob([ab], { type: file.type });
+    const upstreamForm = new FormData();
+    upstreamForm.append('file', blob, file.name);
 
-    // Llama al backend OCR en Railway
-    const url = `${API_BASE_URL.replace(/\/$/, '')}/process-pdf`;
-    console.log('Proxy OCR →', url);
-    const response = await fetch(url, {
-      method: 'POST',
-      body: backendForm,
-    });
+    const url = `${BASE}/process-pdf`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 55_000);
 
-    if (!response.ok) {
-      const txt = await response.text().catch(() => '');
-      console.error('Error backend OCR', response.status, txt);
-      return NextResponse.json({ error: `Backend OCR ${response.status}: ${txt}` }, { status: 502 });
+    let upstream: Response;
+    try {
+      upstream = await fetch(url, { method: 'POST', body: upstreamForm, signal: controller.signal });
+    } finally {
+      clearTimeout(timeout);
     }
 
-    const result = await response.json();
-    const fields = result.data;
+    if (!upstream.ok) {
+      const txt = await upstream.text().catch(() => '');
+      console.error('Backend OCR', upstream.status, txt);
+      return NextResponse.json({ error: `Backend OCR ${upstream.status}: ${txt || 'sin cuerpo'}` }, { status: 502 });
+    }
+
+    const ct = upstream.headers.get('content-type') || '';
+    const payload = ct.includes('application/json') ? await upstream.json() : { data: await upstream.text() };
+    const fields = (payload as any).data;
 
     if (!fields || (!fields.curp && !fields.rfc && !fields.no_cvu)) {
-      return NextResponse.json({
-        error: 'No se pudieron extraer datos suficientes del PDF.',
-        ocr: fields || null,
-        filename: file.name,
-      }, { status: 400 });
+      return NextResponse.json(
+        { error: 'No se extrajeron datos suficientes del PDF.', ocr: fields || null, filename: file.name },
+        { status: 400 }
+      );
     }
 
     const datosAGuardar: any = {
@@ -67,35 +81,29 @@ export async function POST(request: NextRequest) {
     };
 
     if (!datosAGuardar.curp && !datosAGuardar.rfc && !datosAGuardar.no_cvu) {
-      return NextResponse.json({
-        error: 'No se detectó CURP, RFC ni CVU para guardar.',
-        ocr: fields,
-        filename: file.name,
-      }, { status: 400 });
+      return NextResponse.json(
+        { error: 'No se detectó CURP, RFC ni CVU para guardar.', ocr: fields, filename: file.name },
+        { status: 400 }
+      );
     }
 
-    const resultadoGuardado = await guardarInvestigador(datosAGuardar);
-
-    if (resultadoGuardado.success) {
+    const resultado = await guardarInvestigador(datosAGuardar);
+    if (resultado?.success) {
       return NextResponse.json({
         success: true,
-        message: resultadoGuardado.message,
-        id: resultadoGuardado.id,
+        message: resultado.message,
+        id: resultado.id,
         data: datosAGuardar,
         filename: file.name,
       });
-    } else {
-      return NextResponse.json({
-        error: resultadoGuardado.message,
-        ocr: fields,
-        filename: file.name,
-      }, { status: 400 });
     }
-  } catch (err: any) {
-    console.error('OCR proxy error', { API_BASE_URL, message: err?.message });
+
     return NextResponse.json(
-      { error: `Proxy failed: ${err?.message}` },
-      { status: 500 }
+      { error: resultado?.message || 'Fallo al guardar', ocr: fields, filename: file.name },
+      { status: 400 }
     );
+  } catch (err: any) {
+    console.error('OCR proxy error', { PDF_PROCESSOR_URL: process.env.PDF_PROCESSOR_URL, message: err?.message });
+    return NextResponse.json({ error: `Proxy failed: ${err?.message}` }, { status: 500 });
   }
 }
