@@ -71,6 +71,24 @@ export async function verificarCredenciales(email: string, password: string) {
   return await db.verificarCredenciales(email, password)
 }
 
+// Función para obtener proyectos (nueva)
+export async function obtenerProyectos() {
+  const db = await getDatabase()
+  return await db.obtenerProyectos()
+}
+
+// Función para obtener publicaciones (nueva)
+export async function obtenerPublicaciones() {
+  const db = await getDatabase()
+  return await db.obtenerPublicaciones()
+}
+
+// Función para insertar publicación (nueva)
+export async function insertarPublicacion(datos: any) {
+  const db = await getDatabase()
+  return await db.insertarPublicacion(datos)
+}
+
 // Exportar también las nuevas funciones para uso avanzado
 export { getDatabase, updateDatabaseConfig, autoConfigureDatabase, useVercelPostgres, useSQLite } from './database-config'
 export type { DatabaseInterface, DatabaseConfig } from './database-interface'

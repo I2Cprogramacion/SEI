@@ -14,7 +14,8 @@ export async function GET(request: NextRequest) {
     `)
 
     // Asegurar que los datos sean serializables
-    const investigadoresSerializables = investigadores.map((inv: any) => ({
+    const investigadoresArray = Array.isArray(investigadores) ? investigadores : []
+    const investigadoresSerializables = investigadoresArray.map((inv: any) => ({
       id: inv.id,
       no_cvu: inv.no_cvu,
       curp: inv.curp,
