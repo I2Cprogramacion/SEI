@@ -1,15 +1,32 @@
 import { DatabaseConfig, DatabaseFactory } from './database-interface'
 
-// Configuración de la base de datos actual
-export const currentDatabaseConfig: DatabaseConfig = {
-  type: 'vercelPostgres',
-  host: process.env.POSTGRES_HOST || 'localhost',
-  port: parseInt(process.env.POSTGRES_PORT || '5432'),
-  database: process.env.POSTGRES_DATABASE || 'researcher_platform',
-  username: process.env.POSTGRES_USER || 'postgres',
-  password: process.env.POSTGRES_PASSWORD || '',
-  ssl: true
+// Función para parsear DATABASE_URL
+function parseDatabaseUrl(url: string) {
+  try {
+    const parsed = new URL(url)
+    return {
+      host: parsed.hostname,
+      port: parseInt(parsed.port || '5432'),
+      database: parsed.pathname.slice(1), // Remover el '/' inicial
+      username: parsed.username,
+      password: parsed.password,
+      ssl: parsed.searchParams.get('sslmode') === 'require'
+    }
+  } catch (error) {
+    console.error('Error parsing DATABASE_URL:', error)
+    return null
+  }
 }
+
+// Configuración de la base de datos actual
+export const currentDatabaseConfig: DatabaseConfig = (() => {
+  // FORZAR SQLite para desarrollo
+  console.log('🔧 Configurando base de datos para usar SQLite...')
+  return {
+    type: 'sqlite',
+    filename: 'database.db'
+  }
+})()
 
 // Función para obtener la instancia de base de datos configurada
 export async function getDatabase() {
@@ -25,6 +42,25 @@ export function updateDatabaseConfig(newConfig: DatabaseConfig) {
 // Función para cambiar automáticamente según el entorno
 export function autoConfigureDatabase() {
   const env = process.env.NODE_ENV || 'development'
+  
+  // Si existe DATABASE_URL, usarla (tanto en desarrollo como producción)
+  if (process.env.DATABASE_URL) {
+    const parsed = parseDatabaseUrl(process.env.DATABASE_URL)
+    if (parsed) {
+      const config: DatabaseConfig = {
+        type: 'vercelPostgres',
+        host: parsed.host,
+        port: parsed.port,
+        database: parsed.database,
+        username: parsed.username,
+        password: parsed.password,
+        ssl: parsed.ssl
+      }
+      updateDatabaseConfig(config)
+      console.log('✅ Configurado para usar DATABASE_URL:', parsed.host)
+      return
+    }
+  }
   
   if (env === 'production') {
     // En producción, usar Vercel Postgres si está disponible

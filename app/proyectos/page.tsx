@@ -7,54 +7,96 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Search, Filter, Calendar, Users, ExternalLink, FileText } from "lucide-react"
+import { Search, Filter, Calendar, Users, ExternalLink, FileText, User as UserIcon, Building, Plus } from "lucide-react"
 import Link from "next/link"
+
+// Función para generar slug del perfil público
+const generatePublicProfileSlug = (name: any) => {
+  if (!name || typeof name !== 'string') return 'usuario'
+  return name.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, '-')
+    .trim()
+    || 'usuario'
+}
 
 // Interfaces para tipos de datos
 interface Proyecto {
   id: number
-  title: string
-  description: string
-  image?: string
-  startDate: string
-  endDate: string
-  status: string
-  category: string
+  titulo: string
+  descripcion: string
+  autor: {
+    nombreCompleto: string
+    estado: string
+    instituto: string
+    email?: string
+    telefono?: string
+  }
+  fechaPublicacion: string
+  categoria: string
   tags: string[]
-  researchers: Array<{
-    id: number
-    name: string
-    role: string
-    avatar?: string
-    slug: string
-  }>
-  institution: string
-  funding?: string
-  fundingAmount?: string
+  estado: string // Activo, Completado, En revisión, etc.
   slug: string
+  archivo?: string
+  resumen?: string
 }
 
 export default function ProyectosPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedStatus, setSelectedStatus] = useState("all")
+  const [selectedEstado, setSelectedEstado] = useState("all")
   const [selectedInstitution, setSelectedInstitution] = useState("all")
   const [proyectos, setProyectos] = useState<Proyecto[]>([])
   const [loading, setLoading] = useState(true)
 
-  // TODO: Conectar con API real
+  // Conectar con API real
   useEffect(() => {
     const fetchProyectos = async () => {
       try {
         setLoading(true)
-        // const response = await fetch('/api/proyectos')
-        // const data = await response.json()
-        // setProyectos(data)
-
-        // Por ahora, datos vacíos
-        setProyectos([])
+        const response = await fetch('/api/proyectos')
+        const data = await response.json()
+        
+        if (response.ok) {
+          // Transformar datos de la API al formato esperado
+          const proyectosFormateados = data.proyectos.map((proyecto: any) => ({
+            id: proyecto.id,
+            titulo: proyecto.titulo,
+            descripcion: proyecto.descripcion,
+            resumen: proyecto.resumen,
+            autor: {
+              nombreCompleto: typeof proyecto.autor === 'string' 
+                ? proyecto.autor 
+                : proyecto.autor?.nombreCompleto || 'Usuario',
+              estado: typeof proyecto.autor === 'object' && proyecto.autor?.estado 
+                ? proyecto.autor.estado 
+                : proyecto.estado || 'Chihuahua',
+              instituto: typeof proyecto.autor === 'object' && proyecto.autor?.instituto 
+                ? proyecto.autor.instituto 
+                : proyecto.institucion || 'Institución no especificada',
+              email: typeof proyecto.autor === 'object' && proyecto.autor?.email 
+                ? proyecto.autor.email 
+                : proyecto.email,
+              telefono: typeof proyecto.autor === 'object' && proyecto.autor?.telefono 
+                ? proyecto.autor.telefono 
+                : proyecto.telefono
+            },
+            fechaPublicacion: proyecto.fechaPublicacion || proyecto.fechaCreacion?.split('T')[0] || new Date().toISOString().split('T')[0],
+            categoria: proyecto.categoria,
+            tags: proyecto.palabrasClave || [],
+            estado: proyecto.estadoProyecto || 'Activo',
+            slug: proyecto.slug,
+            archivo: proyecto.archivo
+          }))
+          setProyectos(proyectosFormateados)
+        } else {
+          console.error('Error en la respuesta:', data.error)
+          setProyectos([])
+        }
       } catch (error) {
         console.error("Error fetching proyectos:", error)
+        setProyectos([])
       } finally {
         setLoading(false)
       }
@@ -66,41 +108,52 @@ export default function ProyectosPage() {
   // Filtrar proyectos
   const filteredProyectos = proyectos.filter((proyecto) => {
     const matchesSearch =
-      proyecto.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      proyecto.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      proyecto.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      proyecto.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
       proyecto.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      proyecto.researchers.some((researcher) => researcher.name.toLowerCase().includes(searchTerm.toLowerCase()))
+      proyecto.autor.nombreCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      proyecto.autor.instituto.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesCategory = selectedCategory === "all" || proyecto.category === selectedCategory
-    const matchesStatus = selectedStatus === "all" || proyecto.status === selectedStatus
-    const matchesInstitution = selectedInstitution === "all" || proyecto.institution === selectedInstitution
+    const matchesCategory = selectedCategory === "all" || proyecto.categoria === selectedCategory
+    const matchesStatus = selectedStatus === "all" || proyecto.estado === selectedStatus
+    const matchesEstado = selectedEstado === "all" || proyecto.autor.estado === selectedEstado
+    const matchesInstitution = selectedInstitution === "all" || proyecto.autor.instituto === selectedInstitution
 
-    return matchesSearch && matchesCategory && matchesStatus && matchesInstitution
+    return matchesSearch && matchesCategory && matchesStatus && matchesEstado && matchesInstitution
   })
 
-  // TODO: Obtener opciones únicas desde la API
-  const categories: string[] = []
-  const statuses: string[] = []
-  const institutions: string[] = []
+  // Obtener opciones únicas desde los datos
+  const categories = [...new Set(proyectos.map(p => p.categoria))]
+  const statuses = [...new Set(proyectos.map(p => p.estado))]
+  const estados = [...new Set(proyectos.map(p => p.autor.estado))]
+  const institutions = [...new Set(proyectos.map(p => p.autor.instituto))]
 
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-blue-900">Proyectos de Investigación</h1>
-          <p className="text-blue-600">Explora los proyectos de investigación activos y completados en Chihuahua</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold text-blue-900">Proyectos de Investigación</h1>
+            <p className="text-blue-600">Explora los proyectos de investigación activos y completados en Chihuahua</p>
+          </div>
+          <Button className="bg-blue-700 text-white hover:bg-blue-800" asChild>
+            <Link href="/proyectos/nuevo">
+              <Plus className="mr-2 h-4 w-4" />
+              Subir Proyecto
+            </Link>
+          </Button>
         </div>
 
         {/* Filtros y búsqueda */}
         <Card className="bg-white border-blue-100">
           <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
               <div className="lg:col-span-2">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-4 w-4" />
                   <Input
                     type="text"
-                    placeholder="Buscar por título, descripción o investigador..."
+                    placeholder="Buscar por título, autor o institución..."
                     className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -122,13 +175,26 @@ export default function ProyectosPage() {
               </Select>
               <Select value={selectedStatus} onValueChange={setSelectedStatus}>
                 <SelectTrigger className="bg-white border-blue-200 text-blue-900">
-                  <SelectValue placeholder="Estado" />
+                  <SelectValue placeholder="Estado del proyecto" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-blue-100">
                   <SelectItem value="all">Todos los estados</SelectItem>
                   {statuses.map((status) => (
                     <SelectItem key={status} value={status}>
                       {status}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedEstado} onValueChange={setSelectedEstado}>
+                <SelectTrigger className="bg-white border-blue-200 text-blue-900">
+                  <SelectValue placeholder="Estado del autor" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-blue-100">
+                  <SelectItem value="all">Todos los estados</SelectItem>
+                  {estados.map((estado) => (
+                    <SelectItem key={estado} value={estado}>
+                      {estado}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -185,73 +251,119 @@ export default function ProyectosPage() {
               ))}
             </div>
           ) : filteredProyectos.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
               {filteredProyectos.map((proyecto) => (
-                <Card key={proyecto.id} className="bg-white border-blue-100">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <Badge className="mb-2 bg-blue-700 text-white">{proyecto.category}</Badge>
-                        <Badge variant="outline" className="ml-2 border-blue-200 text-blue-700">
-                          {proyecto.status}
-                        </Badge>
+                <Card key={proyecto.id} className="bg-white border-blue-100 hover:border-blue-300 transition-colors">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                      {/* Información principal */}
+                      <div className="flex-1 space-y-3">
+                        {/* Título y badges */}
+                        <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-blue-900 mb-2 line-clamp-2">
+                              {proyecto.titulo}
+                            </h3>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <Badge className="bg-blue-700 text-white text-xs">{proyecto.categoria}</Badge>
+                            <Badge 
+                              variant="outline" 
+                              className={`text-xs ${
+                                proyecto.estado === 'Activo' ? 'border-green-200 text-green-700' :
+                                proyecto.estado === 'Completado' ? 'border-gray-200 text-gray-700' :
+                                'border-yellow-200 text-yellow-700'
+                              }`}
+                            >
+                              {proyecto.estado}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        {/* Información del autor */}
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-sm text-blue-600">
+                          <div className="flex items-center gap-2">
+                            <UserIcon className="h-4 w-4 flex-shrink-0" />
+                            <Link 
+                              href={`/investigadores/${generatePublicProfileSlug(
+                                typeof proyecto.autor === 'string' 
+                                  ? proyecto.autor 
+                                  : proyecto.autor?.nombreCompleto || 'usuario'
+                              )}`}
+                              className="font-medium text-blue-900 hover:text-blue-700 hover:underline transition-colors"
+                            >
+                              {typeof proyecto.autor === 'string' 
+                                ? proyecto.autor 
+                                : proyecto.autor?.nombreCompleto || 'Usuario'
+                              }
+                            </Link>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Building className="h-4 w-4 flex-shrink-0" />
+                            <span>
+                              {typeof proyecto.autor === 'object' && proyecto.autor?.instituto 
+                                ? proyecto.autor.instituto 
+                                : 'Institución no especificada'
+                              }
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 flex-shrink-0" />
+                            <span>
+                              {new Date(proyecto.fechaPublicacion).toLocaleDateString('es-ES', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                              })}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-blue-500">•</span>
+                            <span>
+                              {typeof proyecto.autor === 'object' && proyecto.autor?.estado 
+                                ? proyecto.autor.estado 
+                                : 'Estado no especificado'
+                              }
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Resumen */}
+                        <p className="text-sm text-blue-600 line-clamp-2">
+                          {proyecto.resumen || proyecto.descripcion}
+                        </p>
+
+                        {/* Tags */}
+                        <div className="flex flex-wrap gap-1">
+                          {proyecto.tags.slice(0, 4).map((tag, index) => (
+                            <Badge key={index} variant="secondary" className="bg-blue-50 text-blue-700 text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                          {proyecto.tags.length > 4 && (
+                            <Badge variant="secondary" className="bg-blue-50 text-blue-700 text-xs">
+                              +{proyecto.tags.length - 4}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <CardTitle className="text-xl text-blue-900">{proyecto.title}</CardTitle>
-                    <CardDescription className="text-blue-600">{proyecto.institution}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-blue-600 mb-4">{proyecto.description}</p>
-                    <div className="space-y-2">
-                      <div className="flex items-center text-sm text-blue-600">
-                        <Calendar className="mr-2 h-4 w-4" />
-                        <span>
-                          {proyecto.startDate} - {proyecto.endDate}
-                        </span>
+
+                      {/* Botón de acción */}
+                      <div className="flex-shrink-0">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
+                          asChild
+                        >
+                          <Link href={proyecto.archivo || `/proyectos/${proyecto.slug}`}>
+                            <FileText className="mr-2 h-4 w-4" />
+                            {proyecto.archivo ? 'Ver documento' : 'Ver detalles'}
+                          </Link>
+                        </Button>
                       </div>
-                      <div className="flex items-center text-sm text-blue-600">
-                        <Users className="mr-2 h-4 w-4" />
-                        <span>{proyecto.researchers.length} investigadores</span>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      {proyecto.tags.slice(0, 3).map((tag, index) => (
-                        <Badge key={index} variant="secondary" className="bg-blue-50 text-blue-700">
-                          {tag}
-                        </Badge>
-                      ))}
-                      {proyecto.tags.length > 3 && (
-                        <Badge variant="secondary" className="bg-blue-50 text-blue-700">
-                          +{proyecto.tags.length - 3} más
-                        </Badge>
-                      )}
                     </div>
                   </CardContent>
-                  <CardFooter className="border-t border-blue-100 flex justify-between">
-                    <div className="flex gap-2">
-                      {proyecto.researchers.slice(0, 3).map((researcher, index) => (
-                        <Avatar key={index} className="h-6 w-6">
-                          <AvatarImage src={researcher.avatar || "/placeholder.svg"} alt={researcher.name} />
-                          <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
-                            {researcher.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                      ))}
-                    </div>
-                    <Button
-                      variant="outline"
-                      className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
-                      asChild
-                    >
-                      <Link href={`/proyectos/${proyecto.slug}`}>
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        Ver detalles
-                      </Link>
-                    </Button>
-                  </CardFooter>
                 </Card>
               ))}
             </div>
@@ -271,6 +383,7 @@ export default function ProyectosPage() {
                       setSearchTerm("")
                       setSelectedCategory("all")
                       setSelectedStatus("all")
+                      setSelectedEstado("all")
                       setSelectedInstitution("all")
                     }}
                     className="bg-blue-700 text-white hover:bg-blue-800"

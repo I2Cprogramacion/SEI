@@ -23,19 +23,16 @@ export default function ConvocatoriasPage() {
   const [convocatorias, setConvocatorias] = useState<Convocatoria[]>([])
   const [loading, setLoading] = useState(true)
 
-  // TODO: Conectar con API real
   useEffect(() => {
     const fetchConvocatorias = async () => {
       try {
         setLoading(true)
-        // const response = await fetch('/api/convocatorias')
-        // const data = await response.json()
-        // setConvocatorias(data)
-
-        // Por ahora, datos vacíos
-        setConvocatorias([])
+        const response = await fetch('/api/convocatorias')
+        const data = await response.json()
+        setConvocatorias(data.convocatorias || [])
       } catch (error) {
         console.error("Error fetching convocatorias:", error)
+        setConvocatorias([])
       } finally {
         setLoading(false)
       }

@@ -23,14 +23,20 @@ import { ExportDialog } from "@/components/export-dialog"
 // Interfaz para los datos de investigadores
 interface Investigador {
   id: number
-  no_cvu: string
-  curp: string
+  no_cvu?: string
+  curp?: string
   nombre_completo: string
-  rfc: string
+  rfc?: string
   correo: string
-  nacionalidad: string
-  fecha_nacimiento: string
-  institucion: string
+  nacionalidad?: string
+  fecha_nacimiento?: string
+  institucion?: string
+  telefono?: string
+  grado_maximo_estudios?: string
+  experiencia_laboral?: string
+  linea_investigacion?: string
+  fecha_registro?: string
+  is_admin?: boolean
 }
 
 export default function InvestigadoresAdmin() {
@@ -43,22 +49,18 @@ export default function InvestigadoresAdmin() {
   const [error, setError] = useState<string | null>(null)
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
 
-  // TODO: Conectar con API real
+  // Cargar investigadores desde la API
   useEffect(() => {
     const fetchInvestigadores = async () => {
       try {
         setIsLoading(true)
-        // const response = await fetch("/api/investigadores")
-        // if (!response.ok) {
-        //   throw new Error("Error al cargar los investigadores")
-        // }
-        // const data = await response.json()
-        // setInvestigadores(data)
-        // setFilteredData(data)
-
-        // Por ahora, datos vacíos
-        setInvestigadores([])
-        setFilteredData([])
+        const response = await fetch("/api/investigadores")
+        if (!response.ok) {
+          throw new Error("Error al cargar los investigadores")
+        }
+        const data = await response.json()
+        setInvestigadores(data)
+        setFilteredData(data)
       } catch (error) {
         console.error("Error al cargar investigadores:", error)
         setError("No se pudieron cargar los investigadores.")
@@ -76,9 +78,10 @@ export default function InvestigadoresAdmin() {
       (investigador) =>
         investigador.nombre_completo.toLowerCase().includes(searchTerm.toLowerCase()) ||
         investigador.correo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        investigador.curp.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        investigador.rfc.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (investigador.institucion && investigador.institucion.toLowerCase().includes(searchTerm.toLowerCase())),
+        (investigador.curp && investigador.curp.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (investigador.rfc && investigador.rfc.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (investigador.institucion && investigador.institucion.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (investigador.telefono && investigador.telefono.toLowerCase().includes(searchTerm.toLowerCase())),
     )
     setFilteredData(filtered)
     setCurrentPage(1)
@@ -124,7 +127,7 @@ export default function InvestigadoresAdmin() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-4 w-4" />
                 <Input
                   type="text"
-                  placeholder="Buscar por nombre, CURP, RFC o correo..."
+                  placeholder="Buscar por nombre, correo, institución o teléfono..."
                   className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -156,20 +159,19 @@ export default function InvestigadoresAdmin() {
               <TableHeader className="bg-blue-50">
                 <TableRow className="hover:bg-blue-50 border-b border-blue-100">
                   <TableHead className="text-blue-700">ID</TableHead>
-                  <TableHead className="text-blue-700">PU</TableHead>
-                  <TableHead className="text-blue-700">CURP</TableHead>
                   <TableHead className="text-blue-700">Nombre Completo</TableHead>
-                  <TableHead className="text-blue-700">RFC</TableHead>
                   <TableHead className="text-blue-700">Correo</TableHead>
-                  <TableHead className="text-blue-700">Nacionalidad</TableHead>
-                  <TableHead className="text-blue-700">Fecha de Nacimiento</TableHead>
+                  <TableHead className="text-blue-700">Institución</TableHead>
+                  <TableHead className="text-blue-700">Teléfono</TableHead>
+                  <TableHead className="text-blue-700">Rol</TableHead>
+                  <TableHead className="text-blue-700">Fecha Registro</TableHead>
                   <TableHead className="text-blue-700 text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-blue-600">
+                    <TableCell colSpan={8} className="text-center py-8 text-blue-600">
                       Cargando investigadores...
                     </TableCell>
                   </TableRow>
@@ -177,19 +179,29 @@ export default function InvestigadoresAdmin() {
                   currentItems.map((investigador) => (
                     <TableRow key={investigador.id} className="hover:bg-blue-50 border-b border-blue-100">
                       <TableCell className="text-blue-900">{investigador.id}</TableCell>
-                      <TableCell className="text-blue-900">{investigador.no_cvu || "N/A"}</TableCell>
-                      <TableCell className="text-blue-900">{investigador.curp || "N/A"}</TableCell>
                       <TableCell className="text-blue-900 font-medium">
                         {investigador.nombre_completo || "N/A"}
                       </TableCell>
-                      <TableCell className="text-blue-900">{investigador.rfc || "N/A"}</TableCell>
                       <TableCell className="text-blue-900">{investigador.correo || "N/A"}</TableCell>
+                      <TableCell className="text-blue-900">{investigador.institucion || "N/A"}</TableCell>
+                      <TableCell className="text-blue-900">{investigador.telefono || "N/A"}</TableCell>
                       <TableCell className="text-blue-900">
-                        <Badge variant="outline" className="border-blue-200 text-blue-700">
-                          {investigador.nacionalidad || "N/A"}
-                        </Badge>
+                        {investigador.is_admin ? (
+                          <Badge className="bg-red-600 text-white">
+                            Admin
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="border-blue-200 text-blue-700">
+                            Usuario
+                          </Badge>
+                        )}
                       </TableCell>
-                      <TableCell className="text-blue-900">{investigador.fecha_nacimiento || "N/A"}</TableCell>
+                      <TableCell className="text-blue-900">
+                        {investigador.fecha_registro 
+                          ? new Date(investigador.fecha_registro).toLocaleDateString('es-ES')
+                          : "N/A"
+                        }
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button
@@ -220,7 +232,7 @@ export default function InvestigadoresAdmin() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-blue-600">
+                    <TableCell colSpan={8} className="text-center py-8 text-blue-600">
                       {investigadores.length === 0
                         ? "No hay investigadores registrados en la plataforma."
                         : "No se encontraron investigadores con los criterios de búsqueda."}

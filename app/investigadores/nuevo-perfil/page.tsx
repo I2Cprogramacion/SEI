@@ -131,9 +131,9 @@ export default function NuevoPerfilPage() {
           telefono: result.data.telefono || "",
           curp: result.data.curp || "",
           rfc: result.data.rfc || "",
-          titulo: result.data.ultimo_grado_estudios || "",
+          titulo: result.data.grado_maximo_estudios || "",
           institucion: result.data.institucion || "",
-          departamento: result.data.empleo_actual || "",
+          departamento: result.data.experiencia_laboral || "",
           ubicacion: result.data.ubicacion || "",
         })
       } else {
@@ -257,26 +257,25 @@ export default function NuevoPerfilPage() {
     if (!validateCurrentStep()) return
 
     setIsSubmitting(true)
+    setErrors((prev) => ({ ...prev, submit: "" }))
 
     try {
-      // TODO: Implementar envío real
-      // const response = await fetch("/api/investigadores", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(formData),
-      // })
+      const response = await fetch("/api/investigadores", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
 
-      // if (!response.ok) {
-      //   throw new Error("Error al crear el perfil")
-      // }
+      const data = await response.json()
 
-      // Simular envío exitoso
-      setTimeout(() => {
-        router.push("/registro/exito")
-      }, 2000)
+      if (!response.ok) {
+        throw new Error(data.error || "Error al crear el perfil")
+      }
+
+      router.push("/registro/exito?mensaje=" + encodeURIComponent(data.message || "Perfil creado correctamente") + "&tipo=success")
     } catch (error) {
       console.error("Error submitting form:", error)
-      setErrors({ submit: "Error al crear el perfil. Intenta nuevamente." })
+      setErrors({ submit: error instanceof Error ? error.message : "Error al crear el perfil. Intenta nuevamente." })
       setIsSubmitting(false)
     }
   }
@@ -619,6 +618,38 @@ export default function NuevoPerfilPage() {
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
+                </div>
+                {/* Sugerencias rápidas de áreas comunes */}
+                <div className="flex flex-wrap gap-2 text-xs">
+                  {[
+                    'Área de TI',
+                    'Área de RRHH',
+                    'Ciencias de Datos',
+                    'Inteligencia Artificial',
+                    'Biotecnología',
+                    'Energías Renovables',
+                    'Salud Pública',
+                    'Educación',
+                    'Ingeniería de Software',
+                    'Ciberseguridad',
+                  ].map((suggestion) => (
+                    <Button
+                      key={suggestion}
+                      type="button"
+                      variant="secondary"
+                      className="h-7 px-3 bg-blue-50 text-blue-800 hover:bg-blue-100 border border-blue-100"
+                      onClick={() => {
+                        if (!formData.areasEspecializacion.includes(suggestion)) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            areasEspecializacion: [...prev.areasEspecializacion, suggestion],
+                          }))
+                        }
+                      }}
+                    >
+                      {suggestion} +
+                    </Button>
+                  ))}
                 </div>
                 {errors.areas && <p className="text-sm text-red-600">{errors.areas}</p>}
                 <div className="flex flex-wrap gap-2">

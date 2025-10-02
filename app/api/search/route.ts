@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { obtenerInvestigadores } from "@/lib/db"
+import fs from 'fs'
+import path from 'path'
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,8 +21,43 @@ export async function GET(request: NextRequest) {
     // Obtener investigadores de la base de datos
     const investigadores = await obtenerInvestigadores()
     
+    // Obtener autores de proyectos del archivo JSON
+    const proyectosPath = path.join(process.cwd(), 'data', 'proyectos.json')
+    let autoresProyectos = []
+    
+    try {
+      const proyectosData = fs.readFileSync(proyectosPath, 'utf8')
+      const proyectos = JSON.parse(proyectosData)
+      
+      // Extraer autores únicos de los proyectos
+      const autoresUnicos = new Map()
+      proyectos.forEach(proyecto => {
+        if (proyecto.autor && proyecto.autor.nombreCompleto) {
+          const nombre = proyecto.autor.nombreCompleto
+          if (!autoresUnicos.has(nombre)) {
+            autoresUnicos.set(nombre, {
+              id: Math.random().toString(36).substr(2, 9),
+              nombre_completo: nombre,
+              correo: proyecto.autor.email || '',
+              institucion: proyecto.autor.instituto || 'Institución no especificada',
+              telefono: proyecto.autor.telefono || '',
+              area: proyecto.categoria || 'Investigación',
+              slug: nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+            })
+          }
+        }
+      })
+      
+      autoresProyectos = Array.from(autoresUnicos.values())
+    } catch (error) {
+      console.error("Error al leer proyectos:", error)
+    }
+    
+    // Combinar investigadores de la base de datos con autores de proyectos
+    const todosInvestigadores = [...investigadores, ...autoresProyectos]
+    
     // Filtrar investigadores por término de búsqueda
-    const investigadoresFiltrados = investigadores.filter(inv => {
+    const investigadoresFiltrados = todosInvestigadores.filter(inv => {
       const searchTerm = query.toLowerCase()
       return (
         inv.nombre_completo?.toLowerCase().includes(searchTerm) ||

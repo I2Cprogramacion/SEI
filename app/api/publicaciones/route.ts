@@ -1,13 +1,39 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { obtenerInvestigadores } from "@/lib/db"
+import { obtenerInvestigadores, insertarPublicacion, obtenerPublicaciones } from "@/lib/db"
 
 export async function GET(request: NextRequest) {
   try {
-    // Obtener investigadores de la base de datos
+    // Obtener publicaciones de la tabla dedicada
+    const publicacionesNuevas = await obtenerPublicaciones()
+    
+    const publicacionesFormateadas = publicacionesNuevas.map((pub: any) => ({
+      id: `pub_${pub.id}`,
+      titulo: pub.titulo,
+      autor: {
+        nombreCompleto: pub.autor,
+        institucion: pub.institucion,
+        slug: pub.autor.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').trim()
+      },
+      editorial: pub.editorial,
+      añoCreacion: pub.año_creacion,
+      doi: pub.doi,
+      resumen: pub.resumen,
+      palabrasClave: pub.palabras_clave ? pub.palabras_clave.split(', ').filter(Boolean) : [],
+      categoria: pub.categoria,
+      tipo: pub.tipo,
+      acceso: pub.acceso,
+      volumen: pub.volumen,
+      numero: pub.numero,
+      paginas: pub.paginas,
+      archivo: pub.archivo,
+      archivoUrl: pub.archivo_url
+    }))
+
+    // Obtener investigadores de la base de datos para publicaciones existentes
     const investigadores = await obtenerInvestigadores()
     
-    const publicaciones: any[] = []
+    const publicaciones: any[] = [...publicacionesFormateadas]
 
     for (const investigador of investigadores) {
       // Procesar artículos
@@ -179,6 +205,58 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ 
       publicaciones: [],
       error: "Error al obtener las publicaciones" 
+    }, { status: 500 })
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const data = await request.json()
+    
+    // Validar datos requeridos
+    const camposRequeridos = ['titulo', 'autor', 'institucion', 'editorial', 'añoCreacion', 'categoria', 'tipo']
+    for (const campo of camposRequeridos) {
+      if (!data[campo]) {
+        return NextResponse.json({ 
+          error: `El campo ${campo} es requerido` 
+        }, { status: 400 })
+      }
+    }
+
+    // Preparar datos para insertar
+    const publicacionData = {
+      titulo: data.titulo,
+      autor: data.autor,
+      institucion: data.institucion,
+      editorial: data.editorial,
+      año_creacion: data.añoCreacion,
+      doi: data.doi || null,
+      resumen: data.resumen || null,
+      palabras_clave: data.palabrasClave ? data.palabrasClave.join(', ') : null,
+      categoria: data.categoria,
+      tipo: data.tipo,
+      acceso: data.acceso || null,
+      volumen: data.volumen || null,
+      numero: data.numero || null,
+      paginas: data.paginas || null,
+      archivo: data.archivo || null,
+      archivo_url: data.archivoUrl || null,
+      fecha_creacion: new Date().toISOString()
+    }
+
+    // Insertar en la base de datos
+    const resultado = await insertarPublicacion(publicacionData)
+    
+    return NextResponse.json({ 
+      success: true,
+      publicacion: resultado,
+      message: "Publicación creada exitosamente"
+    })
+
+  } catch (error) {
+    console.error("Error al crear publicación:", error)
+    return NextResponse.json({ 
+      error: "Error interno del servidor al crear la publicación" 
     }, { status: 500 })
   }
 }

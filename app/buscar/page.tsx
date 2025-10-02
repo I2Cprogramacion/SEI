@@ -141,7 +141,9 @@ export default function BuscarPage() {
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <h3 className="font-medium text-blue-900">{investigador.nombre}</h3>
+                        <Link href={`/investigadores/${investigador.slug}`} className="hover:underline">
+                          <h3 className="font-medium text-blue-900 hover:text-blue-700 cursor-pointer">{investigador.nombre}</h3>
+                        </Link>
                         <p className="text-sm text-blue-600">{investigador.institucion}</p>
                         <div className="flex gap-2 mt-1">
                           <Badge variant="secondary" className="bg-blue-50 text-blue-700 text-xs">

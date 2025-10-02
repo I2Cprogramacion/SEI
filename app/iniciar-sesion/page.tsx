@@ -40,8 +40,11 @@ export default function IniciarSesionPage() {
       if (response.ok && data.success) {
         setSuccess("¡Login exitoso! Redirigiendo...")
         
-        // Guardar información del usuario en localStorage o sessionStorage
+        // Guardar información del usuario en localStorage
         localStorage.setItem("user", JSON.stringify(data.user))
+        
+        // Disparar evento personalizado para notificar al navbar
+        window.dispatchEvent(new CustomEvent('userUpdated'))
         
         // Redirigir después de un breve delay
         setTimeout(() => {
@@ -147,24 +150,6 @@ export default function IniciarSesionPage() {
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="border-t border-blue-100 flex flex-col items-center pt-6">
-            <div className="relative w-full mb-4">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-blue-200" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-blue-600">O continúa con</span>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4 w-full">
-              <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50">
-                Google
-              </Button>
-              <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50">
-                ORCID
-              </Button>
-            </div>
-          </CardFooter>
         </Card>
 
         <div className="text-center text-sm text-blue-600">

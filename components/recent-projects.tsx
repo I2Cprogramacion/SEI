@@ -21,19 +21,16 @@ export function RecentProjects() {
   const [projects, setProjects] = useState<RecentProject[]>([])
   const [loading, setLoading] = useState(true)
 
-  // TODO: Conectar con API real
   useEffect(() => {
     const fetchRecentProjects = async () => {
       try {
         setLoading(true)
-        // const response = await fetch('/api/admin/recent-projects')
-        // const data = await response.json()
-        // setProjects(data)
-
-        // Por ahora, datos vacíos
-        setProjects([])
+        const response = await fetch('/api/proyectos/recent')
+        const data = await response.json()
+        setProjects(data)
       } catch (error) {
         console.error("Error fetching recent projects:", error)
+        setProjects([])
       } finally {
         setLoading(false)
       }
@@ -44,9 +41,6 @@ export function RecentProjects() {
 
   return (
     <Card className="bg-white border-blue-100">
-      <CardHeader>
-        <CardTitle className="text-blue-900">Proyectos Recientes</CardTitle>
-      </CardHeader>
       <CardContent>
         {loading ? (
           <div className="space-y-4">

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Building, Users, FileText, MapPin, ExternalLink, Award, GraduationCap } from "lucide-react"
+import { Building, Users, FileText, MapPin, ExternalLink, Award, GraduationCap, Plus } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -36,19 +36,16 @@ export default function InstitucionesPage() {
   const [instituciones, setInstituciones] = useState<Institucion[]>([])
   const [loading, setLoading] = useState(true)
 
-  // TODO: Conectar con API real
   useEffect(() => {
     const fetchInstituciones = async () => {
       try {
         setLoading(true)
-        // const response = await fetch('/api/instituciones')
-        // const data = await response.json()
-        // setInstituciones(data)
-
-        // Por ahora, datos vacíos
-        setInstituciones([])
+        const response = await fetch('/api/instituciones')
+        const data = await response.json()
+        setInstituciones(data.instituciones || [])
       } catch (error) {
         console.error("Error fetching instituciones:", error)
+        setInstituciones([])
       } finally {
         setLoading(false)
       }
@@ -61,10 +58,20 @@ export default function InstitucionesPage() {
     <div className="container mx-auto py-8 px-4">
       <div className="space-y-6">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-blue-900">Instituciones de Investigación</h1>
-          <p className="text-blue-600">
-            Conoce las principales instituciones de educación superior y centros de investigación en Chihuahua
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-blue-900">Instituciones de Investigación</h1>
+              <p className="text-blue-600">
+                Conoce las principales instituciones de educación superior y centros de investigación en Chihuahua
+              </p>
+            </div>
+            <Button asChild className="bg-blue-700 hover:bg-blue-800 text-white">
+              <Link href="/instituciones/nueva">
+                <Plus className="mr-2 h-4 w-4" />
+                Agregar Institución
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Estadísticas generales */}

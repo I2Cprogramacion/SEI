@@ -64,4 +64,7 @@ var/
 # Temporary files
 /tmp
 
+# Data files (local storage)
+/data
+
 /lib/generated/prisma

@@ -17,11 +17,73 @@ import {
 import { cn } from "@/lib/utils"
 import { Menu } from "lucide-react"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 export default function Navbar() {
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
+  const [user, setUser] = useState<any | null>(null)
+  const router = useRouter()
+
+  useEffect(() => {
+    // Función para cargar usuario desde localStorage
+    const loadUser = () => {
+      try {
+        const stored = typeof window !== 'undefined' ? localStorage.getItem("user") : null
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          setUser(parsed)
+        } else {
+          setUser(null)
+        }
+      } catch {
+        setUser(null)
+      }
+    }
+
+    // Cargar usuario inicialmente
+    loadUser()
+
+    // Listener para cambios en localStorage
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "user") {
+        loadUser()
+      }
+    }
+
+    // Listener para cambios en la misma pestaña (cuando se actualiza localStorage desde el mismo tab)
+    const handleCustomStorageChange = () => {
+      loadUser()
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', handleStorageChange)
+      window.addEventListener('userUpdated', handleCustomStorageChange)
+      
+      return () => {
+        window.removeEventListener('storage', handleStorageChange)
+        window.removeEventListener('userUpdated', handleCustomStorageChange)
+      }
+    }
+  }, [])
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem("user")
+      // Disparar evento personalizado para notificar el cambio
+      window.dispatchEvent(new CustomEvent('userUpdated'))
+    } catch {}
+    setUser(null)
+    router.push("/iniciar-sesion")
+  }
+
+  const getDisplayName = (): string => {
+    const fullName = user?.nombre || user?.nombreCompleto
+    const email = user?.email
+    if (fullName && fullName.length <= 35) return fullName
+    return email || ""
+  }
 
   useEffect(() => {
     const controlNavbar = () => {
@@ -132,14 +194,37 @@ export default function Navbar() {
                   </div>
                 </a>
               </Button>
-              <div className="hidden md:flex gap-2">
-                <Button variant="ghost" asChild className="text-blue-700 hover:bg-blue-50">
-                  <Link href="/iniciar-sesion">Iniciar sesión</Link>
-                </Button>
-                <Button asChild className="bg-blue-700 text-white hover:bg-blue-800">
-                  <Link href="/registro">Registrarse</Link>
-                </Button>
-              </div>
+              {user ? (
+                <div className="hidden md:flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="max-w-[260px] truncate text-blue-900 font-medium" title={getDisplayName()}>
+                      {getDisplayName()}
+                    </span>
+                    {user.isAdmin && (
+                      <span className="px-2 py-1 text-xs font-bold text-white bg-red-600 rounded-full">
+                        ADMIN
+                      </span>
+                    )}
+                  </div>
+                  {user.isAdmin && (
+                    <Button variant="outline" className="border-green-200 text-green-700 hover:bg-green-50" asChild>
+                      <Link href="/dashboard">Dashboard</Link>
+                    </Button>
+                  )}
+                  <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50" onClick={handleLogout}>
+                    Cerrar sesión
+                  </Button>
+                </div>
+              ) : (
+                <div className="hidden md:flex gap-2">
+                  <Button variant="ghost" asChild className="text-blue-700 hover:bg-blue-50">
+                    <Link href="/iniciar-sesion">Iniciar sesión</Link>
+                  </Button>
+                  <Button asChild className="bg-blue-700 text-white hover:bg-blue-800">
+                    <Link href="/registro">Registrarse</Link>
+                  </Button>
+                </div>
+              )}
 
               <Sheet>
                 <SheetTrigger asChild className="md:hidden">
@@ -194,12 +279,37 @@ export default function Navbar() {
                           </div>
                         </a>
                       </Button>
-                      <Button variant="ghost" className="justify-start text-blue-700 hover:bg-blue-50" asChild>
-                        <Link href="/iniciar-sesion">Iniciar sesión</Link>
-                      </Button>
-                      <Button className="mt-2 bg-blue-700 text-white hover:bg-blue-800" asChild>
-                        <Link href="/registro">Registrarse</Link>
-                      </Button>
+                      {user ? (
+                        <>
+                          <div className="flex items-center gap-2 px-1">
+                            <div className="text-blue-900 font-medium truncate" title={getDisplayName()}>
+                              {getDisplayName()}
+                            </div>
+                            {user.isAdmin && (
+                              <span className="px-2 py-1 text-xs font-bold text-white bg-red-600 rounded-full">
+                                ADMIN
+                              </span>
+                            )}
+                          </div>
+                          {user.isAdmin && (
+                            <Button variant="ghost" className="justify-start text-green-700 hover:bg-green-50" asChild>
+                              <Link href="/dashboard">Dashboard</Link>
+                            </Button>
+                          )}
+                          <Button className="mt-2 bg-blue-700 text-white hover:bg-blue-800 justify-start" onClick={handleLogout}>
+                            Cerrar sesión
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button variant="ghost" className="justify-start text-blue-700 hover:bg-blue-50" asChild>
+                            <Link href="/iniciar-sesion">Iniciar sesión</Link>
+                          </Button>
+                          <Button className="mt-2 bg-blue-700 text-white hover:bg-blue-800" asChild>
+                            <Link href="/registro">Registrarse</Link>
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </SheetContent>

@@ -8,16 +8,16 @@ export interface ExtractedData {
   no_cvu?: string
   correo?: string
   telefono?: string
-  ultimo_grado_estudios?: string
-  empleo_actual?: string
+  grado_maximo_estudios?: string
+  experiencia_laboral?: string
   linea_investigacion?: string
   nacionalidad?: string
   fecha_nacimiento?: string
   institucion?: string
   departamento?: string
   ubicacion?: string
-  archivo_procesado?: string
-  origen?: string
+  // archivo_procesado?: string // Columna no existe en la tabla
+  // origen?: string // Columna no existe en la tabla
 }
 
 export class OCRProcessor {
@@ -100,13 +100,32 @@ export class OCRProcessor {
       let text = pdfData.text
 
       console.log('📝 Texto extraído del PDF:', text)
+      console.log('📊 Longitud del texto:', text.length)
 
-      // Si el PDF no tiene texto extraíble, intentamos OCR en las páginas
-      if (!text || text.trim().length < 50) {
-        console.log('⚠️ PDF sin texto extraíble, intentando OCR...')
-        // Para PDFs sin texto, necesitaríamos convertir a imágenes primero
-        // Por ahora, retornamos un error indicando que se necesita una imagen
-        throw new Error('El PDF no contiene texto extraíble. Por favor, sube una imagen (JPG, PNG) del documento.')
+      // Si el PDF no tiene texto extraíble, intentamos métodos adicionales
+      if (!text || text.trim().length < 20) {
+        console.log('⚠️ PDF sin texto extraíble, intentando métodos adicionales...')
+        
+        // Intentar con diferentes configuraciones de pdf-parse
+        try {
+          const pdfDataRetry = await pdfParse.default(pdfBuffer, {
+            // Configuraciones más agresivas
+            max: 0, // Sin límite de páginas
+            version: 'v1.10.100' // Versión específica
+          })
+          
+          if (pdfDataRetry.text && pdfDataRetry.text.trim().length > text.trim().length) {
+            text = pdfDataRetry.text
+            console.log('✅ Texto mejorado con configuración alternativa:', text.substring(0, 200))
+          }
+        } catch (retryError) {
+          console.log('⚠️ Reintento con configuración alternativa falló:', retryError)
+        }
+        
+        // Si aún no hay texto, lanzar error
+        if (!text || text.trim().length < 20) {
+          throw new Error('El PDF no contiene texto extraíble. Por favor, convierte el PDF a una imagen (JPG, PNG) y vuelve a intentarlo.')
+        }
       }
 
       return this.parseText(text)
@@ -131,14 +150,15 @@ export class OCRProcessor {
 
     // Extraer CURP (18 caracteres alfanuméricos)
     const curpPatterns = [
-      /\b[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d\b/,
-      /\b[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d\b/
+      /(?:CURP|curp)[:\s]*([A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d)/i,
+      /\b([A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d)\b/,
+      /([A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d)/
     ]
     
     for (const pattern of curpPatterns) {
       const curpMatch = cleanText.match(pattern)
       if (curpMatch) {
-        data.curp = curpMatch[0]
+        data.curp = curpMatch[1] || curpMatch[0]
         console.log('✅ CURP encontrado:', data.curp)
         break
       }
@@ -146,14 +166,15 @@ export class OCRProcessor {
 
     // Extraer RFC (13 caracteres alfanuméricos)
     const rfcPatterns = [
-      /\b[A-Z]{4}\d{6}[A-Z0-9]{3}\b/,
-      /\b[A-Z]{4}\d{6}[A-Z0-9]{3}\b/
+      /(?:RFC|rfc)[:\s]*([A-Z]{4}\d{6}[A-Z0-9]{3})/i,
+      /\b([A-Z]{4}\d{6}[A-Z0-9]{3})\b/,
+      /([A-Z]{4}\d{6}[A-Z0-9]{3})/
     ]
     
     for (const pattern of rfcPatterns) {
       const rfcMatch = cleanText.match(pattern)
       if (rfcMatch) {
-        data.rfc = rfcMatch[0]
+        data.rfc = rfcMatch[1] || rfcMatch[0]
         console.log('✅ RFC encontrado:', data.rfc)
         break
       }
@@ -161,14 +182,15 @@ export class OCRProcessor {
 
     // Extraer email
     const emailPatterns = [
-      /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/,
-      /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/
+      /(?:email|correo|e-mail)[:\s]*([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,})/i,
+      /\b([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,})\b/,
+      /([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,})/
     ]
     
     for (const pattern of emailPatterns) {
       const emailMatch = cleanText.match(pattern)
       if (emailMatch) {
-        data.correo = emailMatch[0]
+        data.correo = emailMatch[1] || emailMatch[0]
         console.log('✅ Email encontrado:', data.correo)
         break
       }
@@ -176,7 +198,7 @@ export class OCRProcessor {
 
     // Extraer teléfono (múltiples formatos)
     const phonePatterns = [
-      /(\+?52\s?)?(\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4})/,
+      /(?:teléfono|telefono|tel|phone)[:\s]*(\+?52\s?)?(\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4})/i,
       /(\+?52\s?)?(\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4})/,
       /\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/
     ]
@@ -184,7 +206,7 @@ export class OCRProcessor {
     for (const pattern of phonePatterns) {
       const phoneMatch = cleanText.match(pattern)
       if (phoneMatch) {
-        data.telefono = phoneMatch[0].replace(/\s+/g, ' ').trim()
+        data.telefono = (phoneMatch[2] || phoneMatch[0]).replace(/\s+/g, ' ').trim()
         console.log('✅ Teléfono encontrado:', data.telefono)
         break
       }
@@ -224,8 +246,9 @@ export class OCRProcessor {
 
     // Extraer CVU (número de 4-6 dígitos)
     const cvuPatterns = [
-      /\b\d{4,6}\b/,
-      /(?:CVU|CVU):\s*(\d{4,6})/i
+      /(?:CVU|cvu|C\.V\.U\.)[:\s]*(\d{4,6})/i,
+      /(?:número|numero|no\.?)[:\s]*(\d{4,6})/i,
+      /\b(\d{4,6})\b/
     ]
     
     for (const pattern of cvuPatterns) {
@@ -247,8 +270,8 @@ export class OCRProcessor {
     for (const pattern of degreePatterns) {
       const degreeMatch = cleanText.match(pattern)
       if (degreeMatch) {
-        data.ultimo_grado_estudios = degreeMatch[0]
-        console.log('✅ Grado encontrado:', data.ultimo_grado_estudios)
+        data.grado_maximo_estudios = degreeMatch[0]
+        console.log('✅ Grado encontrado:', data.grado_maximo_estudios)
         break
       }
     }
@@ -279,8 +302,8 @@ export class OCRProcessor {
     for (const pattern of jobPatterns) {
       const jobMatch = cleanText.match(pattern)
       if (jobMatch) {
-        data.empleo_actual = jobMatch[1] || jobMatch[0]
-        console.log('✅ Empleo encontrado:', data.empleo_actual)
+        data.experiencia_laboral = jobMatch[1] || jobMatch[0]
+        console.log('✅ Empleo encontrado:', data.experiencia_laboral)
         break
       }
     }

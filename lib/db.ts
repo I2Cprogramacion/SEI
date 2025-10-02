@@ -13,25 +13,67 @@ export async function initDB() {
 // Función para guardar investigador (mantiene compatibilidad)
 export async function guardarInvestigador(datos: any) {
   const db = await getDatabase()
+  // Asegurar que el esquema esté inicializado/migrado antes de operar
+  try {
+    await db.inicializar()
+  } catch (e) {
+    console.warn('Aviso: no se pudo inicializar antes de guardar (continuando):', e)
+  }
   return await db.guardarInvestigador(datos)
 }
 
 // Función para obtener todos los investigadores (mantiene compatibilidad)
 export async function obtenerInvestigadores() {
   const db = await getDatabase()
+  try {
+    await db.inicializar()
+  } catch {}
   return await db.obtenerInvestigadores()
 }
 
 // Función para obtener un investigador por ID (mantiene compatibilidad)
 export async function obtenerInvestigadorPorId(id: number) {
   const db = await getDatabase()
+  try {
+    await db.inicializar()
+  } catch {}
   return await db.obtenerInvestigadorPorId(id)
 }
 
 // Función para verificar credenciales (mantiene compatibilidad)
 export async function verificarCredenciales(email: string, password: string) {
   const db = await getDatabase()
+  try {
+    await db.inicializar()
+  } catch {}
   return await db.verificarCredenciales(email, password)
+}
+
+// Función para obtener proyectos (extraídos del campo proyectos_investigacion)
+export async function obtenerProyectos() {
+  const db = await getDatabase()
+  try {
+    await db.inicializar()
+  } catch {}
+  return await db.obtenerProyectos()
+}
+
+// Función para insertar una nueva publicación
+export async function insertarPublicacion(datos: any) {
+  const db = await getDatabase()
+  try {
+    await db.inicializar()
+  } catch {}
+  return await db.insertarPublicacion(datos)
+}
+
+// Función para obtener todas las publicaciones
+export async function obtenerPublicaciones() {
+  const db = await getDatabase()
+  try {
+    await db.inicializar()
+  } catch {}
+  return await db.obtenerPublicaciones()
 }
 
 // Exportar también las nuevas funciones para uso avanzado

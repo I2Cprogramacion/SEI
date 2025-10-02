@@ -80,6 +80,50 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     const proyectos = await readProyectos()
+    
+    // Si no hay proyectos reales, crear algunos de ejemplo
+    if (proyectos.length === 0) {
+      const proyectosEjemplo = [
+        {
+          id: 1,
+          titulo: "Desarrollo de Energías Renovables en Zonas Áridas de Chihuahua",
+          descripcion: "Investigación sobre el potencial de implementación de energías renovables en el estado de Chihuahua, enfocándose en energía solar y eólica para comunidades rurales.",
+          resumen: "Este proyecto busca evaluar la viabilidad técnica y económica de implementar sistemas de energía renovable en zonas áridas del estado de Chihuahua.",
+          categoria: "Energías Renovables",
+          estado: "Activo",
+          fechaInicio: "2023-01-01",
+          fechaFin: "2024-12-31",
+          fechaPublicacion: "2023-01-01",
+          autor: {
+            nombreCompleto: "Dr. Juan Pérez García",
+            instituto: "Universidad",
+            estado: "Chihuahua",
+            email: "juan.pere@uach.mx"
+          },
+          slug: "desarrollo-energias-renovables-zonas-aridas-chihuahua"
+        },
+        {
+          id: 2,
+          titulo: "Innovación en Sistemas de Riego para Agricultura en Zonas Áridas",
+          descripcion: "Desarrollo de tecnologías de riego inteligente que optimicen el uso del agua en la agricultura del norte de México.",
+          resumen: "Implementación de sistemas IoT para monitoreo y control automático de riego en cultivos de la región.",
+          categoria: "Agricultura",
+          estado: "En desarrollo",
+          fechaInicio: "2023-06-01",
+          fechaFin: "2025-05-31",
+          fechaPublicacion: "2023-06-01",
+          autor: {
+            nombreCompleto: "Dr. Juan Pérez García",
+            instituto: "Universidad",
+            estado: "Chihuahua",
+            email: "juan.pere@uach.mx"
+          },
+          slug: "innovacion-sistemas-riego-agricultura-zonas-aridas"
+        }
+      ]
+      return NextResponse.json({ proyectos: proyectosEjemplo }, { status: 200 })
+    }
+    
     return NextResponse.json({ proyectos }, { status: 200 })
   } catch (error) {
     console.error('Error al obtener proyectos:', error)

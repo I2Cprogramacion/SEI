@@ -23,19 +23,16 @@ export function FeaturedResearchers() {
   const [researchers, setResearchers] = useState<FeaturedResearcher[]>([])
   const [loading, setLoading] = useState(true)
 
-  // TODO: Conectar con API real
   useEffect(() => {
     const fetchFeaturedResearchers = async () => {
       try {
         setLoading(true)
-        // const response = await fetch('/api/admin/featured-researchers')
-        // const data = await response.json()
-        // setResearchers(data)
-
-        // Por ahora, datos vacíos
-        setResearchers([])
+        const response = await fetch('/api/investigadores/featured')
+        const data = await response.json()
+        setResearchers(data)
       } catch (error) {
         console.error("Error fetching featured researchers:", error)
+        setResearchers([])
       } finally {
         setLoading(false)
       }
@@ -46,9 +43,6 @@ export function FeaturedResearchers() {
 
   return (
     <Card className="bg-white border-blue-100">
-      <CardHeader>
-        <CardTitle className="text-blue-900">Investigadores Destacados</CardTitle>
-      </CardHeader>
       <CardContent>
         {loading ? (
           <div className="space-y-4">
@@ -77,7 +71,9 @@ export function FeaturedResearchers() {
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium text-blue-900">{researcher.name}</p>
+                    <Link href={`/investigadores/${researcher.slug}`} className="hover:underline">
+                      <p className="font-medium text-blue-900 hover:text-blue-700 cursor-pointer">{researcher.name}</p>
+                    </Link>
                     <p className="text-sm text-blue-600">{researcher.title}</p>
                     <Badge variant="secondary" className="bg-blue-50 text-blue-700 text-xs">
                       {researcher.field}
@@ -94,7 +90,7 @@ export function FeaturedResearchers() {
           </div>
         ) : (
           <div className="text-center py-8">
-            <p className="text-blue-600">No hay investigadores destacados aún.</p>
+            <p className="text-blue-600">No hay investigadores aún.</p>
           </div>
         )}
       </CardContent>

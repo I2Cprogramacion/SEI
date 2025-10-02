@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("POSTGRES_URL")
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -85,6 +85,7 @@ model Investigador {
   origen              String?
   archivo_procesado   String?   @map("archivo_procesado")
   password            String?
+  is_admin            Boolean   @default(false) @map("is_admin")
 
   @@map("investigadores")
 }

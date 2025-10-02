@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -43,8 +43,8 @@ export default function RegistroPage() {
     no_cvu: "",
     correo: "",
     telefono: "",
-    ultimo_grado_estudios: "",
-    empleo_actual: "",
+    grado_maximo_estudios: "",
+    experiencia_laboral: "",
     linea_investigacion: "",
     nacionalidad: "Mexicana",
     fecha_nacimiento: "",
@@ -57,8 +57,10 @@ export default function RegistroPage() {
   const [isProcessingPDF, setIsProcessingPDF] = useState(false)
   const [ocrCompleted, setOcrCompleted] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [emailExists, setEmailExists] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const router = useRouter()
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -100,8 +102,8 @@ export default function RegistroPage() {
         no_cvu: "",
         correo: "",
         telefono: "",
-        ultimo_grado_estudios: "",
-        empleo_actual: "",
+        grado_maximo_estudios: "",
+        experiencia_laboral: "",
         linea_investigacion: "", // Este campo siempre se mantiene vacío para captura manual
         nacionalidad: "Mexicana",
         fecha_nacimiento: "",
@@ -189,8 +191,8 @@ export default function RegistroPage() {
       { field: "nombre_completo", label: "Nombre Completo" },
       { field: "correo", label: "Correo Electrónico" },
       { field: "telefono", label: "Teléfono" },
-      { field: "ultimo_grado_estudios", label: "Último Grado de Estudios" },
-      { field: "empleo_actual", label: "Empleo Actual" },
+      { field: "grado_maximo_estudios", label: "Último Grado de Estudios" },
+      { field: "experiencia_laboral", label: "Empleo Actual" },
       { field: "linea_investigacion", label: "Línea de Investigación" },
       { field: "nacionalidad", label: "Nacionalidad" },
       { field: "fecha_nacimiento", label: "Fecha de Nacimiento" },
@@ -248,8 +250,8 @@ export default function RegistroPage() {
       const dataToSend = {
         ...formData,
         fecha_registro: new Date().toISOString(),
-        origen: "ocr",
-        archivo_procesado: selectedFile?.name || "",
+        // origen: "ocr", // Columna no existe en la tabla
+        // archivo_procesado: selectedFile?.name || "", // Columna no existe en la tabla
       }
 
       // No enviar la confirmación de contraseña
@@ -271,6 +273,7 @@ export default function RegistroPage() {
       if (!response.ok) {
         // Manejar caso de duplicado (código 409)
         if (response.status === 409 && responseData.duplicado) {
+          setEmailExists(true)
           setError(`${responseData.message} ID: ${responseData.id}`)
           return
         }
@@ -295,7 +298,7 @@ export default function RegistroPage() {
   }
 
   // Verificar si el formulario está completo
-  const isFormComplete = validateForm().length === 0
+  const isFormComplete = validateForm().length === 0 && !emailExists
   const passwordValidation = validatePassword(formData.password)
   const passwordsMatch = formData.password === formData.confirm_password
 
@@ -305,6 +308,11 @@ export default function RegistroPage() {
       ...prev,
       [name]: value,
     }))
+
+    // Limpiar error de correo duplicado cuando el usuario cambie el correo
+    if (name === 'correo' && emailExists) {
+      setEmailExists(false)
+    }
   }
 
   return (
@@ -569,11 +577,18 @@ export default function RegistroPage() {
                           onChange={handleChange}
                           placeholder="juan.perez@universidad.edu"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.correo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                            !formData.correo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : 
+                            emailExists ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
                           disabled={!ocrCompleted}
                         />
+                        {emailExists && (
+                          <p className="text-sm text-red-600 flex items-center gap-2">
+                            <span>⚠️</span>
+                            Este correo electrónico ya está registrado
+                          </p>
+                        )}
                       </div>
 
                       <div className="space-y-2">
@@ -654,7 +669,7 @@ export default function RegistroPage() {
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label
-                          htmlFor="ultimo_grado_estudios"
+                          htmlFor="grado_maximo_estudios"
                           className="text-blue-900 font-medium flex items-center gap-2"
                         >
                           <GraduationCap className="h-4 w-4" />
@@ -662,13 +677,13 @@ export default function RegistroPage() {
                           {ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
                         </Label>
                         <Input
-                          id="ultimo_grado_estudios"
-                          name="ultimo_grado_estudios"
-                          value={formData.ultimo_grado_estudios}
+                          id="grado_maximo_estudios"
+                          name="grado_maximo_estudios"
+                          value={formData.grado_maximo_estudios}
                           onChange={handleChange}
                           placeholder="Doctorado en Ciencias de la Computación - Universidad Autónoma de Chihuahua"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.ultimo_grado_estudios.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                            !formData.grado_maximo_estudios.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
                           disabled={!ocrCompleted}
@@ -676,18 +691,18 @@ export default function RegistroPage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="empleo_actual" className="text-blue-900 font-medium flex items-center gap-2">
+                        <Label htmlFor="experiencia_laboral" className="text-blue-900 font-medium flex items-center gap-2">
                           <Briefcase className="h-4 w-4" />
                           Empleo Actual *{ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
                         </Label>
                         <Input
-                          id="empleo_actual"
-                          name="empleo_actual"
-                          value={formData.empleo_actual}
+                          id="experiencia_laboral"
+                          name="experiencia_laboral"
+                          value={formData.experiencia_laboral}
                           onChange={handleChange}
                           placeholder="Profesor-Investigador Titular C - Universidad Autónoma de Chihuahua"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.empleo_actual.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                            !formData.experiencia_laboral.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
                           disabled={!ocrCompleted}
