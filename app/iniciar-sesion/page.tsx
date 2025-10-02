@@ -46,9 +46,13 @@ export default function IniciarSesionPage() {
         // Disparar evento personalizado para notificar al navbar
         window.dispatchEvent(new CustomEvent('userUpdated'))
         
-        // Redirigir después de un breve delay
+        // Redirigir según el tipo de usuario después de un breve delay
         setTimeout(() => {
-          router.push("/dashboard")
+          if (data.user.isAdmin) {
+            router.push("/admin")
+          } else {
+            router.push("/dashboard")
+          }
         }, 1500)
       } else {
         setError(data.error || "Error al iniciar sesión")

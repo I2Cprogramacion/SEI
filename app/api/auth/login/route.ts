@@ -19,12 +19,31 @@ export async function POST(request: NextRequest) {
     const resultado = await verificarCredenciales(email, password)
 
     if (resultado.success) {
-      // Login exitoso
-      return NextResponse.json({
+      // Login exitoso - crear respuesta con cookies
+      const response = NextResponse.json({
         success: true,
         message: "Login exitoso",
         user: resultado.user
       })
+      
+      // Configurar cookies de autenticación
+      // Cookie con token de autenticación (simulado)
+      response.cookies.set('auth-token', 'authenticated', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 24 * 7 // 7 días
+      })
+      
+      // Cookie con datos del usuario (para el middleware)
+      response.cookies.set('user-data', JSON.stringify(resultado.user), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 24 * 7 // 7 días
+      })
+      
+      return response
     } else {
       // Credenciales incorrectas
       return NextResponse.json(

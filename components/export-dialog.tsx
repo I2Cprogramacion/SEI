@@ -18,13 +18,15 @@ import { Download, FileSpreadsheet, FileText } from "lucide-react"
 
 interface ExportDialogProps {
   title: string
-  description: string
-  dataType: "investigadores" | "proyectos" | "instituciones" | "eventos"
+  description?: string
+  dataType?: "investigadores" | "proyectos" | "instituciones" | "publicaciones" | "eventos"
+  data?: any[]
+  filename?: string
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-export function ExportDialog({ title, description, dataType, open, onOpenChange }: ExportDialogProps) {
+export function ExportDialog({ title, description, dataType, data, filename, open, onOpenChange }: ExportDialogProps) {
   const [exportFormat, setExportFormat] = useState("csv")
   const [selectedFields, setSelectedFields] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -52,8 +54,17 @@ export function ExportDialog({ title, description, dataType, open, onOpenChange 
       { id: "nombre", label: "Nombre" },
       { id: "tipo", label: "Tipo" },
       { id: "ubicacion", label: "Ubicación" },
-      { id: "investigadores", label: "Número de investigadores" },
-      { id: "proyectos", label: "Número de proyectos" },
+      { id: "sitio_web", label: "Sitio Web" },
+      { id: "director", label: "Director" },
+      { id: "numero_investigadores", label: "Número de investigadores" },
+    ],
+    publicaciones: [
+      { id: "titulo", label: "Título" },
+      { id: "autores", label: "Autores" },
+      { id: "revista", label: "Revista" },
+      { id: "fecha_publicacion", label: "Fecha de publicación" },
+      { id: "doi", label: "DOI" },
+      { id: "tipo_publicacion", label: "Tipo de publicación" },
     ],
     eventos: [
       { id: "nombre", label: "Nombre" },
@@ -69,6 +80,7 @@ export function ExportDialog({ title, description, dataType, open, onOpenChange 
   }
 
   const handleSelectAll = () => {
+    if (!dataType || !availableFields[dataType]) return
     const allFields = availableFields[dataType].map((field) => field.id)
     setSelectedFields(allFields)
   }
@@ -179,18 +191,24 @@ export function ExportDialog({ title, description, dataType, open, onOpenChange 
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              {availableFields[dataType].map((field) => (
-                <div key={field.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={field.id}
-                    checked={selectedFields.includes(field.id)}
-                    onCheckedChange={() => handleFieldToggle(field.id)}
-                  />
-                  <Label htmlFor={field.id} className="text-blue-900 text-sm">
-                    {field.label}
-                  </Label>
+              {dataType && availableFields[dataType] ? (
+                availableFields[dataType].map((field) => (
+                  <div key={field.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={field.id}
+                      checked={selectedFields.includes(field.id)}
+                      onCheckedChange={() => handleFieldToggle(field.id)}
+                    />
+                    <Label htmlFor={field.id} className="text-blue-900 text-sm">
+                      {field.label}
+                    </Label>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-2 text-center text-blue-600 py-4">
+                  No hay campos disponibles para exportar
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

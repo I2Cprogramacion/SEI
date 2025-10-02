@@ -1,17 +1,65 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { AdminSidebar } from "@/components/admin-sidebar"
+"use client"
 
-export const metadata: Metadata = {
-  title: "Panel de Administración - SECCTI",
-  description: "Panel de administración para la plataforma SECCTI",
-}
+import type React from "react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { AdminSidebar } from "@/components/admin-sidebar"
+import { Loader2 } from "lucide-react"
 
 export default function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const [isLoading, setIsLoading] = useState(true)
+  const [isAuthorized, setIsAuthorized] = useState(false)
+  const router = useRouter()
+
+  useEffect(() => {
+    // Verificar autenticación del lado del cliente también
+    const checkAuth = () => {
+      try {
+        const userData = localStorage.getItem("user")
+        if (!userData) {
+          router.push("/iniciar-sesion")
+          return
+        }
+
+        const user = JSON.parse(userData)
+        
+        // Verificar que el usuario sea admin Y que sea el email autorizado
+        if (!user.isAdmin || user.email !== 'admin@sei.com.mx') {
+          router.push("/")
+          return
+        }
+        
+        setIsAuthorized(true)
+      } catch (error) {
+        console.error("Error checking auth:", error)
+        router.push("/iniciar-sesion")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    checkAuth()
+  }, [router])
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-600 mb-4" />
+          <p className="text-blue-600">Verificando acceso...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isAuthorized) {
+    return null // El router ya redirigió
+  }
+
   return (
     <div className="flex min-h-screen">
       <AdminSidebar />

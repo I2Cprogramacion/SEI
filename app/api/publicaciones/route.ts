@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     // Obtener publicaciones de la tabla dedicada
     const publicacionesNuevas = await obtenerPublicaciones()
     
-    const publicacionesFormateadas = publicacionesNuevas.map((pub: any) => ({
+    const publicacionesFormateadas = Array.isArray(publicacionesNuevas) ? publicacionesNuevas.map((pub: any) => ({
       id: `pub_${pub.id}`,
       titulo: pub.titulo,
       autor: {
@@ -28,14 +28,15 @@ export async function GET(request: NextRequest) {
       paginas: pub.paginas,
       archivo: pub.archivo,
       archivoUrl: pub.archivo_url
-    }))
+    })) : []
 
     // Obtener investigadores de la base de datos para publicaciones existentes
     const investigadores = await obtenerInvestigadores()
     
     const publicaciones: any[] = [...publicacionesFormateadas]
 
-    for (const investigador of investigadores) {
+    if (Array.isArray(investigadores)) {
+      for (const investigador of investigadores) {
       // Procesar artículos
       if (investigador.articulos) {
         const articulosTexto = investigador.articulos.split('\n').filter((a: string) => a.trim())
@@ -140,9 +141,10 @@ export async function GET(request: NextRequest) {
         })
       }
     }
+    }
     
     // Si no hay publicaciones reales, crear algunas de ejemplo para demostración
-    if (publicaciones.length === 0 && investigadores.length > 0) {
+    if (publicaciones.length === 0 && Array.isArray(investigadores) && investigadores.length > 0) {
       const primerInvestigador = investigadores[0]
       publicaciones.push(
         {

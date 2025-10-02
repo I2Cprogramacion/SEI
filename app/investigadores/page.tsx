@@ -196,10 +196,18 @@ export default function InvestigadoresPage() {
                 </Badge>
               )}
             </div>
-            <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent">
-              <Filter className="mr-2 h-4 w-4" />
-              Filtros avanzados
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent">
+                <Filter className="mr-2 h-4 w-4" />
+                Filtros avanzados
+              </Button>
+              <Button variant="outline" className="border-orange-200 text-orange-700 hover:bg-orange-50 bg-transparent" asChild>
+                <Link href="/investigadores/incompletos">
+                  <Award className="mr-2 h-4 w-4" />
+                  Ver investigadores incompletos
+                </Link>
+              </Button>
+            </div>
           </div>
 
           {loading ? (

@@ -34,16 +34,82 @@ export default function AdminDashboard() {
   })
   const [loading, setLoading] = useState(true)
 
-  // TODO: Conectar con API real
+  // Cargar estadísticas reales desde las APIs
   useEffect(() => {
     const fetchStats = async () => {
       try {
         setLoading(true)
-        // const response = await fetch('/api/admin/dashboard-stats')
-        // const data = await response.json()
-        // setStats(data)
+        
+        // Cargar datos de todas las APIs en paralelo
+        const [investigadoresRes, proyectosRes, publicacionesRes, institucionesRes] = await Promise.all([
+          fetch('/api/investigadores').catch(() => ({ ok: false })),
+          fetch('/api/proyectos').catch(() => ({ ok: false })),
+          fetch('/api/publicaciones').catch(() => ({ ok: false })),
+          fetch('/api/instituciones').catch(() => ({ ok: false }))
+        ])
 
-        // Por ahora, datos vacíos
+        // Procesar datos de investigadores
+        let investigadores = []
+        if (investigadoresRes.ok) {
+          const investigadoresData = await investigadoresRes.json()
+          investigadores = investigadoresData.investigadores || investigadoresData || []
+        }
+
+        // Procesar datos de proyectos
+        let proyectos = []
+        if (proyectosRes.ok) {
+          const proyectosData = await proyectosRes.json()
+          proyectos = proyectosData.proyectos || proyectosData || []
+        }
+
+        // Procesar datos de publicaciones
+        let publicaciones = []
+        if (publicacionesRes.ok) {
+          const publicacionesData = await publicacionesRes.json()
+          publicaciones = publicacionesData.publicaciones || publicacionesData || []
+        }
+
+        // Procesar datos de instituciones
+        let instituciones = []
+        if (institucionesRes.ok) {
+          const institucionesData = await institucionesRes.json()
+          instituciones = institucionesData.instituciones || institucionesData || []
+        }
+
+        // Calcular estadísticas
+        const ahora = new Date()
+        const haceUnMes = new Date(ahora.getTime() - 30 * 24 * 60 * 60 * 1000)
+
+        const investigadoresNuevos = investigadores.filter(inv => 
+          new Date(inv.fecha_registro || inv.createdAt) >= haceUnMes
+        ).length
+
+        const proyectosActivos = proyectos.filter(proj => 
+          proj.estado === 'activo' || proj.estado === 'en_progreso'
+        ).length
+
+        const publicacionesRecientes = publicaciones.filter(pub => 
+          new Date(pub.fecha_publicacion || pub.createdAt) >= haceUnMes
+        ).length
+
+        // Calcular alertas (perfiles incompletos)
+        const alertas = investigadores.filter(inv => 
+          !inv.nombre_completo || !inv.correo || !inv.institucion
+        ).length
+
+        setStats({
+          totalInvestigadores: investigadores.length,
+          totalProyectos: proyectos.length,
+          totalPublicaciones: publicaciones.length,
+          totalInstituciones: instituciones.length,
+          investigadoresNuevos,
+          proyectosActivos,
+          publicacionesRecientes,
+          alertas,
+        })
+      } catch (error) {
+        console.error("Error fetching dashboard stats:", error)
+        // Mantener datos por defecto en caso de error
         setStats({
           totalInvestigadores: 0,
           totalProyectos: 0,
@@ -54,8 +120,6 @@ export default function AdminDashboard() {
           publicacionesRecientes: 0,
           alertas: 0,
         })
-      } catch (error) {
-        console.error("Error fetching dashboard stats:", error)
       } finally {
         setLoading(false)
       }
@@ -78,57 +142,111 @@ export default function AdminDashboard() {
               <Eye className="mr-2 h-4 w-4" />
               Ver sitio público
             </Button>
-            <Button className="bg-blue-700 text-white hover:bg-blue-800">
-              <Plus className="mr-2 h-4 w-4" />
-              Nuevo registro
+            <Button 
+              variant="outline" 
+              className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
+              onClick={() => window.location.reload()}
+            >
+              <TrendingUp className="mr-2 h-4 w-4" />
+              Actualizar
             </Button>
           </div>
         </div>
 
         {/* Estadísticas principales */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-white border-blue-100">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-blue-900">Total Investigadores</CardTitle>
-              <Users className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-900">{loading ? "..." : stats.totalInvestigadores}</div>
-              <p className="text-xs text-blue-600">+{loading ? "..." : stats.investigadoresNuevos} nuevos este mes</p>
-            </CardContent>
+          <Card className="bg-white border-blue-100 hover:border-blue-300 transition-colors cursor-pointer" asChild>
+            <Link href="/admin/investigadores">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-blue-900">Total Investigadores</CardTitle>
+                <Users className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+              <div className="text-2xl font-bold text-blue-900">
+                {loading ? (
+                  <div className="animate-pulse bg-blue-100 h-8 w-16 rounded"></div>
+                ) : (
+                  stats.totalInvestigadores
+                )}
+              </div>
+              <p className="text-xs text-blue-600">
+                +{loading ? (
+                  <span className="animate-pulse bg-blue-100 h-3 w-8 rounded inline-block"></span>
+                ) : (
+                  stats.investigadoresNuevos
+                )} nuevos este mes
+              </p>
+              </CardContent>
+            </Link>
           </Card>
 
-          <Card className="bg-white border-blue-100">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-blue-900">Proyectos Activos</CardTitle>
-              <FileText className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-900">{loading ? "..." : stats.proyectosActivos}</div>
-              <p className="text-xs text-blue-600">de {loading ? "..." : stats.totalProyectos} totales</p>
-            </CardContent>
+          <Card className="bg-white border-blue-100 hover:border-blue-300 transition-colors cursor-pointer" asChild>
+            <Link href="/admin/proyectos">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-blue-900">Proyectos Activos</CardTitle>
+                <FileText className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+              <div className="text-2xl font-bold text-blue-900">
+                {loading ? (
+                  <div className="animate-pulse bg-blue-100 h-8 w-16 rounded"></div>
+                ) : (
+                  stats.proyectosActivos
+                )}
+              </div>
+              <p className="text-xs text-blue-600">
+                de {loading ? (
+                  <span className="animate-pulse bg-blue-100 h-3 w-8 rounded inline-block"></span>
+                ) : (
+                  stats.totalProyectos
+                )} totales
+              </p>
+              </CardContent>
+            </Link>
           </Card>
 
-          <Card className="bg-white border-blue-100">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-blue-900">Publicaciones</CardTitle>
-              <Award className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-900">{loading ? "..." : stats.totalPublicaciones}</div>
-              <p className="text-xs text-blue-600">+{loading ? "..." : stats.publicacionesRecientes} este mes</p>
-            </CardContent>
+          <Card className="bg-white border-blue-100 hover:border-blue-300 transition-colors cursor-pointer" asChild>
+            <Link href="/admin/publicaciones">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-blue-900">Publicaciones</CardTitle>
+                <Award className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+              <div className="text-2xl font-bold text-blue-900">
+                {loading ? (
+                  <div className="animate-pulse bg-blue-100 h-8 w-16 rounded"></div>
+                ) : (
+                  stats.totalPublicaciones
+                )}
+              </div>
+              <p className="text-xs text-blue-600">
+                +{loading ? (
+                  <span className="animate-pulse bg-blue-100 h-3 w-8 rounded inline-block"></span>
+                ) : (
+                  stats.publicacionesRecientes
+                )} este mes
+              </p>
+              </CardContent>
+            </Link>
           </Card>
 
-          <Card className="bg-white border-blue-100">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-blue-900">Instituciones</CardTitle>
-              <Building className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-900">{loading ? "..." : stats.totalInstituciones}</div>
+          <Card className="bg-white border-blue-100 hover:border-blue-300 transition-colors cursor-pointer" asChild>
+            <Link href="/admin/instituciones">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-blue-900">Instituciones</CardTitle>
+                <Building className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+              <div className="text-2xl font-bold text-blue-900">
+                {loading ? (
+                  <div className="animate-pulse bg-blue-100 h-8 w-16 rounded"></div>
+                ) : (
+                  stats.totalInstituciones
+                )}
+              </div>
               <p className="text-xs text-blue-600">registradas</p>
-            </CardContent>
+              </CardContent>
+            </Link>
           </Card>
         </div>
 

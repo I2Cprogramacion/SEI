@@ -22,7 +22,7 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         user: this.config.username,
         password: this.config.password,
         ssl: this.config.ssl ? { rejectUnauthorized: false } : false,
-        connectionTimeoutMillis: 10000 // 10 segundos
+        connectionTimeoutMillis: 10000 
       })
 
       // Manejar eventos de error y desconexión
@@ -614,10 +614,136 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         }
       }
       
-      return { proyectos }
+      return proyectos
     } catch (error) {
       console.error('Error al obtener proyectos de PostgreSQL:', error)
-      return { proyectos: [] }
+      return []
+    }
+  }
+
+  async insertarPublicacion(datos: any) {
+    try {
+      if (!this.client) {
+        await this.conectar()
+      }
+
+      // Crear tabla de publicaciones si no existe
+      await this.client.query(`
+        CREATE TABLE IF NOT EXISTS publicaciones (
+          id SERIAL PRIMARY KEY,
+          titulo VARCHAR(500) NOT NULL,
+          autor VARCHAR(255) NOT NULL,
+          institucion VARCHAR(255) NOT NULL,
+          editorial VARCHAR(255) NOT NULL,
+          año_creacion INTEGER NOT NULL,
+          doi VARCHAR(255),
+          resumen TEXT,
+          palabras_clave TEXT,
+          categoria VARCHAR(100) NOT NULL,
+          tipo VARCHAR(100) NOT NULL,
+          acceso VARCHAR(50),
+          volumen VARCHAR(50),
+          numero VARCHAR(50),
+          paginas VARCHAR(50),
+          archivo VARCHAR(500),
+          archivo_url VARCHAR(500),
+          fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `)
+
+      // Insertar la publicación
+      const result = await this.client.query(`
+        INSERT INTO publicaciones (
+          titulo, autor, institucion, editorial, año_creacion, doi, resumen,
+          palabras_clave, categoria, tipo, acceso, volumen, numero, paginas,
+          archivo, archivo_url, fecha_creacion
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+        RETURNING id
+      `, [
+        datos.titulo,
+        datos.autor,
+        datos.institucion,
+        datos.editorial,
+        datos.año_creacion,
+        datos.doi,
+        datos.resumen,
+        datos.palabras_clave,
+        datos.categoria,
+        datos.tipo,
+        datos.acceso,
+        datos.volumen,
+        datos.numero,
+        datos.paginas,
+        datos.archivo,
+        datos.archivo_url,
+        datos.fecha_creacion
+      ])
+
+      return {
+        success: true,
+        message: "Publicación creada exitosamente",
+        id: result.rows[0].id
+      }
+
+    } catch (error) {
+      console.error("Error al insertar publicación en PostgreSQL:", error)
+      return {
+        success: false,
+        message: "Error al crear la publicación",
+        error: error
+      }
+    }
+  }
+
+  async obtenerPublicaciones() {
+    try {
+      if (!this.client) {
+        await this.conectar()
+      }
+
+      // Verificar si la tabla existe
+      const tableExists = await this.client.query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'publicaciones'
+        )
+      `)
+
+      if (!tableExists.rows[0].exists) {
+        return []
+      }
+
+      // Obtener todas las publicaciones
+      const result = await this.client.query(`
+        SELECT * FROM publicaciones 
+        ORDER BY fecha_creacion DESC
+      `)
+
+      return result.rows.map((pub: any) => ({
+        id: pub.id,
+        titulo: pub.titulo,
+        autor: pub.autor,
+        institucion: pub.institucion,
+        editorial: pub.editorial,
+        año_creacion: pub.año_creacion,
+        doi: pub.doi,
+        resumen: pub.resumen,
+        palabras_clave: pub.palabras_clave,
+        categoria: pub.categoria,
+        tipo: pub.tipo,
+        acceso: pub.acceso,
+        volumen: pub.volumen,
+        numero: pub.numero,
+        paginas: pub.paginas,
+        archivo: pub.archivo,
+        archivo_url: pub.archivo_url,
+        fecha_creacion: pub.fecha_creacion
+      }))
+
+    } catch (error) {
+      console.error("Error al obtener publicaciones de PostgreSQL:", error)
+      return []
     }
   }
 }

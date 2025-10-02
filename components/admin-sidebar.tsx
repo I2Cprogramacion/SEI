@@ -1,9 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { BarChart3, FileText, GraduationCap, Home, LayoutDashboard, LogOut, Settings, Users } from "lucide-react"
+import { BarChart3, FileText, GraduationCap, Home, LayoutDashboard, LogOut, Users } from "lucide-react"
+import { useState } from "react"
 
 const sidebarItems = [
   {
@@ -30,11 +31,6 @@ const sidebarItems = [
     title: "Estadísticas",
     href: "/admin/estadisticas",
     icon: BarChart3,
-  },
-  {
-    title: "Configuración",
-    href: "/admin/configuracion",
-    icon: Settings,
   },
 ]
 

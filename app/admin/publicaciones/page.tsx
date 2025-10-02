@@ -17,77 +17,80 @@ import {
 } from "@/components/ui/pagination"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Download, Eye, Filter, Search, UserCog } from "lucide-react"
+import { ArrowLeft, Download, Eye, Filter, Search, BookOpen, Calendar, User, ExternalLink } from "lucide-react"
 import { ExportDialog } from "@/components/export-dialog"
 
-// Interfaz para los datos de investigadores
-interface Investigador {
+// Interfaz para los datos de publicaciones
+interface Publicacion {
   id: number
-  no_cvu?: string
-  curp?: string
-  nombre_completo: string
-  rfc?: string
-  correo: string
-  nacionalidad?: string
-  fecha_nacimiento?: string
+  titulo: string
+  autores?: string
+  revista?: string
+  volumen?: string
+  numero?: string
+  paginas?: string
+  fecha_publicacion?: string
+  doi?: string
+  issn?: string
+  tipo_publicacion?: string
+  area_tematica?: string
+  palabras_clave?: string
+  resumen?: string
+  url?: string
+  investigador_principal?: string
   institucion?: string
-  telefono?: string
-  grado_maximo_estudios?: string
-  experiencia_laboral?: string
-  linea_investigacion?: string
   fecha_registro?: string
-  is_admin?: boolean
 }
 
-export default function InvestigadoresAdmin() {
+export default function PublicacionesAdmin() {
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(5)
-  const [investigadores, setInvestigadores] = useState<Investigador[]>([])
-  const [filteredData, setFilteredData] = useState<Investigador[]>([])
+  const [publicaciones, setPublicaciones] = useState<Publicacion[]>([])
+  const [filteredData, setFilteredData] = useState<Publicacion[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
 
-  // Cargar investigadores desde la API
+  // Cargar publicaciones desde la API
   useEffect(() => {
-    const fetchInvestigadores = async () => {
+    const fetchPublicaciones = async () => {
       try {
         setIsLoading(true)
-        const response = await fetch("/api/investigadores")
+        const response = await fetch("/api/publicaciones")
         if (!response.ok) {
-          throw new Error("Error al cargar los investigadores")
+          throw new Error("Error al cargar las publicaciones")
         }
         const data = await response.json()
         console.log("Datos recibidos de la API:", data)
-        // La API devuelve { investigadores: [...] } o un array directo
-        const investigadoresData = data.investigadores || data || []
-        console.log("Datos procesados:", investigadoresData)
-        setInvestigadores(investigadoresData)
-        setFilteredData(investigadoresData)
+        const publicacionesData = Array.isArray(data.publicaciones) ? data.publicaciones : Array.isArray(data) ? data : []
+        console.log("Datos procesados:", publicacionesData)
+        setPublicaciones(publicacionesData)
+        setFilteredData(publicacionesData)
       } catch (error) {
-        console.error("Error al cargar investigadores:", error)
-        setError("No se pudieron cargar los investigadores.")
+        console.error("Error al cargar publicaciones:", error)
+        setError("No se pudieron cargar las publicaciones.")
       } finally {
         setIsLoading(false)
       }
     }
 
-    fetchInvestigadores()
+    fetchPublicaciones()
   }, [])
 
   // Filtrar datos basados en el término de búsqueda
   const handleSearch = () => {
-    if (!Array.isArray(investigadores)) return
+    if (!Array.isArray(publicaciones)) return
     
-    const filtered = investigadores.filter(
-      (investigador) =>
-        investigador.nombre_completo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        investigador.correo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (investigador.curp && investigador.curp.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (investigador.rfc && investigador.rfc.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (investigador.institucion && investigador.institucion.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (investigador.telefono && investigador.telefono.toLowerCase().includes(searchTerm.toLowerCase())),
+    const filtered = publicaciones.filter(
+      (publicacion) =>
+        publicacion.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        publicacion.autores?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        publicacion.revista?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        publicacion.area_tematica?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        publicacion.palabras_clave?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        publicacion.investigador_principal?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        publicacion.institucion?.toLowerCase().includes(searchTerm.toLowerCase()),
     )
     setFilteredData(filtered)
     setCurrentPage(1)
@@ -100,7 +103,7 @@ export default function InvestigadoresAdmin() {
     }, 300) // Debounce de 300ms
 
     return () => clearTimeout(timeoutId)
-  }, [searchTerm, investigadores])
+  }, [searchTerm, publicaciones])
 
   // Calcular índices para paginación
   const indexOfLastItem = currentPage * itemsPerPage
@@ -109,6 +112,18 @@ export default function InvestigadoresAdmin() {
 
   // Cambiar página
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
+
+  const getTipoBadge = (tipo: string) => {
+    const tipos = {
+      'articulo': 'bg-blue-100 text-blue-800',
+      'libro': 'bg-green-100 text-green-800',
+      'capitulo': 'bg-purple-100 text-purple-800',
+      'ponencia': 'bg-orange-100 text-orange-800',
+      'tesis': 'bg-gray-100 text-gray-800',
+      'patente': 'bg-yellow-100 text-yellow-800',
+    }
+    return tipos[tipo as keyof typeof tipos] || 'bg-gray-100 text-gray-800'
+  }
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -119,7 +134,7 @@ export default function InvestigadoresAdmin() {
             Volver al panel
           </Link>
         </Button>
-        <h1 className="text-2xl font-bold text-blue-900">Administración de Investigadores</h1>
+        <h1 className="text-2xl font-bold text-blue-900">Administración de Publicaciones</h1>
       </div>
 
       {error && (
@@ -130,9 +145,9 @@ export default function InvestigadoresAdmin() {
 
       <Card className="bg-white border-blue-100 mb-8">
         <CardHeader>
-          <CardTitle className="text-blue-900">Investigadores Registrados</CardTitle>
+          <CardTitle className="text-blue-900">Publicaciones Académicas</CardTitle>
           <CardDescription className="text-blue-600">
-            Gestiona los perfiles de investigadores registrados en la plataforma SECCTI
+            Gestiona todas las publicaciones académicas registradas en la plataforma
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -142,7 +157,7 @@ export default function InvestigadoresAdmin() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-4 w-4" />
                 <Input
                   type="text"
-                  placeholder="Buscar por nombre, correo, institución o teléfono..."
+                  placeholder="Buscar por título, autores, revista o área temática..."
                   className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -157,7 +172,7 @@ export default function InvestigadoresAdmin() {
                   variant="outline" 
                   onClick={() => {
                     setSearchTerm("")
-                    setFilteredData(investigadores)
+                    setFilteredData(publicaciones)
                     setCurrentPage(1)
                   }}
                   className="border-blue-200 text-blue-700 hover:bg-blue-50"
@@ -180,9 +195,9 @@ export default function InvestigadoresAdmin() {
                 Exportar
               </Button>
               <Button className="bg-blue-700 text-white hover:bg-blue-800" asChild>
-                <Link href="/investigadores/nuevo-perfil">
-                  <UserCog className="mr-2 h-4 w-4" />
-                  Nuevo Investigador
+                <Link href="/publicaciones/nueva">
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Nueva Publicación
                 </Link>
               </Button>
             </div>
@@ -193,12 +208,12 @@ export default function InvestigadoresAdmin() {
               <TableHeader className="bg-blue-50">
                 <TableRow className="hover:bg-blue-50 border-b border-blue-100">
                   <TableHead className="text-blue-700">ID</TableHead>
-                  <TableHead className="text-blue-700">Nombre Completo</TableHead>
-                  <TableHead className="text-blue-700">Correo</TableHead>
-                  <TableHead className="text-blue-700">Institución</TableHead>
-                  <TableHead className="text-blue-700">Teléfono</TableHead>
-                  <TableHead className="text-blue-700">Rol</TableHead>
-                  <TableHead className="text-blue-700">Fecha Registro</TableHead>
+                  <TableHead className="text-blue-700">Título</TableHead>
+                  <TableHead className="text-blue-700">Autores</TableHead>
+                  <TableHead className="text-blue-700">Revista</TableHead>
+                  <TableHead className="text-blue-700">Tipo</TableHead>
+                  <TableHead className="text-blue-700">Fecha</TableHead>
+                  <TableHead className="text-blue-700">DOI</TableHead>
                   <TableHead className="text-blue-700 text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -208,66 +223,76 @@ export default function InvestigadoresAdmin() {
                     <TableCell colSpan={8} className="text-center py-8 text-blue-600">
                       <div className="flex items-center justify-center">
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
-                        Cargando investigadores...
+                        Cargando publicaciones...
                       </div>
                     </TableCell>
                   </TableRow>
                 ) : !Array.isArray(filteredData) || filteredData.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-8 text-blue-600">
-                      {error ? "Error al cargar los datos" : "No se encontraron investigadores"}
+                      {error ? "Error al cargar los datos" : "No se encontraron publicaciones"}
                     </TableCell>
                   </TableRow>
                 ) : currentItems.length > 0 ? (
-                  currentItems.map((investigador) => (
-                    <TableRow key={investigador.id} className="hover:bg-blue-50 border-b border-blue-100">
-                      <TableCell className="text-blue-900">{investigador.id}</TableCell>
+                  currentItems.map((publicacion) => (
+                    <TableRow key={publicacion.id} className="hover:bg-blue-50 border-b border-blue-100">
+                      <TableCell className="text-blue-900">{publicacion.id}</TableCell>
                       <TableCell className="text-blue-900 font-medium">
-                        {investigador.nombre_completo || "N/A"}
-                      </TableCell>
-                      <TableCell className="text-blue-900">{investigador.correo || "N/A"}</TableCell>
-                      <TableCell className="text-blue-900">{investigador.institucion || "N/A"}</TableCell>
-                      <TableCell className="text-blue-900">{investigador.telefono || "N/A"}</TableCell>
-                      <TableCell className="text-blue-900">
-                        {investigador.is_admin ? (
-                          <Badge className="bg-red-600 text-white">
-                            Admin
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="border-blue-200 text-blue-700">
-                            Usuario
-                          </Badge>
-                        )}
+                        <div className="max-w-xs truncate" title={publicacion.titulo}>
+                          {publicacion.titulo || "N/A"}
+                        </div>
                       </TableCell>
                       <TableCell className="text-blue-900">
-                        {investigador.fecha_registro 
-                          ? new Date(investigador.fecha_registro).toLocaleDateString('es-ES')
-                          : "N/A"
-                        }
+                        <div className="max-w-xs truncate" title={publicacion.autores}>
+                          {publicacion.autores || "N/A"}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-blue-900">
+                        <div className="max-w-xs truncate" title={publicacion.revista}>
+                          {publicacion.revista || "N/A"}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getTipoBadge(publicacion.tipo_publicacion || "articulo")}>
+                          {publicacion.tipo_publicacion || "Artículo"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-blue-900">
+                        {publicacion.fecha_publicacion ? new Date(publicacion.fecha_publicacion).toLocaleDateString() : "N/A"}
+                      </TableCell>
+                      <TableCell className="text-blue-900">
+                        {publicacion.doi ? (
+                          <a 
+                            href={`https://doi.org/${publicacion.doi}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                            {publicacion.doi}
+                          </a>
+                        ) : "N/A"}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-blue-700 hover:bg-blue-50"
+                            variant="outline"
+                            size="sm"
+                            className="border-blue-200 text-blue-700 hover:bg-blue-50"
                             asChild
                           >
-                            <Link href={`/investigadores/${investigador.id}`}>
-                              <Eye className="h-4 w-4" />
-                              <span className="sr-only">Ver perfil</span>
+                            <Link href={`/publicaciones/${publicacion.id}`}>
+                              <Eye className="mr-1 h-3 w-3" />
+                              Ver
                             </Link>
                           </Button>
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-blue-700 hover:bg-blue-50"
-                            asChild
+                            variant="outline"
+                            size="sm"
+                            className="border-blue-200 text-blue-700 hover:bg-blue-50"
                           >
-                            <Link href={`/admin/investigadores/editar/${investigador.id}`}>
-                              <UserCog className="h-4 w-4" />
-                              <span className="sr-only">Editar investigador</span>
-                            </Link>
+                            <BookOpen className="mr-1 h-3 w-3" />
+                            Editar
                           </Button>
                         </div>
                       </TableCell>
@@ -276,9 +301,7 @@ export default function InvestigadoresAdmin() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-8 text-blue-600">
-                      {investigadores.length === 0
-                        ? "No hay investigadores registrados en la plataforma."
-                        : "No se encontraron investigadores con los criterios de búsqueda."}
+                      No hay publicaciones en esta página
                     </TableCell>
                   </TableRow>
                 )}
@@ -286,20 +309,15 @@ export default function InvestigadoresAdmin() {
             </Table>
           </div>
 
+          {/* Paginación */}
           <div className="flex items-center justify-between mt-6">
             <div className="flex items-center gap-2">
               <p className="text-sm text-blue-600">Mostrar</p>
-              <Select
-                value={itemsPerPage.toString()}
-                onValueChange={(value) => {
-                  setItemsPerPage(Number.parseInt(value))
-                  setCurrentPage(1)
-                }}
-              >
-                <SelectTrigger className="w-[70px] bg-white border-blue-200 text-blue-900">
-                  <SelectValue placeholder="5" />
+              <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
+                <SelectTrigger className="w-20 border-blue-200">
+                  <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-white border-blue-100 text-blue-900">
+                <SelectContent>
                   <SelectItem value="5">5</SelectItem>
                   <SelectItem value="10">10</SelectItem>
                   <SelectItem value="20">20</SelectItem>
@@ -340,9 +358,7 @@ export default function InvestigadoresAdmin() {
                               paginate(index + 1)
                             }}
                             isActive={currentPage === index + 1}
-                            className={`${
-                              currentPage === index + 1 ? "bg-blue-700 text-white" : "text-blue-700 hover:bg-blue-50"
-                            }`}
+                            className="text-blue-700 hover:bg-blue-50"
                           >
                             {index + 1}
                           </PaginationLink>
@@ -378,13 +394,14 @@ export default function InvestigadoresAdmin() {
         </CardContent>
       </Card>
 
-      {/* Diálogo de exportación */}
       <ExportDialog
-        title="Exportar Investigadores"
-        description="Selecciona el formato y los campos que deseas exportar."
-        dataType="investigadores"
         open={exportDialogOpen}
         onOpenChange={setExportDialogOpen}
+        dataType="publicaciones"
+        data={filteredData}
+        filename="publicaciones"
+        title="Exportar Publicaciones"
+        description="Selecciona los campos que deseas incluir en la exportación"
       />
     </div>
   )

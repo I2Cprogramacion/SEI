@@ -13,7 +13,20 @@ export async function GET(request: NextRequest) {
       WHERE curp = 'NO DETECTADO' OR curp = '' OR curp IS NULL
     `)
 
-    return NextResponse.json(investigadores)
+    // Asegurar que los datos sean serializables
+    const investigadoresSerializables = investigadores.map((inv: any) => ({
+      id: inv.id,
+      no_cvu: inv.no_cvu,
+      curp: inv.curp,
+      nombre_completo: inv.nombre_completo,
+      rfc: inv.rfc,
+      correo: inv.correo,
+      nacionalidad: inv.nacionalidad,
+      fecha_nacimiento: inv.fecha_nacimiento,
+      institucion: inv.institucion
+    }))
+
+    return NextResponse.json(investigadoresSerializables)
   } catch (error) {
     console.error("Error al obtener investigadores incompletos:", error)
     return NextResponse.json({ error: "Error al obtener los investigadores incompletos" }, { status: 500 })
