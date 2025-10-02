@@ -66,47 +66,81 @@ export default function EstadisticasAdmin() {
 
         // Procesar datos de investigadores
         let investigadores = []
-        if (investigadoresRes.ok) {
-          const investigadoresData = await investigadoresRes.json()
-          investigadores = investigadoresData.investigadores || investigadoresData || []
+        if (investigadoresRes.ok && 'json' in investigadoresRes) {
+          try {
+            const investigadoresData = await investigadoresRes.json()
+            investigadores = Array.isArray(investigadoresData.investigadores) ? investigadoresData.investigadores : 
+                           Array.isArray(investigadoresData) ? investigadoresData : []
+          } catch (error) {
+            console.error("Error al procesar investigadores:", error)
+            investigadores = []
+          }
         }
 
         // Procesar datos de proyectos
         let proyectos = []
-        if (proyectosRes.ok) {
-          const proyectosData = await proyectosRes.json()
-          proyectos = proyectosData.proyectos || proyectosData || []
+        if (proyectosRes.ok && 'json' in proyectosRes) {
+          try {
+            const proyectosData = await proyectosRes.json()
+            proyectos = Array.isArray(proyectosData.proyectos) ? proyectosData.proyectos : 
+                       Array.isArray(proyectosData) ? proyectosData : []
+          } catch (error) {
+            console.error("Error al procesar proyectos:", error)
+            proyectos = []
+          }
         }
 
         // Procesar datos de publicaciones
         let publicaciones = []
-        if (publicacionesRes.ok) {
-          const publicacionesData = await publicacionesRes.json()
-          publicaciones = publicacionesData.publicaciones || publicacionesData || []
+        if (publicacionesRes.ok && 'json' in publicacionesRes) {
+          try {
+            const publicacionesData = await publicacionesRes.json()
+            publicaciones = Array.isArray(publicacionesData.publicaciones) ? publicacionesData.publicaciones : 
+                           Array.isArray(publicacionesData) ? publicacionesData : []
+          } catch (error) {
+            console.error("Error al procesar publicaciones:", error)
+            publicaciones = []
+          }
         }
 
         // Procesar datos de instituciones
         let instituciones = []
-        if (institucionesRes.ok) {
-          const institucionesData = await institucionesRes.json()
-          instituciones = institucionesData.instituciones || institucionesData || []
+        if (institucionesRes.ok && 'json' in institucionesRes) {
+          try {
+            const institucionesData = await institucionesRes.json()
+            instituciones = Array.isArray(institucionesData.instituciones) ? institucionesData.instituciones : 
+                           Array.isArray(institucionesData) ? institucionesData : []
+          } catch (error) {
+            console.error("Error al procesar instituciones:", error)
+            instituciones = []
+          }
         }
 
         // Calcular estadísticas generales
         const ahora = new Date()
         const haceUnMes = new Date(ahora.getTime() - 30 * 24 * 60 * 60 * 1000)
 
-        const investigadoresNuevos = investigadores.filter(inv => 
-          new Date(inv.fecha_registro || inv.createdAt) >= haceUnMes
-        ).length
+        const investigadoresNuevos = Array.isArray(investigadores) ? investigadores.filter(inv => {
+          try {
+            const fecha = inv.fecha_registro || inv.createdAt
+            return fecha ? new Date(fecha) >= haceUnMes : false
+          } catch (error) {
+            return false
+          }
+        }).length : 0
 
-        const proyectosActivos = proyectos.filter(proj => 
-          proj.estado === 'activo' || proj.estado === 'en_progreso'
-        ).length
+        const proyectosActivos = Array.isArray(proyectos) ? proyectos.filter(proj => 
+          proj && (proj.estado === 'activo' || proj.estado === 'en_progreso')
+        ).length : 0
 
-        const publicacionesRecientes = publicaciones.filter(pub => 
-          new Date(pub.fecha_publicacion || pub.createdAt) >= haceUnMes
-        ).length
+        const publicacionesRecientes = Array.isArray(publicaciones) ? publicaciones.filter(pub => {
+          try {
+            const fecha = pub.fecha_publicacion || pub.createdAt
+            return fecha ? new Date(fecha) >= haceUnMes : false
+          } catch (error) {
+            return false
+          }
+        }).length : 0
 
         // Calcular crecimiento mensual
         const totalAnterior = investigadores.length - investigadoresNuevos
@@ -125,29 +159,42 @@ export default function EstadisticasAdmin() {
 
         // Calcular estadísticas por área
         const areasMap = new Map()
-        investigadores.forEach(inv => {
-          const area = inv.linea_investigacion || inv.area_investigacion || 'Sin especificar'
-          if (!areasMap.has(area)) {
-            areasMap.set(area, { area, investigadores: 0, proyectos: 0, publicaciones: 0 })
-          }
-          areasMap.get(area).investigadores++
-        })
+        
+        if (Array.isArray(investigadores)) {
+          investigadores.forEach(inv => {
+            if (inv) {
+              const area = inv.linea_investigacion || inv.area_investigacion || inv.area || 'Sin especificar'
+              if (!areasMap.has(area)) {
+                areasMap.set(area, { area, investigadores: 0, proyectos: 0, publicaciones: 0 })
+              }
+              areasMap.get(area).investigadores++
+            }
+          })
+        }
 
-        proyectos.forEach(proj => {
-          const area = proj.area_investigacion || 'Sin especificar'
-          if (!areasMap.has(area)) {
-            areasMap.set(area, { area, investigadores: 0, proyectos: 0, publicaciones: 0 })
-          }
-          areasMap.get(area).proyectos++
-        })
+        if (Array.isArray(proyectos)) {
+          proyectos.forEach(proj => {
+            if (proj) {
+              const area = proj.area_investigacion || proj.area || 'Sin especificar'
+              if (!areasMap.has(area)) {
+                areasMap.set(area, { area, investigadores: 0, proyectos: 0, publicaciones: 0 })
+              }
+              areasMap.get(area).proyectos++
+            }
+          })
+        }
 
-        publicaciones.forEach(pub => {
-          const area = pub.area_tematica || 'Sin especificar'
-          if (!areasMap.has(area)) {
-            areasMap.set(area, { area, investigadores: 0, proyectos: 0, publicaciones: 0 })
-          }
-          areasMap.get(area).publicaciones++
-        })
+        if (Array.isArray(publicaciones)) {
+          publicaciones.forEach(pub => {
+            if (pub) {
+              const area = pub.area_tematica || pub.area || 'Sin especificar'
+              if (!areasMap.has(area)) {
+                areasMap.set(area, { area, investigadores: 0, proyectos: 0, publicaciones: 0 })
+              }
+              areasMap.get(area).publicaciones++
+            }
+          })
+        }
 
         const estadisticasAreas = Array.from(areasMap.values())
           .sort((a, b) => b.investigadores - a.investigadores)
@@ -157,29 +204,42 @@ export default function EstadisticasAdmin() {
 
         // Calcular estadísticas por institución
         const institucionesMap = new Map()
-        investigadores.forEach(inv => {
-          const institucion = inv.institucion || 'Sin especificar'
-          if (!institucionesMap.has(institucion)) {
-            institucionesMap.set(institucion, { institucion, investigadores: 0, proyectos: 0, publicaciones: 0 })
-          }
-          institucionesMap.get(institucion).investigadores++
-        })
+        
+        if (Array.isArray(investigadores)) {
+          investigadores.forEach(inv => {
+            if (inv) {
+              const institucion = inv.institucion || 'Sin especificar'
+              if (!institucionesMap.has(institucion)) {
+                institucionesMap.set(institucion, { institucion, investigadores: 0, proyectos: 0, publicaciones: 0 })
+              }
+              institucionesMap.get(institucion).investigadores++
+            }
+          })
+        }
 
-        proyectos.forEach(proj => {
-          const institucion = proj.institucion || 'Sin especificar'
-          if (!institucionesMap.has(institucion)) {
-            institucionesMap.set(institucion, { institucion, investigadores: 0, proyectos: 0, publicaciones: 0 })
-          }
-          institucionesMap.get(institucion).proyectos++
-        })
+        if (Array.isArray(proyectos)) {
+          proyectos.forEach(proj => {
+            if (proj) {
+              const institucion = proj.institucion || 'Sin especificar'
+              if (!institucionesMap.has(institucion)) {
+                institucionesMap.set(institucion, { institucion, investigadores: 0, proyectos: 0, publicaciones: 0 })
+              }
+              institucionesMap.get(institucion).proyectos++
+            }
+          })
+        }
 
-        publicaciones.forEach(pub => {
-          const institucion = pub.institucion || 'Sin especificar'
-          if (!institucionesMap.has(institucion)) {
-            institucionesMap.set(institucion, { institucion, investigadores: 0, proyectos: 0, publicaciones: 0 })
-          }
-          institucionesMap.get(institucion).publicaciones++
-        })
+        if (Array.isArray(publicaciones)) {
+          publicaciones.forEach(pub => {
+            if (pub) {
+              const institucion = pub.institucion || pub.autor?.institucion || 'Sin especificar'
+              if (!institucionesMap.has(institucion)) {
+                institucionesMap.set(institucion, { institucion, investigadores: 0, proyectos: 0, publicaciones: 0 })
+              }
+              institucionesMap.get(institucion).publicaciones++
+            }
+          })
+        }
 
         const estadisticasInstituciones = Array.from(institucionesMap.values())
           .sort((a, b) => b.investigadores - a.investigadores)

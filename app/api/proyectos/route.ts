@@ -1,135 +1,93 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { promises as fs } from 'fs'
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+import { obtenerInvestigadores } from "@/lib/db"
+import fs from 'fs'
 import path from 'path'
 
-// Ruta del archivo de datos
-const dataFilePath = path.join(process.cwd(), 'data', 'proyectos.json')
+export const dynamic = 'force-dynamic'
 
-// Función para leer proyectos desde el archivo
-async function readProyectos(): Promise<any[]> {
+export async function GET(request: NextRequest) {
   try {
-    await fs.mkdir(path.dirname(dataFilePath), { recursive: true })
-    const data = await fs.readFile(dataFilePath, 'utf8')
-    return JSON.parse(data)
-  } catch (error) {
-    // Si el archivo no existe o hay error, devolver array vacío
-    return []
-  }
-}
-
-// Función para escribir proyectos al archivo
-async function writeProyectos(proyectos: any[]): Promise<void> {
-  await fs.mkdir(path.dirname(dataFilePath), { recursive: true })
-  await fs.writeFile(dataFilePath, JSON.stringify(proyectos, null, 2), 'utf8')
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
+    // Obtener investigadores de la base de datos
+    const investigadores = await obtenerInvestigadores()
     
-    // Validar datos requeridos
-    const requiredFields = ['titulo', 'descripcion', 'resumen', 'categoria', 'autor', 'institucion', 'fechaInicio']
-    const missingFields = requiredFields.filter(field => !body[field])
+    // Obtener proyectos del archivo JSON
+    const proyectosPath = path.join(process.cwd(), 'data', 'proyectos.json')
+    let proyectos = []
     
-    if (missingFields.length > 0) {
-      return NextResponse.json(
-        { error: `Campos faltantes: ${missingFields.join(', ')}` },
-        { status: 400 }
-      )
+    try {
+      const proyectosData = fs.readFileSync(proyectosPath, 'utf8')
+      const proyectosJson = JSON.parse(proyectosData)
+      proyectos = Array.isArray(proyectosJson) ? proyectosJson : []
+    } catch (error) {
+      console.error("Error al leer proyectos:", error)
     }
-
-    // Leer proyectos existentes
-    const proyectos = await readProyectos()
-
-    // Crear nuevo proyecto
-    const nuevoProyecto = {
-      id: proyectos.length + 1,
-      ...body,
-      slug: body.titulo
-        .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, '')
-        .replace(/\s+/g, '-')
-        .trim(),
-      fechaCreacion: new Date().toISOString(),
-      fechaPublicacion: new Date().toISOString().split('T')[0]
+    
+    // Procesar proyectos de investigadores
+    const proyectosInvestigadores = []
+    
+    if (Array.isArray(investigadores)) {
+      investigadores.forEach(investigador => {
+        // Proyectos de investigación
+        if (investigador.proyectos_investigacion) {
+          const proyectosTexto = investigador.proyectos_investigacion.split('\n').filter((p: string) => p.trim())
+          proyectosTexto.forEach((proyectoTexto: string, index: number) => {
+            if (proyectoTexto.trim()) {
+              proyectosInvestigadores.push({
+                id: `${investigador.id}_proyecto_${index}`,
+                titulo: proyectoTexto.trim(),
+                investigador: investigador.nombre_completo,
+                institucion: investigador.institucion || 'Institución no especificada',
+                area: investigador.area || investigador.disciplina || 'Investigación',
+                estado: 'activo',
+                fecha_inicio: new Date().toISOString().split('T')[0],
+                descripcion: `Proyecto de investigación de ${investigador.nombre_completo}`,
+                tipo: 'Investigación'
+              })
+            }
+          })
+        }
+      })
     }
-
-    // Agregar a la lista
-    proyectos.push(nuevoProyecto)
-
-    // Guardar en archivo
-    await writeProyectos(proyectos)
-
-    return NextResponse.json(
-      { 
-        message: 'Proyecto creado exitosamente',
-        proyecto: nuevoProyecto 
-      },
-      { status: 201 }
-    )
-
-  } catch (error) {
-    console.error('Error al crear proyecto:', error)
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
-  }
-}
-
-export async function GET() {
-  try {
-    const proyectos = await readProyectos()
+    
+    // Combinar proyectos del JSON con proyectos de investigadores
+    const todosProyectos = [...proyectos, ...proyectosInvestigadores]
     
     // Si no hay proyectos reales, crear algunos de ejemplo
-    if (proyectos.length === 0) {
-      const proyectosEjemplo = [
+    if (todosProyectos.length === 0 && Array.isArray(investigadores) && investigadores.length > 0) {
+      const primerInvestigador = investigadores[0]
+      todosProyectos.push(
         {
-          id: 1,
-          titulo: "Desarrollo de Energías Renovables en Zonas Áridas de Chihuahua",
-          descripcion: "Investigación sobre el potencial de implementación de energías renovables en el estado de Chihuahua, enfocándose en energía solar y eólica para comunidades rurales.",
-          resumen: "Este proyecto busca evaluar la viabilidad técnica y económica de implementar sistemas de energía renovable en zonas áridas del estado de Chihuahua.",
-          categoria: "Energías Renovables",
-          estado: "Activo",
-          fechaInicio: "2023-01-01",
-          fechaFin: "2024-12-31",
-          fechaPublicacion: "2023-01-01",
-          autor: {
-            nombreCompleto: "Dr. Juan Pérez García",
-            instituto: "Universidad",
-            estado: "Chihuahua",
-            email: "juan.pere@uach.mx"
-          },
-          slug: "desarrollo-energias-renovables-zonas-aridas-chihuahua"
+          id: `${primerInvestigador.id}_demo_1`,
+          titulo: "Desarrollo de Tecnologías Sostenibles para Zonas Áridas",
+          investigador: primerInvestigador.nombre_completo,
+          institucion: primerInvestigador.institucion || 'Institución no especificada',
+          area: primerInvestigador.area || 'Investigación',
+          estado: 'activo',
+          fecha_inicio: '2024-01-01',
+          descripcion: 'Proyecto enfocado en el desarrollo de tecnologías sostenibles para zonas áridas',
+          tipo: 'Investigación'
         },
         {
-          id: 2,
-          titulo: "Innovación en Sistemas de Riego para Agricultura en Zonas Áridas",
-          descripcion: "Desarrollo de tecnologías de riego inteligente que optimicen el uso del agua en la agricultura del norte de México.",
-          resumen: "Implementación de sistemas IoT para monitoreo y control automático de riego en cultivos de la región.",
-          categoria: "Agricultura",
-          estado: "En desarrollo",
-          fechaInicio: "2023-06-01",
-          fechaFin: "2025-05-31",
-          fechaPublicacion: "2023-06-01",
-          autor: {
-            nombreCompleto: "Dr. Juan Pérez García",
-            instituto: "Universidad",
-            estado: "Chihuahua",
-            email: "juan.pere@uach.mx"
-          },
-          slug: "innovacion-sistemas-riego-agricultura-zonas-aridas"
+          id: `${primerInvestigador.id}_demo_2`,
+          titulo: "Análisis de Patrones Climáticos en el Norte de México",
+          investigador: primerInvestigador.nombre_completo,
+          institucion: primerInvestigador.institucion || 'Institución no especificada',
+          area: primerInvestigador.area || 'Investigación',
+          estado: 'en_progreso',
+          fecha_inicio: '2024-02-01',
+          descripcion: 'Estudio de patrones climáticos y su impacto en la región',
+          tipo: 'Investigación'
         }
-      ]
-      return NextResponse.json({ proyectos: proyectosEjemplo }, { status: 200 })
+      )
     }
     
-    return NextResponse.json({ proyectos }, { status: 200 })
+    return NextResponse.json({ proyectos: todosProyectos })
   } catch (error) {
-    console.error('Error al obtener proyectos:', error)
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    console.error("Error al obtener proyectos:", error)
+    return NextResponse.json({ 
+      proyectos: [],
+      error: "Error al obtener los proyectos" 
+    }, { status: 500 })
   }
 }
