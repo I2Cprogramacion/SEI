@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useMemo } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -43,8 +43,8 @@ export default function RegistroPage() {
     no_cvu: "",
     correo: "",
     telefono: "",
-    grado_maximo_estudios: "",
-    experiencia_laboral: "",
+    ultimo_grado_estudios: "",
+    empleo_actual: "",
     linea_investigacion: "",
     nacionalidad: "Mexicana",
     fecha_nacimiento: "",
@@ -57,18 +57,15 @@ export default function RegistroPage() {
   const [isProcessingPDF, setIsProcessingPDF] = useState(false)
   const [ocrCompleted, setOcrCompleted] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [emailExists, setEmailExists] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const router = useRouter()
-
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       // Validar tipo de archivo
-      const supportedTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/gif", "image/bmp", "image/tiff"]
-      if (!supportedTypes.includes(file.type)) {
-        setError("Por favor selecciona un archivo PDF o imagen válido (JPG, PNG, GIF, BMP, TIFF)")
+      if (file.type !== "application/pdf") {
+        setError("Por favor selecciona un archivo PDF válido")
         setSelectedFile(null)
         setOcrCompleted(false)
         // Reset the input value
@@ -102,8 +99,8 @@ export default function RegistroPage() {
         no_cvu: "",
         correo: "",
         telefono: "",
-        grado_maximo_estudios: "",
-        experiencia_laboral: "",
+        ultimo_grado_estudios: "",
+        empleo_actual: "",
         linea_investigacion: "", // Este campo siempre se mantiene vacío para captura manual
         nacionalidad: "Mexicana",
         fecha_nacimiento: "",
@@ -124,48 +121,71 @@ export default function RegistroPage() {
     setError(null)
 
     try {
-      console.log('🚀 Iniciando procesamiento OCR real...')
-      console.log('📁 Archivo seleccionado:', selectedFile.name, selectedFile.type, selectedFile.size)
-
       // Crear FormData para enviar el archivo
       const formData = new FormData()
-      formData.append('file', selectedFile)
+      formData.append("file", selectedFile)
 
-      // Llamar a la API de OCR real
-      const response = await fetch('/api/ocr', {
-        method: 'POST',
+      // Enviar archivo al endpoint de OCR (sin autenticación para registro público)
+      const response = await fetch("/api/ocr", {
+        method: "POST",
         body: formData,
       })
 
-      console.log('📡 Respuesta de la API:', response.status, response.statusText)
+      const result = await response.json()
 
       if (!response.ok) {
-        const errorData = await response.json()
-        console.error('❌ Error en la API:', errorData)
-        throw new Error(errorData.error || 'Error al procesar el archivo')
+        throw new Error(result.error || "Error procesando PDF")
       }
 
-      const result = await response.json()
-      console.log('✅ Resultado del OCR:', result)
-      
       if (result.success && result.data) {
-        console.log('📝 Datos extraídos:', result.data)
-        // Aplicar los datos extraídos, manteniendo campos sensibles vacíos
+        // Actualizar el formulario con los datos extraídos
         setFormData((prev) => ({
           ...prev,
           ...result.data,
-          linea_investigacion: "", // Mantener vacío para captura manual
-          password: "", // Mantener vacío para captura manual
-          confirm_password: "", // Mantener vacío para captura manual
+          linea_investigacion: "", // Asegurar que siempre esté vacía para captura manual
+          password: "", // Asegurar que siempre esté vacía
+          confirm_password: "", // Asegurar que siempre esté vacía
         }))
+
         setOcrCompleted(true)
-        console.log('✅ Datos aplicados al formulario')
+        setError(null)
+        
+        if (result.fallback) {
+          // Si es fallback, mostrar mensaje informativo
+          console.log("Procesamiento automático no disponible, formulario listo para llenado manual")
+        } else {
+          // Mostrar mensaje de éxito con información sobre los campos encontrados
+          console.log(`PDF procesado exitosamente. Campos encontrados: ${result.total_fields}`)
+        }
       } else {
-        throw new Error(result.error || 'No se pudieron extraer datos del archivo')
+        throw new Error("No se pudieron extraer datos del PDF")
       }
     } catch (error) {
-      console.error('❌ Error al procesar archivo:', error)
-      setError(error instanceof Error ? error.message : "Error al procesar el archivo. Por favor intenta de nuevo.")
+      console.error("Error procesando PDF:", error)
+      
+      // Mostrar mensaje de error más específico
+      let errorMessage = "Error al procesar el PDF"
+      if (error instanceof Error) {
+        if (error.message.includes("Failed to fetch")) {
+          errorMessage = "No se pudo conectar al servidor de procesamiento. El formulario se ha preparado para llenado manual."
+        } else if (error.message.includes("timeout")) {
+          errorMessage = "El procesamiento tardó demasiado. El formulario se ha preparado para llenado manual."
+        } else {
+          errorMessage = `Error al procesar el PDF: ${error.message}`
+        }
+      }
+      
+      setError(errorMessage)
+      
+      // En caso de error, preparar formulario para llenado manual
+      setFormData((prev) => ({
+        ...prev,
+        nacionalidad: "Mexicana", // Asegurar valor por defecto
+        linea_investigacion: "", // Asegurar que esté vacío
+        password: "", // Asegurar que esté vacío
+        confirm_password: "", // Asegurar que esté vacío
+      }))
+      setOcrCompleted(true) // Permitir continuar con llenado manual
     } finally {
       setIsProcessingPDF(false)
     }
@@ -191,8 +211,8 @@ export default function RegistroPage() {
       { field: "nombre_completo", label: "Nombre Completo" },
       { field: "correo", label: "Correo Electrónico" },
       { field: "telefono", label: "Teléfono" },
-      { field: "grado_maximo_estudios", label: "Último Grado de Estudios" },
-      { field: "experiencia_laboral", label: "Empleo Actual" },
+      { field: "ultimo_grado_estudios", label: "Último Grado de Estudios" },
+      { field: "empleo_actual", label: "Empleo Actual" },
       { field: "linea_investigacion", label: "Línea de Investigación" },
       { field: "nacionalidad", label: "Nacionalidad" },
       { field: "fecha_nacimiento", label: "Fecha de Nacimiento" },
@@ -250,8 +270,8 @@ export default function RegistroPage() {
       const dataToSend = {
         ...formData,
         fecha_registro: new Date().toISOString(),
-        // origen: "ocr", // Columna no existe en la tabla
-        // archivo_procesado: selectedFile?.name || "", // Columna no existe en la tabla
+        origen: "ocr",
+        archivo_procesado: selectedFile?.name || "",
       }
 
       // No enviar la confirmación de contraseña
@@ -259,21 +279,28 @@ export default function RegistroPage() {
 
       console.log("Enviando datos:", dataToSendWithoutConfirm)
 
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       const response = await fetch("/api/registro", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(dataToSendWithoutConfirm),
       })
 
       const responseData = await response.json()
       console.log("Respuesta del servidor:", responseData)
+      if (responseData.token) {
+        localStorage.setItem("token", responseData.token)
+        console.log("Token guardado en localStorage (registro):", responseData.token)
+      } else {
+        console.log("No se recibió token en la respuesta de registro.")
+      }
 
       if (!response.ok) {
         // Manejar caso de duplicado (código 409)
         if (response.status === 409 && responseData.duplicado) {
-          setEmailExists(true)
           setError(`${responseData.message} ID: ${responseData.id}`)
           return
         }
@@ -298,7 +325,7 @@ export default function RegistroPage() {
   }
 
   // Verificar si el formulario está completo
-  const isFormComplete = validateForm().length === 0 && !emailExists
+  const isFormComplete = validateForm().length === 0
   const passwordValidation = validatePassword(formData.password)
   const passwordsMatch = formData.password === formData.confirm_password
 
@@ -308,11 +335,6 @@ export default function RegistroPage() {
       ...prev,
       [name]: value,
     }))
-
-    // Limpiar error de correo duplicado cuando el usuario cambie el correo
-    if (name === 'correo' && emailExists) {
-      setEmailExists(false)
-    }
   }
 
   return (
@@ -326,28 +348,31 @@ export default function RegistroPage() {
             </div>
             <h1 className="text-2xl md:text-4xl font-bold text-blue-900">Regístrate en SECCTI</h1>
             <p className="text-sm md:text-lg text-blue-600 max-w-2xl mx-auto px-2">
-              Sube tu Perfil Único (PU) en PDF o imagen para crear tu cuenta de investigador de forma automática
+              Sube tu Perfil Único (PU) en PDF para crear tu cuenta de investigador de forma automática
             </p>
           </div>
 
-          {/* Info Alert */}
+          {/* Info Alert OCR campos */}
           <div className="max-w-3xl mx-auto">
             <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-sm">
               <Info className="h-5 w-5 text-blue-600" />
-              <AlertTitle className="text-blue-900 font-semibold">Registro automático con OCR</AlertTitle>
+              <AlertTitle className="text-blue-900 font-semibold">¿Qué datos se extraen automáticamente?</AlertTitle>
               <AlertDescription className="text-blue-700">
-                Para garantizar la precisión de los datos, el registro se realiza mediante la carga de tu
-                Perfil Único en formato PDF o imagen. Nuestro sistema extraerá automáticamente tu información académica usando extracción de texto real.
-                <br /><br />
-                <strong>Funcionalidad:</strong> El sistema analiza el contenido real de tu archivo y extrae automáticamente 
-                datos como nombre, CURP, RFC, email, teléfono, grado académico y más. Puedes editar los datos extraídos antes de guardar.
+                <ul className="list-disc pl-5 space-y-1">
+                  <li><b>CVU/PU</b> <span className="text-green-700">(extraído por OCR)</span></li>
+                  <li><b>CURP</b> <span className="text-green-700">(extraído por OCR)</span></li>
+                  <li><b>RFC</b> <span className="text-green-700">(extraído por OCR)</span></li>
+                </ul>
+                <div className="mt-2 text-blue-800">
+                  <b>Todos los demás campos deben ser llenados manualmente por el usuario.</b>
+                </div>
               </AlertDescription>
             </Alert>
           </div>
 
           {/* Main Content */}
           <div className="grid grid-cols-1 gap-6 md:gap-8 max-w-6xl mx-auto">
-            {/* Paso 1: Subir Archivo */}
+            {/* Paso 1: Subir PDF */}
             <Card className="bg-white/80 backdrop-blur-sm border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300">
               <CardHeader className="text-center pb-6">
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-3">
@@ -358,19 +383,19 @@ export default function RegistroPage() {
                   Subir Perfil Único
                 </CardTitle>
                 <CardDescription className="text-blue-600">
-                  Selecciona tu Perfil Único (PU) en formato PDF o imagen para extraer automáticamente tu información académica
+                  Selecciona tu Perfil Único (PU) en formato PDF para extraer automáticamente tu información académica
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-3">
                   <Label htmlFor="pdf-upload" className="text-blue-900 font-medium">
-                    Archivo del Perfil Único * (PDF o imagen, máximo 2MB)
+                    Archivo PDF del Perfil Único * (Máximo 2MB)
                   </Label>
                   <div className="relative">
                     <Input
                       id="pdf-upload"
                       type="file"
-                      accept=".pdf,.jpg,.jpeg,.png,.gif,.bmp,.tiff"
+                      accept=".pdf"
                       onChange={handleFileChange}
                       className="bg-white border-blue-200 text-blue-900 file:bg-blue-50 file:text-blue-700 file:border-0 file:rounded-md file:px-4 file:py-2 file:mr-4 hover:file:bg-blue-100 transition-colors"
                       required
@@ -404,7 +429,7 @@ export default function RegistroPage() {
                   {isProcessingPDF ? (
                     <>
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Procesando archivo con OCR...
+                      Procesando PDF con OCR...
                     </>
                   ) : (
                     <>
@@ -437,11 +462,7 @@ export default function RegistroPage() {
                             y corrijas:
                           </p>
                           <ul className="list-disc list-inside space-y-1 text-sm">
-                            <li>Nombres y apellidos completos</li>
                             <li>Números de identificación (CURP, RFC, CVU)</li>
-                            <li>Correo electrónico y teléfono</li>
-                            <li>Grados académicos e institución</li>
-                            <li>Empleo actual</li>
                             <li>
                               <strong>Línea de investigación (captura manual requerida)</strong>
                             </li>
@@ -465,7 +486,7 @@ export default function RegistroPage() {
                     <li className="flex items-center gap-2">
                       <CheckCircle className="h-3 w-3 text-green-600" />
                       <span>
-                        <strong>Formato:</strong> PDF o imágenes (JPG, PNG, GIF, BMP, TIFF)
+                        <strong>Formato:</strong> Solo archivos PDF
                       </span>
                     </li>
                     <li className="flex items-center gap-2">
@@ -551,7 +572,7 @@ export default function RegistroPage() {
                           name="nombre_completo"
                           value={formData.nombre_completo}
                           onChange={handleChange}
-                          placeholder="Dr. Juan Pérez García"
+                          placeholder="Nombre completo"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.nombre_completo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
@@ -575,20 +596,13 @@ export default function RegistroPage() {
                           type="email"
                           value={formData.correo}
                           onChange={handleChange}
-                          placeholder="juan.perez@universidad.edu"
+                          placeholder="Correo electrónico"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.correo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : 
-                            emailExists ? "border-red-300 bg-red-50" : ""
+                            !formData.correo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
                           disabled={!ocrCompleted}
                         />
-                        {emailExists && (
-                          <p className="text-sm text-red-600 flex items-center gap-2">
-                            <span>⚠️</span>
-                            Este correo electrónico ya está registrado
-                          </p>
-                        )}
                       </div>
 
                       <div className="space-y-2">
@@ -604,7 +618,7 @@ export default function RegistroPage() {
                           name="telefono"
                           value={formData.telefono}
                           onChange={handleChange}
-                          placeholder="614-123-4567"
+                          placeholder="Teléfono"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.telefono.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
@@ -669,7 +683,7 @@ export default function RegistroPage() {
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label
-                          htmlFor="grado_maximo_estudios"
+                          htmlFor="ultimo_grado_estudios"
                           className="text-blue-900 font-medium flex items-center gap-2"
                         >
                           <GraduationCap className="h-4 w-4" />
@@ -677,13 +691,13 @@ export default function RegistroPage() {
                           {ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
                         </Label>
                         <Input
-                          id="grado_maximo_estudios"
-                          name="grado_maximo_estudios"
-                          value={formData.grado_maximo_estudios}
+                          id="ultimo_grado_estudios"
+                          name="ultimo_grado_estudios"
+                          value={formData.ultimo_grado_estudios}
                           onChange={handleChange}
-                          placeholder="Doctorado en Ciencias de la Computación - Universidad Autónoma de Chihuahua"
+                          placeholder="Último grado de estudios"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.grado_maximo_estudios.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                            !formData.ultimo_grado_estudios.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
                           disabled={!ocrCompleted}
@@ -691,18 +705,18 @@ export default function RegistroPage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="experiencia_laboral" className="text-blue-900 font-medium flex items-center gap-2">
+                        <Label htmlFor="empleo_actual" className="text-blue-900 font-medium flex items-center gap-2">
                           <Briefcase className="h-4 w-4" />
                           Empleo Actual *{ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
                         </Label>
                         <Input
-                          id="experiencia_laboral"
-                          name="experiencia_laboral"
-                          value={formData.experiencia_laboral}
+                          id="empleo_actual"
+                          name="empleo_actual"
+                          value={formData.empleo_actual}
                           onChange={handleChange}
-                          placeholder="Profesor-Investigador Titular C - Universidad Autónoma de Chihuahua"
+                          placeholder="Empleo actual"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.experiencia_laboral.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                            !formData.empleo_actual.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
                           disabled={!ocrCompleted}
@@ -729,7 +743,7 @@ export default function RegistroPage() {
                           name="no_cvu"
                           value={formData.no_cvu}
                           onChange={handleChange}
-                          placeholder="123456"
+                          placeholder="CVU/PU"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.no_cvu.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
@@ -748,7 +762,7 @@ export default function RegistroPage() {
                           name="curp"
                           value={formData.curp}
                           onChange={handleChange}
-                          placeholder="PEGJ800101HCHRNN09"
+                          placeholder="CURP"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.curp.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
@@ -767,7 +781,7 @@ export default function RegistroPage() {
                           name="rfc"
                           value={formData.rfc}
                           onChange={handleChange}
-                          placeholder="PEGJ800101ABC"
+                          placeholder="RFC"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.rfc.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
@@ -1001,8 +1015,7 @@ export default function RegistroPage() {
                       <Edit className="h-4 w-4 text-blue-600" />
                       <AlertTitle className="text-blue-800 font-semibold">Captura manual requerida</AlertTitle>
                       <AlertDescription className="text-blue-700">
-                        Este campo requiere que describas manualmente tu línea de investigación principal. El OCR no
-                        extrae esta información para garantizar precisión y personalización.
+                        Este campo requiere que describas manualmente tu línea de investigación principal.
                       </AlertDescription>
                     </Alert>
                     <div className="space-y-2">

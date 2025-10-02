@@ -1,11 +1,10 @@
 {
-  "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "installCommand": "npm install",
   "functions": {
-    "app/api/**/*.ts": {
+    "app/api/ocr/route.ts": {
       "maxDuration": 30
     }
+  },
+  "env": {
+    "PDF_PROCESSOR_URL": "http://localhost:8001"
   }
 }

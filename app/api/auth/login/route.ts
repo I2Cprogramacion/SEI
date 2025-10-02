@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { verificarCredenciales } from "@/lib/db"
+import { send2FACode } from "@/lib/email-2fa"
+
+// Simulación: en producción usar Redis o DB temporal
+const codes: Record<string, { code: string; expires: number; user: any }> = {};
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,37 +23,25 @@ export async function POST(request: NextRequest) {
     const resultado = await verificarCredenciales(email, password)
 
     if (resultado.success) {
-      // Login exitoso - crear respuesta con cookies
-      const response = NextResponse.json({
-        success: true,
-        message: "Login exitoso",
+      // Generar código 2FA y enviar por email
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      codes[resultado.user.email] = {
+        code,
+        expires: Date.now() + 5 * 60 * 1000, // 5 minutos
         user: resultado.user
-      })
-      
-      // Configurar cookies de autenticación
-      // Cookie con token de autenticación (simulado)
-      response.cookies.set('auth-token', 'authenticated', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 60 * 60 * 24 * 7 // 7 días
-      })
-      
-      // Cookie con datos del usuario (para el middleware)
-      response.cookies.set('user-data', JSON.stringify(resultado.user), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 60 * 60 * 24 * 7 // 7 días
-      })
-      
-      return response
+      };
+      await send2FACode(resultado.user.email, code);
+      return NextResponse.json({
+        success: false,
+        pending_2fa: true,
+        message: "Código de verificación enviado al email"
+      });
     } else {
       // Credenciales incorrectas
       return NextResponse.json(
         { error: resultado.message },
         { status: 401 }
-      )
+      );
     }
 
   } catch (error) {

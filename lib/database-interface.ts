@@ -18,19 +18,6 @@ export interface DatabaseInterface {
     user?: any
   }>
   
-  // Métodos de proyectos
-  obtenerProyectos(): Promise<any[]>
-  
-  // Métodos de publicaciones
-  insertarPublicacion(datos: any): Promise<{
-    success: boolean
-    message: string
-    id?: number
-    error?: any
-  }>
-  
-  obtenerPublicaciones(): Promise<any[]>
-  
   // Métodos de conexión
   conectar(): Promise<void>
   
@@ -41,6 +28,9 @@ export interface DatabaseInterface {
   
   // Métodos de migración
   ejecutarMigracion(sql: string): Promise<void>
+
+  // Consultar investigadores incompletos (sin CURP)
+  consultarInvestigadoresIncompletos(): Promise<any[]>
 }
 
 // Tipos de base de datos soportados

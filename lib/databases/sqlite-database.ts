@@ -5,6 +5,17 @@ import fs from "fs"
 import { DatabaseInterface, DatabaseConfig } from "../database-interface"
 
 export class SQLiteDatabase implements DatabaseInterface {
+  async consultarInvestigadoresIncompletos() {
+    if (!this.db) {
+      await this.conectar();
+    }
+    const investigadores = await this.db.all(`
+      SELECT id, no_cvu, curp, nombre_completo, rfc, correo, nacionalidad, fecha_nacimiento, institucion
+      FROM investigadores
+      WHERE curp = 'NO DETECTADO' OR curp = '' OR curp IS NULL
+    `);
+    return investigadores;
+  }
   private db: any = null
   private config: DatabaseConfig
 
@@ -113,8 +124,6 @@ export class SQLiteDatabase implements DatabaseInterface {
       "cv_ligado_orcid",
       "orcid_verificado",
       "fecha_registro",
-      "password",
-      "is_admin",
     ]
 
     // Crear la tabla si no existe
@@ -200,29 +209,7 @@ export class SQLiteDatabase implements DatabaseInterface {
       }
 
       // Preparar los campos y valores para la inserción
-      // Filtrar campos que no existen en la tabla
-      const camposExistentes = [
-        'id', 'curp', 'nombre_completo', 'rfc', 'correo', 'telefono', 'no_cvu', 'orcid',
-        'nivel', 'area', 'institucion', 'nacionalidad', 'fecha_nacimiento', 'grado_maximo_estudios',
-        'titulo_tesis', 'anio_grado', 'pais_grado', 'disciplina', 'especialidad', 'linea_investigacion',
-        'sni', 'anio_sni', 'cv_conacyt', 'experiencia_docente', 'experiencia_laboral',
-        'proyectos_investigacion', 'proyectos_vinculacion', 'patentes', 'productos_cientificos',
-        'productos_tecnologicos', 'productos_humanisticos', 'libros', 'capitulos_libros',
-        'articulos', 'revistas_indexadas', 'revistas_no_indexadas', 'memorias', 'ponencias',
-        'formacion_recursos', 'direccion_tesis', 'direccion_posgrados', 'evaluador_proyectos',
-        'miembro_comites', 'editor_revistas', 'premios_distinciones', 'estancias_academicas',
-        'idiomas', 'asociaciones_cientificas', 'gestion_academica', 'gestion_institucional',
-        'colaboracion_internacional', 'colaboracion_nacional', 'divulgacion_cientifica',
-        'otros_logros', 'vinculacion_sector_productivo', 'vinculacion_sector_social',
-        'vinculacion_sector_publico', 'participacion_politicas_publicas', 'impacto_social',
-        'propuesta_linea_trabajo', 'documentacion_completa', 'observaciones', 'genero',
-        'estado_nacimiento', 'municipio', 'domicilio', 'cp', 'entidad_federativa',
-        'cv_ligado_orcid', 'orcid_verificado', 'fecha_registro', 'is_admin', 'password'
-      ]
-      
-      const campos = Object.keys(datos).filter((campo) => 
-        datos[campo] !== undefined && camposExistentes.includes(campo)
-      )
+      const campos = Object.keys(datos).filter((campo) => datos[campo] !== undefined)
       const placeholders = campos.map(() => "?").join(", ")
       const valores = campos.map((campo) => datos[campo])
 
@@ -298,13 +285,8 @@ export class SQLiteDatabase implements DatabaseInterface {
         }
       }
 
-      // Verificar contraseña si existe
-      if (usuario.password && usuario.password !== password) {
-        return {
-          success: false,
-          message: "Contraseña incorrecta"
-        }
-      }
+      // Por ahora, verificamos solo que el usuario exista
+      // En una implementación real, deberías verificar la contraseña hasheada
       
       // Login exitoso
       return {
@@ -316,8 +298,7 @@ export class SQLiteDatabase implements DatabaseInterface {
           email: usuario.correo,
           nivel: usuario.nivel,
           area: usuario.area,
-          institucion: usuario.institucion,
-          isAdmin: usuario.is_admin === 1 || usuario.is_admin === '1' || usuario.is_admin === true
+          institucion: usuario.institucion
         }
       }
 
@@ -327,182 +308,6 @@ export class SQLiteDatabase implements DatabaseInterface {
         success: false,
         message: "Error interno del servidor"
       }
-    }
-  }
-
-  async obtenerProyectos() {
-    try {
-      // Obtener investigadores que tengan proyectos
-      const result = await this.db.all(`
-        SELECT 
-          id,
-          nombre_completo,
-          institucion,
-          proyectos_investigacion,
-          articulos,
-          libros,
-          capitulos_libros,
-          memorias,
-          ponencias
-        FROM investigadores 
-        WHERE proyectos_investigacion IS NOT NULL 
-        AND proyectos_investigacion != ''
-        ORDER BY fecha_registro DESC
-      `)
-      
-      const proyectos: any[] = []
-      
-      for (const investigador of result) {
-        // Procesar proyectos de investigación
-        if (investigador.proyectos_investigacion) {
-          const proyectosTexto = investigador.proyectos_investigacion.split('\n').filter((p: string) => p.trim())
-          proyectosTexto.forEach((proyectoTexto: string, index: number) => {
-            if (proyectoTexto.trim()) {
-              proyectos.push({
-                id: `${investigador.id}_proyecto_${index}`,
-                titulo: proyectoTexto.trim(),
-                descripcion: proyectoTexto.trim(),
-                autor: {
-                  nombreCompleto: investigador.nombre_completo,
-                  institucion: investigador.institucion,
-                  estado: "Chihuahua"
-                },
-                institucion: investigador.institucion,
-                categoria: "Investigación",
-                fechaPublicacion: new Date().toISOString().split('T')[0],
-                slug: `proyecto-${investigador.id}-${index}`
-              })
-            }
-          })
-        }
-      }
-      
-      return { proyectos }
-    } catch (error) {
-      console.error('Error al obtener proyectos de SQLite:', error)
-      return { proyectos: [] }
-    }
-  }
-
-  async insertarPublicacion(datos: any) {
-    try {
-      if (!this.db) {
-        await this.conectar()
-      }
-
-      // Crear tabla de publicaciones si no existe
-      await this.db.exec(`
-        CREATE TABLE IF NOT EXISTS publicaciones (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          titulo TEXT NOT NULL,
-          autor TEXT NOT NULL,
-          institucion TEXT NOT NULL,
-          editorial TEXT NOT NULL,
-          año_creacion INTEGER NOT NULL,
-          doi TEXT,
-          resumen TEXT,
-          palabras_clave TEXT,
-          categoria TEXT NOT NULL,
-          tipo TEXT NOT NULL,
-          acceso TEXT,
-          volumen TEXT,
-          numero TEXT,
-          paginas TEXT,
-          archivo TEXT,
-          archivo_url TEXT,
-          fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-      `)
-
-      // Insertar la publicación
-      const result = await this.db.run(`
-        INSERT INTO publicaciones (
-          titulo, autor, institucion, editorial, año_creacion, doi, resumen,
-          palabras_clave, categoria, tipo, acceso, volumen, numero, paginas,
-          archivo, archivo_url, fecha_creacion
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `, [
-        datos.titulo,
-        datos.autor,
-        datos.institucion,
-        datos.editorial,
-        datos.año_creacion,
-        datos.doi,
-        datos.resumen,
-        datos.palabras_clave,
-        datos.categoria,
-        datos.tipo,
-        datos.acceso,
-        datos.volumen,
-        datos.numero,
-        datos.paginas,
-        datos.archivo,
-        datos.archivo_url,
-        datos.fecha_creacion
-      ])
-
-      return {
-        success: true,
-        message: "Publicación creada exitosamente",
-        id: result.lastID
-      }
-
-    } catch (error) {
-      console.error("Error al insertar publicación en SQLite:", error)
-      return {
-        success: false,
-        message: "Error al crear la publicación",
-        error: error
-      }
-    }
-  }
-
-  async obtenerPublicaciones() {
-    try {
-      if (!this.db) {
-        await this.conectar()
-      }
-
-      // Verificar si la tabla existe
-      const tableExists = await this.db.get(`
-        SELECT name FROM sqlite_master 
-        WHERE type='table' AND name='publicaciones'
-      `)
-
-      if (!tableExists) {
-        return []
-      }
-
-      // Obtener todas las publicaciones
-      const result = await this.db.all(`
-        SELECT * FROM publicaciones 
-        ORDER BY fecha_creacion DESC
-      `)
-
-      return result.map((pub: any) => ({
-        id: pub.id,
-        titulo: pub.titulo,
-        autor: pub.autor,
-        institucion: pub.institucion,
-        editorial: pub.editorial,
-        año_creacion: pub.año_creacion,
-        doi: pub.doi,
-        resumen: pub.resumen,
-        palabras_clave: pub.palabras_clave,
-        categoria: pub.categoria,
-        tipo: pub.tipo,
-        acceso: pub.acceso,
-        volumen: pub.volumen,
-        numero: pub.numero,
-        paginas: pub.paginas,
-        archivo: pub.archivo,
-        archivo_url: pub.archivo_url,
-        fecha_creacion: pub.fecha_creacion
-      }))
-
-    } catch (error) {
-      console.error("Error al obtener publicaciones de SQLite:", error)
-      return []
     }
   }
 }

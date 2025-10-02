@@ -1,12 +1,11 @@
 "use client"
 import { notFound } from "next/navigation"
-import React, { useState, useRef } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { Building, Mail, Globe, Calendar, Award, FileText, Users, ExternalLink, Download, MapPin, User, Upload, Plus } from "lucide-react"
+import { Building, Mail, Globe, Calendar, Award, FileText, Users, ExternalLink, Download, MapPin } from "lucide-react"
 
 // Interface para el investigador completo
 interface InvestigadorCompleto {
@@ -68,170 +67,14 @@ interface InvestigadorCompleto {
   }
 }
 
-// Función para obtener los datos del investigador desde localStorage (simulando API)
+// TODO: Esta función debe obtener los datos del investigador desde la API
 async function getInvestigador(slug: string): Promise<InvestigadorCompleto | null> {
   try {
-    // Perfil especial para el administrador del sistema
-    if (slug === 'administrador-del-sistema' || slug === 'admin') {
-      return {
-        id: 1,
-        name: 'Administrador del Sistema',
-        title: 'Administrador',
-        avatar: "/placeholder-user.jpg",
-        institution: 'SECCTI Chihuahua',
-        department: 'Administración',
-        location: 'Chihuahua, México',
-        email: 'admin@sei.com.mx',
-        phone: undefined,
-        website: undefined,
-        biography: 'Administrador del Sistema Estatal de Investigadores de Chihuahua. Responsable de la gestión y mantenimiento de la plataforma.',
-        expertise: ['Administración', 'Gestión de Sistemas', 'Tecnología'],
-        education: [{
-          degree: 'Administración de Sistemas',
-          institution: 'SECCTI Chihuahua',
-          year: new Date().getFullYear() - 3
-        }],
-        experience: [{
-          position: 'Administrador del Sistema',
-          institution: 'SECCTI Chihuahua',
-          startYear: new Date().getFullYear() - 2
-        }],
-        projects: [],
-        publications: [],
-        awards: [],
-        collaborators: [],
-        stats: {
-          totalProjects: 0,
-          activeProjects: 0,
-          totalPublications: 0,
-          hIndex: undefined,
-          citations: undefined
-        }
-      }
-    }
-    
-    // En una implementación real, aquí buscarías en la base de datos
-    // return null para indicar que no se encontró el investigador
-    
-    // También mantener compatibilidad con el usuario logueado
-    if (typeof window !== 'undefined') {
-      const userData = localStorage.getItem("user")
-      if (userData) {
-        const user = JSON.parse(userData)
-        const userSlug = (user.nombre || user.email || '').toLowerCase()
-          .replace(/[^a-z0-9\s]/g, '')
-          .replace(/\s+/g, '-')
-          .trim()
-          || 'usuario'
-        
-        if (userSlug === slug) {
-          // Convertir datos del usuario a formato de perfil público
-          return {
-            id: user.id,
-            name: user.nombre,
-            title: user.empleoActual || "Investigador",
-            avatar: "/placeholder-user.jpg",
-            institution: user.institucion || "Institución no especificada",
-            department: user.area,
-            location: "Chihuahua, México",
-            email: user.email,
-            phone: user.telefono,
-            website: undefined,
-            biography: user.biografia || "Biografía no disponible",
-            expertise: user.area ? [user.area] : [],
-            education: user.ultimoGradoEstudios ? [{
-              degree: user.ultimoGradoEstudios,
-              institution: user.institucion || "Institución no especificada",
-              year: new Date().getFullYear() - 5
-            }] : [],
-            experience: user.empleoActual ? [{
-              position: user.empleoActual,
-              institution: user.institucion || "Institución no especificada",
-              startYear: new Date().getFullYear() - 3
-            }] : [],
-            projects: [],
-            publications: [],
-            awards: user.nivel ? [{
-              title: `Nivel SNI ${user.nivel}`,
-              organization: "CONACYT",
-              year: new Date().getFullYear()
-            }] : [],
-            collaborators: [],
-            stats: {
-              totalProjects: 0,
-              activeProjects: 0,
-              totalPublications: 0,
-              hIndex: undefined,
-              citations: undefined
-            }
-          }
-        }
-      }
-    }
-    
-    // Buscar en los proyectos para ver si es un autor de proyecto
-    try {
-      const response = await fetch('/api/proyectos')
-      if (response.ok) {
-        const data = await response.json()
-        const proyectos = data.proyectos || []
-        
-        // Buscar el autor por slug
-        for (const proyecto of proyectos) {
-          if (proyecto.autor && proyecto.autor.nombreCompleto) {
-            const autorSlug = proyecto.autor.nombreCompleto.toLowerCase()
-              .replace(/[^a-z0-9\s]/g, '')
-              .replace(/\s+/g, '-')
-              .trim()
-              || 'usuario'
-            
-            if (autorSlug === slug) {
-              // Crear perfil público para el autor del proyecto
-              return {
-                id: proyecto.id,
-                name: proyecto.autor.nombreCompleto,
-                title: "Investigador",
-                avatar: "/placeholder-user.jpg",
-                institution: proyecto.autor.instituto || "Institución no especificada",
-                department: proyecto.categoria,
-                location: `${proyecto.autor.estado}, México`,
-                email: proyecto.autor.email,
-                phone: proyecto.autor.telefono,
-                website: undefined,
-                biography: `Investigador especializado en ${proyecto.categoria.toLowerCase()}. ${proyecto.resumen || proyecto.descripcion}`,
-                expertise: proyecto.tags || [proyecto.categoria],
-                education: [],
-                experience: [{
-                  position: "Investigador",
-                  institution: proyecto.autor.instituto || "Institución no especificada",
-                  startYear: new Date().getFullYear() - 5
-                }],
-                projects: [{
-                  id: proyecto.id,
-                  title: proyecto.titulo,
-                  status: proyecto.estado,
-                  year: new Date(proyecto.fechaPublicacion).getFullYear(),
-                  slug: proyecto.slug
-                }],
-                publications: [],
-                awards: [],
-                collaborators: [],
-                stats: {
-                  totalProjects: 1,
-                  activeProjects: proyecto.estado === 'Activo' ? 1 : 0,
-                  totalPublications: 0,
-                  hIndex: undefined,
-                  citations: undefined
-                }
-              }
-            }
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching proyectos for autor:", error)
-    }
-    
+    // const response = await fetch(`${process.env.API_URL}/api/investigadores/${slug}`)
+    // if (!response.ok) return null
+    // return await response.json()
+
+    // Por ahora retornamos null para mostrar el estado vacío
     return null
   } catch (error) {
     console.error("Error fetching investigador:", error)
@@ -239,78 +82,8 @@ async function getInvestigador(slug: string): Promise<InvestigadorCompleto | nul
   }
 }
 
-export default function InvestigadorPage({ params }: { params: { slug: string } }) {
-  const [investigador, setInvestigador] = useState<InvestigadorCompleto | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [uploading, setUploading] = useState(false)
-  const [uploadError, setUploadError] = useState<string | null>(null)
-  const projectFileInputRef = useRef<HTMLInputElement>(null)
-  const publicationFileInputRef = useRef<HTMLInputElement>(null)
-
-  // Cargar datos del investigador
-  React.useEffect(() => {
-    async function loadInvestigador() {
-      try {
-        const data = await getInvestigador(params.slug)
-        if (!data) {
-          notFound()
-        }
-        setInvestigador(data)
-      } catch (error) {
-        console.error("Error loading investigador:", error)
-        notFound()
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadInvestigador()
-  }, [params.slug])
-
-  // Manejar subida de archivos
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    setUploading(true)
-    setUploadError(null)
-
-    try {
-      const formData = new FormData()
-      formData.append('file', file)
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Error al subir el archivo')
-      }
-
-      const result = await response.json()
-      
-      // Aquí podrías agregar la publicación a la lista o mostrar un mensaje de éxito
-      alert(`Archivo "${result.originalName}" subido exitosamente`)
-      
-      // Limpiar el input
-      if (projectFileInputRef.current) {
-        projectFileInputRef.current.value = ''
-      }
-      if (publicationFileInputRef.current) {
-        publicationFileInputRef.current.value = ''
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error)
-      setUploadError(error instanceof Error ? error.message : 'Error al subir el archivo')
-    } finally {
-      setUploading(false)
-    }
-  }
-
-  if (loading) {
-    return <div className="container mx-auto py-8 px-4">Cargando...</div>
-  }
+export default async function InvestigadorPage({ params }: { params: { slug: string } }) {
+  const investigador = await getInvestigador(params.slug)
 
   if (!investigador) {
     notFound()
@@ -373,46 +146,14 @@ export default function InvestigadorPage({ params }: { params: { slug: string } 
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
-                    {investigador.email ? (
-                      <Button 
-                        asChild
-                        className="bg-blue-700 text-white hover:bg-blue-800"
-                      >
-                        <a 
-                          href={`mailto:${investigador.email}?subject=Consulta desde la Plataforma de Investigadores&body=Hola ${investigador.name},%0D%0A%0D%0AMe pongo en contacto contigo a través de la Plataforma de Investigadores.%0D%0A%0D%0A[Escribe tu mensaje aquí]%0D%0A%0D%0ASaludos cordiales`}
-                        >
-                          <Mail className="mr-2 h-4 w-4" />
-                          Contactar
-                        </a>
-                      </Button>
-                    ) : (
-                      <Button 
-                        disabled
-                        className="bg-gray-400 text-white cursor-not-allowed"
-                      >
-                        <Mail className="mr-2 h-4 w-4" />
-                        Contactar
-                      </Button>
-                    )}
-                    <Button 
-                      variant="outline" 
-                      className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
-                      onClick={() => {
-                        // Por ahora, mostrar un mensaje informativo
-                        alert('Funcionalidad de descarga de CV en desarrollo. Por favor, contacte al investigador directamente para solicitar su CV.')
-                      }}
-                    >
+                    <Button className="bg-blue-700 text-white hover:bg-blue-800">
+                      <Mail className="mr-2 h-4 w-4" />
+                      Contactar
+                    </Button>
+                    <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent">
                       <Download className="mr-2 h-4 w-4" />
                       Descargar CV
                     </Button>
-                    {typeof window !== 'undefined' && localStorage.getItem("user") && (
-                      <Button asChild variant="outline" className="border-green-200 text-green-700 hover:bg-green-50">
-                        <Link href="/dashboard">
-                          <User className="mr-2 h-4 w-4" />
-                          Mi Perfil Privado
-                        </Link>
-                      </Button>
-                    )}
                   </div>
                 </div>
               </div>
@@ -495,37 +236,9 @@ export default function InvestigadorPage({ params }: { params: { slug: string } 
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-blue-900">Proyectos Recientes</CardTitle>
-                  <div className="flex gap-2">
-                    <input
-                      ref={projectFileInputRef}
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-blue-700 hover:bg-blue-50 border-blue-200"
-                      onClick={() => projectFileInputRef.current?.click()}
-                      disabled={uploading}
-                    >
-                      {uploading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700 mr-2"></div>
-                          Subiendo...
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="mr-2 h-4 w-4" />
-                          Subir Archivo
-                        </>
-                      )}
-                    </Button>
-                    <Button variant="ghost" className="text-blue-700 hover:bg-blue-50" asChild>
-                      <Link href="/proyectos">Ver todos</Link>
-                    </Button>
-                  </div>
+                  <Button variant="ghost" className="text-blue-700 hover:bg-blue-50" asChild>
+                    <Link href="/proyectos">Ver todos</Link>
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent>
@@ -571,43 +284,10 @@ export default function InvestigadorPage({ params }: { params: { slug: string } 
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-blue-900">Publicaciones Recientes</CardTitle>
-                  <div className="flex gap-2">
-                    <input
-                      ref={publicationFileInputRef}
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-blue-700 hover:bg-blue-50 border-blue-200"
-                      onClick={() => publicationFileInputRef.current?.click()}
-                      disabled={uploading}
-                    >
-                      {uploading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700 mr-2"></div>
-                          Subiendo...
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="mr-2 h-4 w-4" />
-                          Subir Archivo
-                        </>
-                      )}
-                    </Button>
-                    <Button variant="ghost" className="text-blue-700 hover:bg-blue-50" asChild>
-                      <Link href="/publicaciones">Ver todas</Link>
-                    </Button>
-                  </div>
+                  <Button variant="ghost" className="text-blue-700 hover:bg-blue-50" asChild>
+                    <Link href="/publicaciones">Ver todas</Link>
+                  </Button>
                 </div>
-                {uploadError && (
-                  <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
-                    {uploadError}
-                  </div>
-                )}
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">

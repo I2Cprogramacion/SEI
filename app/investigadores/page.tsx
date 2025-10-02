@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Search, Filter, MapPin, Building, FileText, Award, X } from 'lucide-react'
+import { Search, Filter, MapPin, Building, FileText, Award } from 'lucide-react'
 import Link from "next/link"
 
 // Interfaces para tipos de datos
@@ -34,41 +34,19 @@ export default function InvestigadoresPage() {
   const [investigadores, setInvestigadores] = useState<Investigador[]>([])
   const [loading, setLoading] = useState(true)
 
+  // TODO: Conectar con API real
   useEffect(() => {
     const fetchInvestigadores = async () => {
       try {
         setLoading(true)
-        const response = await fetch('/api/investigadores')
-        const data = await response.json()
-        
-        // Convertir datos de la API al formato esperado
-        const investigadoresFormateados = data.investigadores?.map((inv: any) => ({
-          id: inv.id,
-          name: inv.nombre_completo || 'Nombre no disponible',
-          avatar: "/placeholder-user.jpg",
-          title: inv.experiencia_laboral || inv.area || 'Investigador',
-          institution: inv.institucion || 'Institución no especificada',
-          location: `${inv.estado || 'Chihuahua'}, México`,
-          field: inv.area || inv.disciplina || 'Ciencias',
-          projects: 0, // Se puede calcular después
-          publications: 0, // Se puede calcular después
-          slug: inv.slug || inv.nombre_completo?.toLowerCase()
-            .replace(/[^a-z0-9\s]/g, '')
-            .replace(/\s+/g, '-')
-            .trim() || `investigador-${inv.id}`,
-          expertise: [
-            inv.area,
-            inv.disciplina,
-            inv.especialidad,
-            inv.linea_investigacion
-          ].filter(Boolean),
-          yearsExperience: 5 // Valor por defecto
-        })) || []
+        // const response = await fetch('/api/investigadores')
+        // const data = await response.json()
+        // setInvestigadores(data)
 
-        setInvestigadores(investigadoresFormateados)
+        // Por ahora, datos vacíos
+        setInvestigadores([])
       } catch (error) {
         console.error("Error fetching investigadores:", error)
-        setInvestigadores([])
       } finally {
         setLoading(false)
       }
@@ -77,32 +55,24 @@ export default function InvestigadoresPage() {
     fetchInvestigadores()
   }, [])
 
-  // Filtrar investigadores con useMemo para optimizar rendimiento
-  const filteredInvestigadores = useMemo(() => {
-    return investigadores.filter((investigador) => {
-      // Búsqueda más amplia
-      const searchLower = searchTerm.toLowerCase().trim()
-      const matchesSearch = searchLower === "" || (
-        investigador.name.toLowerCase().includes(searchLower) ||
-        investigador.title.toLowerCase().includes(searchLower) ||
-        investigador.institution.toLowerCase().includes(searchLower) ||
-        investigador.location.toLowerCase().includes(searchLower) ||
-        investigador.field.toLowerCase().includes(searchLower) ||
-        investigador.expertise.some((exp) => exp.toLowerCase().includes(searchLower))
-      )
+  // Filtrar investigadores
+  const filteredInvestigadores = investigadores.filter((investigador) => {
+    const matchesSearch =
+      investigador.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      investigador.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      investigador.expertise.some((exp) => exp.toLowerCase().includes(searchTerm.toLowerCase()))
 
-      const matchesField = selectedField === "all" || investigador.field === selectedField
-      const matchesInstitution = selectedInstitution === "all" || investigador.institution === selectedInstitution
-      const matchesLocation = selectedLocation === "all" || investigador.location.includes(selectedLocation)
+    const matchesField = selectedField === "all" || investigador.field === selectedField
+    const matchesInstitution = selectedInstitution === "all" || investigador.institution === selectedInstitution
+    const matchesLocation = selectedLocation === "all" || investigador.location.includes(selectedLocation)
 
-      return matchesSearch && matchesField && matchesInstitution && matchesLocation
-    })
-  }, [investigadores, searchTerm, selectedField, selectedInstitution, selectedLocation])
+    return matchesSearch && matchesField && matchesInstitution && matchesLocation
+  })
 
-  // Obtener opciones únicas desde los datos
-  const fields: string[] = [...new Set(investigadores.map((inv) => inv.field).filter(Boolean))].sort()
-  const institutions: string[] = [...new Set(investigadores.map((inv) => inv.institution).filter(Boolean))].sort()
-  const locations: string[] = [...new Set(investigadores.map((inv) => inv.location.split(",")[0].trim()).filter(Boolean))].sort()
+  // TODO: Obtener opciones únicas desde la API
+  const fields: string[] = [...new Set(investigadores.map((inv) => inv.field))]
+  const institutions: string[] = [...new Set(investigadores.map((inv) => inv.institution))]
+  const locations: string[] = [...new Set(investigadores.map((inv) => inv.location.split(",")[0].trim()))]
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -123,19 +93,11 @@ export default function InvestigadoresPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-4 w-4" />
                   <Input
                     type="text"
-                    placeholder="Buscar por nombre, institución, área de investigación..."
-                    className="pl-10 pr-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400"
+                    placeholder="Buscar por nombre, título o especialidad..."
+                    className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
-                  {searchTerm && (
-                    <button
-                      onClick={() => setSearchTerm("")}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-400 hover:text-blue-600"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  )}
                 </div>
               </div>
               <Select value={selectedField} onValueChange={setSelectedField}>
@@ -184,30 +146,15 @@ export default function InvestigadoresPage() {
         {/* Resultados */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <p className="text-blue-600">
-                {loading
-                  ? "Cargando..."
-                  : `${filteredInvestigadores.length} investigador${filteredInvestigadores.length !== 1 ? "es" : ""} encontrado${filteredInvestigadores.length !== 1 ? "s" : ""}`}
-              </p>
-              {searchTerm && (
-                <Badge variant="outline" className="text-xs border-blue-200 text-blue-700">
-                  Buscando: "{searchTerm}"
-                </Badge>
-              )}
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent">
-                <Filter className="mr-2 h-4 w-4" />
-                Filtros avanzados
-              </Button>
-              <Button variant="outline" className="border-orange-200 text-orange-700 hover:bg-orange-50 bg-transparent" asChild>
-                <Link href="/investigadores/incompletos">
-                  <Award className="mr-2 h-4 w-4" />
-                  Ver investigadores incompletos
-                </Link>
-              </Button>
-            </div>
+            <p className="text-blue-600">
+              {loading
+                ? "Cargando..."
+                : `${filteredInvestigadores.length} investigador${filteredInvestigadores.length !== 1 ? "es" : ""} encontrado${filteredInvestigadores.length !== 1 ? "s" : ""}`}
+            </p>
+            <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent">
+              <Filter className="mr-2 h-4 w-4" />
+              Filtros avanzados
+            </Button>
           </div>
 
           {loading ? (

@@ -88,15 +88,13 @@ export default function NuevoPerfilPage() {
   const totalSteps = 4
   const progress = (currentStep / totalSteps) * 100
 
-  // Manejar carga de PDF/Imagen
+  // Manejar carga de PDF
   const handlePdfUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
 
-    // Validar tipos de archivo soportados
-    const supportedTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/gif", "image/bmp", "image/tiff"]
-    if (!supportedTypes.includes(file.type)) {
-      setErrors({ pdf: "Por favor selecciona un archivo PDF o imagen válido (JPG, PNG, GIF, BMP, TIFF)" })
+    if (file.type !== "application/pdf") {
+      setErrors({ pdf: "Por favor selecciona un archivo PDF válido" })
       return
     }
 
@@ -105,44 +103,41 @@ export default function NuevoPerfilPage() {
     setErrors({})
 
     try {
-      // Crear FormData para enviar el archivo
+      // TODO: Implementar procesamiento OCR real
       const formData = new FormData()
-      formData.append("file", file)
+      formData.append("pdf", file)
 
-      // Llamar a la API de OCR real
-      const response = await fetch("/api/ocr", {
-        method: "POST",
-        body: formData,
-      })
+      // const response = await fetch("/api/ocr", {
+      //   method: "POST",
+      //   body: formData,
+      // })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Error al procesar el archivo")
-      }
+      // if (!response.ok) {
+      //   throw new Error("Error al procesar el PDF")
+      // }
 
-      const result = await response.json()
-      
-      if (result.success && result.data) {
-        // Mapear los datos extraídos al formato esperado
+      // const data = await response.json()
+      // setExtractedData(data)
+
+      // Por ahora, simulamos datos extraídos
+      setTimeout(() => {
         setExtractedData({
-          nombre: result.data.nombre_completo?.split(' ')[0] || "",
-          apellidos: result.data.nombre_completo?.split(' ').slice(1).join(' ') || "",
-          email: result.data.correo || "",
-          telefono: result.data.telefono || "",
-          curp: result.data.curp || "",
-          rfc: result.data.rfc || "",
-          titulo: result.data.grado_maximo_estudios || "",
-          institucion: result.data.institucion || "",
-          departamento: result.data.experiencia_laboral || "",
-          ubicacion: result.data.ubicacion || "",
+          nombre: "María",
+          apellidos: "Rodríguez García",
+          email: "maria.rodriguez@universidad.edu",
+          telefono: "614-123-4567",
+          curp: "ROGM800101MCHDRR05",
+          rfc: "ROGM800101AB9",
+          titulo: "Dra. en Neurociencia",
+          institucion: "Universidad Autónoma de Chihuahua",
+          departamento: "Facultad de Medicina",
+          ubicacion: "Chihuahua, Chihuahua",
         })
-      } else {
-        throw new Error(result.error || "No se pudieron extraer datos del archivo")
-      }
+        setIsProcessingPdf(false)
+      }, 3000)
     } catch (error) {
-      console.error("Error processing file:", error)
-      setErrors({ pdf: error instanceof Error ? error.message : "Error al procesar el archivo. Intenta nuevamente." })
-    } finally {
+      console.error("Error processing PDF:", error)
+      setErrors({ pdf: "Error al procesar el PDF. Intenta nuevamente." })
       setIsProcessingPdf(false)
     }
   }
@@ -257,25 +252,26 @@ export default function NuevoPerfilPage() {
     if (!validateCurrentStep()) return
 
     setIsSubmitting(true)
-    setErrors((prev) => ({ ...prev, submit: "" }))
 
     try {
-      const response = await fetch("/api/investigadores", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      })
+      // TODO: Implementar envío real
+      // const response = await fetch("/api/investigadores", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(formData),
+      // })
 
-      const data = await response.json()
+      // if (!response.ok) {
+      //   throw new Error("Error al crear el perfil")
+      // }
 
-      if (!response.ok) {
-        throw new Error(data.error || "Error al crear el perfil")
-      }
-
-      router.push("/registro/exito?mensaje=" + encodeURIComponent(data.message || "Perfil creado correctamente") + "&tipo=success")
+      // Simular envío exitoso
+      setTimeout(() => {
+        router.push("/registro/exito")
+      }, 2000)
     } catch (error) {
       console.error("Error submitting form:", error)
-      setErrors({ submit: error instanceof Error ? error.message : "Error al crear el perfil. Intenta nuevamente." })
+      setErrors({ submit: "Error al crear el perfil. Intenta nuevamente." })
       setIsSubmitting(false)
     }
   }
@@ -618,38 +614,6 @@ export default function NuevoPerfilPage() {
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
-                </div>
-                {/* Sugerencias rápidas de áreas comunes */}
-                <div className="flex flex-wrap gap-2 text-xs">
-                  {[
-                    'Área de TI',
-                    'Área de RRHH',
-                    'Ciencias de Datos',
-                    'Inteligencia Artificial',
-                    'Biotecnología',
-                    'Energías Renovables',
-                    'Salud Pública',
-                    'Educación',
-                    'Ingeniería de Software',
-                    'Ciberseguridad',
-                  ].map((suggestion) => (
-                    <Button
-                      key={suggestion}
-                      type="button"
-                      variant="secondary"
-                      className="h-7 px-3 bg-blue-50 text-blue-800 hover:bg-blue-100 border border-blue-100"
-                      onClick={() => {
-                        if (!formData.areasEspecializacion.includes(suggestion)) {
-                          setFormData((prev) => ({
-                            ...prev,
-                            areasEspecializacion: [...prev.areasEspecializacion, suggestion],
-                          }))
-                        }
-                      }}
-                    >
-                      {suggestion} +
-                    </Button>
-                  ))}
                 </div>
                 {errors.areas && <p className="text-sm text-red-600">{errors.areas}</p>}
                 <div className="flex flex-wrap gap-2">
