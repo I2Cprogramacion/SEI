@@ -30,7 +30,12 @@ export async function POST(request: NextRequest) {
     if (!data.fecha_registro) {
       data.fecha_registro = new Date().toISOString()
     }
-    // Guardar en la base de datos SQLite
+    // Si el campo es 'password', hashearla antes de guardar
+    if (data.password) {
+      const bcrypt = (await import('bcryptjs')).default;
+      const salt = await bcrypt.genSalt(10);
+      data.password = await bcrypt.hash(data.password, salt);
+    }
     try {
       const resultado = await guardarInvestigador(data)
       console.log("Resultado del guardado:", resultado)

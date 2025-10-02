@@ -1,17 +1,3 @@
-model Membership {
-  id              String         @id @default(cuid())
-  investigadorId  Int
-  institucionId   String
-  rol             String?
-  fechaInicio     DateTime?
-  fechaFin        DateTime?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  investigador    Investigador  @relation(fields: [investigadorId], references: [id])
-  institucion     Institution   @relation(fields: [institucionId], references: [id])
-
-  @@map("memberships")
-}
 generator client {
   provider = "prisma-client-js"
 }
@@ -78,29 +64,27 @@ model Institution {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   profiles  Profile[]
-  memberships Membership[]
 
   @@map("institutions")
 }
 
 model Investigador {
-  id                  Int       @id @default(autoincrement())
-  nombreCompleto      String
-  curp                String?   @unique
-  rfc                 String?
-  noCvu               String?
-  correo              String    @unique
-  telefono            String?
-  ultimoGradoEstudios String?
-  empleoActual        String?
-  lineaInvestigacion  String?
-  nacionalidad        String    @default("Mexicana")
-  fechaNacimiento     DateTime?
-  fechaRegistro       DateTime  @default(now())
-  origen              String?
-  archivoProcesado    String?
-  password            String?
-  memberships         Membership[]
+  id                    Int       @id @default(autoincrement())
+  curp                  String?   @unique
+  rfc                   String?
+  correo                String    @unique
+  telefono              String?
+  nacionalidad          String    @default("Mexicana")
+  origen                String?
+  password              String?
+  archivo_procesado     String?
+  empleo_actual         String?
+  fecha_nacimiento      DateTime?
+  fecha_registro        DateTime  @default(now())
+  linea_investigacion   String?
+  no_cvu                String?
+  nombre_completo       String
+  ultimo_grado_estudios String?
 
   @@map("investigadores")
 }

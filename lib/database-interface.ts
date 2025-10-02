@@ -31,6 +31,11 @@ export interface DatabaseInterface {
 
   // Consultar investigadores incompletos (sin CURP)
   consultarInvestigadoresIncompletos(): Promise<any[]>
+
+  // Métodos para proyectos y publicaciones (opcional, según implementación)
+  obtenerProyectos?(): Promise<any[]>
+  obtenerPublicaciones?(): Promise<any[]>
+  insertarPublicacion?(datos: any): Promise<any>
 }
 
 // Tipos de base de datos soportados

@@ -272,22 +272,26 @@ export class SQLiteDatabase implements DatabaseInterface {
   async verificarCredenciales(email: string, password: string) {
     try {
       if (!this.db) {
-        await this.conectar()
+        await this.conectar();
       }
-      
       // Buscar usuario por email
-      const usuario = await this.db.get("SELECT * FROM investigadores WHERE correo = ?", email)
-      
+      const usuario = await this.db.get("SELECT * FROM investigadores WHERE correo = ?", email);
       if (!usuario) {
         return {
           success: false,
           message: "Usuario no encontrado"
-        }
+        };
       }
-
-      // Por ahora, verificamos solo que el usuario exista
-      // En una implementación real, deberías verificar la contraseña hasheada
-      
+      // Validar contraseña con bcrypt
+      const bcrypt = require('bcryptjs');
+      const hash = usuario.contrasena;
+      const ok = await bcrypt.compare(password, hash);
+      if (!ok) {
+        return {
+          success: false,
+          message: "Contraseña incorrecta"
+        };
+      }
       // Login exitoso
       return {
         success: true,
@@ -300,14 +304,13 @@ export class SQLiteDatabase implements DatabaseInterface {
           area: usuario.area,
           institucion: usuario.institucion
         }
-      }
-
+      };
     } catch (error) {
-      console.error("Error al verificar credenciales:", error)
+      console.error("Error al verificar credenciales:", error);
       return {
         success: false,
         message: "Error interno del servidor"
-      }
+      };
     }
   }
 }
