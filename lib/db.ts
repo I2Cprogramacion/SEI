@@ -102,6 +102,6 @@ export async function insertarPublicacion(datos: any) {
 }
 
 // Exportar también las nuevas funciones para uso avanzado
-export { getDatabase, updateDatabaseConfig, autoConfigureDatabase, useVercelPostgres, useSQLite } from './database-config'
+export { getDatabase } from './database-config'
 export type { DatabaseInterface, DatabaseConfig } from './database-interface'
 export { DatabaseFactory } from './database-interface'

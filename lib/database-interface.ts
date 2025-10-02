@@ -39,7 +39,7 @@ export interface DatabaseInterface {
 }
 
 // Tipos de base de datos soportados
-export type DatabaseType = 'sqlite' | 'postgresql' | 'mysql' | 'mongodb' | 'vercelPostgres'
+export type DatabaseType = 'postgresql' | 'mysql' | 'mongodb' | 'vercelPostgres'
 
 // Configuración de base de datos
 export interface DatabaseConfig {
@@ -49,7 +49,7 @@ export interface DatabaseConfig {
   database?: string
   username?: string
   password?: string
-  filename?: string // Para SQLite
+  // filename?: string // Eliminado: solo para SQLite
   ssl?: boolean
   connectionString?: string
 }
@@ -58,9 +58,9 @@ export interface DatabaseConfig {
 export class DatabaseFactory {
   static async create(config: DatabaseConfig): Promise<DatabaseInterface> {
     switch (config.type) {
-      case 'sqlite':
-        const { SQLiteDatabase } = await import('./databases/sqlite-database')
-        return new SQLiteDatabase(config)
+      // case 'sqlite':
+      //   const { SQLiteDatabase } = await import('./databases/sqlite-database')
+      //   return new SQLiteDatabase(config)
         
       case 'postgresql':
       case 'vercelPostgres':
@@ -80,15 +80,14 @@ export class DatabaseFactory {
 }
 
 // Configuración por defecto
-export const defaultDatabaseConfig: DatabaseConfig = {
-  type: 'sqlite',
-  filename: 'database.db'
-}
+// export const defaultDatabaseConfig: DatabaseConfig = {
+//   type: 'sqlite',
+//   filename: 'database.db'
+// }
 
 // Configuración para diferentes entornos
 export const databaseConfigs = {
   development: {
-    sqlite: { type: 'sqlite' as const, filename: 'database.db' },
     postgresql: {
       type: 'postgresql' as const,
       host: 'localhost',
