@@ -1,13 +1,20 @@
+require('dotenv').config({ path: '.env.local' });
 const { Client } = require('pg');
 
 async function createAdminInPostgres() {
+  // base de derek(prueba) - Configuración anterior con variables separadas:
+  // const client = new Client({
+  //   host: process.env.POSTGRES_HOST || 'localhost',
+  //   port: parseInt(process.env.POSTGRES_PORT || '5432'),
+  //   database: process.env.POSTGRES_DATABASE || 'researcher_platform',
+  //   user: process.env.POSTGRES_USER || 'postgres',
+  //   password: process.env.POSTGRES_PASSWORD || '',
+  //   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  // });
+
+  // Nueva configuración usando DATABASE_URL (compatible con Prisma)
   const client = new Client({
-    host: process.env.POSTGRES_HOST || 'localhost',
-    port: parseInt(process.env.POSTGRES_PORT || '5432'),
-    database: process.env.POSTGRES_DATABASE || 'researcher_platform',
-    user: process.env.POSTGRES_USER || 'postgres',
-    password: process.env.POSTGRES_PASSWORD || '',
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    connectionString: process.env.DATABASE_URL
   });
 
   try {
@@ -38,7 +45,7 @@ async function createAdminInPostgres() {
     if (existingAdmin.rows.length > 0) {
       console.log('ℹ️ Usuario admin ya existe, actualizando permisos...');
       await client.query(
-        'UPDATE investigadores SET is_admin = true, password = $1 WHERE correo = $2',
+        'UPDATE investigadores SET password = $1 WHERE correo = $2',
         ['admin123', 'admin@sei.com.mx']
       );
       console.log('✅ Usuario admin actualizado exitosamente');
@@ -50,17 +57,15 @@ async function createAdminInPostgres() {
           nombre_completo, 
           correo, 
           password, 
-          is_admin, 
           institucion, 
           nacionalidad,
           fecha_registro
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+        ) VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING id
       `, [
         'Administrador del Sistema',
         'admin@sei.com.mx',
         'admin123',
-        true,
         'SECCTI Chihuahua',
         'Mexicana',
         new Date().toISOString()
@@ -81,7 +86,7 @@ async function createAdminInPostgres() {
       console.log(`   Nombre: ${user.nombre_completo}`);
       console.log(`   Email: ${user.correo}`);
       console.log(`   Password: ${user.password}`);
-      console.log(`   Es Admin: ${user.is_admin}`);
+      console.log(`   Es Admin: ${user.correo === 'admin@sei.com.mx' ? '✅ SÍ' : '❌ NO'}`);
       console.log(`   Institución: ${user.institucion}`);
     }
 
