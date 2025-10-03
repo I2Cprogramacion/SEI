@@ -40,6 +40,19 @@ export interface DatabaseInterface {
   
   // Ejecutar query personalizada
   query(sql: string, params?: any[]): Promise<any[]>
+  
+  // Métodos de proyectos
+  obtenerProyectos(): Promise<any[]>
+  
+  // Métodos de publicaciones
+  obtenerPublicaciones(): Promise<any[]>
+  
+  insertarPublicacion(datos: any): Promise<{
+    success: boolean
+    message: string
+    id?: number
+    error?: any
+  }>
 }
 
 // Tipos de base de datos soportados

@@ -364,4 +364,82 @@ export class SQLiteDatabase implements DatabaseInterface {
       return []
     }
   }
+
+  async obtenerProyectos(): Promise<any[]> {
+    try {
+      // Como no hay tabla de proyectos, devolver array vacío
+      return []
+    } catch (error) {
+      console.error("Error al obtener proyectos:", error)
+      return []
+    }
+  }
+
+  async obtenerPublicaciones(): Promise<any[]> {
+    try {
+      if (!this.db) {
+        await this.conectar()
+      }
+      
+      return new Promise((resolve, reject) => {
+        this.db.all("SELECT * FROM publicaciones ORDER BY fecha_creacion DESC", [], (err, rows) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(rows || [])
+          }
+        })
+      })
+    } catch (error) {
+      console.error("Error al obtener publicaciones:", error)
+      return []
+    }
+  }
+
+  async insertarPublicacion(datos: any): Promise<{
+    success: boolean
+    message: string
+    id?: number
+    error?: any
+  }> {
+    try {
+      if (!this.db) {
+        await this.conectar()
+      }
+
+      const campos = Object.keys(datos).filter((campo) => datos[campo] !== undefined)
+      const placeholders = campos.map(() => "?").join(", ")
+      const valores = campos.map((campo) => datos[campo])
+
+      const query = `
+        INSERT INTO publicaciones (${campos.join(", ")})
+        VALUES (${placeholders})
+      `
+
+      return new Promise((resolve, reject) => {
+        this.db.run(query, valores, function(err) {
+          if (err) {
+            reject({
+              success: false,
+              message: `Error al insertar publicación: ${err.message}`,
+              error: err
+            })
+          } else {
+            resolve({
+              success: true,
+              message: "Publicación insertada exitosamente",
+              id: this.lastID
+            })
+          }
+        })
+      })
+    } catch (error) {
+      console.error("Error al insertar publicación:", error)
+      return {
+        success: false,
+        message: `Error al insertar publicación: ${error instanceof Error ? error.message : "Error desconocido"}`,
+        error
+      }
+    }
+  }
 }

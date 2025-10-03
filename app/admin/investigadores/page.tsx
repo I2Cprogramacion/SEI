@@ -35,6 +35,7 @@ interface Investigador {
   grado_maximo_estudios?: string
   experiencia_laboral?: string
   linea_investigacion?: string
+  area?: string
   fecha_registro?: string
   is_admin?: boolean
 }
@@ -82,8 +83,8 @@ export default function InvestigadoresAdmin() {
     
     const filtered = investigadores.filter(
       (investigador) =>
-        investigador.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        investigador.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        investigador.nombre_completo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        investigador.correo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (investigador.institucion && investigador.institucion.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (investigador.area && investigador.area.toLowerCase().includes(searchTerm.toLowerCase())),
     )

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { obtenerProyectos } from "@/lib/db"
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // Obtener todos los proyectos de la base de datos
