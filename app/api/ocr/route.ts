@@ -32,6 +32,10 @@ export async function POST(request: NextRequest) {
         tipo: file.type,
         tamano: file.size
       });
+      // Leer los primeros bytes para ver si el archivo llega bien
+      const abTest = await file.arrayBuffer();
+      const bytes = new Uint8Array(abTest).slice(0, 16);
+      console.log('[OCR Proxy] Primeros bytes del archivo:', Array.from(bytes));
     } else {
       console.log('[OCR Proxy] No se recibió archivo');
     }
@@ -49,6 +53,11 @@ export async function POST(request: NextRequest) {
     const blob = new Blob([ab], { type: file.type });
     const upstreamForm = new FormData();
     upstreamForm.append('file', blob, file.name);
+    console.log('[OCR Proxy] Enviando archivo al backend OCR:', {
+      nombre: file.name,
+      tipo: file.type,
+      tamano: file.size
+    });
 
     const url = `${BASE}/process-pdf`;
     const controller = new AbortController();
@@ -78,7 +87,8 @@ export async function POST(request: NextRequest) {
     const ct = upstream.headers.get('content-type') || '';
     const payload = ct.includes('application/json') ? await upstream.json() : { data: rawText };
     // Permitir tanto payload.data como payload plano
-    let fields = (payload as any).data || payload;
+  let fields = (payload as any).data || payload;
+  console.log('[OCR Proxy] Campos extraídos del backend OCR:', fields);
 
     // Si solo hay 'text', intentar extraer campos clave con regex
     if (fields && typeof fields.text === 'string') {
