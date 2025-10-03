@@ -48,12 +48,25 @@ app.post('/process-pdf', upload.any(), async (req, res) => {
   console.log(text);
   console.log('--- FIN DEL TEXTO EXTRAÍDO ---');
 
-    const curp = firstMatch(reCURP, text);
-    const rfc = firstMatch(reRFC, text);
-    const no_cvu = firstMatch(reCVU, text);
+    // Helper para obtener el primer grupo no undefined de un match
+    function getFirstGroup(re, text) {
+      re.lastIndex = 0;
+      let m = re.exec(text);
+      while (m) {
+        for (let i = 1; i < m.length; i++) {
+          if (m[i]) return m[i];
+        }
+        m = re.exec(text);
+      }
+      return null;
+    }
+
+    const curp = getFirstGroup(reCURP, text);
+    const rfc = getFirstGroup(reRFC, text);
+    const no_cvu = getFirstGroup(reCVU, text);
     // Para email/teléfono usamos el texto original (sensibles a mayúsculas/minúsculas)
-    const correo = firstMatch(reEmail, data.text || '');
-    const telefono = firstMatch(reTel, data.text || '');
+    const correo = getFirstGroup(reEmail, data.text || '');
+    const telefono = getFirstGroup(reTel, data.text || '');
 
     res.json({
       curp: curp || null,
