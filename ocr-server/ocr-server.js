@@ -14,15 +14,16 @@ app.get('/health', (_req, res) => {
 });
 
 // Utilidades de extracción (MX)
-const reCURP = /\b([A-Z][AEIOUX][A-Z]{2}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])[HM](?:AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9]\d)\b/gi;
-// RFC personas físicas o morales (13 o 12 con homoclave)
-const reRFC = /\b([A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3})\b/gi;
-// CVU: suelen ser dígitos largos; capturamos 6-12 o etiquetas "CVU: 123..."
-const reCVU = /\b(?:CVU[:\s-]*)?(\d{6,12})\b/gi;
+// CURP: soporta prefijo y líneas separadas
+const reCURP = /CURP[:\s\n-]*([A-Z]{4}\d{6}[A-Z]{6}\d{2})\b|\b([A-Z]{4}\d{6}[A-Z]{6}\d{2})\b/gi;
+// RFC: soporta prefijo y líneas separadas
+const reRFC = /RFC[:\s\n-]*([A-Z]{4}\d{6}[A-Z0-9]{3})\b|\b([A-Z]{4}\d{6}[A-Z0-9]{3})\b/gi;
+// CVU: soporta NO.CVU y CVU
+const reCVU = /NO\.CVU[:\s-]*([0-9]{5,})|CVU[:\s-]*([0-9]{5,})/gi;
 // Email
-const reEmail = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
-// Teléfono (10 dígitos, con separadores)
-const reTel = /\b(?:\+?52)?\s*(\d{2,3})?[.\-\s]?\d{3}[.\-\s]?\d{4}\b/g;
+const reEmail = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
+// Teléfono: soporta CELULAR: y TELÉFONO:
+const reTel = /(?:CELULAR|TEL[ÉE]FONO)[:\s-]*([0-9]{7,15})/gi;
 
 function firstMatch(re, text) {
   re.lastIndex = 0;
