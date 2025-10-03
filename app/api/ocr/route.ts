@@ -74,9 +74,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Backend OCR ${upstream.status}: ${rawText || 'sin cuerpo'}` }, { status: 502 });
     }
 
+
     const ct = upstream.headers.get('content-type') || '';
     const payload = ct.includes('application/json') ? await upstream.json() : { data: rawText };
-    let fields = (payload as any).data;
+    // Permitir tanto payload.data como payload plano
+    let fields = (payload as any).data || payload;
 
     // Si solo hay 'text', intentar extraer campos clave con regex
     if (fields && typeof fields.text === 'string') {
