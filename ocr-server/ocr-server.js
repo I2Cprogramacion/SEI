@@ -54,8 +54,7 @@ app.post('/process-pdf', upload.any(), async (req, res) => {
       rfc: rfc || null,
       no_cvu: no_cvu || null,
       correo: correo || null,
-      telefono: telefono || null,
-      text: data.text || ''
+      telefono: telefono || null
     });
   } catch (err) {
     res.status(500).json({ error: 'Error al procesar el PDF', details: String(err?.message || err) });
@@ -64,7 +63,7 @@ app.post('/process-pdf', upload.any(), async (req, res) => {
 
 app.get('/', (_req, res) => res.send('OCR server running'));
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`OCR server listening on port ${PORT}`);
 });
