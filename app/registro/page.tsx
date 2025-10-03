@@ -115,25 +115,33 @@ export default function RegistroPage() {
   }
 
   const handlePDFUpload = async () => {
-    if (!selectedFile) return
+    if (!selectedFile) return;
 
-    setIsProcessingPDF(true)
-    setError(null)
+    setIsProcessingPDF(true);
+    setError(null);
 
     try {
       // Crear FormData para enviar el archivo
-      const formData = new FormData()
-      formData.append("file", selectedFile)
+      const formData = new FormData();
+      formData.append("file", selectedFile);
 
       // Enviar archivo al endpoint de OCR (sin autenticación para registro público)
       const response = await fetch("/api/ocr", {
         method: "POST",
         body: formData,
-      })
+      });
 
-      const result = await response.json()
+      let result = null;
+      try {
+        result = await response.json();
+      } catch (jsonErr) {
+        // Si no es JSON, mostrar error genérico
+        setError("Error inesperado procesando el PDF. Intenta de nuevo.");
+        setIsProcessingPDF(false);
+        return;
+      }
 
-      // Si la respuesta tiene datos clave, autollenar aunque falte el correo
+      // Si la respuesta tiene datos clave, autollenar aunque falte el correo, incluso si status es 400
       const ocrData = result.ocr || result;
       if (ocrData.curp || ocrData.rfc || ocrData.no_cvu || ocrData.telefono) {
         setFormData((prev) => ({
@@ -146,19 +154,23 @@ export default function RegistroPage() {
           linea_investigacion: "",
           password: "",
           confirm_password: "",
-        }))
-        setOcrCompleted(true)
-        setError(null)
-        console.log("PDF procesado exitosamente. Campos extraídos:", ocrData)
+        }));
+        setOcrCompleted(true);
+        setError(null);
+        setIsProcessingPDF(false);
+        console.log("PDF procesado exitosamente. Campos extraídos:", ocrData);
+        return;
       } else {
-        setError("No se pudieron extraer datos clave del PDF (CURP, RFC, CVU, Teléfono)")
+        setError("No se pudieron extraer datos clave del PDF (CURP, RFC, CVU, Teléfono)");
+        setOcrCompleted(true);
+        setIsProcessingPDF(false);
+        return;
       }
     } catch (error) {
-      console.error("Error procesando PDF:", error)
-      // Solo mostrar error si no se extrajo ningún dato clave
-      setError("No se pudieron extraer datos clave del PDF (CURP, RFC, CVU, Teléfono)")
-      setOcrCompleted(true)
-      setIsProcessingPDF(false)
+      console.error("Error procesando PDF:", error);
+      setError("No se pudieron extraer datos clave del PDF (CURP, RFC, CVU, Teléfono)");
+      setOcrCompleted(true);
+      setIsProcessingPDF(false);
     }
   }
 
