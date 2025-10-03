@@ -50,7 +50,12 @@ app.post('/process-pdf', upload.any(), async (req, res) => {
     const telefono = firstMatch(reTel, data.text || '');
 
     res.json({
-      data: { text: data.text || '', curp, rfc, no_cvu, correo, telefono }
+      curp: curp || null,
+      rfc: rfc || null,
+      no_cvu: no_cvu || null,
+      correo: correo || null,
+      telefono: telefono || null,
+      text: data.text || ''
     });
   } catch (err) {
     res.status(500).json({ error: 'Error al procesar el PDF', details: String(err?.message || err) });
