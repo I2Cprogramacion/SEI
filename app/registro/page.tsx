@@ -133,56 +133,31 @@ export default function RegistroPage() {
 
       const result = await response.json()
 
-      if (!response.ok) {
-        throw new Error(result.error || "Error procesando PDF")
-      }
-
-      // Asumimos que result es un objeto plano con los campos extraídos
-      if (result.curp || result.rfc || result.no_cvu || result.correo || result.telefono) {
+      // Si la respuesta tiene datos clave, autollenar aunque falte el correo
+      const ocrData = result.ocr || result;
+      if (ocrData.curp || ocrData.rfc || ocrData.no_cvu || ocrData.telefono) {
         setFormData((prev) => ({
           ...prev,
-          curp: result.curp || "",
-          rfc: result.rfc || "",
-          no_cvu: result.no_cvu || "",
-          correo: result.correo || "",
-          telefono: result.telefono || "",
+          curp: ocrData.curp || "",
+          rfc: ocrData.rfc || "",
+          no_cvu: ocrData.no_cvu || "",
+          correo: ocrData.correo || "",
+          telefono: ocrData.telefono || "",
           linea_investigacion: "",
           password: "",
           confirm_password: "",
         }))
         setOcrCompleted(true)
         setError(null)
-        console.log("PDF procesado exitosamente. Campos extraídos:", result)
+        console.log("PDF procesado exitosamente. Campos extraídos:", ocrData)
       } else {
-        throw new Error("No se pudieron extraer datos del PDF")
+        setError("No se pudieron extraer datos clave del PDF (CURP, RFC, CVU, Teléfono)")
       }
     } catch (error) {
       console.error("Error procesando PDF:", error)
-      
-      // Mostrar mensaje de error más específico
-      let errorMessage = "Error al procesar el PDF"
-      if (error instanceof Error) {
-        if (error.message.includes("Failed to fetch")) {
-          errorMessage = "No se pudo conectar al servidor de procesamiento. El formulario se ha preparado para llenado manual."
-        } else if (error.message.includes("timeout")) {
-          errorMessage = "El procesamiento tardó demasiado. El formulario se ha preparado para llenado manual."
-        } else {
-          errorMessage = `Error al procesar el PDF: ${error.message}`
-        }
-      }
-      
-      setError(errorMessage)
-      
-      // En caso de error, preparar formulario para llenado manual
-      setFormData((prev) => ({
-        ...prev,
-        nacionalidad: "Mexicana", // Asegurar valor por defecto
-        linea_investigacion: "", // Asegurar que esté vacío
-        password: "", // Asegurar que esté vacío
-        confirm_password: "", // Asegurar que esté vacío
-      }))
-      setOcrCompleted(true) // Permitir continuar con llenado manual
-    } finally {
+      // Solo mostrar error si no se extrajo ningún dato clave
+      setError("No se pudieron extraer datos clave del PDF (CURP, RFC, CVU, Teléfono)")
+      setOcrCompleted(true)
       setIsProcessingPDF(false)
     }
   }
