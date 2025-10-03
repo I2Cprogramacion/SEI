@@ -132,6 +132,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validar que el correo esté presente antes de guardar
+    if (!datosAGuardar.correo) {
+      return NextResponse.json(
+        {
+          error: 'Falta el correo electrónico. Por favor complétalo manualmente antes de guardar.',
+          ocr: datosAGuardar,
+          filename: file.name
+        },
+        { status: 400 }
+      );
+    }
+
     const resultado = await guardarInvestigador(datosAGuardar);
     if (resultado?.success) {
       // Responder solo los campos clave al frontend
