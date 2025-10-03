@@ -105,8 +105,18 @@ export async function POST(request: NextRequest) {
     }
 
     if (!fields || (!fields.curp && !fields.rfc && !fields.no_cvu)) {
+      // Siempre devolver los campos clave en la raíz, aunque falte alguno
       return NextResponse.json(
-        { error: 'No se extrajeron datos suficientes del PDF.', ocr: fields || null, filename: file.name },
+        {
+          error: 'No se extrajeron datos suficientes del PDF.',
+          curp: fields?.curp || null,
+          rfc: fields?.rfc || null,
+          no_cvu: fields?.no_cvu || null,
+          correo: fields?.correo || null,
+          telefono: fields?.telefono || null,
+          origen: 'ocr',
+          filename: file.name
+        },
         { status: 400 }
       );
     }
@@ -127,17 +137,32 @@ export async function POST(request: NextRequest) {
 
     if (!datosAGuardar.curp && !datosAGuardar.rfc && !datosAGuardar.no_cvu) {
       return NextResponse.json(
-        { error: 'No se detectó CURP, RFC ni CVU para guardar.', ocr: fields, filename: file.name },
+        {
+          error: 'No se detectó CURP, RFC ni CVU para guardar.',
+          curp: fields?.curp || null,
+          rfc: fields?.rfc || null,
+          no_cvu: fields?.no_cvu || null,
+          correo: fields?.correo || null,
+          telefono: fields?.telefono || null,
+          origen: 'ocr',
+          filename: file.name
+        },
         { status: 400 }
       );
     }
 
     // Validar que el correo esté presente antes de guardar
     if (!datosAGuardar.correo) {
+      // Devolver los campos clave en la raíz aunque falte el correo
       return NextResponse.json(
         {
           error: 'Falta el correo electrónico. Por favor complétalo manualmente antes de guardar.',
-          ocr: datosAGuardar,
+          curp: datosAGuardar.curp || null,
+          rfc: datosAGuardar.rfc || null,
+          no_cvu: datosAGuardar.no_cvu || null,
+          correo: null,
+          telefono: datosAGuardar.telefono || null,
+          origen: 'ocr',
           filename: file.name
         },
         { status: 400 }
