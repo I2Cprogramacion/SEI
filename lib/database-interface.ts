@@ -31,6 +31,15 @@ export interface DatabaseInterface {
 
   // Consultar investigadores incompletos (sin CURP)
   consultarInvestigadoresIncompletos(): Promise<any[]>
+  
+  // Buscar investigadores por término
+  buscarInvestigadores(params: {
+    termino: string
+    limite?: number
+  }): Promise<any[]>
+  
+  // Ejecutar query personalizada
+  query(sql: string, params?: any[]): Promise<any[]>
 }
 
 // Tipos de base de datos soportados

@@ -30,7 +30,7 @@ export default function AdminLayout({
         const user = JSON.parse(userData)
         
         // Verificar que el usuario sea admin Y que sea el email autorizado
-        if (!user.isAdmin || user.email !== 'admin@sei.com.mx') {
+        if (!user.isAdmin || user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
           setShowAccessDenied(true)
           return
         }

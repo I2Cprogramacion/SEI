@@ -53,7 +53,7 @@ export function AccessDeniedModal({ isOpen, onClose }: AccessDeniedModalProps) {
         }
         
         // Verificar si es admin autorizado
-        if (data.user.isAdmin && data.user.email === 'admin@sei.com.mx') {
+        if (data.user.isAdmin && data.user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
           setTimeout(() => {
             window.location.reload() // Recargar para actualizar el estado de autorización
           }, 1500)
@@ -143,7 +143,7 @@ export function AccessDeniedModal({ isOpen, onClose }: AccessDeniedModalProps) {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@sei.com.mx"
+                  placeholder={process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@sei.com.mx"}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required

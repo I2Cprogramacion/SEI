@@ -13,24 +13,29 @@ import Link from "next/link"
 // Interfaces para tipos de datos
 interface Proyecto {
   id: number
-  title: string
-  description: string
-  image?: string
-  startDate: string
-  endDate: string
-  status: string
-  category: string
-  tags: string[]
-  researchers: Array<{
-    id: number
-    name: string
-    role: string
-    avatar?: string
-    slug: string
+  titulo: string
+  descripcion: string
+  autor: {
+    nombre: string
+    institucion: string
+    email?: string
+    telefono?: string
+  }
+  categoria: string
+  estado: string
+  fechaInicio?: string
+  fechaFin?: string
+  presupuesto?: string
+  palabrasClave: string[]
+  objetivos?: string[]
+  resultados?: string[]
+  metodologia?: string
+  impacto?: string
+  colaboradores?: Array<{
+    nombre: string
+    institucion: string
   }>
-  institution: string
-  funding?: string
-  fundingAmount?: string
+  financiamiento?: string
   slug: string
 }
 
@@ -42,19 +47,23 @@ export default function ProyectosPage() {
   const [proyectos, setProyectos] = useState<Proyecto[]>([])
   const [loading, setLoading] = useState(true)
 
-  // TODO: Conectar con API real
+  // Conectar con API real
   useEffect(() => {
     const fetchProyectos = async () => {
       try {
         setLoading(true)
-        // const response = await fetch('/api/proyectos')
-        // const data = await response.json()
-        // setProyectos(data)
-
-        // Por ahora, datos vacíos
-        setProyectos([])
+        const response = await fetch('/api/proyectos')
+        const data = await response.json()
+        
+        if (response.ok) {
+          setProyectos(data.proyectos || [])
+        } else {
+          console.error("Error fetching proyectos:", data.error)
+          setProyectos([])
+        }
       } catch (error) {
         console.error("Error fetching proyectos:", error)
+        setProyectos([])
       } finally {
         setLoading(false)
       }
@@ -63,25 +72,50 @@ export default function ProyectosPage() {
     fetchProyectos()
   }, [])
 
+  // Estados para filtros
+  const [categorias, setCategorias] = useState<string[]>([])
+  const [estados, setEstados] = useState<string[]>([])
+  const [instituciones, setInstituciones] = useState<string[]>([])
+
+  // Cargar opciones de filtros
+  useEffect(() => {
+    const fetchFiltros = async () => {
+      try {
+        const response = await fetch('/api/proyectos')
+        const data = await response.json()
+        
+        if (response.ok && data.filtros) {
+          setCategorias(data.filtros.categorias || [])
+          setEstados(data.filtros.estados || [])
+          setInstituciones(data.filtros.instituciones || [])
+        }
+      } catch (error) {
+        console.error("Error fetching filtros:", error)
+      }
+    }
+
+    fetchFiltros()
+  }, [])
+
   // Filtrar proyectos
   const filteredProyectos = proyectos.filter((proyecto) => {
     const matchesSearch =
-      proyecto.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      proyecto.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      proyecto.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      proyecto.researchers.some((researcher) => researcher.name.toLowerCase().includes(searchTerm.toLowerCase()))
+      proyecto.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      proyecto.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      proyecto.palabrasClave.some((keyword) => keyword.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      proyecto.autor.nombre.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesCategory = selectedCategory === "all" || proyecto.category === selectedCategory
-    const matchesStatus = selectedStatus === "all" || proyecto.status === selectedStatus
-    const matchesInstitution = selectedInstitution === "all" || proyecto.institution === selectedInstitution
+    const matchesCategory = selectedCategory === "all" || proyecto.categoria === selectedCategory
+    const matchesStatus = selectedStatus === "all" || proyecto.estado === selectedStatus
+    const matchesInstitution = selectedInstitution === "all" || proyecto.autor.institucion === selectedInstitution
 
     return matchesSearch && matchesCategory && matchesStatus && matchesInstitution
   })
 
-  // TODO: Obtener opciones únicas desde la API
-  const categories: string[] = []
-  const statuses: string[] = []
-  const institutions: string[] = []
+  // Usar filtros de la API
+  const categories = categorias
+  const statuses = estados
+  const institutions = instituciones
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -191,51 +225,60 @@ export default function ProyectosPage() {
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
-                        <Badge className="mb-2 bg-blue-700 text-white">{proyecto.category}</Badge>
+                        <Badge className="mb-2 bg-blue-700 text-white">{proyecto.categoria}</Badge>
                         <Badge variant="outline" className="ml-2 border-blue-200 text-blue-700">
-                          {proyecto.status}
+                          {proyecto.estado}
                         </Badge>
                       </div>
                     </div>
-                    <CardTitle className="text-xl text-blue-900">{proyecto.title}</CardTitle>
-                    <CardDescription className="text-blue-600">{proyecto.institution}</CardDescription>
+                    <CardTitle className="text-xl text-blue-900">{proyecto.titulo}</CardTitle>
+                    <CardDescription className="text-blue-600">{proyecto.autor.institucion}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-blue-600 mb-4">{proyecto.description}</p>
+                    <p className="text-blue-600 mb-4">{proyecto.descripcion}</p>
                     <div className="space-y-2">
                       <div className="flex items-center text-sm text-blue-600">
                         <Calendar className="mr-2 h-4 w-4" />
                         <span>
-                          {proyecto.startDate} - {proyecto.endDate}
+                          {proyecto.fechaInicio} - {proyecto.fechaFin}
                         </span>
                       </div>
                       <div className="flex items-center text-sm text-blue-600">
                         <Users className="mr-2 h-4 w-4" />
-                        <span>{proyecto.researchers.length} investigadores</span>
+                        <span>{proyecto.colaboradores?.length || 1} investigadores</span>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 mt-4">
-                      {proyecto.tags.slice(0, 3).map((tag, index) => (
+                      {proyecto.palabrasClave.slice(0, 3).map((keyword: string, index: number) => (
                         <Badge key={index} variant="secondary" className="bg-blue-50 text-blue-700">
-                          {tag}
+                          {keyword}
                         </Badge>
                       ))}
-                      {proyecto.tags.length > 3 && (
+                      {proyecto.palabrasClave.length > 3 && (
                         <Badge variant="secondary" className="bg-blue-50 text-blue-700">
-                          +{proyecto.tags.length - 3} más
+                          +{proyecto.palabrasClave.length - 3} más
                         </Badge>
                       )}
                     </div>
                   </CardContent>
                   <CardFooter className="border-t border-blue-100 flex justify-between">
                     <div className="flex gap-2">
-                      {proyecto.researchers.slice(0, 3).map((researcher, index) => (
+                      <Avatar className="h-6 w-6">
+                        <AvatarImage src="/placeholder.svg" alt={proyecto.autor.nombre} />
+                        <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
+                          {proyecto.autor.nombre
+                            .split(" ")
+                            .map((n: string) => n[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                      {proyecto.colaboradores?.slice(0, 2).map((colaborador: any, index: number) => (
                         <Avatar key={index} className="h-6 w-6">
-                          <AvatarImage src={researcher.avatar || "/placeholder.svg"} alt={researcher.name} />
+                          <AvatarImage src="/placeholder.svg" alt={colaborador.nombre} />
                           <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
-                            {researcher.name
+                            {colaborador.nombre
                               .split(" ")
-                              .map((n) => n[0])
+                              .map((n: string) => n[0])
                               .join("")}
                           </AvatarFallback>
                         </Avatar>

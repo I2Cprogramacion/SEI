@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // Email del único administrador autorizado
-const AUTHORIZED_ADMIN_EMAIL = 'admin@sei.com.mx'
+const AUTHORIZED_ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@sei.com.mx'
 
 export function middleware(request: NextRequest) {
   // Solo aplicar middleware a rutas de admin

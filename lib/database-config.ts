@@ -2,17 +2,20 @@ import { DatabaseConfig, DatabaseFactory } from './database-interface'
 
 // Configuración de la base de datos actual
 export const currentDatabaseConfig: DatabaseConfig = {
-  type: 'vercelPostgres',
-  host: process.env.POSTGRES_HOST || 'localhost',
-  port: parseInt(process.env.POSTGRES_PORT || '5432'),
-  database: process.env.POSTGRES_DATABASE || 'researcher_platform',
-  username: process.env.POSTGRES_USER || 'postgres',
-  password: process.env.POSTGRES_PASSWORD || '',
-  ssl: true
+  type: 'sqlite',
+  filename: 'database.db'
 }
 
 // Función para obtener la instancia de base de datos configurada
 export async function getDatabase() {
+  // En desarrollo, forzar SQLite
+  if (process.env.NODE_ENV !== 'production') {
+    const sqliteConfig: DatabaseConfig = {
+      type: 'sqlite',
+      filename: 'database.db'
+    }
+    return await DatabaseFactory.create(sqliteConfig)
+  }
   return await DatabaseFactory.create(currentDatabaseConfig)
 }
 

@@ -34,19 +34,23 @@ export default function InvestigadoresPage() {
   const [investigadores, setInvestigadores] = useState<Investigador[]>([])
   const [loading, setLoading] = useState(true)
 
-  // TODO: Conectar con API real
+  // Conectar con API real
   useEffect(() => {
     const fetchInvestigadores = async () => {
       try {
         setLoading(true)
-        // const response = await fetch('/api/investigadores')
-        // const data = await response.json()
-        // setInvestigadores(data)
-
-        // Por ahora, datos vacíos
-        setInvestigadores([])
+        const response = await fetch('/api/investigadores')
+        const data = await response.json()
+        
+        if (response.ok) {
+          setInvestigadores(data.investigadores || [])
+        } else {
+          console.error("Error fetching investigadores:", data.error)
+          setInvestigadores([])
+        }
       } catch (error) {
         console.error("Error fetching investigadores:", error)
+        setInvestigadores([])
       } finally {
         setLoading(false)
       }
@@ -55,24 +59,52 @@ export default function InvestigadoresPage() {
     fetchInvestigadores()
   }, [])
 
+  // Estados para filtros
+  const [areas, setAreas] = useState<string[]>([])
+  const [instituciones, setInstituciones] = useState<string[]>([])
+  const [ubicaciones, setUbicaciones] = useState<string[]>([])
+
+  // Cargar opciones de filtros
+  useEffect(() => {
+    const fetchFiltros = async () => {
+      try {
+        const response = await fetch('/api/investigadores')
+        const data = await response.json()
+        
+        if (response.ok && data.filtros) {
+          setAreas(data.filtros.areas || [])
+          setInstituciones(data.filtros.instituciones || [])
+          setUbicaciones(data.filtros.ubicaciones || [])
+        }
+      } catch (error) {
+        console.error("Error fetching filtros:", error)
+      }
+    }
+
+    fetchFiltros()
+  }, [])
+
   // Filtrar investigadores
   const filteredInvestigadores = investigadores.filter((investigador) => {
     const matchesSearch =
-      investigador.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      investigador.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      investigador.expertise.some((exp) => exp.toLowerCase().includes(searchTerm.toLowerCase()))
+      investigador.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      investigador.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      investigador.institucion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      investigador.area.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesField = selectedField === "all" || investigador.field === selectedField
-    const matchesInstitution = selectedInstitution === "all" || investigador.institution === selectedInstitution
-    const matchesLocation = selectedLocation === "all" || investigador.location.includes(selectedLocation)
+    const matchesField = selectedField === "all" || investigador.area === selectedField
+    const matchesInstitution = selectedInstitution === "all" || investigador.institucion === selectedInstitution
+    const matchesLocation = selectedLocation === "all" || 
+      investigador.estadoNacimiento === selectedLocation || 
+      investigador.entidadFederativa === selectedLocation
 
     return matchesSearch && matchesField && matchesInstitution && matchesLocation
   })
 
-  // TODO: Obtener opciones únicas desde la API
-  const fields: string[] = [...new Set(investigadores.map((inv) => inv.field))]
-  const institutions: string[] = [...new Set(investigadores.map((inv) => inv.institution))]
-  const locations: string[] = [...new Set(investigadores.map((inv) => inv.location.split(",")[0].trim()))]
+  // Usar filtros de la API
+  const fields = areas
+  const institutions = instituciones
+  const locations = ubicaciones
 
   return (
     <div className="container mx-auto py-8 px-4">

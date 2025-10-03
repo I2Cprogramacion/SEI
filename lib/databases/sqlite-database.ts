@@ -310,4 +310,58 @@ export class SQLiteDatabase implements DatabaseInterface {
       }
     }
   }
+
+  async buscarInvestigadores(params: {
+    termino: string
+    limite?: number
+  }): Promise<any[]> {
+    try {
+      const { termino, limite = 10 } = params
+      const terminoBusqueda = `%${termino.toLowerCase()}%`
+      
+      const query = `
+        SELECT id, nombre_completo as nombre, correo as email, institucion, area
+        FROM investigadores 
+        WHERE (
+          LOWER(nombre_completo) LIKE ? OR 
+          LOWER(correo) LIKE ? OR 
+          LOWER(institucion) LIKE ? OR
+          LOWER(area) LIKE ?
+        )
+        ORDER BY nombre_completo ASC
+        LIMIT ?
+      `
+      
+      const resultados = await this.db.all(query, [
+        terminoBusqueda,
+        terminoBusqueda,
+        terminoBusqueda,
+        terminoBusqueda,
+        terminoBusqueda,
+        limite
+      ])
+      
+      return resultados
+    } catch (error) {
+      console.error("Error al buscar investigadores:", error)
+      return []
+    }
+  }
+
+  async query(sql: string, params: any[] = []): Promise<any[]> {
+    try {
+      return new Promise((resolve, reject) => {
+        this.db.all(sql, params, (err, rows) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(rows)
+          }
+        })
+      })
+    } catch (error) {
+      console.error("Error al ejecutar query:", error)
+      return []
+    }
+  }
 }

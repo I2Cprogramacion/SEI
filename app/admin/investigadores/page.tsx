@@ -82,12 +82,10 @@ export default function InvestigadoresAdmin() {
     
     const filtered = investigadores.filter(
       (investigador) =>
-        investigador.nombre_completo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        investigador.correo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (investigador.curp && investigador.curp.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (investigador.rfc && investigador.rfc.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        investigador.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        investigador.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (investigador.institucion && investigador.institucion.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (investigador.telefono && investigador.telefono.toLowerCase().includes(searchTerm.toLowerCase())),
+        (investigador.area && investigador.area.toLowerCase().includes(searchTerm.toLowerCase())),
     )
     setFilteredData(filtered)
     setCurrentPage(1)

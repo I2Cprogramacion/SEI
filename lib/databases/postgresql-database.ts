@@ -333,4 +333,45 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       }
     }
   }
+
+  async buscarInvestigadores(params: {
+    termino: string
+    limite?: number
+  }): Promise<any[]> {
+    try {
+      const { termino, limite = 10 } = params
+      const terminoBusqueda = `%${termino.toLowerCase()}%`
+      
+      const query = `
+        SELECT id, nombre, "nombreCompleto", email, institucion, area
+        FROM usuarios 
+        WHERE (
+          LOWER(nombre) LIKE $1 OR 
+          LOWER("nombreCompleto") LIKE $1 OR 
+          LOWER(email) LIKE $1 OR 
+          LOWER(institucion) LIKE $1 OR
+          LOWER(area) LIKE $1
+        )
+        AND email_verificado = true
+        ORDER BY nombre ASC
+        LIMIT $2
+      `
+      
+      const result = await this.client.query(query, [terminoBusqueda, limite])
+      return result.rows
+    } catch (error) {
+      console.error("Error al buscar investigadores:", error)
+      return []
+    }
+  }
+
+  async query(sql: string, params: any[] = []): Promise<any[]> {
+    try {
+      const result = await this.client.query(sql, params)
+      return result.rows
+    } catch (error) {
+      console.error("Error al ejecutar query:", error)
+      return []
+    }
+  }
 }
