@@ -137,26 +137,22 @@ export default function RegistroPage() {
         throw new Error(result.error || "Error procesando PDF")
       }
 
-      if (result.success && result.data) {
-        // Actualizar el formulario con los datos extraídos
+      // Asumimos que result es un objeto plano con los campos extraídos
+      if (result.curp || result.rfc || result.no_cvu || result.correo || result.telefono) {
         setFormData((prev) => ({
           ...prev,
-          ...result.data,
-          linea_investigacion: "", // Asegurar que siempre esté vacía para captura manual
-          password: "", // Asegurar que siempre esté vacía
-          confirm_password: "", // Asegurar que siempre esté vacía
+          curp: result.curp || "",
+          rfc: result.rfc || "",
+          no_cvu: result.no_cvu || "",
+          correo: result.correo || "",
+          telefono: result.telefono || "",
+          linea_investigacion: "",
+          password: "",
+          confirm_password: "",
         }))
-
         setOcrCompleted(true)
         setError(null)
-        
-        if (result.fallback) {
-          // Si es fallback, mostrar mensaje informativo
-          console.log("Procesamiento automático no disponible, formulario listo para llenado manual")
-        } else {
-          // Mostrar mensaje de éxito con información sobre los campos encontrados
-          console.log(`PDF procesado exitosamente. Campos encontrados: ${result.total_fields}`)
-        }
+        console.log("PDF procesado exitosamente. Campos extraídos:", result)
       } else {
         throw new Error("No se pudieron extraer datos del PDF")
       }

@@ -39,8 +39,13 @@ app.post('/process-pdf', upload.any(), async (req, res) => {
   }
 
   try {
-    const data = await pdfParse(fileField.buffer);
-    const text = (data.text || '').toUpperCase();
+
+  const data = await pdfParse(fileField.buffer);
+  const text = (data.text || '').toUpperCase();
+  // Log para depuración: mostrar el texto extraído
+  console.log('--- TEXTO EXTRAÍDO DEL PDF ---');
+  console.log(text);
+  console.log('--- FIN DEL TEXTO EXTRAÍDO ---');
 
     const curp = firstMatch(reCURP, text);
     const rfc = firstMatch(reRFC, text);
