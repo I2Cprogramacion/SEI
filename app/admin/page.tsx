@@ -49,53 +49,53 @@ export default function AdminDashboard() {
         ])
 
         // Procesar datos de investigadores
-        let investigadores = []
-        if (investigadoresRes.ok) {
-          const investigadoresData = await investigadoresRes.json()
-          investigadores = investigadoresData.investigadores || investigadoresData || []
+        let investigadores = [];
+        if (investigadoresRes instanceof Response && investigadoresRes.ok) {
+          const investigadoresData = await investigadoresRes.json();
+          investigadores = investigadoresData.investigadores || investigadoresData || [];
         }
 
         // Procesar datos de proyectos
-        let proyectos = []
-        if (proyectosRes.ok) {
-          const proyectosData = await proyectosRes.json()
-          proyectos = proyectosData.proyectos || proyectosData || []
+        let proyectos = [];
+        if (proyectosRes instanceof Response && proyectosRes.ok) {
+          const proyectosData = await proyectosRes.json();
+          proyectos = proyectosData.proyectos || proyectosData || [];
         }
 
         // Procesar datos de publicaciones
-        let publicaciones = []
-        if (publicacionesRes.ok) {
-          const publicacionesData = await publicacionesRes.json()
-          publicaciones = publicacionesData.publicaciones || publicacionesData || []
+        let publicaciones = [];
+        if (publicacionesRes instanceof Response && publicacionesRes.ok) {
+          const publicacionesData = await publicacionesRes.json();
+          publicaciones = publicacionesData.publicaciones || publicacionesData || [];
         }
 
         // Procesar datos de instituciones
-        let instituciones = []
-        if (institucionesRes.ok) {
-          const institucionesData = await institucionesRes.json()
-          instituciones = institucionesData.instituciones || institucionesData || []
+        let instituciones = [];
+        if (institucionesRes instanceof Response && institucionesRes.ok) {
+          const institucionesData = await institucionesRes.json();
+          instituciones = institucionesData.instituciones || institucionesData || [];
         }
 
         // Calcular estadísticas
         const ahora = new Date()
         const haceUnMes = new Date(ahora.getTime() - 30 * 24 * 60 * 60 * 1000)
 
-        const investigadoresNuevos = investigadores.filter(inv => 
+        const investigadoresNuevos = investigadores.filter((inv: any) => 
           new Date(inv.fecha_registro || inv.createdAt) >= haceUnMes
-        ).length
+        ).length;
 
-        const proyectosActivos = proyectos.filter(proj => 
+        const proyectosActivos = proyectos.filter((proj: any) => 
           proj.estado === 'activo' || proj.estado === 'en_progreso'
-        ).length
+        ).length;
 
-        const publicacionesRecientes = publicaciones.filter(pub => 
+        const publicacionesRecientes = publicaciones.filter((pub: any) => 
           new Date(pub.fecha_publicacion || pub.createdAt) >= haceUnMes
-        ).length
+        ).length;
 
         // Calcular alertas (perfiles incompletos)
-        const alertas = investigadores.filter(inv => 
+        const alertas = investigadores.filter((inv: any) => 
           !inv.nombre_completo || !inv.correo || !inv.institucion
-        ).length
+        ).length;
 
         setStats({
           totalInvestigadores: investigadores.length,
@@ -155,7 +155,7 @@ export default function AdminDashboard() {
 
         {/* Estadísticas principales */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-white border-blue-100 hover:border-blue-300 transition-colors cursor-pointer" asChild>
+          <Card className="bg-white border-blue-100 hover:border-blue-300 transition-colors cursor-pointer">
             <Link href="/admin/investigadores">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-blue-900">Total Investigadores</CardTitle>
@@ -180,7 +180,7 @@ export default function AdminDashboard() {
             </Link>
           </Card>
 
-          <Card className="bg-white border-blue-100 hover:border-blue-300 transition-colors cursor-pointer" asChild>
+          <Card className="bg-white border-blue-100 hover:border-blue-300 transition-colors cursor-pointer">
             <Link href="/admin/proyectos">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-blue-900">Proyectos Activos</CardTitle>
@@ -205,7 +205,7 @@ export default function AdminDashboard() {
             </Link>
           </Card>
 
-          <Card className="bg-white border-blue-100 hover:border-blue-300 transition-colors cursor-pointer" asChild>
+          <Card className="bg-white border-blue-100 hover:border-blue-300 transition-colors cursor-pointer">
             <Link href="/admin/publicaciones">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-blue-900">Publicaciones</CardTitle>
@@ -230,7 +230,7 @@ export default function AdminDashboard() {
             </Link>
           </Card>
 
-          <Card className="bg-white border-blue-100 hover:border-blue-300 transition-colors cursor-pointer" asChild>
+          <Card className="bg-white border-blue-100 hover:border-blue-300 transition-colors cursor-pointer">
             <Link href="/admin/instituciones">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-blue-900">Instituciones</CardTitle>

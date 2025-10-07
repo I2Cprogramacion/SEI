@@ -19,7 +19,7 @@ export async function getDatabase() {
 // Función para cambiar la configuración de base de datos en tiempo de ejecución
 export function updateDatabaseConfig(newConfig: DatabaseConfig) {
   Object.assign(currentDatabaseConfig, newConfig)
-  console.log('Configuración de base de datos actualizada:', currentDatabaseConfig)
+    // (Eliminado log de actualización de config para reducir el rate limit)
 }
 
 // Función para cambiar automáticamente según el entorno
@@ -39,9 +39,9 @@ export function autoConfigureDatabase() {
         ssl: true
       }
       updateDatabaseConfig(vercelConfig)
-      console.log('✅ Configurado para usar Vercel Postgres en producción')
+        // (Eliminado log de configuración para reducir el rate limit)
     } else {
-      console.log('⚠️ Variables de entorno de Vercel Postgres no encontradas')
+        // (Eliminado log de advertencia para reducir el rate limit)
     }
   } else {
     // En desarrollo, usar SQLite por defecto
@@ -50,7 +50,7 @@ export function autoConfigureDatabase() {
       filename: 'database.db'
     }
     updateDatabaseConfig(sqliteConfig)
-    console.log('✅ Configurado para usar SQLite en desarrollo')
+      // (Eliminado log de configuración para reducir el rate limit)
   }
 }
 

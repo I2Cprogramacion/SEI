@@ -43,10 +43,7 @@ app.post('/process-pdf', upload.any(), async (req, res) => {
 
   const data = await pdfParse(fileField.buffer);
   const text = (data.text || '').toUpperCase();
-  // Log para depuración: mostrar el texto extraído
-  console.log('--- TEXTO EXTRAÍDO DEL PDF ---');
-  console.log(text);
-  console.log('--- FIN DEL TEXTO EXTRAÍDO ---');
+  // (Eliminado log de texto extraído para reducir el rate limit)
 
     // Helper para obtener el primer grupo no undefined de un match
     function getFirstGroup(re, text) {
@@ -84,5 +81,5 @@ app.get('/', (_req, res) => res.send('OCR server running'));
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`OCR server listening on port ${PORT}`);
+  // (Eliminado log de inicio del servidor para reducir el rate limit)
 });

@@ -26,19 +26,7 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File | null;
 
     // Log: archivo recibido
-    if (file) {
-      console.log('[OCR Proxy] Archivo recibido:', {
-        nombre: file.name,
-        tipo: file.type,
-        tamano: file.size
-      });
-      // Leer los primeros bytes para ver si el archivo llega bien
-      const abTest = await file.arrayBuffer();
-      const bytes = new Uint8Array(abTest).slice(0, 16);
-      console.log('[OCR Proxy] Primeros bytes del archivo:', Array.from(bytes));
-    } else {
-      console.log('[OCR Proxy] No se recibió archivo');
-    }
+    // (Eliminados logs de archivo recibido y bytes para reducir el rate limit)
 
     if (!file) return NextResponse.json({ error: 'No se proporcionó archivo' }, { status: 400 });
     if (!file.type?.includes('pdf')) {
@@ -53,11 +41,7 @@ export async function POST(request: NextRequest) {
     const blob = new Blob([ab], { type: file.type });
     const upstreamForm = new FormData();
     upstreamForm.append('file', blob, file.name);
-    console.log('[OCR Proxy] Enviando archivo al backend OCR:', {
-      nombre: file.name,
-      tipo: file.type,
-      tamano: file.size
-    });
+    // (Eliminado log de envío de archivo para reducir el rate limit)
 
     const url = `${BASE}/process-pdf`;
     const controller = new AbortController();
@@ -72,11 +56,7 @@ export async function POST(request: NextRequest) {
 
     // Log: status y cuerpo de la respuesta del backend OCR
     const rawText = await upstream.clone().text().catch(() => '[no se pudo leer cuerpo]');
-    console.log('[OCR Proxy] Respuesta backend OCR:', {
-      status: upstream.status,
-      contentType: upstream.headers.get('content-type'),
-      body: rawText?.slice(0, 500) // solo los primeros 500 caracteres
-    });
+    // (Eliminado log de respuesta backend OCR para reducir el rate limit)
 
     if (!upstream.ok) {
       console.error('Backend OCR', upstream.status, rawText);
@@ -88,7 +68,7 @@ export async function POST(request: NextRequest) {
     const payload = ct.includes('application/json') ? await upstream.json() : { data: rawText };
     // Permitir tanto payload.data como payload plano
   let fields = (payload as any).data || payload;
-  console.log('[OCR Proxy] Campos extraídos del backend OCR:', fields);
+  // (Eliminado log de campos extraídos para reducir el rate limit)
 
     // Si solo hay 'text', intentar extraer campos clave con regex
     if (fields && typeof fields.text === 'string') {
@@ -200,3 +180,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: `Proxy failed: ${err?.message}` }, { status: 500 });
   }
 }
+

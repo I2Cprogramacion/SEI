@@ -39,7 +39,7 @@ export interface DatabaseInterface {
 }
 
 // Tipos de base de datos soportados
-export type DatabaseType = 'postgresql' | 'mysql' | 'mongodb' | 'vercelPostgres'
+export type DatabaseType = 'postgresql' | 'mysql' | 'mongodb' | 'vercelPostgres' | 'sqlite'
 
 // Configuración de base de datos
 export interface DatabaseConfig {
@@ -49,7 +49,7 @@ export interface DatabaseConfig {
   database?: string
   username?: string
   password?: string
-  // filename?: string // Eliminado: solo para SQLite
+  filename?: string // Solo para SQLite
   ssl?: boolean
   connectionString?: string
 }
@@ -58,21 +58,17 @@ export interface DatabaseConfig {
 export class DatabaseFactory {
   static async create(config: DatabaseConfig): Promise<DatabaseInterface> {
     switch (config.type) {
-      // case 'sqlite':
-      //   const { SQLiteDatabase } = await import('./databases/sqlite-database')
-      //   return new SQLiteDatabase(config)
-        
+      case 'sqlite':
+        const { SQLiteDatabase } = await import('./databases/sqlite-database')
+        return new SQLiteDatabase(config)
       case 'postgresql':
       case 'vercelPostgres':
         const { PostgreSQLDatabase } = await import('./databases/postgresql-database')
         return new PostgreSQLDatabase(config)
-        
       case 'mysql':
         throw new Error('MySQL no está implementado aún')
-        
       case 'mongodb':
         throw new Error('MongoDB no está implementado aún')
-        
       default:
         throw new Error(`Tipo de base de datos no soportado: ${config.type}`)
     }
