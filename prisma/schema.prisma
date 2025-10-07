@@ -1,17 +1,3 @@
-model Membership {
-  id              String         @id @default(cuid())
-  investigadorId  Int
-  institucionId   String
-  rol             String?
-  fechaInicio     DateTime?
-  fechaFin        DateTime?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  investigador    Investigador  @relation(fields: [investigadorId], references: [id])
-  institucion     Institution   @relation(fields: [institucionId], references: [id])
-
-  @@map("memberships")
-}
 generator client {
   provider = "prisma-client-js"
 }
@@ -56,6 +42,8 @@ model Profile {
   ultimoGradoEstudios String?
   empleoActual        String?
   lineaInvestigacion  String?
+  areaInvestigacion   String?
+  fotografiaUrl       String?
   nacionalidad        String       @default("Mexicana")
   fechaNacimiento     DateTime?
   institucionId       String?
@@ -70,37 +58,114 @@ model Profile {
 }
 
 model Institution {
-  id        String    @id @default(cuid())
-  nombre    String
-  tipo      String?
-  ubicacion String?
-  sitioWeb  String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  profiles  Profile[]
+  id          String       @id @default(cuid())
+  nombre      String
+  tipo        String?
+  ubicacion   String?
+  sitioWeb    String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  profiles    Profile[]
   memberships Membership[]
 
   @@map("institutions")
 }
 
+model Membership {
+  id             String       @id @default(cuid())
+  investigadorId Int
+  institucionId  String
+  rol            String?
+  fechaInicio    DateTime?
+  fechaFin       DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  investigador   Investigador @relation(fields: [investigadorId], references: [id])
+  institucion    Institution  @relation(fields: [institucionId], references: [id])
+
+  @@map("memberships")
+}
+
 model Investigador {
-  id                  Int       @id @default(autoincrement())
-  nombreCompleto      String
-  curp                String?   @unique
-  rfc                 String?
-  noCvu               String?
-  correo              String    @unique
-  telefono            String?
-  ultimoGradoEstudios String?
-  empleoActual        String?
-  lineaInvestigacion  String?
-  nacionalidad        String    @default("Mexicana")
-  fechaNacimiento     DateTime?
-  fechaRegistro       DateTime  @default(now())
-  origen              String?
-  archivoProcesado    String?
-  password            String?
-  memberships         Membership[]
+  id                               Int          @id @default(autoincrement())
+  curp                             String?      @db.VarChar(18)
+  nombre_completo                  String       @db.VarChar(255)
+  rfc                              String?      @db.VarChar(13)
+  correo                           String       @unique @db.VarChar(255)
+  telefono                         String?      @db.VarChar(20)
+  no_cvu                           String?      @db.VarChar(20)
+  orcid                            String?      @db.VarChar(20)
+  nivel                            String?      @db.VarChar(50)
+  area                             String?      @db.VarChar(255)
+  institucion                      String?      @db.VarChar(255)
+  nacionalidad                     String?      @db.VarChar(100)
+  fecha_nacimiento                 DateTime?    @db.Date
+  grado_maximo_estudios            String?      @db.VarChar(100)
+  ultimo_grado_estudios            String?      @db.VarChar(255)
+  empleo_actual                    String?      @db.VarChar(255)
+  titulo_tesis                     String?
+  anio_grado                       Int?
+  pais_grado                       String?      @db.VarChar(100)
+  disciplina                       String?      @db.VarChar(255)
+  especialidad                     String?      @db.VarChar(255)
+  linea_investigacion              String?
+  area_investigacion               String?      @db.VarChar(255)
+  fotografia_url                   String?
+  sni                              String?      @db.VarChar(10)
+  anio_sni                         Int?
+  cv_conacyt                       String?
+  experiencia_docente              String?
+  experiencia_laboral              String?
+  proyectos_investigacion          String?
+  proyectos_vinculacion            String?
+  patentes                         String?
+  productos_cientificos            String?
+  productos_tecnologicos           String?
+  productos_humanisticos           String?
+  libros                           String?
+  capitulos_libros                 String?
+  articulos                        String?
+  revistas_indexadas               String?
+  revistas_no_indexadas            String?
+  memorias                         String?
+  ponencias                        String?
+  formacion_recursos               String?
+  direccion_tesis                  String?
+  direccion_posgrados              String?
+  evaluador_proyectos              String?
+  miembro_comites                  String?
+  editor_revistas                  String?
+  premios_distinciones             String?
+  estancias_academicas             String?
+  idiomas                          String?
+  asociaciones_cientificas         String?
+  gestion_academica                String?
+  gestion_institucional            String?
+  colaboracion_internacional       String?
+  colaboracion_nacional            String?
+  divulgacion_cientifica           String?
+  otros_logros                     String?
+  vinculacion_sector_productivo    String?
+  vinculacion_sector_social        String?
+  vinculacion_sector_publico       String?
+  participacion_politicas_publicas String?
+  impacto_social                   String?
+  propuesta_linea_trabajo          String?
+  documentacion_completa           String?
+  observaciones                    String?
+  genero                           String?      @db.VarChar(20)
+  estado_nacimiento                String?      @db.VarChar(100)
+  municipio                        String?      @db.VarChar(100)
+  domicilio                        String?
+  cp                               String?      @db.VarChar(10)
+  entidad_federativa               String?      @db.VarChar(100)
+  cv_ligado_orcid                  String?
+  orcid_verificado                 Boolean?     @default(false)
+  origen                           String?      @db.VarChar(50)
+  archivo_procesado                String?
+  password                         String?
+  fecha_registro                   DateTime?    @default(now()) @db.Timestamp(6)
+  memberships                      Membership[]
 
   @@map("investigadores")
 }

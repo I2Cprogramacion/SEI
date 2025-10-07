@@ -34,6 +34,7 @@ import {
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Textarea } from "@/components/ui/textarea"
+import { UploadFotografia } from "@/components/upload-fotografia"
 
 export default function RegistroPage() {
   const [formData, setFormData] = useState({
@@ -46,6 +47,8 @@ export default function RegistroPage() {
     ultimo_grado_estudios: "",
     empleo_actual: "",
     linea_investigacion: "",
+    area_investigacion: "",
+    fotografia_url: "",
     nacionalidad: "Mexicana",
     fecha_nacimiento: "",
     password: "",
@@ -102,6 +105,8 @@ export default function RegistroPage() {
         ultimo_grado_estudios: "",
         empleo_actual: "",
         linea_investigacion: "", // Este campo siempre se mantiene vacío para captura manual
+        area_investigacion: "", // Campo adicional para área
+        fotografia_url: "", // URL de Cloudinary
         nacionalidad: "Mexicana",
         fecha_nacimiento: "",
         password: "",
@@ -143,6 +148,8 @@ export default function RegistroPage() {
           ...prev,
           ...result.data,
           linea_investigacion: "", // Asegurar que siempre esté vacía para captura manual
+          area_investigacion: "", // Asegurar que siempre esté vacía para captura manual
+          fotografia_url: prev.fotografia_url, // Mantener la foto si ya fue subida
           password: "", // Asegurar que siempre esté vacía
           confirm_password: "", // Asegurar que siempre esté vacía
         }))
@@ -182,6 +189,8 @@ export default function RegistroPage() {
         ...prev,
         nacionalidad: "Mexicana", // Asegurar valor por defecto
         linea_investigacion: "", // Asegurar que esté vacío
+        area_investigacion: "", // Asegurar que esté vacío
+        fotografia_url: prev.fotografia_url, // Mantener la foto si ya fue subida
         password: "", // Asegurar que esté vacío
         confirm_password: "", // Asegurar que esté vacío
       }))
@@ -214,6 +223,7 @@ export default function RegistroPage() {
       { field: "ultimo_grado_estudios", label: "Último Grado de Estudios" },
       { field: "empleo_actual", label: "Empleo Actual" },
       { field: "linea_investigacion", label: "Línea de Investigación" },
+      { field: "area_investigacion", label: "Área de Investigación" },
       { field: "nacionalidad", label: "Nacionalidad" },
       { field: "fecha_nacimiento", label: "Fecha de Nacimiento" },
       { field: "no_cvu", label: "CVU/PU" },
@@ -670,6 +680,17 @@ export default function RegistroPage() {
                           disabled={!ocrCompleted}
                         />
                       </div>
+
+                      {/* Fotografía de Perfil */}
+                      {ocrCompleted && (
+                        <div className="sm:col-span-2">
+                          <UploadFotografia
+                            value={formData.fotografia_url}
+                            onChange={(url) => setFormData((prev) => ({ ...prev, fotografia_url: url }))}
+                            nombreCompleto={formData.nombre_completo}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -1045,6 +1066,35 @@ export default function RegistroPage() {
                         </p>
                       )}
                     </div>
+
+                    {/* Campo de Área de Investigación */}
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="area_investigacion"
+                        className="text-blue-900 font-medium flex items-center gap-2"
+                      >
+                        <Edit className="h-4 w-4" />
+                        Área o Campo de Investigación *
+                        <span className="text-xs text-blue-600">(Escribir manualmente)</span>
+                      </Label>
+                      <Input
+                        id="area_investigacion"
+                        name="area_investigacion"
+                        value={formData.area_investigacion}
+                        onChange={handleChange}
+                        placeholder="Ej: Ciencias Exactas, Ingeniería, Ciencias Sociales, Humanidades, etc."
+                        className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
+                          !formData.area_investigacion.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                        }`}
+                        required
+                        disabled={!ocrCompleted}
+                      />
+                      {!formData.area_investigacion.trim() && ocrCompleted && (
+                        <p className="text-sm text-red-600">
+                          Este campo es obligatorio y debe ser completado manualmente
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   {error && (
@@ -1060,7 +1110,7 @@ export default function RegistroPage() {
                     <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-700">
-                          Progreso del formulario: {13 - validateForm().length}/13 campos completos
+                          Progreso del formulario: {14 - validateForm().length}/14 campos completos
                         </span>
                         <div className="flex items-center gap-2">
                           {isFormComplete && passwordValidation.isValid && passwordsMatch ? (

@@ -1,92 +1,128 @@
 "use client"
-import { notFound } from "next/navigation"
+
+import { useEffect, useState } from "react"
+import { useParams, notFound } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { Building, Mail, Globe, Calendar, Award, FileText, Users, ExternalLink, Download, MapPin } from "lucide-react"
+import {
+  Building,
+  Mail,
+  Globe,
+  Calendar,
+  Award,
+  FileText,
+  Users,
+  ExternalLink,
+  Download,
+  MapPin,
+  Phone,
+  CreditCard,
+  GraduationCap,
+  Briefcase,
+  Loader2,
+} from "lucide-react"
 
-// Interface para el investigador completo
-interface InvestigadorCompleto {
+interface InvestigadorData {
   id: number
   name: string
-  title: string
-  avatar?: string
-  institution: string
-  department?: string
-  location: string
-  email?: string
-  phone?: string
-  website?: string
-  biography: string
-  expertise: string[]
-  education: Array<{
-    degree: string
-    institution: string
-    year: number
-  }>
-  experience: Array<{
-    position: string
-    institution: string
-    startYear: number
-    endYear?: number
-  }>
-  projects: Array<{
-    id: number
-    title: string
-    status: string
-    year: number
-    slug: string
-  }>
-  publications: Array<{
-    id: number
-    title: string
-    journal: string
-    year: number
-    doi?: string
-  }>
-  awards: Array<{
-    title: string
-    organization: string
-    year: number
-  }>
-  collaborators: Array<{
-    id: number
-    name: string
-    institution: string
-    avatar?: string
-    slug: string
-  }>
-  stats: {
-    totalProjects: number
-    activeProjects: number
-    totalPublications: number
-    hIndex?: number
-    citations?: number
-  }
+  email: string
+  curp?: string
+  rfc?: string
+  noCvu?: string
+  telefono?: string
+  institution?: string
+  area?: string
+  areaInvestigacion?: string
+  lineaInvestigacion?: string
+  fotografiaUrl?: string
+  title?: string
+  empleoActual?: string
+  fechaNacimiento?: string
+  nacionalidad?: string
+  orcid?: string
+  nivel?: string
+  location?: string
+  domicilio?: string
+  cp?: string
+  gradoMaximoEstudios?: string
+  disciplina?: string
+  especialidad?: string
+  sni?: string
+  anioSni?: number
+  experienciaDocente?: string
+  experienciaLaboral?: string
+  proyectosInvestigacion?: string
+  proyectosVinculacion?: string
+  libros?: string
+  capitulosLibros?: string
+  articulos?: string
+  premiosDistinciones?: string
+  idiomas?: string
+  colaboracionInternacional?: string
+  colaboracionNacional?: string
+  slug: string
 }
 
-// TODO: Esta función debe obtener los datos del investigador desde la API
-async function getInvestigador(slug: string): Promise<InvestigadorCompleto | null> {
-  try {
-    // const response = await fetch(`${process.env.API_URL}/api/investigadores/${slug}`)
-    // if (!response.ok) return null
-    // return await response.json()
+export default function InvestigadorPage() {
+  const params = useParams()
+  const slug = params?.slug as string
+  const [investigador, setInvestigador] = useState<InvestigadorData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-    // Por ahora retornamos null para mostrar el estado vacío
-    return null
-  } catch (error) {
-    console.error("Error fetching investigador:", error)
-    return null
+  useEffect(() => {
+    if (!slug) return
+
+    const fetchInvestigador = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch(`/api/investigadores/${slug}`)
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            notFound()
+          }
+          throw new Error("Error al cargar el investigador")
+        }
+
+        const data = await response.json()
+        setInvestigador(data)
+      } catch (err) {
+        console.error("Error fetching investigador:", err)
+        setError(err instanceof Error ? err.message : "Error desconocido")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchInvestigador()
+  }, [slug])
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-8 px-4 flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-blue-600">Cargando perfil...</p>
+        </div>
+      </div>
+    )
   }
-}
 
-export default async function InvestigadorPage({ params }: { params: { slug: string } }) {
-  const investigador = await getInvestigador(params.slug)
+  if (error || !investigador) {
+    return notFound()
+  }
 
-  if (!investigador) {
-    notFound()
+  const getInitials = () => {
+    return investigador.name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
   }
 
   return (
@@ -97,31 +133,29 @@ export default async function InvestigadorPage({ params }: { params: { slug: str
           <CardContent className="pt-8">
             <div className="flex flex-col md:flex-row gap-6">
               <div className="flex-shrink-0">
-                <Avatar className="h-32 w-32">
-                  <AvatarImage src={investigador.avatar || "/placeholder.svg"} alt={investigador.name} />
-                  <AvatarFallback className="bg-blue-100 text-blue-700 text-2xl">
-                    {investigador.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
+                <Avatar className="h-32 w-32 ring-4 ring-blue-100">
+                  <AvatarImage src={investigador.fotografiaUrl || "/placeholder-user.jpg"} alt={investigador.name} />
+                  <AvatarFallback className="bg-blue-100 text-blue-700 text-2xl">{getInitials()}</AvatarFallback>
                 </Avatar>
               </div>
               <div className="flex-grow">
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                   <div>
                     <h1 className="text-3xl font-bold text-blue-900 mb-2">{investigador.name}</h1>
-                    <p className="text-xl text-blue-600 mb-4">{investigador.title}</p>
+                    <p className="text-xl text-blue-600 mb-4">{investigador.title || investigador.gradoMaximoEstudios}</p>
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-blue-600">
-                        <Building className="h-4 w-4" />
-                        <span>{investigador.institution}</span>
-                        {investigador.department && <span>• {investigador.department}</span>}
-                      </div>
-                      <div className="flex items-center gap-2 text-blue-600">
-                        <MapPin className="h-4 w-4" />
-                        <span>{investigador.location}</span>
-                      </div>
+                      {investigador.institution && (
+                        <div className="flex items-center gap-2 text-blue-600">
+                          <Building className="h-4 w-4" />
+                          <span>{investigador.institution}</span>
+                        </div>
+                      )}
+                      {investigador.location && (
+                        <div className="flex items-center gap-2 text-blue-600">
+                          <MapPin className="h-4 w-4" />
+                          <span>{investigador.location}</span>
+                        </div>
+                      )}
                       {investigador.email && (
                         <div className="flex items-center gap-2 text-blue-600">
                           <Mail className="h-4 w-4" />
@@ -130,29 +164,20 @@ export default async function InvestigadorPage({ params }: { params: { slug: str
                           </a>
                         </div>
                       )}
-                      {investigador.website && (
+                      {investigador.telefono && (
                         <div className="flex items-center gap-2 text-blue-600">
-                          <Globe className="h-4 w-4" />
-                          <a
-                            href={investigador.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:underline"
-                          >
-                            Sitio web personal
-                          </a>
+                          <Phone className="h-4 w-4" />
+                          <span>{investigador.telefono}</span>
                         </div>
                       )}
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Button className="bg-blue-700 text-white hover:bg-blue-800">
-                      <Mail className="mr-2 h-4 w-4" />
-                      Contactar
-                    </Button>
-                    <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent">
-                      <Download className="mr-2 h-4 w-4" />
-                      Descargar CV
+                    <Button className="bg-blue-700 text-white hover:bg-blue-800" asChild>
+                      <a href={`mailto:${investigador.email}`}>
+                        <Mail className="mr-2 h-4 w-4" />
+                        Contactar
+                      </a>
                     </Button>
                   </div>
                 </div>
@@ -161,162 +186,138 @@ export default async function InvestigadorPage({ params }: { params: { slug: str
           </CardContent>
         </Card>
 
-        {/* Estadísticas */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <Card className="bg-white border-blue-100 text-center">
-            <CardContent className="pt-6">
-              <FileText className="h-8 w-8 mx-auto text-blue-600 mb-2" />
-              <div className="text-2xl font-bold text-blue-900">{investigador.stats.totalProjects}</div>
-              <p className="text-sm text-blue-600">Proyectos Totales</p>
+        {/* Información de registro */}
+        {(investigador.curp || investigador.rfc || investigador.noCvu) && (
+          <Card className="bg-white border-blue-100">
+            <CardHeader>
+              <CardTitle className="text-blue-900 flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Información de Registro
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {investigador.curp && (
+                  <div>
+                    <p className="text-sm text-blue-600 font-medium">CURP</p>
+                    <p className="text-blue-900">{investigador.curp}</p>
+                  </div>
+                )}
+                {investigador.rfc && (
+                  <div>
+                    <p className="text-sm text-blue-600 font-medium">RFC</p>
+                    <p className="text-blue-900">{investigador.rfc}</p>
+                  </div>
+                )}
+                {investigador.noCvu && (
+                  <div>
+                    <p className="text-sm text-blue-600 font-medium">CVU/PU</p>
+                    <p className="text-blue-900">{investigador.noCvu}</p>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
-          <Card className="bg-white border-blue-100 text-center">
-            <CardContent className="pt-6">
-              <Users className="h-8 w-8 mx-auto text-blue-600 mb-2" />
-              <div className="text-2xl font-bold text-blue-900">{investigador.stats.activeProjects}</div>
-              <p className="text-sm text-blue-600">Proyectos Activos</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-white border-blue-100 text-center">
-            <CardContent className="pt-6">
-              <Award className="h-8 w-8 mx-auto text-blue-600 mb-2" />
-              <div className="text-2xl font-bold text-blue-900">{investigador.stats.totalPublications}</div>
-              <p className="text-sm text-blue-600">Publicaciones</p>
-            </CardContent>
-          </Card>
-          {investigador.stats.hIndex && (
-            <Card className="bg-white border-blue-100 text-center">
-              <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-blue-900">{investigador.stats.hIndex}</div>
-                <p className="text-sm text-blue-600">Índice H</p>
-              </CardContent>
-            </Card>
-          )}
-          {investigador.stats.citations && (
-            <Card className="bg-white border-blue-100 text-center">
-              <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-blue-900">{investigador.stats.citations}</div>
-                <p className="text-sm text-blue-600">Citas</p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Columna principal */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Biografía */}
-            <Card className="bg-white border-blue-100">
-              <CardHeader>
-                <CardTitle className="text-blue-900">Biografía</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-blue-600 leading-relaxed">{investigador.biography}</p>
-              </CardContent>
-            </Card>
+            {/* Línea de investigación */}
+            {investigador.lineaInvestigacion && (
+              <Card className="bg-white border-blue-100">
+                <CardHeader>
+                  <CardTitle className="text-blue-900">Línea de Investigación</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-blue-600 leading-relaxed whitespace-pre-wrap">{investigador.lineaInvestigacion}</p>
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Áreas de especialización */}
-            <Card className="bg-white border-blue-100">
-              <CardHeader>
-                <CardTitle className="text-blue-900">Áreas de Especialización</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {investigador.expertise.map((area, index) => (
-                    <Badge key={index} className="bg-blue-700 text-white">
-                      {area}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            {/* Área de investigación */}
+            {(investigador.area || investigador.areaInvestigacion) && (
+              <Card className="bg-white border-blue-100">
+                <CardHeader>
+                  <CardTitle className="text-blue-900">Áreas de Especialización</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {investigador.areaInvestigacion && (
+                      <Badge className="bg-blue-700 text-white">{investigador.areaInvestigacion}</Badge>
+                    )}
+                    {investigador.area && (
+                      <Badge className="bg-blue-600 text-white">{investigador.area}</Badge>
+                    )}
+                    {investigador.disciplina && (
+                      <Badge className="bg-blue-500 text-white">{investigador.disciplina}</Badge>
+                    )}
+                    {investigador.especialidad && (
+                      <Badge className="bg-blue-400 text-white">{investigador.especialidad}</Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Proyectos recientes */}
-            <Card className="bg-white border-blue-100">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-blue-900">Proyectos Recientes</CardTitle>
-                  <Button variant="ghost" className="text-blue-700 hover:bg-blue-50" asChild>
-                    <Link href="/proyectos">Ver todos</Link>
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {investigador.projects.slice(0, 5).map((project) => (
-                    <div key={project.id} className="border-b border-blue-100 pb-4 last:border-0">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <Link
-                            href={`/proyectos/${project.slug}`}
-                            className="font-medium text-blue-900 hover:underline"
-                          >
-                            {project.title}
-                          </Link>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge
-                              variant="outline"
-                              className={`text-xs ${
-                                project.status === "Activo"
-                                  ? "border-green-200 text-green-700"
-                                  : "border-blue-200 text-blue-700"
-                              }`}
-                            >
-                              {project.status}
-                            </Badge>
-                            <span className="text-sm text-blue-600">{project.year}</span>
-                          </div>
-                        </div>
-                        <Button variant="ghost" size="sm" className="text-blue-700 hover:bg-blue-50" asChild>
-                          <Link href={`/proyectos/${project.slug}`}>
-                            <ExternalLink className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                      </div>
+            {/* Experiencia laboral */}
+            {investigador.experienciaLaboral && (
+              <Card className="bg-white border-blue-100">
+                <CardHeader>
+                  <CardTitle className="text-blue-900 flex items-center gap-2">
+                    <Briefcase className="h-5 w-5" />
+                    Experiencia Laboral
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-blue-600 leading-relaxed whitespace-pre-wrap">{investigador.experienciaLaboral}</p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Proyectos de investigación */}
+            {investigador.proyectosInvestigacion && (
+              <Card className="bg-white border-blue-100">
+                <CardHeader>
+                  <CardTitle className="text-blue-900 flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Proyectos de Investigación
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-blue-600 leading-relaxed whitespace-pre-wrap">{investigador.proyectosInvestigacion}</p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Publicaciones */}
+            {(investigador.articulos || investigador.libros || investigador.capitulosLibros) && (
+              <Card className="bg-white border-blue-100">
+                <CardHeader>
+                  <CardTitle className="text-blue-900">Publicaciones</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {investigador.articulos && (
+                    <div>
+                      <h4 className="font-semibold text-blue-900 mb-2">Artículos</h4>
+                      <p className="text-blue-600 whitespace-pre-wrap">{investigador.articulos}</p>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Publicaciones recientes */}
-            <Card className="bg-white border-blue-100">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-blue-900">Publicaciones Recientes</CardTitle>
-                  <Button variant="ghost" className="text-blue-700 hover:bg-blue-50" asChild>
-                    <Link href="/publicaciones">Ver todas</Link>
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {investigador.publications.slice(0, 5).map((publication) => (
-                    <div key={publication.id} className="border-b border-blue-100 pb-4 last:border-0">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-blue-900">{publication.title}</h4>
-                          <p className="text-sm text-blue-600 mt-1">
-                            {publication.journal} • {publication.year}
-                          </p>
-                          {publication.doi && <p className="text-xs text-blue-500 mt-1">DOI: {publication.doi}</p>}
-                        </div>
-                        {publication.doi && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-blue-700 hover:bg-blue-50"
-                            onClick={() => window.open(`https://doi.org/${publication.doi}`, "_blank")}
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
+                  )}
+                  {investigador.libros && (
+                    <div>
+                      <h4 className="font-semibold text-blue-900 mb-2">Libros</h4>
+                      <p className="text-blue-600 whitespace-pre-wrap">{investigador.libros}</p>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                  )}
+                  {investigador.capitulosLibros && (
+                    <div>
+                      <h4 className="font-semibold text-blue-900 mb-2">Capítulos de Libros</h4>
+                      <p className="text-blue-600 whitespace-pre-wrap">{investigador.capitulosLibros}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Columna lateral */}
@@ -324,100 +325,108 @@ export default async function InvestigadorPage({ params }: { params: { slug: str
             {/* Formación académica */}
             <Card className="bg-white border-blue-100">
               <CardHeader>
-                <CardTitle className="text-blue-900">Formación Académica</CardTitle>
+                <CardTitle className="text-blue-900 flex items-center gap-2">
+                  <GraduationCap className="h-5 w-5" />
+                  Formación Académica
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {investigador.education.map((edu, index) => (
-                    <div key={index} className="border-b border-blue-100 pb-4 last:border-0">
-                      <h4 className="font-medium text-blue-900">{edu.degree}</h4>
-                      <p className="text-sm text-blue-600">{edu.institution}</p>
-                      <div className="flex items-center gap-1 text-xs text-blue-500 mt-1">
-                        <Calendar className="h-3 w-3" />
-                        <span>{edu.year}</span>
-                      </div>
+                <div className="space-y-3">
+                  {investigador.gradoMaximoEstudios && (
+                    <div>
+                      <p className="text-sm text-blue-600 font-medium">Grado Máximo</p>
+                      <p className="text-blue-900">{investigador.gradoMaximoEstudios}</p>
                     </div>
-                  ))}
+                  )}
+                  {investigador.title && (
+                    <div>
+                      <p className="text-sm text-blue-600 font-medium">Último Grado de Estudios</p>
+                      <p className="text-blue-900">{investigador.title}</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Experiencia profesional */}
-            <Card className="bg-white border-blue-100">
-              <CardHeader>
-                <CardTitle className="text-blue-900">Experiencia Profesional</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {investigador.experience.map((exp, index) => (
-                    <div key={index} className="border-b border-blue-100 pb-4 last:border-0">
-                      <h4 className="font-medium text-blue-900">{exp.position}</h4>
-                      <p className="text-sm text-blue-600">{exp.institution}</p>
-                      <div className="flex items-center gap-1 text-xs text-blue-500 mt-1">
-                        <Calendar className="h-3 w-3" />
-                        <span>
-                          {exp.startYear} - {exp.endYear || "Presente"}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            {/* Empleo actual */}
+            {investigador.empleoActual && (
+              <Card className="bg-white border-blue-100">
+                <CardHeader>
+                  <CardTitle className="text-blue-900 flex items-center gap-2">
+                    <Briefcase className="h-5 w-5" />
+                    Empleo Actual
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-blue-600">{investigador.empleoActual}</p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* SNI */}
+            {investigador.sni && (
+              <Card className="bg-white border-blue-100">
+                <CardHeader>
+                  <CardTitle className="text-blue-900 flex items-center gap-2">
+                    <Award className="h-5 w-5" />
+                    Sistema Nacional de Investigadores
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-blue-900 font-semibold">{investigador.sni}</p>
+                  {investigador.anioSni && (
+                    <p className="text-sm text-blue-600">Año: {investigador.anioSni}</p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Reconocimientos */}
-            {investigador.awards.length > 0 && (
+            {investigador.premiosDistinciones && (
               <Card className="bg-white border-blue-100">
                 <CardHeader>
                   <CardTitle className="text-blue-900">Reconocimientos</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {investigador.awards.map((award, index) => (
-                      <div key={index} className="border-b border-blue-100 pb-4 last:border-0">
-                        <h4 className="font-medium text-blue-900">{award.title}</h4>
-                        <p className="text-sm text-blue-600">{award.organization}</p>
-                        <div className="flex items-center gap-1 text-xs text-blue-500 mt-1">
-                          <Award className="h-3 w-3" />
-                          <span>{award.year}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <p className="text-blue-600 whitespace-pre-wrap">{investigador.premiosDistinciones}</p>
                 </CardContent>
               </Card>
             )}
 
-            {/* Colaboradores */}
-            {investigador.collaborators.length > 0 && (
+            {/* Idiomas */}
+            {investigador.idiomas && (
               <Card className="bg-white border-blue-100">
                 <CardHeader>
-                  <CardTitle className="text-blue-900">Colaboradores Frecuentes</CardTitle>
+                  <CardTitle className="text-blue-900">Idiomas</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {investigador.collaborators.slice(0, 5).map((collaborator) => (
-                      <Link
-                        key={collaborator.id}
-                        href={`/investigadores/${collaborator.slug}`}
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 transition-colors"
-                      >
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={collaborator.avatar || "/placeholder.svg"} alt={collaborator.name} />
-                          <AvatarFallback className="bg-blue-100 text-blue-700">
-                            {collaborator.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <p className="font-medium text-blue-900 text-sm">{collaborator.name}</p>
-                          <p className="text-xs text-blue-600">{collaborator.institution}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
+                  <p className="text-blue-600">{investigador.idiomas}</p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Colaboración */}
+            {(investigador.colaboracionInternacional || investigador.colaboracionNacional) && (
+              <Card className="bg-white border-blue-100">
+                <CardHeader>
+                  <CardTitle className="text-blue-900 flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Colaboración
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {investigador.colaboracionInternacional && (
+                    <div>
+                      <p className="text-sm text-blue-600 font-medium">Internacional</p>
+                      <p className="text-blue-900 text-sm">{investigador.colaboracionInternacional}</p>
+                    </div>
+                  )}
+                  {investigador.colaboracionNacional && (
+                    <div>
+                      <p className="text-sm text-blue-600 font-medium">Nacional</p>
+                      <p className="text-blue-900 text-sm">{investigador.colaboracionNacional}</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}

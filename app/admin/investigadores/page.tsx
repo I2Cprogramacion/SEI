@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/pagination"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, Download, Eye, Filter, Search, UserCog } from "lucide-react"
 import { ExportDialog } from "@/components/export-dialog"
 
@@ -35,6 +36,8 @@ interface Investigador {
   grado_maximo_estudios?: string
   experiencia_laboral?: string
   linea_investigacion?: string
+  area_investigacion?: string
+  fotografia_url?: string
   area?: string
   fecha_registro?: string
   is_admin?: boolean
@@ -191,6 +194,7 @@ export default function InvestigadoresAdmin() {
             <Table>
               <TableHeader className="bg-blue-50">
                 <TableRow className="hover:bg-blue-50 border-b border-blue-100">
+                  <TableHead className="text-blue-700">Foto</TableHead>
                   <TableHead className="text-blue-700">ID</TableHead>
                   <TableHead className="text-blue-700">Nombre Completo</TableHead>
                   <TableHead className="text-blue-700">Correo</TableHead>
@@ -204,7 +208,7 @@ export default function InvestigadoresAdmin() {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-blue-600">
+                    <TableCell colSpan={9} className="text-center py-8 text-blue-600">
                       <div className="flex items-center justify-center">
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
                         Cargando investigadores...
@@ -213,13 +217,26 @@ export default function InvestigadoresAdmin() {
                   </TableRow>
                 ) : !Array.isArray(filteredData) || filteredData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-blue-600">
+                    <TableCell colSpan={9} className="text-center py-8 text-blue-600">
                       {error ? "Error al cargar los datos" : "No se encontraron investigadores"}
                     </TableCell>
                   </TableRow>
                 ) : currentItems.length > 0 ? (
                   currentItems.map((investigador) => (
                     <TableRow key={investigador.id} className="hover:bg-blue-50 border-b border-blue-100">
+                      <TableCell>
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={investigador.fotografia_url || "/placeholder-user.jpg"} alt={investigador.nombre_completo} />
+                          <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">
+                            {investigador.nombre_completo
+                              ?.split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .toUpperCase()
+                              .slice(0, 2) || "IN"}
+                          </AvatarFallback>
+                        </Avatar>
+                      </TableCell>
                       <TableCell className="text-blue-900">{investigador.id}</TableCell>
                       <TableCell className="text-blue-900 font-medium">
                         {investigador.nombre_completo || "N/A"}
