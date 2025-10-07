@@ -294,11 +294,25 @@ export class SQLiteDatabase implements DatabaseInterface {
         message: "Login exitoso",
         user: {
           id: usuario.id,
+          nombre_completo: usuario.nombre_completo,
           nombre: usuario.nombre_completo,
           email: usuario.correo,
+          correo: usuario.correo,
+          curp: usuario.curp,
+          rfc: usuario.rfc,
+          no_cvu: usuario.no_cvu,
+          telefono: usuario.telefono,
           nivel: usuario.nivel,
           area: usuario.area,
-          institucion: usuario.institucion
+          area_investigacion: usuario.area_investigacion,
+          linea_investigacion: usuario.linea_investigacion,
+          institucion: usuario.institucion,
+          fotografia_url: usuario.fotografia_url,
+          ultimo_grado_estudios: usuario.ultimo_grado_estudios,
+          empleo_actual: usuario.empleo_actual,
+          nacionalidad: usuario.nacionalidad,
+          fecha_nacimiento: usuario.fecha_nacimiento,
+          rol: 'investigador'
         }
       }
 

@@ -4,15 +4,29 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { User, LogOut, Building, Award, FileText } from "lucide-react"
+import { User as UserIcon, LogOut, Building, Award, FileText, Phone, Mail, Briefcase, GraduationCap, MapPin } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface User {
   id: number
   nombre: string
+  nombre_completo?: string
   email: string
+  correo?: string
+  curp?: string
+  rfc?: string
+  no_cvu?: string
+  telefono?: string
   nivel?: string
   area?: string
+  area_investigacion?: string
+  linea_investigacion?: string
   institucion?: string
+  fotografia_url?: string
+  ultimo_grado_estudios?: string
+  empleo_actual?: string
+  nacionalidad?: string
+  fecha_nacimiento?: string
 }
 
 export default function DashboardPage() {
@@ -21,22 +35,32 @@ export default function DashboardPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Verificar si el usuario está logueado
-    const userData = localStorage.getItem("user")
-    if (!userData) {
-      router.push("/iniciar-sesion")
-      return
+    // Cargar datos del usuario desde el API
+    const loadUserData = async () => {
+      try {
+        const response = await fetch('/api/auth/me')
+        
+        if (!response.ok) {
+          // Si no está autenticado, redirigir al login
+          router.push("/iniciar-sesion")
+          return
+        }
+
+        const data = await response.json()
+        setUser(data.user)
+        
+        // Actualizar también localStorage para el navbar
+        localStorage.setItem("user", JSON.stringify(data.user))
+        window.dispatchEvent(new CustomEvent('userUpdated'))
+      } catch (error) {
+        console.error("Error al cargar datos del usuario:", error)
+        router.push("/iniciar-sesion")
+      } finally {
+        setIsLoading(false)
+      }
     }
 
-    try {
-      const userObj = JSON.parse(userData)
-      setUser(userObj)
-    } catch (error) {
-      console.error("Error al parsear datos del usuario:", error)
-      router.push("/iniciar-sesion")
-    } finally {
-      setIsLoading(false)
-    }
+    loadUserData()
   }, [router])
 
   const handleLogout = () => {
@@ -78,39 +102,117 @@ export default function DashboardPage() {
         <Card className="mb-8 bg-white border-blue-100">
           <CardHeader>
             <CardTitle className="text-blue-900 flex items-center">
-              <User className="mr-2 h-5 w-5" />
+              <UserIcon className="mr-2 h-5 w-5" />
               Perfil del Investigador
             </CardTitle>
             <CardDescription className="text-blue-600">
-              Información básica de tu cuenta
+              Información completa de tu cuenta
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-blue-700">Nombre completo</label>
-                <p className="text-blue-900">{user.nombre}</p>
+          <CardContent className="space-y-6">
+            {/* Fotografía y datos básicos */}
+            <div className="flex flex-col md:flex-row gap-6 items-start">
+              <Avatar className="h-32 w-32">
+                <AvatarImage src={user.fotografia_url || ""} alt={user.nombre_completo || user.nombre} />
+                <AvatarFallback className="text-2xl bg-blue-100 text-blue-700">
+                  {(user.nombre_completo || user.nombre)?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 space-y-4">
+                <div>
+                  <h3 className="text-2xl font-bold text-blue-900">{user.nombre_completo || user.nombre}</h3>
+                  <p className="text-blue-600 flex items-center gap-2 mt-1">
+                    <Mail className="h-4 w-4" />
+                    {user.correo || user.email}
+                  </p>
+                  {user.telefono && (
+                    <p className="text-blue-600 flex items-center gap-2 mt-1">
+                      <Phone className="h-4 w-4" />
+                      {user.telefono}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div>
-                <label className="text-sm font-medium text-blue-700">Correo electrónico</label>
-                <p className="text-blue-900">{user.email}</p>
-              </div>
+            </div>
+
+            {/* Información detallada */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-blue-100">
+              {user.curp && (
+                <div>
+                  <label className="text-sm font-medium text-blue-700">CURP</label>
+                  <p className="text-blue-900">{user.curp}</p>
+                </div>
+              )}
+              {user.rfc && (
+                <div>
+                  <label className="text-sm font-medium text-blue-700">RFC</label>
+                  <p className="text-blue-900">{user.rfc}</p>
+                </div>
+              )}
+              {user.no_cvu && (
+                <div>
+                  <label className="text-sm font-medium text-blue-700">CVU</label>
+                  <p className="text-blue-900">{user.no_cvu}</p>
+                </div>
+              )}
+              {user.ultimo_grado_estudios && (
+                <div>
+                  <label className="text-sm font-medium text-blue-700 flex items-center gap-1">
+                    <GraduationCap className="h-4 w-4" />
+                    Último grado de estudios
+                  </label>
+                  <p className="text-blue-900">{user.ultimo_grado_estudios}</p>
+                </div>
+              )}
+              {user.empleo_actual && (
+                <div>
+                  <label className="text-sm font-medium text-blue-700 flex items-center gap-1">
+                    <Briefcase className="h-4 w-4" />
+                    Empleo actual
+                  </label>
+                  <p className="text-blue-900">{user.empleo_actual}</p>
+                </div>
+              )}
+              {user.institucion && (
+                <div>
+                  <label className="text-sm font-medium text-blue-700 flex items-center gap-1">
+                    <Building className="h-4 w-4" />
+                    Institución
+                  </label>
+                  <p className="text-blue-900">{user.institucion}</p>
+                </div>
+              )}
+              {user.linea_investigacion && (
+                <div className="md:col-span-2">
+                  <label className="text-sm font-medium text-blue-700">Línea de investigación</label>
+                  <p className="text-blue-900">{user.linea_investigacion}</p>
+                </div>
+              )}
+              {user.area_investigacion && (
+                <div className="md:col-span-2">
+                  <label className="text-sm font-medium text-blue-700">Área de investigación</label>
+                  <p className="text-blue-900">{user.area_investigacion}</p>
+                </div>
+              )}
               {user.nivel && (
                 <div>
                   <label className="text-sm font-medium text-blue-700">Nivel SNI</label>
                   <p className="text-blue-900">{user.nivel}</p>
                 </div>
               )}
-              {user.area && (
+              {user.nacionalidad && (
                 <div>
-                  <label className="text-sm font-medium text-blue-700">Área de investigación</label>
-                  <p className="text-blue-900">{user.area}</p>
+                  <label className="text-sm font-medium text-blue-700 flex items-center gap-1">
+                    <MapPin className="h-4 w-4" />
+                    Nacionalidad
+                  </label>
+                  <p className="text-blue-900">{user.nacionalidad}</p>
                 </div>
               )}
-              {user.institucion && (
+              {user.fecha_nacimiento && (
                 <div>
-                  <label className="text-sm font-medium text-blue-700">Institución</label>
-                  <p className="text-blue-900">{user.institucion}</p>
+                  <label className="text-sm font-medium text-blue-700">Fecha de nacimiento</label>
+                  <p className="text-blue-900">{new Date(user.fecha_nacimiento).toLocaleDateString('es-MX')}</p>
                 </div>
               )}
             </div>

@@ -196,19 +196,26 @@ export default function Navbar() {
               </Button>
               {user ? (
                 <div className="hidden lg:flex items-center gap-2 xl:gap-3">
-                  <div className="flex items-center gap-1 xl:gap-2">
-                    <span className="max-w-[180px] xl:max-w-[260px] truncate text-blue-900 font-medium text-sm xl:text-base" title={getDisplayName()}>
-                      {getDisplayName()}
-                    </span>
-                    {user.isAdmin && (
-                      <span className="px-1.5 xl:px-2 py-0.5 xl:py-1 text-xs font-bold text-white bg-red-600 rounded-full">
-                        ADMIN
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="flex items-center gap-1 xl:gap-2 hover:bg-blue-50 px-2 xl:px-3" 
+                    asChild
+                  >
+                    <Link href="/dashboard">
+                      <span className="max-w-[180px] xl:max-w-[260px] truncate text-blue-900 font-medium text-sm xl:text-base" title={getDisplayName()}>
+                        {getDisplayName()}
                       </span>
-                    )}
-                  </div>
+                      {user.isAdmin && (
+                        <span className="px-1.5 xl:px-2 py-0.5 xl:py-1 text-xs font-bold text-white bg-red-600 rounded-full">
+                          ADMIN
+                        </span>
+                      )}
+                    </Link>
+                  </Button>
                   {user.isAdmin && (
                     <Button variant="outline" size="sm" className="border-green-200 text-green-700 hover:bg-green-50 hidden xl:flex" asChild>
-                      <Link href="/dashboard">Dashboard</Link>
+                      <Link href="/admin">Panel Admin</Link>
                     </Button>
                   )}
                   <Button variant="outline" size="sm" className="border-blue-200 text-blue-700 hover:bg-blue-50" onClick={handleLogout}>
@@ -288,19 +295,26 @@ export default function Navbar() {
                       </Button>
                       {user ? (
                         <>
-                          <div className="flex items-center gap-2 px-1 py-2">
-                            <div className="text-blue-900 font-medium truncate text-sm" title={getDisplayName()}>
-                              {getDisplayName()}
-                            </div>
-                            {user.isAdmin && (
-                              <span className="px-1.5 py-0.5 text-xs font-bold text-white bg-red-600 rounded-full">
-                                ADMIN
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="justify-start text-blue-900 hover:bg-blue-50 h-9 sm:h-10 font-medium" 
+                            asChild
+                          >
+                            <Link href="/dashboard" className="flex items-center gap-2">
+                              <span className="truncate" title={getDisplayName()}>
+                                {getDisplayName()}
                               </span>
-                            )}
-                          </div>
+                              {user.isAdmin && (
+                                <span className="px-1.5 py-0.5 text-xs font-bold text-white bg-red-600 rounded-full">
+                                  ADMIN
+                                </span>
+                              )}
+                            </Link>
+                          </Button>
                           {user.isAdmin && (
                             <Button variant="ghost" size="sm" className="justify-start text-green-700 hover:bg-green-50 h-9 sm:h-10" asChild>
-                              <Link href="/dashboard">Dashboard</Link>
+                              <Link href="/admin">Panel Admin</Link>
                             </Button>
                           )}
                           <Button size="sm" className="mt-2 bg-blue-700 text-white hover:bg-blue-800 justify-start h-9 sm:h-10" onClick={handleLogout}>
