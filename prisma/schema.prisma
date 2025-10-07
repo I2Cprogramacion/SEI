@@ -45,11 +45,12 @@ model Profile {
   nacionalidad        String       @default("Mexicana")
   fechaNacimiento     DateTime?
   institucionId       String?
+  institucion         String?
   origen              String?
   archivoProcesado    String?
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
-  institucion         Institution? @relation(fields: [institucionId], references: [id])
+  institucionRel      Institution? @relation(fields: [institucionId], references: [id])
   user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("profiles")
@@ -68,23 +69,3 @@ model Institution {
   @@map("institutions")
 }
 
-model Investigador {
-  id                    Int       @id @default(autoincrement())
-  curp                  String?   @unique
-  rfc                   String?
-  correo                String    @unique
-  telefono              String?
-  nacionalidad          String    @default("Mexicana")
-  origen                String?
-  password              String?
-  archivo_procesado     String?
-  empleo_actual         String?
-  fecha_nacimiento      DateTime?
-  fecha_registro        DateTime  @default(now())
-  linea_investigacion   String?
-  no_cvu                String?
-  nombre_completo       String
-  ultimo_grado_estudios String?
-
-  @@map("investigadores")
-}
