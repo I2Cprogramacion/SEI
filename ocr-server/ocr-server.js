@@ -65,6 +65,15 @@ app.post('/process-pdf', upload.any(), async (req, res) => {
     const correo = getFirstGroup(reEmail, data.text || '');
     const telefono = getFirstGroup(reTel, data.text || '');
 
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[OCR DEBUG] Extraídos:', {
+        curp,
+        rfc,
+        no_cvu,
+        correo,
+        telefono
+      });
+    }
     res.json({
       curp: curp || null,
       rfc: rfc || null,

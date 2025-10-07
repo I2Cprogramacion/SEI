@@ -20,6 +20,7 @@ const parseDatabaseUrl = (url: string): DatabaseConfig => {
 
 const dbUrl = process.env.DATABASE_URL || '';
 if (!dbUrl) throw new Error('DATABASE_URL no definida');
+// Usa Neon Auth si está presente
 export const currentDatabaseConfig: DatabaseConfig = parseDatabaseUrl(dbUrl);
 
 // Usa Neon de I2C
