@@ -26,19 +26,19 @@ export function SearchBar() {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
+      <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-5 w-5" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-4 w-4 sm:h-5 sm:w-5" />
           <Input
             type="text"
             placeholder="Buscar investigadores, proyectos, publicaciones..."
-            className="pl-12 h-12 text-lg bg-white border-blue-200 text-blue-900 placeholder:text-blue-400"
+            className="pl-10 sm:pl-12 h-10 sm:h-12 text-base sm:text-lg bg-white border-blue-200 text-blue-900 placeholder:text-blue-400"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <Select value={searchType} onValueChange={setSearchType}>
-          <SelectTrigger className="w-full md:w-48 h-12 bg-white border-blue-200 text-blue-900">
+          <SelectTrigger className="w-full sm:w-40 lg:w-48 h-10 sm:h-12 bg-white border-blue-200 text-blue-900">
             <SelectValue placeholder="Tipo de búsqueda" />
           </SelectTrigger>
           <SelectContent className="bg-white border-blue-100">
@@ -49,9 +49,9 @@ export function SearchBar() {
             <SelectItem value="instituciones">Instituciones</SelectItem>
           </SelectContent>
         </Select>
-        <Button type="submit" className="h-12 px-8 bg-blue-700 text-white hover:bg-blue-800">
-          <Search className="mr-2 h-5 w-5" />
-          Buscar
+        <Button type="submit" className="h-10 sm:h-12 px-6 sm:px-8 bg-blue-700 text-white hover:bg-blue-800 w-full sm:w-auto">
+          <Search className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+          <span className="text-sm sm:text-base">Buscar</span>
         </Button>
       </form>
     </div>

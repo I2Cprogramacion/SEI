@@ -369,29 +369,30 @@ export default function PublicacionesPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="space-y-6">
+    <div className="container mx-auto py-6 sm:py-8 px-3 sm:px-4 lg:px-6">
+      <div className="space-y-4 sm:space-y-6">
         <div className="space-y-2">
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-blue-900">Publicaciones Científicas</h1>
-              <p className="text-blue-600">
+              <h1 className="text-2xl sm:text-3xl font-bold text-blue-900">Publicaciones Científicas</h1>
+              <p className="text-blue-600 text-sm sm:text-base">
                 Explora las publicaciones científicas de investigadores de Chihuahua en revistas nacionales e
                 internacionales
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogTrigger asChild>
                   <Button 
                     onClick={openNewModal}
-                    className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700"
+                    className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 w-full sm:w-auto"
+                    size="sm"
                   >
                     <Plus className="mr-2 h-4 w-4" />
-                    Subir publicación
+                    <span className="text-sm sm:text-base">Subir publicación</span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
                   <DialogHeader>
                     <DialogTitle>
                       {editingPublication ? "Editar Publicación" : "Nueva Publicación"}
@@ -549,10 +550,11 @@ export default function PublicacionesPage() {
                 <Button
                   variant="outline"
                   onClick={() => setIsManagementOpen(!isManagementOpen)}
-                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                  className="border-blue-200 text-blue-700 hover:bg-blue-50 w-full sm:w-auto"
+                  size="sm"
                 >
                   <Settings className="mr-2 h-4 w-4" />
-                  Gestión
+                  <span className="text-sm sm:text-base">Gestión</span>
                 </Button>
               )}
             </div>
@@ -561,22 +563,22 @@ export default function PublicacionesPage() {
 
         {/* Filtros y búsqueda */}
         <Card className="bg-white border-blue-100">
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="lg:col-span-2">
+          <CardContent className="pt-4 sm:pt-6 p-4 sm:p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+              <div className="sm:col-span-2 lg:col-span-2">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-4 w-4" />
                   <Input
                     type="text"
                     placeholder="Buscar por título, autor, revista o palabras clave..."
-                    className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400"
+                    className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 h-10 sm:h-11"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
               </div>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="bg-white border-blue-200 text-blue-900">
+                <SelectTrigger className="bg-white border-blue-200 text-blue-900 h-10 sm:h-11">
                   <SelectValue placeholder="Categoría" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-blue-100">
@@ -589,7 +591,7 @@ export default function PublicacionesPage() {
                 </SelectContent>
               </Select>
               <Select value={selectedYear} onValueChange={setSelectedYear}>
-                <SelectTrigger className="bg-white border-blue-200 text-blue-900">
+                <SelectTrigger className="bg-white border-blue-200 text-blue-900 h-10 sm:h-11">
                   <SelectValue placeholder="Año" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-blue-100">
@@ -602,7 +604,7 @@ export default function PublicacionesPage() {
                 </SelectContent>
               </Select>
               <Select value={selectedAccess} onValueChange={setSelectedAccess}>
-                <SelectTrigger className="bg-white border-blue-200 text-blue-900">
+                <SelectTrigger className="bg-white border-blue-200 text-blue-900 h-10 sm:h-11">
                   <SelectValue placeholder="Acceso" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-blue-100">
