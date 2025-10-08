@@ -1,7 +1,6 @@
 "use client"
 
 import React from "react"
-import { useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -16,89 +15,40 @@ import {
 } from "@/components/ui/navigation-menu"
 import { cn } from "@/lib/utils"
 import { Menu } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useUser, useClerk } from "@clerk/nextjs"
+
 
 export default function Navbar() {
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
-  const [user, setUser] = useState<any | null>(null)
   const router = useRouter()
+  const { user, isSignedIn } = useUser()
+  const { signOut } = useClerk()
 
-  useEffect(() => {
-    // Función para cargar usuario desde localStorage
-    const loadUser = () => {
-      try {
-        const stored = typeof window !== 'undefined' ? localStorage.getItem("user") : null
-        if (stored) {
-          const parsed = JSON.parse(stored)
-          setUser(parsed)
-        } else {
-          setUser(null)
-        }
-      } catch {
-        setUser(null)
-      }
-    }
-
-    // Cargar usuario inicialmente
-    loadUser()
-
-    // Listener para cambios en localStorage
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "user") {
-        loadUser()
-      }
-    }
-
-    // Listener para cambios en la misma pestaña (cuando se actualiza localStorage desde el mismo tab)
-    const handleCustomStorageChange = () => {
-      loadUser()
-    }
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener('storage', handleStorageChange)
-      window.addEventListener('userUpdated', handleCustomStorageChange)
-      
-      return () => {
-        window.removeEventListener('storage', handleStorageChange)
-        window.removeEventListener('userUpdated', handleCustomStorageChange)
-      }
-    }
-  }, [])
-
-  const handleLogout = () => {
-    try {
-      localStorage.removeItem("user")
-      // Disparar evento personalizado para notificar el cambio
-      window.dispatchEvent(new CustomEvent('userUpdated'))
-    } catch {}
-    setUser(null)
-    router.push("/iniciar-sesion")
+  const handleLogout = async () => {
+    await signOut();
+    router.push("/iniciar-sesion");
   }
 
   const getDisplayName = (): string => {
-    const fullName = user?.nombre || user?.nombreCompleto
-    const email = user?.email
-    if (fullName && fullName.length <= 35) return fullName
-    return email || ""
+    if (!user) return ""
+    return user.fullName || user.primaryEmailAddress?.emailAddress || ""
   }
 
   useEffect(() => {
     const controlNavbar = () => {
       if (typeof window !== "undefined") {
         if (window.scrollY > lastScrollY && window.scrollY > 100) {
-          // Scrolling down and past 100px
           setIsVisible(false)
         } else {
-          // Scrolling up
           setIsVisible(true)
         }
         setLastScrollY(window.scrollY)
       }
     }
-
     if (typeof window !== "undefined") {
       window.addEventListener("scroll", controlNavbar)
       return () => {
@@ -167,18 +117,18 @@ export default function Navbar() {
                     </NavigationMenuContent>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
-                    <Link href="/proyectos" legacyBehavior passHref>
-                      <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "text-blue-700")}>
+                    <NavigationMenuLink asChild>
+                      <Link href="/proyectos" className={cn(navigationMenuTriggerStyle(), "text-blue-700")}> 
                         Proyectos
-                      </NavigationMenuLink>
-                    </Link>
+                      </Link>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
-                    <Link href="/publicaciones" legacyBehavior passHref>
-                      <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "text-blue-700")}>
+                    <NavigationMenuLink asChild>
+                      <Link href="/publicaciones" className={cn(navigationMenuTriggerStyle(), "text-blue-700")}> 
                         Publicaciones
-                      </NavigationMenuLink>
-                    </Link>
+                      </Link>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
@@ -194,23 +144,13 @@ export default function Navbar() {
                   </div>
                 </a>
               </Button>
-              {user ? (
+              {isSignedIn && user ? (
                 <div className="hidden md:flex items-center gap-3">
                   <div className="flex items-center gap-2">
                     <span className="max-w-[260px] truncate text-blue-900 font-medium" title={getDisplayName()}>
                       {getDisplayName()}
                     </span>
-                    {user.isAdmin && (
-                      <span className="px-2 py-1 text-xs font-bold text-white bg-red-600 rounded-full">
-                        ADMIN
-                      </span>
-                    )}
                   </div>
-                  {user.isAdmin && (
-                    <Button variant="outline" className="border-green-200 text-green-700 hover:bg-green-50" asChild>
-                      <Link href="/dashboard">Dashboard</Link>
-                    </Button>
-                  )}
                   <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50" onClick={handleLogout}>
                     Cerrar sesión
                   </Button>
@@ -279,23 +219,13 @@ export default function Navbar() {
                           </div>
                         </a>
                       </Button>
-                      {user ? (
+                      {isSignedIn && user ? (
                         <>
                           <div className="flex items-center gap-2 px-1">
                             <div className="text-blue-900 font-medium truncate" title={getDisplayName()}>
                               {getDisplayName()}
                             </div>
-                            {user.isAdmin && (
-                              <span className="px-2 py-1 text-xs font-bold text-white bg-red-600 rounded-full">
-                                ADMIN
-                              </span>
-                            )}
                           </div>
-                          {user.isAdmin && (
-                            <Button variant="ghost" className="justify-start text-green-700 hover:bg-green-50" asChild>
-                              <Link href="/dashboard">Dashboard</Link>
-                            </Button>
-                          )}
                           <Button className="mt-2 bg-blue-700 text-white hover:bg-blue-800 justify-start" onClick={handleLogout}>
                             Cerrar sesión
                           </Button>
