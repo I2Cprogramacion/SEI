@@ -207,10 +207,10 @@ export default function ProyectosPage() {
                 ? "Cargando..."
                 : `${filteredProyectos.length} proyecto${filteredProyectos.length !== 1 ? "s" : ""} encontrado${filteredProyectos.length !== 1 ? "s" : ""}`}
             </p>
-            <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent">
+            <AnimatedButton variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent">
               <Filter className="mr-2 h-4 w-4" />
               Filtros avanzados
-            </Button>
+            </AnimatedButton>
           </div>
 
           {loading ? (
@@ -314,9 +314,9 @@ export default function ProyectosPage() {
               ))}
             </div>
           ) : (
-            <Card className="bg-white border-blue-100">
+            <AnimatedCard className="bg-white border-blue-100" delay={500}>
               <CardContent className="pt-6 text-center py-12">
-                <FileText className="h-12 w-12 mx-auto text-blue-300 mb-4" />
+                <FileText className="h-12 w-12 mx-auto text-blue-300 mb-4 animate-float" />
                 <h3 className="text-lg font-semibold mb-2 text-blue-900">No se encontraron proyectos</h3>
                 <p className="text-sm text-blue-600 mb-6">
                   {proyectos.length === 0
@@ -324,7 +324,7 @@ export default function ProyectosPage() {
                     : "Intenta ajustar los filtros de búsqueda para encontrar más resultados."}
                 </p>
                 {proyectos.length > 0 && (
-                  <Button
+                  <AnimatedButton
                     onClick={() => {
                       setSearchTerm("")
                       setSelectedCategory("all")
@@ -334,10 +334,10 @@ export default function ProyectosPage() {
                     className="bg-blue-700 text-white hover:bg-blue-800"
                   >
                     Limpiar filtros
-                  </Button>
+                  </AnimatedButton>
                 )}
               </CardContent>
-            </Card>
+            </AnimatedCard>
           )}
         </div>
       </div>

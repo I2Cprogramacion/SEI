@@ -764,10 +764,10 @@ export default function PublicacionesPage() {
                 ? "Cargando..."
                 : `${filteredPublicaciones.length} publicación${filteredPublicaciones.length !== 1 ? "es" : ""} encontrada${filteredPublicaciones.length !== 1 ? "s" : ""}`}
             </p>
-            <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent">
+            <AnimatedButton variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent">
               <Filter className="mr-2 h-4 w-4" />
               Filtros avanzados
-            </Button>
+            </AnimatedButton>
           </div>
 
           {loading ? (
