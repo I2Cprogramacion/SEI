@@ -11,16 +11,21 @@ console.log('Cloudinary Config:', {
   apiSecret: apiSecret ? 'Presente' : 'Faltante'
 });
 
-if (!cloudName || !apiKey || !apiSecret) {
-  console.error('❌ Variables de entorno de Cloudinary faltantes');
-  throw new Error('Variables de entorno de Cloudinary no configuradas correctamente');
+// Solo configurar si las variables están disponibles
+if (cloudName && apiKey && apiSecret) {
+  cloudinary.config({
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
+  });
+} else {
+  console.warn('⚠️ Variables de entorno de Cloudinary no configuradas. El upload de imágenes no funcionará.');
 }
 
-cloudinary.config({
-  cloud_name: cloudName,
-  api_key: apiKey,
-  api_secret: apiSecret,
-});
+// Función helper para verificar si Cloudinary está configurado
+export function isCloudinaryConfigured(): boolean {
+  return !!(cloudName && apiKey && apiSecret);
+}
 
 export default cloudinary;
 

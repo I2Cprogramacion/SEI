@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server"
-import cloudinary from "@/lib/cloudinary-config"
+import cloudinary, { isCloudinaryConfigured } from "@/lib/cloudinary-config"
 
 export async function POST(request: NextRequest) {
   try {
     console.log("=== INICIO UPLOAD FOTOGRAFÍA ===");
+    
+    // Verificar que Cloudinary esté configurado
+    if (!isCloudinaryConfigured()) {
+      console.error("❌ Cloudinary no está configurado correctamente");
+      return NextResponse.json(
+        { error: "El servicio de upload de imágenes no está configurado. Contacta al administrador." },
+        { status: 503 }
+      )
+    }
     
     const formData = await request.formData()
     const file = formData.get("file") as File
