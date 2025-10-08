@@ -343,17 +343,15 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       const terminoBusqueda = `%${termino.toLowerCase()}%`
       
       const query = `
-        SELECT id, nombre, "nombreCompleto", email, institucion, area
-        FROM usuarios 
+        SELECT id, nombre_completo as nombre, correo as email, institucion, area
+        FROM investigadores 
         WHERE (
-          LOWER(nombre) LIKE $1 OR 
-          LOWER("nombreCompleto") LIKE $1 OR 
-          LOWER(email) LIKE $1 OR 
+          LOWER(nombre_completo) LIKE $1 OR 
+          LOWER(correo) LIKE $1 OR 
           LOWER(institucion) LIKE $1 OR
           LOWER(area) LIKE $1
         )
-        AND email_verificado = true
-        ORDER BY nombre ASC
+        ORDER BY nombre_completo ASC
         LIMIT $2
       `
       

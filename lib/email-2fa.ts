@@ -1,6 +1,13 @@
 import nodemailer from 'nodemailer';
 
 export async function send2FACode(email: string, code: string) {
+  // Validar que las variables de entorno de SMTP estén configuradas
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    throw new Error(
+      'Configuración SMTP incompleta. Verifica que las variables de entorno SMTP_HOST, SMTP_USER y SMTP_PASS estén configuradas.'
+    );
+  }
+
   // Configura aquí tu SMTP real o usa variables de entorno
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,

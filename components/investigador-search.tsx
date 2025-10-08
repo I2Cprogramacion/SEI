@@ -103,6 +103,7 @@ export function InvestigadorSearch({
 
   const isSelected = (investigador: Investigador) => {
     return selectedInvestigadores.some(inv => inv.id === investigador.id)
+    
   }
 
   return (

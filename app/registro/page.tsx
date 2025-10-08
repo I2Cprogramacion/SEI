@@ -58,7 +58,7 @@ export default function RegistroPage() {
   const [error, setError] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isProcessingPDF, setIsProcessingPDF] = useState(false)
-  const [ocrCompleted, setOcrCompleted] = useState(false)
+  const [ocrCompleted, setOcrCompleted] = useState(true) // Cambiar a true para permitir llenado manual
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const router = useRouter()
@@ -139,7 +139,11 @@ export default function RegistroPage() {
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || "Error procesando PDF")
+        // Si el OCR falla, no es un error crítico - el usuario puede llenar manualmente
+        console.warn("OCR no disponible, continuando con llenado manual")
+        setOcrCompleted(true) // Permitir llenado manual
+        setError(null)
+        return
       }
 
       if (result.success && result.data) {
@@ -168,33 +172,10 @@ export default function RegistroPage() {
         throw new Error("No se pudieron extraer datos del PDF")
       }
     } catch (error) {
-      console.error("Error procesando PDF:", error)
-      
-      // Mostrar mensaje de error más específico
-      let errorMessage = "Error al procesar el PDF"
-      if (error instanceof Error) {
-        if (error.message.includes("Failed to fetch")) {
-          errorMessage = "No se pudo conectar al servidor de procesamiento. El formulario se ha preparado para llenado manual."
-        } else if (error.message.includes("timeout")) {
-          errorMessage = "El procesamiento tardó demasiado. El formulario se ha preparado para llenado manual."
-        } else {
-          errorMessage = `Error al procesar el PDF: ${error.message}`
-        }
-      }
-      
-      setError(errorMessage)
-      
-      // En caso de error, preparar formulario para llenado manual
-      setFormData((prev) => ({
-        ...prev,
-        nacionalidad: "Mexicana", // Asegurar valor por defecto
-        linea_investigacion: "", // Asegurar que esté vacío
-        area_investigacion: "", // Asegurar que esté vacío
-        fotografia_url: prev.fotografia_url, // Mantener la foto si ya fue subida
-        password: "", // Asegurar que esté vacío
-        confirm_password: "", // Asegurar que esté vacío
-      }))
-      setOcrCompleted(true) // Permitir continuar con llenado manual
+      console.warn("Error en OCR, continuando con llenado manual:", error)
+      // No mostrar error al usuario, permitir llenado manual
+      setOcrCompleted(true)
+      setError(null)
     } finally {
       setIsProcessingPDF(false)
     }
@@ -449,7 +430,7 @@ export default function RegistroPage() {
                   )}
                 </Button>
 
-                {ocrCompleted && (
+                {(
                   <div className="space-y-3">
                     <Alert className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 shadow-sm">
                       <CheckCircle className="h-5 w-5 text-green-600" />
@@ -547,7 +528,7 @@ export default function RegistroPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {ocrCompleted && (
+                {(
                   <Alert className="mb-4 md:mb-6 bg-gradient-to-r from-red-50 to-pink-50 border-red-200 shadow-sm">
                     <AlertCircle className="h-5 w-5 text-red-600" />
                     <AlertTitle className="text-red-800 font-semibold">🔍 Todos los campos son obligatorios</AlertTitle>
@@ -564,7 +545,7 @@ export default function RegistroPage() {
                     <h3 className="text-base md:text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
                       <User className="h-4 w-4 md:h-5 md:w-5" />
                       Información Personal
-                      {ocrCompleted && (
+                      {(
                         <span className="text-xs md:text-sm text-amber-600 font-normal">(Verificar datos)</span>
                       )}
                     </h3>
@@ -575,7 +556,7 @@ export default function RegistroPage() {
                           className="text-blue-900 text-sm md:text-base font-medium flex items-center gap-2"
                         >
                           <User className="h-4 w-4" />
-                          Nombre Completo *{ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
+                          Nombre Completo *
                         </Label>
                         <Input
                           id="nombre_completo"
@@ -587,7 +568,7 @@ export default function RegistroPage() {
                             !formData.nombre_completo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
 
@@ -598,7 +579,6 @@ export default function RegistroPage() {
                         >
                           <Mail className="h-4 w-4" />
                           Correo Electrónico *
-                          {ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
                         </Label>
                         <Input
                           id="correo"
@@ -611,7 +591,7 @@ export default function RegistroPage() {
                             !formData.correo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
 
@@ -621,7 +601,7 @@ export default function RegistroPage() {
                           className="text-blue-900 text-sm md:text-base font-medium flex items-center gap-2"
                         >
                           <Phone className="h-4 w-4" />
-                          Teléfono *{ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
+                          Teléfono *
                         </Label>
                         <Input
                           id="telefono"
@@ -633,7 +613,7 @@ export default function RegistroPage() {
                             !formData.telefono.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
 
@@ -644,7 +624,6 @@ export default function RegistroPage() {
                         >
                           <Calendar className="h-4 w-4" />
                           Fecha de Nacimiento *
-                          {ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
                         </Label>
                         <Input
                           id="fecha_nacimiento"
@@ -656,7 +635,7 @@ export default function RegistroPage() {
                             !formData.fecha_nacimiento.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
 
@@ -677,20 +656,18 @@ export default function RegistroPage() {
                             !formData.nacionalidad.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
 
                       {/* Fotografía de Perfil */}
-                      {ocrCompleted && (
-                        <div className="sm:col-span-2">
-                          <UploadFotografia
-                            value={formData.fotografia_url}
-                            onChange={(url) => setFormData((prev) => ({ ...prev, fotografia_url: url }))}
-                            nombreCompleto={formData.nombre_completo}
-                          />
-                        </div>
-                      )}
+                      <div className="sm:col-span-2">
+                        <UploadFotografia
+                          value={formData.fotografia_url}
+                          onChange={(url) => setFormData((prev) => ({ ...prev, fotografia_url: url }))}
+                          nombreCompleto={formData.nombre_completo}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -699,7 +676,6 @@ export default function RegistroPage() {
                     <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
                       <GraduationCap className="h-5 w-5" />
                       Información Académica y Profesional
-                      {ocrCompleted && <span className="text-sm text-amber-600 font-normal">(Verificar datos)</span>}
                     </h3>
                     <div className="space-y-4">
                       <div className="space-y-2">
@@ -709,7 +685,6 @@ export default function RegistroPage() {
                         >
                           <GraduationCap className="h-4 w-4" />
                           Último Grado de Estudios *
-                          {ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
                         </Label>
                         <Input
                           id="ultimo_grado_estudios"
@@ -721,14 +696,14 @@ export default function RegistroPage() {
                             !formData.ultimo_grado_estudios.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="empleo_actual" className="text-blue-900 font-medium flex items-center gap-2">
                           <Briefcase className="h-4 w-4" />
-                          Empleo Actual *{ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
+                          Empleo Actual *
                         </Label>
                         <Input
                           id="empleo_actual"
@@ -740,7 +715,7 @@ export default function RegistroPage() {
                             !formData.empleo_actual.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
                     </div>
@@ -751,13 +726,12 @@ export default function RegistroPage() {
                     <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
                       <CreditCard className="h-5 w-5" />
                       Información Fiscal y de Registro
-                      {ocrCompleted && <span className="text-sm text-amber-600 font-normal">(Verificar números)</span>}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="no_cvu" className="text-blue-900 font-medium flex items-center gap-2">
                           <Hash className="h-4 w-4" />
-                          CVU/PU *{ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
+                          CVU/PU *
                         </Label>
                         <Input
                           id="no_cvu"
@@ -769,14 +743,14 @@ export default function RegistroPage() {
                             !formData.no_cvu.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="curp" className="text-blue-900 font-medium flex items-center gap-2">
                           <CreditCard className="h-4 w-4" />
-                          CURP *{ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
+                          CURP *
                         </Label>
                         <Input
                           id="curp"
@@ -788,14 +762,14 @@ export default function RegistroPage() {
                             !formData.curp.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="rfc" className="text-blue-900 font-medium flex items-center gap-2">
                           <CreditCard className="h-4 w-4" />
-                          RFC *{ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
+                          RFC *
                         </Label>
                         <Input
                           id="rfc"
@@ -807,7 +781,7 @@ export default function RegistroPage() {
                             !formData.rfc.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
                     </div>
@@ -847,7 +821,7 @@ export default function RegistroPage() {
                               !formData.password.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                             }`}
                             required
-                            disabled={!ocrCompleted}
+                            disabled={false}
                           />
                           <Button
                             type="button"
@@ -855,7 +829,7 @@ export default function RegistroPage() {
                             size="sm"
                             className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                             onClick={() => setShowPassword(!showPassword)}
-                            disabled={!ocrCompleted}
+                            disabled={false}
                           >
                             {showPassword ? (
                               <EyeOff className="h-4 w-4 text-gray-500" />
@@ -889,7 +863,7 @@ export default function RegistroPage() {
                                 : ""
                             }`}
                             required
-                            disabled={!ocrCompleted}
+                            disabled={false}
                           />
                           <Button
                             type="button"
@@ -897,7 +871,7 @@ export default function RegistroPage() {
                             size="sm"
                             className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            disabled={!ocrCompleted}
+                            disabled={false}
                           >
                             {showConfirmPassword ? (
                               <EyeOff className="h-4 w-4 text-gray-500" />
@@ -910,7 +884,7 @@ export default function RegistroPage() {
                     </div>
 
                     {/* Indicador de fortaleza de contraseña */}
-                    {formData.password && ocrCompleted && (
+                    {formData.password && (
                       <div className="space-y-3">
                         <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
                           <h4 className="text-sm font-medium text-gray-700 mb-2">Requisitos de contraseña:</h4>
@@ -1055,12 +1029,12 @@ export default function RegistroPage() {
                         onChange={handleChange}
                         placeholder="Describe detalladamente tu área de investigación principal, metodologías utilizadas, y objetivos de tu trabajo académico..."
                         className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 min-h-[120px] ${
-                          !formData.linea_investigacion.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                          !formData.linea_investigacion.trim() ? "border-red-300 bg-red-50" : ""
                         }`}
                         required
-                        disabled={!ocrCompleted}
+                        disabled={false}
                       />
-                      {!formData.linea_investigacion.trim() && ocrCompleted && (
+                      {!formData.linea_investigacion.trim() && (
                         <p className="text-sm text-red-600">
                           Este campo es obligatorio y debe ser completado manualmente
                         </p>
@@ -1084,12 +1058,12 @@ export default function RegistroPage() {
                         onChange={handleChange}
                         placeholder="Ej: Ciencias Exactas, Ingeniería, Ciencias Sociales, Humanidades, etc."
                         className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                          !formData.area_investigacion.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                          !formData.area_investigacion.trim() ? "border-red-300 bg-red-50" : ""
                         }`}
                         required
-                        disabled={!ocrCompleted}
+                        disabled={false}
                       />
-                      {!formData.area_investigacion.trim() && ocrCompleted && (
+                      {!formData.area_investigacion.trim() && (
                         <p className="text-sm text-red-600">
                           Este campo es obligatorio y debe ser completado manualmente
                         </p>
@@ -1106,7 +1080,7 @@ export default function RegistroPage() {
                   )}
 
                   {/* Indicador de completitud del formulario */}
-                  {ocrCompleted && (
+                  {(
                     <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-700">

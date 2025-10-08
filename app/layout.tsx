@@ -2,9 +2,11 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import "../styles/animations.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
+import { Toaster } from "sonner"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -28,6 +30,12 @@ export default function RootLayout({
             <main className="flex-1">{children}</main>
             <Footer />
           </div>
+          <Toaster 
+            position="top-right" 
+            expand={false}
+            richColors
+            closeButton
+          />
         </ThemeProvider>
       </body>
     </html>

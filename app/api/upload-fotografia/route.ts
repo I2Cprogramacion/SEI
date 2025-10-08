@@ -3,10 +3,15 @@ import cloudinary from "@/lib/cloudinary-config"
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("=== INICIO UPLOAD FOTOGRAFÍA ===");
+    
     const formData = await request.formData()
     const file = formData.get("file") as File
 
+    console.log("Archivo recibido:", file ? file.name : "No hay archivo");
+
     if (!file) {
+      console.log("❌ No se proporcionó archivo");
       return NextResponse.json({ error: "No se proporcionó ningún archivo" }, { status: 400 })
     }
 
@@ -26,6 +31,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes)
 
     // Subir a Cloudinary
+    console.log("Iniciando upload a Cloudinary...");
     const result = await new Promise<any>((resolve, reject) => {
       cloudinary.uploader
         .upload_stream(
@@ -38,8 +44,13 @@ export async function POST(request: NextRequest) {
             ],
           },
           (error, result) => {
-            if (error) reject(error)
-            else resolve(result)
+            if (error) {
+              console.error("❌ Error en Cloudinary:", error);
+              reject(error)
+            } else {
+              console.log("✅ Upload exitoso:", result?.secure_url);
+              resolve(result)
+            }
           }
         )
         .end(buffer)
@@ -51,9 +62,16 @@ export async function POST(request: NextRequest) {
       publicId: result.public_id,
     })
   } catch (error) {
-    console.error("Error al subir imagen a Cloudinary:", error)
+    console.error("❌ Error al subir imagen a Cloudinary:", error)
+    console.error("Detalles del error:", {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
     return NextResponse.json(
-      { error: "Error al procesar la imagen" },
+      { 
+        error: "Error al procesar la imagen",
+        details: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     )
   }

@@ -1,8 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { AnimatedCard } from "@/components/ui/animated-card"
+import { AnimatedButton } from "@/components/ui/animated-button"
+import { AnimatedBadge } from "@/components/ui/animated-badge"
+import { AnimatedHeader } from "@/components/ui/animated-header"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Building, Users, FileText, MapPin, ExternalLink, Award, GraduationCap } from "lucide-react"
@@ -60,49 +63,58 @@ export default function InstitucionesPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-blue-900">Instituciones de Investigación</h1>
-          <p className="text-blue-600">
-            Conoce las principales instituciones de educación superior y centros de investigación en Chihuahua
-          </p>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <AnimatedHeader 
+            title="Instituciones de Investigación"
+            subtitle="Conoce las principales instituciones de educación superior y centros de investigación en Chihuahua"
+          />
+          <AnimatedButton 
+            asChild
+            className="bg-blue-700 hover:bg-blue-800 text-white animate-glow"
+          >
+            <Link href="/instituciones/nueva">
+              <Building className="mr-2 h-4 w-4" />
+              Registrar Institución
+            </Link>
+          </AnimatedButton>
         </div>
 
         {/* Estadísticas generales */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-white border-blue-100 text-center">
+          <AnimatedCard className="bg-white border-blue-100 text-center" delay={100}>
             <CardContent className="pt-6">
-              <Building className="h-8 w-8 mx-auto text-blue-600 mb-2" />
+              <Building className="h-8 w-8 mx-auto text-blue-600 mb-2 animate-float" />
               <div className="text-2xl font-bold text-blue-900">{loading ? "..." : instituciones.length}</div>
               <p className="text-sm text-blue-600">Instituciones</p>
             </CardContent>
-          </Card>
-          <Card className="bg-white border-blue-100 text-center">
+          </AnimatedCard>
+          <AnimatedCard className="bg-white border-blue-100 text-center" delay={200}>
             <CardContent className="pt-6">
-              <Users className="h-8 w-8 mx-auto text-blue-600 mb-2" />
+              <Users className="h-8 w-8 mx-auto text-blue-600 mb-2 animate-float" />
               <div className="text-2xl font-bold text-blue-900">
                 {loading ? "..." : instituciones.reduce((sum, inst) => sum + inst.investigadores, 0)}
               </div>
               <p className="text-sm text-blue-600">Investigadores</p>
             </CardContent>
-          </Card>
-          <Card className="bg-white border-blue-100 text-center">
+          </AnimatedCard>
+          <AnimatedCard className="bg-white border-blue-100 text-center" delay={300}>
             <CardContent className="pt-6">
-              <FileText className="h-8 w-8 mx-auto text-blue-600 mb-2" />
+              <FileText className="h-8 w-8 mx-auto text-blue-600 mb-2 animate-float" />
               <div className="text-2xl font-bold text-blue-900">
                 {loading ? "..." : instituciones.reduce((sum, inst) => sum + inst.proyectos, 0)}
               </div>
               <p className="text-sm text-blue-600">Proyectos</p>
             </CardContent>
-          </Card>
-          <Card className="bg-white border-blue-100 text-center">
+          </AnimatedCard>
+          <AnimatedCard className="bg-white border-blue-100 text-center" delay={400}>
             <CardContent className="pt-6">
-              <Award className="h-8 w-8 mx-auto text-blue-600 mb-2" />
+              <Award className="h-8 w-8 mx-auto text-blue-600 mb-2 animate-float" />
               <div className="text-2xl font-bold text-blue-900">
                 {loading ? "..." : instituciones.reduce((sum, inst) => sum + inst.publicaciones, 0)}
               </div>
               <p className="text-sm text-blue-600">Publicaciones</p>
             </CardContent>
-          </Card>
+          </AnimatedCard>
         </div>
 
         {/* Lista de instituciones */}
@@ -129,8 +141,12 @@ export default function InstitucionesPage() {
           </div>
         ) : instituciones.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {instituciones.map((institucion) => (
-              <Card key={institucion.id} className="bg-white border-blue-100">
+            {instituciones.map((institucion, index) => (
+              <AnimatedCard 
+                key={institucion.id} 
+                className="bg-white border-blue-100" 
+                delay={index * 100}
+              >
                 <div className="relative h-48 w-full">
                   <Image
                     src={institucion.imagen || "/placeholder.svg"}
@@ -142,7 +158,7 @@ export default function InstitucionesPage() {
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
-                      <Badge className="mb-2 bg-blue-700 text-white">{institucion.tipo}</Badge>
+                      <AnimatedBadge className="mb-2 bg-blue-700 text-white">{institucion.tipo}</AnimatedBadge>
                       <CardTitle className="text-xl text-blue-900">{institucion.nombre}</CardTitle>
                       <CardDescription className="text-blue-600">
                         {institucion.siglas} • Fundada en {institucion.fundacion}
@@ -177,15 +193,20 @@ export default function InstitucionesPage() {
                     <div>
                       <h4 className="font-medium text-blue-900 mb-2">Áreas de investigación:</h4>
                       <div className="flex flex-wrap gap-1">
-                        {institucion.areas.slice(0, 4).map((area, index) => (
-                          <Badge key={index} variant="secondary" className="bg-blue-50 text-blue-700 text-xs">
+                        {institucion.areas.slice(0, 4).map((area, areaIndex) => (
+                          <AnimatedBadge 
+                            key={areaIndex} 
+                            variant="secondary" 
+                            interactive={true}
+                            className="bg-blue-50 text-blue-700 text-xs stagger-item"
+                          >
                             {area}
-                          </Badge>
+                          </AnimatedBadge>
                         ))}
                         {institucion.areas.length > 4 && (
-                          <Badge variant="secondary" className="bg-blue-50 text-blue-700 text-xs">
+                          <AnimatedBadge variant="secondary" className="bg-blue-50 text-blue-700 text-xs">
                             +{institucion.areas.length - 4} más
-                          </Badge>
+                          </AnimatedBadge>
                         )}
                       </div>
                     </div>
@@ -214,7 +235,7 @@ export default function InstitucionesPage() {
                   </div>
                 </CardContent>
                 <CardFooter className="border-t border-blue-100 flex justify-between">
-                  <Button
+                  <AnimatedButton
                     variant="outline"
                     className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
                     asChild
@@ -223,27 +244,27 @@ export default function InstitucionesPage() {
                       <GraduationCap className="mr-2 h-4 w-4" />
                       Ver detalles
                     </Link>
-                  </Button>
-                  <Button
+                  </AnimatedButton>
+                  <AnimatedButton
                     variant="outline"
                     className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
                     onClick={() => window.open(institucion.sitioWeb, "_blank")}
                   >
                     <ExternalLink className="mr-2 h-4 w-4" />
                     Sitio web
-                  </Button>
+                  </AnimatedButton>
                 </CardFooter>
-              </Card>
+              </AnimatedCard>
             ))}
           </div>
         ) : (
-          <Card className="bg-white border-blue-100">
+          <AnimatedCard className="bg-white border-blue-100" delay={500}>
             <CardContent className="pt-6 text-center py-12">
-              <Building className="h-12 w-12 mx-auto text-blue-300 mb-4" />
+              <Building className="h-12 w-12 mx-auto text-blue-300 mb-4 animate-float" />
               <h3 className="text-lg font-semibold mb-2 text-blue-900">No hay instituciones registradas</h3>
               <p className="text-sm text-blue-600">Aún no hay instituciones registradas en la plataforma.</p>
             </CardContent>
-          </Card>
+          </AnimatedCard>
         )}
       </div>
     </div>

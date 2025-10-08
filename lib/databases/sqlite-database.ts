@@ -351,7 +351,6 @@ export class SQLiteDatabase implements DatabaseInterface {
         terminoBusqueda,
         terminoBusqueda,
         terminoBusqueda,
-        terminoBusqueda,
         limite
       ])
       

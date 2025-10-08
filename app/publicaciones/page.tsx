@@ -1,8 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { AnimatedCard } from "@/components/ui/animated-card"
+import { AnimatedButton } from "@/components/ui/animated-button"
+import { AnimatedBadge } from "@/components/ui/animated-badge"
+import { AnimatedHeader } from "@/components/ui/animated-header"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -373,23 +377,29 @@ export default function PublicacionesPage() {
       <div className="space-y-4 sm:space-y-6">
         <div className="space-y-2">
           <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-blue-900">Publicaciones Científicas</h1>
-              <p className="text-blue-600 text-sm sm:text-base">
-                Explora las publicaciones científicas de investigadores de Chihuahua en revistas nacionales e
-                internacionales
-              </p>
-            </div>
+            <AnimatedHeader 
+              title="Publicaciones Científicas"
+              subtitle="Explora las publicaciones científicas de investigadores de Chihuahua en revistas nacionales e internacionales"
+            />
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <AnimatedButton 
+                asChild
+                className="bg-blue-700 hover:bg-blue-800 text-white animate-glow"
+              >
+                <Link href="/publicaciones/nueva">
+                  <Upload className="mr-2 h-4 w-4" />
+                  Subir Publicación
+                </Link>
+              </AnimatedButton>
               <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogTrigger asChild>
                   <Button 
                     onClick={openNewModal}
-                    className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 w-full sm:w-auto"
+                    className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 w-full sm:w-auto hidden"
                     size="sm"
                   >
                     <Plus className="mr-2 h-4 w-4" />
-                    <span className="text-sm sm:text-base">Subir publicación</span>
+                    <span className="text-sm sm:text-base">Subir publicación (old)</span>
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
@@ -781,8 +791,8 @@ export default function PublicacionesPage() {
               ))}
             </div>
           ) : filteredPublicaciones.length > 0 ? (
-            filteredPublicaciones.map((publicacion) => (
-              <Card key={publicacion.id} className="bg-white border-blue-100">
+            filteredPublicaciones.map((publicacion, index) => (
+              <AnimatedCard key={publicacion.id} className="bg-white border-blue-100" delay={index * 100}>
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
@@ -867,7 +877,7 @@ export default function PublicacionesPage() {
                     ))}
                   </div>
                   <div className="flex gap-2">
-                    <Button
+                    <AnimatedButton
                       variant="outline"
                       size="sm"
                       className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
@@ -875,20 +885,20 @@ export default function PublicacionesPage() {
                     >
                       <ExternalLink className="mr-2 h-4 w-4" />
                       Ver publicación
-                    </Button>
-                    <Button
+                    </AnimatedButton>
+                    <AnimatedButton
                       variant="outline"
                       size="sm"
                       className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
                     >
                       Citar
-                    </Button>
+                    </AnimatedButton>
                   </div>
                 </CardFooter>
-              </Card>
+              </AnimatedCard>
             ))
           ) : (
-            <Card className="bg-white border-blue-100">
+            <AnimatedCard className="bg-white border-blue-100" delay={500}>
               <CardContent className="pt-6 text-center py-12">
                 <FileText className="h-12 w-12 mx-auto text-blue-300 mb-4" />
                 <h3 className="text-lg font-semibold mb-2 text-blue-900">No se encontraron publicaciones</h3>
@@ -898,7 +908,7 @@ export default function PublicacionesPage() {
                     : "Intenta ajustar los filtros de búsqueda para encontrar más resultados."}
                 </p>
                 {publicaciones.length > 0 && (
-                  <Button
+                  <AnimatedButton
                     onClick={() => {
                       setSearchTerm("")
                       setSelectedCategory("all")
@@ -908,10 +918,10 @@ export default function PublicacionesPage() {
                     className="bg-blue-700 text-white hover:bg-blue-800"
                   >
                     Limpiar filtros
-                  </Button>
+                  </AnimatedButton>
                 )}
               </CardContent>
-            </Card>
+            </AnimatedCard>
           )}
         </div>
       </div>

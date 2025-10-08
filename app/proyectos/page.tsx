@@ -1,13 +1,17 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { AnimatedCard } from "@/components/ui/animated-card"
+import { AnimatedButton } from "@/components/ui/animated-button"
+import { AnimatedBadge } from "@/components/ui/animated-badge"
+import { AnimatedHeader } from "@/components/ui/animated-header"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Search, Filter, Calendar, Users, ExternalLink, FileText } from "lucide-react"
+import { Search, Filter, Calendar, Users, ExternalLink, FileText, Upload } from "lucide-react"
 import Link from "next/link"
 
 // Interfaces para tipos de datos
@@ -120,9 +124,20 @@ export default function ProyectosPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-blue-900">Proyectos de Investigación</h1>
-          <p className="text-blue-600">Explora los proyectos de investigación activos y completados en Chihuahua</p>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <AnimatedHeader 
+            title="Proyectos de Investigación"
+            subtitle="Explora los proyectos de investigación activos y completados en Chihuahua"
+          />
+          <AnimatedButton 
+            asChild
+            className="bg-blue-700 hover:bg-blue-800 text-white animate-glow"
+          >
+            <Link href="/proyectos/nuevo">
+              <Upload className="mr-2 h-4 w-4" />
+              Subir Nuevo Proyecto
+            </Link>
+          </AnimatedButton>
         </div>
 
         {/* Filtros y búsqueda */}
@@ -220,15 +235,15 @@ export default function ProyectosPage() {
             </div>
           ) : filteredProyectos.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {filteredProyectos.map((proyecto) => (
-                <Card key={proyecto.id} className="bg-white border-blue-100">
+              {filteredProyectos.map((proyecto, index) => (
+                <AnimatedCard key={proyecto.id} className="bg-white border-blue-100" delay={index * 100}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
-                        <Badge className="mb-2 bg-blue-700 text-white">{proyecto.categoria}</Badge>
-                        <Badge variant="outline" className="ml-2 border-blue-200 text-blue-700">
+                        <AnimatedBadge className="mb-2 bg-blue-700 text-white">{proyecto.categoria}</AnimatedBadge>
+                        <AnimatedBadge variant="outline" className="ml-2 border-blue-200 text-blue-700">
                           {proyecto.estado}
-                        </Badge>
+                        </AnimatedBadge>
                       </div>
                     </div>
                     <CardTitle className="text-xl text-blue-900">{proyecto.titulo}</CardTitle>
@@ -249,15 +264,15 @@ export default function ProyectosPage() {
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 mt-4">
-                      {proyecto.palabrasClave.slice(0, 3).map((keyword: string, index: number) => (
-                        <Badge key={index} variant="secondary" className="bg-blue-50 text-blue-700">
+                      {proyecto.palabrasClave.slice(0, 3).map((keyword: string, kwIndex: number) => (
+                        <AnimatedBadge key={kwIndex} variant="secondary" interactive className="bg-blue-50 text-blue-700 stagger-item">
                           {keyword}
-                        </Badge>
+                        </AnimatedBadge>
                       ))}
                       {proyecto.palabrasClave.length > 3 && (
-                        <Badge variant="secondary" className="bg-blue-50 text-blue-700">
+                        <AnimatedBadge variant="secondary" className="bg-blue-50 text-blue-700">
                           +{proyecto.palabrasClave.length - 3} más
-                        </Badge>
+                        </AnimatedBadge>
                       )}
                     </div>
                   </CardContent>
@@ -272,8 +287,8 @@ export default function ProyectosPage() {
                             .join("")}
                         </AvatarFallback>
                       </Avatar>
-                      {proyecto.colaboradores?.slice(0, 2).map((colaborador: any, index: number) => (
-                        <Avatar key={index} className="h-6 w-6">
+                      {proyecto.colaboradores?.slice(0, 2).map((colaborador: any, colabIndex: number) => (
+                        <Avatar key={colabIndex} className="h-6 w-6">
                           <AvatarImage src="/placeholder.svg" alt={colaborador.nombre} />
                           <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
                             {colaborador.nombre
@@ -284,7 +299,7 @@ export default function ProyectosPage() {
                         </Avatar>
                       ))}
                     </div>
-                    <Button
+                    <AnimatedButton
                       variant="outline"
                       className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
                       asChild
@@ -293,9 +308,9 @@ export default function ProyectosPage() {
                         <ExternalLink className="mr-2 h-4 w-4" />
                         Ver detalles
                       </Link>
-                    </Button>
+                    </AnimatedButton>
                   </CardFooter>
-                </Card>
+                </AnimatedCard>
               ))}
             </div>
           ) : (

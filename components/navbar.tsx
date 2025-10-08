@@ -180,6 +180,13 @@ export default function Navbar() {
                       </NavigationMenuLink>
                     </Link>
                   </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link href="/instituciones" legacyBehavior passHref>
+                      <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "text-blue-700")}>
+                        Instituciones
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
             </div>

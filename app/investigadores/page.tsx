@@ -1,8 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { AnimatedCard } from "@/components/ui/animated-card"
+import { AnimatedButton } from "@/components/ui/animated-button"
+import { AnimatedBadge } from "@/components/ui/animated-badge"
+import { AnimatedHeader } from "@/components/ui/animated-header"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
@@ -109,12 +112,10 @@ export default function InvestigadoresPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-blue-900">Investigadores de Chihuahua</h1>
-          <p className="text-blue-600">
-            Conoce a los investigadores que están impulsando la ciencia y tecnología en el estado
-          </p>
-        </div>
+        <AnimatedHeader 
+          title="Investigadores de Chihuahua"
+          subtitle="Conoce a los investigadores que están impulsando la ciencia y tecnología en el estado"
+        />
 
         {/* Filtros y búsqueda */}
         <Card className="bg-white border-blue-100">
@@ -206,9 +207,9 @@ export default function InvestigadoresPage() {
             </div>
           ) : filteredInvestigadores.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredInvestigadores.map((investigador) => (
+              {filteredInvestigadores.map((investigador, index) => (
                 <Link href={`/investigadores/${investigador.slug}`} key={investigador.id}>
-                  <Card className="h-full hover:shadow-md transition-shadow bg-white border-blue-100 cursor-pointer">
+                  <AnimatedCard className="h-full bg-white border-blue-100 cursor-pointer" delay={index * 100}>
                     <CardContent className="pt-6">
                       <div className="flex flex-col items-center text-center">
                         <Avatar className="h-24 w-24 mb-4">
@@ -222,9 +223,9 @@ export default function InvestigadoresPage() {
                         </Avatar>
                         <h3 className="font-bold text-blue-900 mb-1">{investigador.name}</h3>
                         <p className="text-blue-600 text-sm mb-2">{investigador.title}</p>
-                        <Badge variant="secondary" className="mb-3 bg-blue-50 text-blue-700">
+                        <AnimatedBadge variant="secondary" className="mb-3 bg-blue-50 text-blue-700">
                           {investigador.field}
-                        </Badge>
+                        </AnimatedBadge>
 
                         <div className="w-full space-y-2 text-sm">
                           <div className="flex items-center justify-center gap-1 text-blue-600">
@@ -239,10 +240,10 @@ export default function InvestigadoresPage() {
 
                         <div className="w-full mt-4">
                           <div className="flex flex-wrap gap-1 justify-center">
-                            {investigador.expertise.slice(0, 3).map((skill, index) => (
-                              <Badge key={index} variant="outline" className="text-xs border-blue-200 text-blue-700">
+                            {investigador.expertise.slice(0, 3).map((skill, skillIndex) => (
+                              <AnimatedBadge key={skillIndex} variant="outline" interactive className="text-xs border-blue-200 text-blue-700 stagger-item">
                                 {skill}
-                              </Badge>
+                              </AnimatedBadge>
                             ))}
                           </div>
                         </div>
@@ -264,14 +265,14 @@ export default function InvestigadoresPage() {
                         <p className="text-xs text-blue-600">Publicaciones</p>
                       </div>
                     </CardFooter>
-                  </Card>
+                  </AnimatedCard>
                 </Link>
               ))}
             </div>
           ) : (
-            <Card className="bg-white border-blue-100">
+            <AnimatedCard className="bg-white border-blue-100" delay={500}>
               <CardContent className="pt-6 text-center py-12">
-                <Search className="h-12 w-12 mx-auto text-blue-300 mb-4" />
+                <Search className="h-12 w-12 mx-auto text-blue-300 mb-4 animate-float" />
                 <h3 className="text-lg font-semibold mb-2 text-blue-900">No se encontraron investigadores</h3>
                 <p className="text-sm text-blue-600 mb-6">
                   {investigadores.length === 0
@@ -279,7 +280,7 @@ export default function InvestigadoresPage() {
                     : "Intenta ajustar los filtros de búsqueda para encontrar más resultados."}
                 </p>
                 {investigadores.length > 0 && (
-                  <Button
+                  <AnimatedButton
                     onClick={() => {
                       setSearchTerm("")
                       setSelectedField("all")
@@ -289,10 +290,10 @@ export default function InvestigadoresPage() {
                     className="bg-blue-700 text-white hover:bg-blue-800"
                   >
                     Limpiar filtros
-                  </Button>
+                  </AnimatedButton>
                 )}
               </CardContent>
-            </Card>
+            </AnimatedCard>
           )}
         </div>
       </div>
