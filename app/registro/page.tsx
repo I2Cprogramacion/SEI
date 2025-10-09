@@ -703,7 +703,14 @@ export default function RegistroPage() {
           }
         } catch (clerkError: any) {
           console.error("Error de Clerk:", clerkError)
-          throw new Error(clerkError.errors?.[0]?.message || "Error al crear la cuenta")
+          
+          // Manejar error de email duplicado específicamente
+          const errorMessage = clerkError.errors?.[0]?.message || ""
+          if (errorMessage.toLowerCase().includes("email address is taken")) {
+            throw new Error("Este correo electrónico ya está registrado. Por favor, usa otro correo o inicia sesión.")
+          }
+          
+          throw new Error(errorMessage || "Error al crear la cuenta")
         }
       } catch (error) {
         console.error("Error al registrar:", error)
