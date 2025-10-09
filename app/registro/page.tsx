@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { UploadFotografia } from "@/components/upload-fotografia"
 import {
   Info,
   AlertCircle,
@@ -62,10 +63,12 @@ interface FormData {
   ultimo_grado_estudios: string
   empleo_actual: string
   linea_investigacion: string
+  area_investigacion: string
   nacionalidad: string
   fecha_nacimiento: string
   password: string
   confirm_password: string
+  fotografia_url?: string
 }
 
 interface PasswordValidation {
@@ -90,10 +93,12 @@ const initialFormData: FormData = {
   ultimo_grado_estudios: "",
   empleo_actual: "",
   linea_investigacion: "",
+  area_investigacion: "",
   nacionalidad: "Mexicana",
   fecha_nacimiento: "",
   password: "",
   confirm_password: "",
+  fotografia_url: "",
 }
 
 // Utility functions
@@ -922,7 +927,7 @@ export default function RegistroPage() {
                       <div className="sm:col-span-2">
                         <UploadFotografia
                           value={formData.fotografia_url}
-                          onChange={(url) => setFormData((prev) => ({ ...prev, fotografia_url: url }))}
+                          onChange={(url: string) => setFormData((prev) => ({ ...prev, fotografia_url: url }))}
                           nombreCompleto={formData.nombre_completo}
                         />
                       </div>
