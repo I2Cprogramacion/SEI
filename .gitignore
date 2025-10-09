@@ -14,6 +14,7 @@ package-lock.json
 /out/
 /.next/trace
 /build
+*.trace
 
 # ========================================
 # ENVIRONMENT VARIABLES & SECRETS
@@ -112,6 +113,9 @@ prisma/.env
 /temp/
 public/uploads/*
 !public/uploads/.gitkeep
+.vercel-deploy-trigger
+.vercel-force-redeploy
+*.trigger
 
 # ========================================
 # OS SPECIFIC
