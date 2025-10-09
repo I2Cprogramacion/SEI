@@ -4,6 +4,7 @@
 
 <div align="center">Plataforma web integral para la gestión de perfiles académicos, registro de publicaciones y proyectos, colaboración entre investigadores y asignación de niveles. El SEI facilita la administración y seguimiento de la actividad científica en el estado, proporcionando herramientas modernas para investigadores, instituciones y administradores del sistema.
 
+La plataforma SEI está organizada siguiendo las mejores prácticas de Next.js 14 con App Router:
 
 
 ![Next.js](https://img.shields.io/badge/Next.js-15.5.4-black?style=for-the-badge&logo=next.js)##  Características Principales
@@ -20,6 +21,7 @@
 
 **Plataforma integral para la gestión de investigadores, publicaciones científicas y proyectos de investigación**- **Perfiles Incompletos**: Gestión especializada para investigadores con información pendiente
 
+### Descripción de directorios principales:
 
 
 [Características](#-características-principales) · [Instalación](#-instalación) · [Documentación](#-documentación)###  Publicaciones Científicas

@@ -350,4 +350,97 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       }
     }
   }
+
+  async buscarInvestigadores(params: {
+    termino: string
+    limite?: number
+  }): Promise<any[]> {
+    try {
+      const { termino, limite = 10 } = params
+      const terminoBusqueda = `%${termino.toLowerCase()}%`
+      
+      const query = `
+        SELECT id, nombre_completo as nombre, correo as email, institucion, area
+        FROM investigadores 
+        WHERE (
+          LOWER(nombre_completo) LIKE $1 OR 
+          LOWER(correo) LIKE $1 OR 
+          LOWER(institucion) LIKE $1 OR
+          LOWER(area) LIKE $1
+        )
+        ORDER BY nombre_completo ASC
+        LIMIT $2
+      `
+      
+      const result = await this.client.query(query, [terminoBusqueda, limite])
+      return result.rows
+    } catch (error) {
+      console.error("Error al buscar investigadores:", error)
+      return []
+    }
+  }
+
+  async query(sql: string, params: any[] = []): Promise<any[]> {
+    try {
+      const result = await this.client.query(sql, params)
+      return result.rows
+    } catch (error) {
+      console.error("Error al ejecutar query:", error)
+      return []
+    }
+  }
+
+  async obtenerProyectos(): Promise<any[]> {
+    try {
+      // Como no hay tabla de proyectos, devolver array vacío
+      return []
+    } catch (error) {
+      console.error("Error al obtener proyectos:", error)
+      return []
+    }
+  }
+
+  async obtenerPublicaciones(): Promise<any[]> {
+    try {
+      const result = await this.client.query("SELECT * FROM publicaciones ORDER BY fecha_creacion DESC")
+      return result.rows
+    } catch (error) {
+      console.error("Error al obtener publicaciones:", error)
+      return []
+    }
+  }
+
+  async insertarPublicacion(datos: any): Promise<{
+    success: boolean
+    message: string
+    id?: number
+    error?: any
+  }> {
+    try {
+      const campos = Object.keys(datos).filter((campo) => datos[campo] !== undefined)
+      const placeholders = campos.map((_, index) => `$${index + 1}`).join(", ")
+      const valores = campos.map((campo) => datos[campo])
+
+      const query = `
+        INSERT INTO publicaciones (${campos.join(", ")})
+        VALUES (${placeholders})
+        RETURNING id
+      `
+
+      const result = await this.client.query(query, valores)
+      
+      return {
+        success: true,
+        message: "Publicación insertada exitosamente",
+        id: result.rows[0]?.id
+      }
+    } catch (error) {
+      console.error("Error al insertar publicación:", error)
+      return {
+        success: false,
+        message: `Error al insertar publicación: ${error instanceof Error ? error.message : "Error desconocido"}`,
+        error
+      }
+    }
+  }
 }

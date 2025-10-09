@@ -1,5 +1,10 @@
+// Archivo de compatibilidad que mantiene las funciones existentes
+// pero ahora usa el nuevo sistema de interfaz de base de datos
+
+import { getDatabase } from './database-config'
+import bcrypt from 'bcryptjs'
+
 // Registro simple: crear usuario solo con correo y contraseña
-import bcrypt from 'bcryptjs';
 export async function crearUsuarioSimple(email: string, password: string) {
   const db = await getDatabase();
   // Verificar si ya existe
@@ -27,6 +32,7 @@ export async function crearUsuarioSimple(email: string, password: string) {
   }
   return null;
 }
+
 // Consultar investigadores incompletos (sin CURP)
 export async function consultarInvestigadoresIncompletos() {
   const db = await getDatabase();
@@ -35,10 +41,6 @@ export async function consultarInvestigadoresIncompletos() {
   }
   throw new Error('Método consultarInvestigadoresIncompletos no implementado en la base de datos actual');
 }
-// Archivo de compatibilidad que mantiene las funciones existentes
-// pero ahora usa el nuevo sistema de interfaz de base de datos
-
-import { getDatabase } from './database-config'
 
 // Función para inicializar la base de datos (mantiene compatibilidad)
 export async function initDB() {

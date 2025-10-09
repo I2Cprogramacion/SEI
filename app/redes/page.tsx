@@ -264,7 +264,7 @@ export default function RedesPage() {
                   <CardFooter className="border-t border-blue-100 pt-4">
                     <Button
                       className="w-full bg-blue-700 text-white hover:bg-blue-800"
-                      onClick={() => window.open("https://example.com", "_blank")}
+                      onClick={() => window.open("#", "_blank")}
                     >
                       <ExternalLink className="mr-2 h-4 w-4" />
                       Más información

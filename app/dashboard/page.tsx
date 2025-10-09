@@ -4,7 +4,8 @@ import { useUser, useClerk } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { User, LogOut, Building, Award, FileText } from "lucide-react"
+import { User as UserIcon, LogOut, Building, Award, FileText, Phone, Mail, Briefcase, GraduationCap, MapPin } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser()
@@ -50,11 +51,11 @@ export default function DashboardPage() {
         <Card className="mb-8 bg-white border-blue-100">
           <CardHeader>
             <CardTitle className="text-blue-900 flex items-center">
-              <User className="mr-2 h-5 w-5" />
+              <UserIcon className="mr-2 h-5 w-5" />
               Perfil del Investigador
             </CardTitle>
             <CardDescription className="text-blue-600">
-              Información básica de tu cuenta
+              Información completa de tu cuenta
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

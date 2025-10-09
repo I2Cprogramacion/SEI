@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { BarChart3, FileText, GraduationCap, Home, LayoutDashboard, LogOut, Users } from "lucide-react"
+import { BarChart3, FileText, GraduationCap, Home, LayoutDashboard, LogOut, Users, Award } from "lucide-react"
 import { useState } from "react"
 
 const sidebarItems = [
@@ -21,6 +21,11 @@ const sidebarItems = [
     title: "Proyectos",
     href: "/admin/proyectos",
     icon: FileText,
+  },
+  {
+    title: "Publicaciones",
+    href: "/admin/publicaciones",
+    icon: Award,
   },
   {
     title: "Instituciones",

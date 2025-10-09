@@ -42,6 +42,8 @@ model Profile {
   ultimoGradoEstudios String?
   empleoActual        String?
   lineaInvestigacion  String?
+  areaInvestigacion   String?
+  fotografiaUrl       String?
   nacionalidad        String       @default("Mexicana")
   fechaNacimiento     DateTime?
   institucionId       String?

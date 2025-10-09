@@ -59,16 +59,16 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="pt-[73px]">
+      <div className="pt-[60px] sm:pt-[65px] lg:pt-[73px]">
         <header
-          className={`border-b border-blue-100 fixed top-0 left-0 right-0 z-50 bg-white transition-transform duration-300 ${
+          className={`border-b border-blue-100 fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm transition-transform duration-300 ${
             isVisible ? "translate-y-0" : "-translate-y-full"
           }`}
         >
-          <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link href="/" className="flex items-center gap-2">
-                <div className="relative h-10 w-10">
+          <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-2 sm:py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Link href="/" className="flex items-center gap-1 sm:gap-2">
+                <div className="relative h-8 w-8 sm:h-10 sm:w-10">
                   <Image
                     src="/images/sei-logo.png"
                     alt="Sistema Estatal de Investigadores Logo"
@@ -76,10 +76,10 @@ export default function Navbar() {
                     className="object-contain"
                   />
                 </div>
-                <span className="font-bold text-lg text-gray-800 hidden sm:inline">
+                <span className="font-bold text-sm sm:text-lg text-gray-800 hidden sm:inline">
                   Sistema Estatal de Investigadores
                 </span>
-                <span className="font-bold text-lg text-gray-800 sm:hidden">SEI</span>
+                <span className="font-bold text-sm sm:text-lg text-gray-800 sm:hidden">SEI</span>
               </Link>
 
               <NavigationMenu className="hidden md:flex ml-4">
@@ -130,17 +130,24 @@ export default function Navbar() {
                       </Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link href="/instituciones" legacyBehavior passHref>
+                      <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "text-blue-700")}>
+                        Instituciones
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
             </div>
 
-            <div className="flex items-center gap-4">
-              <Button className="hidden md:flex bg-blue-700 text-white hover:bg-blue-800 px-3 py-1 h-9" asChild>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <Button className="hidden lg:flex bg-blue-700 text-white hover:bg-blue-800 px-2 sm:px-3 py-1 h-8 sm:h-9" asChild>
                 <a href="https://i2c.com.mx/" target="_blank" rel="noopener noreferrer" className="flex items-center">
                   <div className="flex items-baseline">
-                    <span className="text-lg font-bold tracking-tight">I</span>
+                    <span className="text-sm sm:text-lg font-bold tracking-tight">I</span>
                     <span className="text-xs font-bold relative top-[-5px]">2</span>
-                    <span className="text-lg font-bold tracking-tight">C</span>
+                    <span className="text-sm sm:text-lg font-bold tracking-tight">C</span>
                   </div>
                 </a>
               </Button>
@@ -156,20 +163,26 @@ export default function Navbar() {
                   </Button>
                 </div>
               ) : (
-                <div className="hidden md:flex gap-2">
-                  <Button variant="ghost" asChild className="text-blue-700 hover:bg-blue-50">
-                    <Link href="/iniciar-sesion">Iniciar sesión</Link>
+                <div className="hidden lg:flex gap-1 xl:gap-2">
+                  <Button variant="ghost" size="sm" asChild className="text-blue-700 hover:bg-blue-50">
+                    <Link href="/iniciar-sesion">
+                      <span className="hidden xl:inline">Iniciar sesión</span>
+                      <span className="xl:hidden">Entrar</span>
+                    </Link>
                   </Button>
-                  <Button asChild className="bg-blue-700 text-white hover:bg-blue-800">
-                    <Link href="/registro">Registrarse</Link>
+                  <Button size="sm" asChild className="bg-blue-700 text-white hover:bg-blue-800">
+                    <Link href="/registro">
+                      <span className="hidden xl:inline">Registrarse</span>
+                      <span className="xl:hidden">Registro</span>
+                    </Link>
                   </Button>
                 </div>
               )}
 
               <Sheet>
-                <SheetTrigger asChild className="md:hidden">
-                  <Button variant="ghost" size="icon" className="text-blue-700 hover:bg-blue-50">
-                    <Menu className="h-5 w-5" />
+                <SheetTrigger asChild className="lg:hidden">
+                  <Button variant="ghost" size="icon" className="text-blue-700 hover:bg-blue-50 h-8 w-8 sm:h-9 sm:w-9">
+                    <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
                     <span className="sr-only">Menú</span>
                   </Button>
                 </SheetTrigger>
@@ -179,7 +192,7 @@ export default function Navbar() {
                   </SheetHeader>
                   <div className="flex flex-col gap-6 mt-6">
                     <div className="flex items-center gap-2">
-                      <div className="relative h-8 w-8">
+                      <div className="relative h-6 w-6 sm:h-8 sm:w-8">
                         <Image
                           src="/images/sei-logo.png"
                           alt="Sistema Estatal de Investigadores Logo"
@@ -187,28 +200,28 @@ export default function Navbar() {
                           className="object-contain"
                         />
                       </div>
-                      <span className="font-bold text-lg">Sistema Estatal de Investigadores</span>
+                      <span className="font-bold text-sm sm:text-lg">Sistema Estatal de Investigadores</span>
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <Button variant="ghost" className="justify-start text-blue-700 hover:bg-blue-50" asChild>
+                    <div className="flex flex-col gap-1 sm:gap-2">
+                      <Button variant="ghost" size="sm" className="justify-start text-blue-700 hover:bg-blue-50 h-9 sm:h-10" asChild>
                         <Link href="/explorar">Explorar</Link>
                       </Button>
-                      <Button variant="ghost" className="justify-start text-blue-700 hover:bg-blue-50" asChild>
+                      <Button variant="ghost" size="sm" className="justify-start text-blue-700 hover:bg-blue-50 h-9 sm:h-10" asChild>
                         <Link href="/investigadores">Investigadores</Link>
                       </Button>
-                      <Button variant="ghost" className="justify-start text-blue-700 hover:bg-blue-50" asChild>
+                      <Button variant="ghost" size="sm" className="justify-start text-blue-700 hover:bg-blue-50 h-9 sm:h-10" asChild>
                         <Link href="/proyectos">Proyectos</Link>
                       </Button>
-                      <Button variant="ghost" className="justify-start text-blue-700 hover:bg-blue-50" asChild>
+                      <Button variant="ghost" size="sm" className="justify-start text-blue-700 hover:bg-blue-50 h-9 sm:h-10" asChild>
                         <Link href="/publicaciones">Publicaciones</Link>
                       </Button>
-                      <Button variant="ghost" className="justify-start text-blue-700 hover:bg-blue-50" asChild>
+                      <Button variant="ghost" size="sm" className="justify-start text-blue-700 hover:bg-blue-50 h-9 sm:h-10" asChild>
                         <Link href="/instituciones">Instituciones</Link>
                       </Button>
-                      <Button variant="ghost" className="justify-start text-blue-700 hover:bg-blue-50" asChild>
+                      <Button variant="ghost" size="sm" className="justify-start text-blue-700 hover:bg-blue-50 h-9 sm:h-10" asChild>
                         <Link href="/campos">Campos</Link>
                       </Button>
-                      <Button className="justify-start bg-blue-700 text-white hover:bg-blue-800" asChild>
+                      <Button size="sm" className="justify-start bg-blue-700 text-white hover:bg-blue-800 h-9 sm:h-10" asChild>
                         <a
                           href="https://i2c.com.mx/"
                           target="_blank"
@@ -216,9 +229,9 @@ export default function Navbar() {
                           className="flex items-center"
                         >
                           <div className="flex items-baseline">
-                            <span className="text-lg font-bold tracking-tight">I</span>
+                            <span className="text-sm sm:text-lg font-bold tracking-tight">I</span>
                             <span className="text-xs font-bold relative top-[-5px]">2</span>
-                            <span className="text-lg font-bold tracking-tight">C</span>
+                            <span className="text-sm sm:text-lg font-bold tracking-tight">C</span>
                           </div>
                         </a>
                       </Button>
@@ -235,10 +248,10 @@ export default function Navbar() {
                         </>
                       ) : (
                         <>
-                          <Button variant="ghost" className="justify-start text-blue-700 hover:bg-blue-50" asChild>
+                          <Button variant="ghost" size="sm" className="justify-start text-blue-700 hover:bg-blue-50 h-9 sm:h-10" asChild>
                             <Link href="/iniciar-sesion">Iniciar sesión</Link>
                           </Button>
-                          <Button className="mt-2 bg-blue-700 text-white hover:bg-blue-800" asChild>
+                          <Button size="sm" className="mt-2 bg-blue-700 text-white hover:bg-blue-800 h-9 sm:h-10" asChild>
                             <Link href="/registro">Registrarse</Link>
                           </Button>
                         </>

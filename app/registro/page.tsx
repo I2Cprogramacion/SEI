@@ -460,7 +460,7 @@ export default function RegistroPage() {
   const [error, setError] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isProcessingPDF, setIsProcessingPDF] = useState(false)
-  const [ocrCompleted, setOcrCompleted] = useState(false)
+  const [ocrCompleted, setOcrCompleted] = useState(true) // Cambiar a true para permitir llenado manual
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [submitAttempts, setSubmitAttempts] = useState(0)
@@ -479,6 +479,7 @@ export default function RegistroPage() {
       { field: "ultimo_grado_estudios", label: "Último Grado de Estudios" },
       { field: "empleo_actual", label: "Empleo Actual" },
       { field: "linea_investigacion", label: "Línea de Investigación" },
+      { field: "area_investigacion", label: "Área de Investigación" },
       { field: "nacionalidad", label: "Nacionalidad" },
       { field: "fecha_nacimiento", label: "Fecha de Nacimiento" },
       { field: "no_cvu", label: "CVU/PU" },
@@ -783,7 +784,7 @@ export default function RegistroPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {ocrCompleted && (
+                {(
                   <Alert className="mb-4 md:mb-6 bg-gradient-to-r from-red-50 to-pink-50 border-red-200 shadow-sm">
                     <AlertCircle className="h-5 w-5 text-red-600" />
                     <AlertTitle className="text-red-800 font-semibold">
@@ -802,7 +803,7 @@ export default function RegistroPage() {
                     <h3 className="text-base md:text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
                       <User className="h-4 w-4 md:h-5 md:w-5" />
                       Información Personal
-                      {ocrCompleted && (
+                      {(
                         <span className="text-xs md:text-sm text-amber-600 font-normal">(Verificar datos)</span>
                       )}
                     </h3>
@@ -813,7 +814,7 @@ export default function RegistroPage() {
                           className="text-blue-900 text-sm md:text-base font-medium flex items-center gap-2"
                         >
                           <User className="h-4 w-4" />
-                          Nombre Completo *{ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
+                          Nombre Completo *
                         </Label>
                         <Input
                           id="nombre_completo"
@@ -825,7 +826,7 @@ export default function RegistroPage() {
                             !formData.nombre_completo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
 
@@ -836,7 +837,6 @@ export default function RegistroPage() {
                         >
                           <Mail className="h-4 w-4" />
                           Correo Electrónico *
-                          {ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
                         </Label>
                         <Input
                           id="correo"
@@ -849,7 +849,7 @@ export default function RegistroPage() {
                             !formData.correo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
 
@@ -859,7 +859,7 @@ export default function RegistroPage() {
                           className="text-blue-900 text-sm md:text-base font-medium flex items-center gap-2"
                         >
                           <Phone className="h-4 w-4" />
-                          Teléfono *{ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
+                          Teléfono *
                         </Label>
                         <Input
                           id="telefono"
@@ -871,7 +871,7 @@ export default function RegistroPage() {
                             !formData.telefono.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
 
@@ -882,7 +882,6 @@ export default function RegistroPage() {
                         >
                           <Calendar className="h-4 w-4" />
                           Fecha de Nacimiento *
-                          {ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
                         </Label>
                         <Input
                           id="fecha_nacimiento"
@@ -894,7 +893,7 @@ export default function RegistroPage() {
                             !formData.fecha_nacimiento.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
 
@@ -915,7 +914,16 @@ export default function RegistroPage() {
                             !formData.nacionalidad.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
+                        />
+                      </div>
+
+                      {/* Fotografía de Perfil */}
+                      <div className="sm:col-span-2">
+                        <UploadFotografia
+                          value={formData.fotografia_url}
+                          onChange={(url) => setFormData((prev) => ({ ...prev, fotografia_url: url }))}
+                          nombreCompleto={formData.nombre_completo}
                         />
                       </div>
                     </div>
@@ -926,7 +934,6 @@ export default function RegistroPage() {
                     <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
                       <GraduationCap className="h-5 w-5" />
                       Información Académica y Profesional
-                      {ocrCompleted && <span className="text-sm text-amber-600 font-normal">(Verificar datos)</span>}
                     </h3>
                     <div className="space-y-4">
                       <div className="space-y-2">
@@ -936,7 +943,6 @@ export default function RegistroPage() {
                         >
                           <GraduationCap className="h-4 w-4" />
                           Último Grado de Estudios *
-                          {ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
                         </Label>
                         <Input
                           id="ultimo_grado_estudios"
@@ -948,14 +954,14 @@ export default function RegistroPage() {
                             !formData.ultimo_grado_estudios.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="empleo_actual" className="text-blue-900 font-medium flex items-center gap-2">
                           <Briefcase className="h-4 w-4" />
-                          Empleo Actual *{ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
+                          Empleo Actual *
                         </Label>
                         <Input
                           id="empleo_actual"
@@ -967,7 +973,7 @@ export default function RegistroPage() {
                             !formData.empleo_actual.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
                     </div>
@@ -978,13 +984,12 @@ export default function RegistroPage() {
                     <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
                       <CreditCard className="h-5 w-5" />
                       Información Fiscal y de Registro
-                      {ocrCompleted && <span className="text-sm text-amber-600 font-normal">(Verificar números)</span>}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="no_cvu" className="text-blue-900 font-medium flex items-center gap-2">
                           <Hash className="h-4 w-4" />
-                          CVU/PU *{ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
+                          CVU/PU *
                         </Label>
                         <Input
                           id="no_cvu"
@@ -996,14 +1001,14 @@ export default function RegistroPage() {
                             !formData.no_cvu.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="curp" className="text-blue-900 font-medium flex items-center gap-2">
                           <CreditCard className="h-4 w-4" />
-                          CURP *{ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
+                          CURP *
                         </Label>
                         <Input
                           id="curp"
@@ -1015,14 +1020,14 @@ export default function RegistroPage() {
                             !formData.curp.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="rfc" className="text-blue-900 font-medium flex items-center gap-2">
                           <CreditCard className="h-4 w-4" />
-                          RFC *{ocrCompleted && <span className="text-xs text-amber-600">(Verificar)</span>}
+                          RFC *
                         </Label>
                         <Input
                           id="rfc"
@@ -1034,7 +1039,7 @@ export default function RegistroPage() {
                             !formData.rfc.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
-                          disabled={!ocrCompleted}
+                          disabled={false}
                         />
                       </div>
                     </div>
@@ -1128,12 +1133,41 @@ export default function RegistroPage() {
                         onChange={handleChange}
                         placeholder="Describe detalladamente tu área de investigación principal, metodologías utilizadas, y objetivos de tu trabajo académico..."
                         className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 min-h-[120px] ${
-                          !formData.linea_investigacion.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                          !formData.linea_investigacion.trim() ? "border-red-300 bg-red-50" : ""
                         }`}
                         required
-                        disabled={!ocrCompleted}
+                        disabled={false}
                       />
-                      {!formData.linea_investigacion.trim() && ocrCompleted && (
+                      {!formData.linea_investigacion.trim() && (
+                        <p className="text-sm text-red-600">
+                          Este campo es obligatorio y debe ser completado manualmente
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Campo de Área de Investigación */}
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="area_investigacion"
+                        className="text-blue-900 font-medium flex items-center gap-2"
+                      >
+                        <Edit className="h-4 w-4" />
+                        Área o Campo de Investigación *
+                        <span className="text-xs text-blue-600">(Escribir manualmente)</span>
+                      </Label>
+                      <Input
+                        id="area_investigacion"
+                        name="area_investigacion"
+                        value={formData.area_investigacion}
+                        onChange={handleChange}
+                        placeholder="Ej: Ciencias Exactas, Ingeniería, Ciencias Sociales, Humanidades, etc."
+                        className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
+                          !formData.area_investigacion.trim() ? "border-red-300 bg-red-50" : ""
+                        }`}
+                        required
+                        disabled={false}
+                      />
+                      {!formData.area_investigacion.trim() && (
                         <p className="text-sm text-red-600">
                           Este campo es obligatorio y debe ser completado manualmente
                         </p>
@@ -1150,7 +1184,7 @@ export default function RegistroPage() {
                   )}
 
                   {/* Indicador de completitud del formulario */}
-                  {ocrCompleted && (
+                  {(
                     <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-700">
