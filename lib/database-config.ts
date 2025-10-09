@@ -25,14 +25,7 @@ export const currentDatabaseConfig: DatabaseConfig = parseDatabaseUrl(dbUrl);
 
 // Usa Neon de I2C
 export async function getDatabase() {
-  // En desarrollo, forzar SQLite
-  if (process.env.NODE_ENV !== 'production') {
-    const sqliteConfig: DatabaseConfig = {
-      type: 'sqlite',
-      filename: 'database.db'
-    }
-    return await DatabaseFactory.create(sqliteConfig)
-  }
+  // Siempre usar la configuración de DATABASE_URL (PostgreSQL/Neon)
   return await DatabaseFactory.create(currentDatabaseConfig)
 }
 
