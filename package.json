@@ -16,6 +16,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@clerk/clerk-sdk-node": "^4.13.23",
     "@clerk/nextjs": "^6.33.3",
     "@hookform/resolvers": "^3.9.1",
     "@prisma/client": "^6.15.0",

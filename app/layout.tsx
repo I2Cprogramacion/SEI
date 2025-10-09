@@ -16,22 +16,23 @@ export const metadata: Metadata = {
     generator: 'v0.app'
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es">
-      <body>
-        <ClerkProvider>
+    // @ts-expect-error - ClerkProvider is async in Clerk 6.x with Next.js 15
+    <ClerkProvider>
+      <html lang="es">
+        <body>
           <header>
             {/* Botones de Clerk ocultos, solo acceso por /iniciar-sesion */}
           </header>
           <Navbar />
           <main className="flex-1">{children}</main>
-        </ClerkProvider>
-      </body>
-    </html>
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }

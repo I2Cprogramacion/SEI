@@ -42,10 +42,7 @@ async function cleanTestUsers() {
       console.log(`     Creado: ${new Date(user.created_at).toLocaleString()}\n`);
     }
 
-    console.log('⚠️  NOTA: Para borrar usuarios, descomenta la sección de eliminación en el script\n');
-    console.log('📝 O ve manualmente a: https://dashboard.clerk.com/apps/YOUR_APP_ID/users\n');
-    
-    /* DESCOMENTA ESTO PARA HABILITAR LA ELIMINACIÓN:
+    console.log('⚠️  Eliminando usuario de prueba...\n');
     
     console.log('🗑️  Eliminando usuarios...\n');
     
@@ -71,7 +68,6 @@ async function cleanTestUsers() {
     }
     
     console.log('\n✅ Limpieza completada!');
-    */
 
   } catch (error) {
     console.error('❌ Error:', error);
