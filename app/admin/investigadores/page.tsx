@@ -21,24 +21,33 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, Download, Eye, Filter, Search, UserCog } from "lucide-react"
 import { ExportDialog } from "@/components/export-dialog"
 
-// Interfaz para los datos de investigadores
+// Interfaz para los datos de investigadores (ajustada al API)
 interface Investigador {
   id: number
-  no_cvu?: string
-  curp?: string
-  nombre_completo: string
-  rfc?: string
-  correo: string
-  nacionalidad?: string
-  fecha_nacimiento?: string
+  nombre: string
+  email: string
+  fotografiaUrl?: string
   institucion?: string
   telefono?: string
-  grado_maximo_estudios?: string
-  experiencia_laboral?: string
-  linea_investigacion?: string
-  area_investigacion?: string
-  fotografia_url?: string
   area?: string
+  ultimoGradoEstudios?: string
+  lineaInvestigacion?: string
+  curp?: string
+  rfc?: string
+  noCvu?: string
+  nacionalidad?: string
+  fechaNacimiento?: string
+  estadoNacimiento?: string
+  entidadFederativa?: string
+  municipio?: string
+  empleoActual?: string
+  orcid?: string
+  nivel?: string
+  slug: string
+  // Campos adicionales para compatibilidad
+  nombre_completo?: string
+  correo?: string
+  fotografia_url?: string
   fecha_registro?: string
   is_admin?: boolean
 }
@@ -86,8 +95,8 @@ export default function InvestigadoresAdmin() {
     
     const filtered = investigadores.filter(
       (investigador) =>
-        investigador.nombre_completo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        investigador.correo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (investigador.nombre || investigador.nombre_completo)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (investigador.email || investigador.correo)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (investigador.institucion && investigador.institucion.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (investigador.area && investigador.area.toLowerCase().includes(searchTerm.toLowerCase())),
     )
@@ -226,9 +235,9 @@ export default function InvestigadoresAdmin() {
                     <TableRow key={investigador.id} className="hover:bg-blue-50 border-b border-blue-100">
                       <TableCell>
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={investigador.fotografia_url || "/placeholder-user.jpg"} alt={investigador.nombre_completo} />
+                          <AvatarImage src={(investigador.fotografiaUrl || investigador.fotografia_url) || "/placeholder-user.jpg"} alt={investigador.nombre || investigador.nombre_completo} />
                           <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">
-                            {investigador.nombre_completo
+                            {(investigador.nombre || investigador.nombre_completo)
                               ?.split(" ")
                               .map((n) => n[0])
                               .join("")
@@ -239,9 +248,9 @@ export default function InvestigadoresAdmin() {
                       </TableCell>
                       <TableCell className="text-blue-900">{investigador.id}</TableCell>
                       <TableCell className="text-blue-900 font-medium">
-                        {investigador.nombre_completo || "N/A"}
+                        {investigador.nombre || investigador.nombre_completo || "N/A"}
                       </TableCell>
-                      <TableCell className="text-blue-900">{investigador.correo || "N/A"}</TableCell>
+                      <TableCell className="text-blue-900">{investigador.email || investigador.correo || "N/A"}</TableCell>
                       <TableCell className="text-blue-900">{investigador.institucion || "N/A"}</TableCell>
                       <TableCell className="text-blue-900">{investigador.telefono || "N/A"}</TableCell>
                       <TableCell className="text-blue-900">

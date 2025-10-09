@@ -363,18 +363,16 @@ export class SQLiteDatabase implements DatabaseInterface {
 
   async query(sql: string, params: any[] = []): Promise<any[]> {
     try {
-      return new Promise((resolve, reject) => {
-        this.db.all(sql, params, (err, rows) => {
-          if (err) {
-            reject(err)
-          } else {
-            resolve(rows)
-          }
-        })
-      })
+      if (!this.db) {
+        await this.conectar()
+      }
+      
+      // La biblioteca 'sqlite' usa promesas, no callbacks
+      const rows = await this.db.all(sql, params)
+      return rows || []
     } catch (error) {
       console.error("Error al ejecutar query:", error)
-      return []
+      throw error
     }
   }
 
@@ -394,15 +392,8 @@ export class SQLiteDatabase implements DatabaseInterface {
         await this.conectar()
       }
       
-      return new Promise((resolve, reject) => {
-        this.db.all("SELECT * FROM publicaciones ORDER BY fecha_creacion DESC", [], (err, rows) => {
-          if (err) {
-            reject(err)
-          } else {
-            resolve(rows || [])
-          }
-        })
-      })
+      const rows = await this.db.all("SELECT * FROM publicaciones ORDER BY fecha_creacion DESC")
+      return rows || []
     } catch (error) {
       console.error("Error al obtener publicaciones:", error)
       return []
@@ -429,23 +420,13 @@ export class SQLiteDatabase implements DatabaseInterface {
         VALUES (${placeholders})
       `
 
-      return new Promise((resolve, reject) => {
-        this.db.run(query, valores, function(err) {
-          if (err) {
-            reject({
-              success: false,
-              message: `Error al insertar publicación: ${err.message}`,
-              error: err
-            })
-          } else {
-            resolve({
-              success: true,
-              message: "Publicación insertada exitosamente",
-              id: this.lastID
-            })
-          }
-        })
-      })
+      const result = await this.db.run(query, valores)
+      
+      return {
+        success: true,
+        message: "Publicación insertada exitosamente",
+        id: result.lastID
+      }
     } catch (error) {
       console.error("Error al insertar publicación:", error)
       return {

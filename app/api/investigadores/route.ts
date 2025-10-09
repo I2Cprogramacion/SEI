@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
         linea_investigacion,
         fotografia_url,
         ultimo_grado_estudios,
+        grado_maximo_estudios,
         empleo_actual,
         orcid,
         nivel,
@@ -45,35 +46,32 @@ export async function GET(request: NextRequest) {
     const params: any[] = []
     let paramIndex = 1
 
-    // Agregar filtros
+    // Agregar filtros (usando ? para SQLite)
     if (search) {
       query += ` AND (
-        LOWER(nombre_completo) LIKE $${paramIndex} OR 
-        LOWER(correo) LIKE $${paramIndex} OR 
-        LOWER(institucion) LIKE $${paramIndex} OR 
-        LOWER(area) LIKE $${paramIndex} OR
-        LOWER(nivel) LIKE $${paramIndex}
+        LOWER(nombre_completo) LIKE ? OR 
+        LOWER(correo) LIKE ? OR 
+        LOWER(institucion) LIKE ? OR 
+        LOWER(area) LIKE ? OR
+        LOWER(nivel) LIKE ?
       )`
-      params.push(`%${search.toLowerCase()}%`)
-      paramIndex++
+      const searchParam = `%${search.toLowerCase()}%`
+      params.push(searchParam, searchParam, searchParam, searchParam, searchParam)
     }
 
     if (area !== 'all') {
-      query += ` AND area = $${paramIndex}`
+      query += ` AND area = ?`
       params.push(area)
-      paramIndex++
     }
 
     if (institucion !== 'all') {
-      query += ` AND institucion = $${paramIndex}`
+      query += ` AND institucion = ?`
       params.push(institucion)
-      paramIndex++
     }
 
     if (ubicacion !== 'all') {
-      query += ` AND (estado_nacimiento = $${paramIndex} OR entidad_federativa = $${paramIndex})`
-      params.push(ubicacion)
-      paramIndex++
+      query += ` AND (estado_nacimiento = ? OR entidad_federativa = ?)`
+      params.push(ubicacion, ubicacion)
     }
 
     query += ` ORDER BY nombre_completo ASC`
@@ -81,29 +79,37 @@ export async function GET(request: NextRequest) {
     // Ejecutar query
     const investigadores = await db.query(query, params)
 
+    // Helper para limpiar valores null/undefined/vacíos
+    const cleanValue = (value: any) => {
+      if (!value || value === 'N/A' || value.toString().trim() === '') {
+        return null
+      }
+      return value.toString().trim()
+    }
+
     // Formatear respuesta
     const investigadoresFormateados = investigadores.map((inv: any) => ({
       id: inv.id,
       nombre: inv.nombre_completo,
       email: inv.correo,
-      curp: inv.curp,
-      rfc: inv.rfc,
-      noCvu: inv.no_cvu,
-      telefono: inv.telefono,
-      institucion: inv.institucion,
-      area: inv.area,
-      areaInvestigacion: inv.area_investigacion,
-      lineaInvestigacion: inv.linea_investigacion,
-      fotografiaUrl: inv.fotografia_url,
-      ultimoGradoEstudios: inv.ultimo_grado_estudios,
-      empleoActual: inv.empleo_actual,
-      orcid: inv.orcid,
-      nivel: inv.nivel,
-      nacionalidad: inv.nacionalidad,
-      fechaNacimiento: inv.fecha_nacimiento,
-      estadoNacimiento: inv.estado_nacimiento,
-      municipio: inv.municipio,
-      entidadFederativa: inv.entidad_federativa,
+      curp: cleanValue(inv.curp),
+      rfc: cleanValue(inv.rfc),
+      noCvu: cleanValue(inv.no_cvu),
+      telefono: cleanValue(inv.telefono),
+      institucion: cleanValue(inv.institucion),
+      area: cleanValue(inv.area) || cleanValue(inv.area_investigacion),
+      areaInvestigacion: cleanValue(inv.area_investigacion),
+      lineaInvestigacion: cleanValue(inv.linea_investigacion),
+      fotografiaUrl: cleanValue(inv.fotografia_url),
+      ultimoGradoEstudios: cleanValue(inv.ultimo_grado_estudios) || cleanValue(inv.grado_maximo_estudios),
+      empleoActual: cleanValue(inv.empleo_actual),
+      orcid: cleanValue(inv.orcid),
+      nivel: cleanValue(inv.nivel),
+      nacionalidad: cleanValue(inv.nacionalidad),
+      fechaNacimiento: cleanValue(inv.fecha_nacimiento),
+      estadoNacimiento: cleanValue(inv.estado_nacimiento),
+      municipio: cleanValue(inv.municipio),
+      entidadFederativa: cleanValue(inv.entidad_federativa),
       slug: inv.nombre_completo?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || `investigador-${inv.id}`
     }))
 

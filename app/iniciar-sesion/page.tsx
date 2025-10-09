@@ -49,8 +49,11 @@ export default function IniciarSesionPage() {
         if (data.token) {
           localStorage.setItem("token", data.token);
         }
+        
+        // Redirigir a /admin si es admin, sino a /dashboard
+        const redirectUrl = data.user.isAdmin ? "/admin" : "/dashboard";
         setTimeout(() => {
-          router.push("/dashboard");
+          window.location.href = redirectUrl;
         }, 1500);
       } else {
         setError(data.error || "Error al iniciar sesión");
@@ -80,8 +83,11 @@ export default function IniciarSesionPage() {
         if (data.token) {
           localStorage.setItem("token", data.token);
         }
+        
+        // Redirigir a /admin si es admin, sino a /dashboard
+        const redirectUrl = data.user.isAdmin ? "/admin" : "/dashboard";
         setTimeout(() => {
-          router.push("/dashboard");
+          window.location.href = redirectUrl;
         }, 1500);
       } else {
         setError(data.error || "Código incorrecto o expirado");

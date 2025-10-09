@@ -138,9 +138,11 @@ export default function AdminDashboard() {
             <p className="text-blue-600">Gestiona la plataforma SECCTI desde aquí</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent">
-              <Eye className="mr-2 h-4 w-4" />
-              Ver sitio público
+            <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent" asChild>
+              <Link href="/">
+                <Eye className="mr-2 h-4 w-4" />
+                Ver sitio público
+              </Link>
             </Button>
             <Button 
               variant="outline" 
