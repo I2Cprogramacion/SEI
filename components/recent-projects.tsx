@@ -26,10 +26,16 @@ export function RecentProjects() {
       try {
         setLoading(true)
         const response = await fetch('/api/proyectos/recent')
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
         const data = await response.json()
         setProjects(data)
       } catch (error) {
         console.error("Error fetching recent projects:", error)
+        // En caso de error, establecer array vacío para mostrar mensaje
         setProjects([])
       } finally {
         setLoading(false)

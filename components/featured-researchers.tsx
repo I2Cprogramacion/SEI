@@ -28,10 +28,16 @@ export function FeaturedResearchers() {
       try {
         setLoading(true)
         const response = await fetch('/api/investigadores/featured')
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
         const data = await response.json()
         setResearchers(data)
       } catch (error) {
         console.error("Error fetching featured researchers:", error)
+        // En caso de error, establecer array vacío para mostrar mensaje
         setResearchers([])
       } finally {
         setLoading(false)

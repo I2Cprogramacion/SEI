@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils"
 import { Menu } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { useUser, useClerk } from "@clerk/nextjs"
 
 
@@ -174,6 +174,9 @@ export default function Navbar() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="bg-white text-blue-900 border-blue-100">
+                  <SheetHeader>
+                    <SheetTitle className="text-left">Menú de Navegación</SheetTitle>
+                  </SheetHeader>
                   <div className="flex flex-col gap-6 mt-6">
                     <div className="flex items-center gap-2">
                       <div className="relative h-8 w-8">

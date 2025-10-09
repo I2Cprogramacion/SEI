@@ -2,18 +2,17 @@
 import { SignIn, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useEffect } from "react";
 
 export default function IniciarSesionPage() {
-  const { user, isSignedIn } = useUser();
+  const { isSignedIn } = useUser();
   const router = useRouter();
 
-  // Si el usuario ya está autenticado, redirige al home
-  if (isSignedIn) {
-    if (typeof window !== "undefined") {
+  useEffect(() => {
+    if (isSignedIn) {
       router.push("/");
     }
-    return null;
-  }
+  }, [isSignedIn, router]);
 
   return (
     <div className="container max-w-md mx-auto py-10 px-4">
