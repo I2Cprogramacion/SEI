@@ -1,50 +1,22 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useUser, useClerk } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { User, LogOut, Building, Award, FileText } from "lucide-react"
 
-interface User {
-  id: number
-  nombre: string
-  email: string
-  nivel?: string
-  area?: string
-  institucion?: string
-}
-
 export default function DashboardPage() {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const { user, isLoaded } = useUser()
+  const { signOut } = useClerk()
   const router = useRouter()
 
-  useEffect(() => {
-    // Verificar si el usuario está logueado
-    const userData = localStorage.getItem("user")
-    if (!userData) {
-      router.push("/iniciar-sesion")
-      return
-    }
-
-    try {
-      const userObj = JSON.parse(userData)
-      setUser(userObj)
-    } catch (error) {
-      console.error("Error al parsear datos del usuario:", error)
-      router.push("/iniciar-sesion")
-    } finally {
-      setIsLoading(false)
-    }
-  }, [router])
-
-  const handleLogout = () => {
-    localStorage.removeItem("user")
-    router.push("/iniciar-sesion")
+  const handleLogout = async () => {
+    await signOut()
+    router.push("/")
   }
 
-  if (isLoading) {
+  if (!isLoaded) {
     return (
       <div className="container mx-auto py-10 px-4">
         <div className="text-center">
@@ -89,30 +61,12 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-blue-700">Nombre completo</label>
-                <p className="text-blue-900">{user.nombre}</p>
+                <p className="text-blue-900">{user.fullName || user.firstName || "Usuario"}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-blue-700">Correo electrónico</label>
-                <p className="text-blue-900">{user.email}</p>
+                <p className="text-blue-900">{user.primaryEmailAddress?.emailAddress || "No disponible"}</p>
               </div>
-              {user.nivel && (
-                <div>
-                  <label className="text-sm font-medium text-blue-700">Nivel SNI</label>
-                  <p className="text-blue-900">{user.nivel}</p>
-                </div>
-              )}
-              {user.area && (
-                <div>
-                  <label className="text-sm font-medium text-blue-700">Área de investigación</label>
-                  <p className="text-blue-900">{user.area}</p>
-                </div>
-              )}
-              {user.institucion && (
-                <div>
-                  <label className="text-sm font-medium text-blue-700">Institución</label>
-                  <p className="text-blue-900">{user.institucion}</p>
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
