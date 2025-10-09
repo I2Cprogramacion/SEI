@@ -131,11 +131,11 @@ export default function Navbar() {
                     </NavigationMenuLink>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
-                    <Link href="/instituciones" legacyBehavior passHref>
-                      <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "text-blue-700")}>
+                    <NavigationMenuLink asChild>
+                      <Link href="/instituciones" className={cn(navigationMenuTriggerStyle(), "text-blue-700")}> 
                         Instituciones
-                      </NavigationMenuLink>
-                    </Link>
+                      </Link>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
