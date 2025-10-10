@@ -13,8 +13,17 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
-import { Menu } from "lucide-react"
+import { Menu, User, LogOut, LayoutDashboard } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -152,16 +161,46 @@ export default function Navbar() {
                 </a>
               </Button>
               {isSignedIn && user ? (
-                <div className="hidden md:flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="max-w-[260px] truncate text-blue-900 font-medium" title={getDisplayName()}>
-                      {getDisplayName()}
-                    </span>
-                  </div>
-                  <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50" onClick={handleLogout}>
-                    Cerrar sesión
-                  </Button>
-                </div>
+                <>
+                  {/* Desktop: Dropdown Menu con Avatar */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="hidden md:flex items-center gap-2 hover:bg-blue-50">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={user.imageUrl} alt={getDisplayName()} />
+                          <AvatarFallback className="bg-blue-100 text-blue-700">
+                            {(getDisplayName().charAt(0) || "U").toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm font-medium text-blue-900 max-w-[120px] truncate">
+                          {getDisplayName()}
+                        </span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56 bg-white">
+                      <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                          <p className="text-sm font-medium text-blue-900">{getDisplayName()}</p>
+                          <p className="text-xs text-blue-600">{user.primaryEmailAddress?.emailAddress}</p>
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => router.push("/dashboard")} className="cursor-pointer">
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        <span>Dashboard</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => router.push("/dashboard/editar-perfil")} className="cursor-pointer">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Editar Perfil</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Cerrar sesión</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
               ) : (
                 <div className="hidden lg:flex gap-1 xl:gap-2">
                   <Button variant="ghost" size="sm" asChild className="text-blue-700 hover:bg-blue-50">
@@ -237,12 +276,36 @@ export default function Navbar() {
                       </Button>
                       {isSignedIn && user ? (
                         <>
-                          <div className="flex items-center gap-2 px-1">
-                            <div className="text-blue-900 font-medium truncate" title={getDisplayName()}>
-                              {getDisplayName()}
+                          <div className="flex items-center gap-3 px-1 py-2 border-t border-b border-blue-100">
+                            <Avatar className="h-10 w-10">
+                              <AvatarImage src={user.imageUrl} alt={getDisplayName()} />
+                              <AvatarFallback className="bg-blue-100 text-blue-700">
+                                {(getDisplayName().charAt(0) || "U").toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-blue-900 truncate" title={getDisplayName()}>
+                                {getDisplayName()}
+                              </div>
+                              <div className="text-xs text-blue-600 truncate">
+                                {user.primaryEmailAddress?.emailAddress}
+                              </div>
                             </div>
                           </div>
-                          <Button className="mt-2 bg-blue-700 text-white hover:bg-blue-800 justify-start" onClick={handleLogout}>
+                          <Button variant="ghost" size="sm" className="justify-start text-blue-700 hover:bg-blue-50 h-9 sm:h-10" asChild>
+                            <Link href="/dashboard">
+                              <LayoutDashboard className="mr-2 h-4 w-4" />
+                              Dashboard
+                            </Link>
+                          </Button>
+                          <Button variant="ghost" size="sm" className="justify-start text-blue-700 hover:bg-blue-50 h-9 sm:h-10" asChild>
+                            <Link href="/dashboard/editar-perfil">
+                              <User className="mr-2 h-4 w-4" />
+                              Editar Perfil
+                            </Link>
+                          </Button>
+                          <Button variant="outline" className="justify-start border-red-200 text-red-600 hover:bg-red-50 h-9 sm:h-10" onClick={handleLogout}>
+                            <LogOut className="mr-2 h-4 w-4" />
                             Cerrar sesión
                           </Button>
                         </>
