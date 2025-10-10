@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { User as UserIcon, LogOut, Building, Award, FileText, Phone, Mail, Briefcase, GraduationCap, MapPin, Edit, Loader2 } from "lucide-react"
+import { User as UserIcon, LogOut, Building, Award, FileText, Phone, Mail, Briefcase, GraduationCap, MapPin, Edit, Loader2, AlertCircle } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface InvestigadorData {
@@ -44,9 +44,13 @@ export default function DashboardPage() {
           if (result.success && result.data) {
             setInvestigadorData(result.data)
           }
+        } else {
+          // Si falla, solo registrar el error pero no bloquear la UI
+          console.warn("No se pudieron cargar los datos del perfil desde PostgreSQL")
         }
       } catch (error) {
         console.error("Error al cargar datos del investigador:", error)
+        // No mostramos error al usuario, solo usamos datos de Clerk
       } finally {
         setIsLoadingData(false)
       }
@@ -89,6 +93,23 @@ export default function DashboardPage() {
             Cerrar sesión
           </Button>
         </div>
+
+        {/* Mensaje informativo si no hay datos de PostgreSQL */}
+        {!investigadorData && (
+          <Card className="mb-6 bg-amber-50 border-amber-200">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-amber-900">Perfil incompleto</h3>
+                  <p className="text-sm text-amber-700 mt-1">
+                    No se encontraron datos adicionales en tu perfil. Haz clic en "Editar Perfil" para completar tu información.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Información del usuario */}
         <Card className="mb-8 bg-white border-blue-100">
