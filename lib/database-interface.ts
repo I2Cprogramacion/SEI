@@ -29,6 +29,9 @@ export interface DatabaseInterface {
   // Métodos de migración
   ejecutarMigracion(sql: string): Promise<void>
 
+  // Método de consulta genérica
+  query(sql: string, params?: any[]): Promise<any>
+
   // Consultar investigadores incompletos (sin CURP)
   consultarInvestigadoresIncompletos(): Promise<any[]>
 

@@ -28,6 +28,9 @@ export class SQLiteDatabase implements DatabaseInterface {
 	async desconectar() {}
 	async inicializar() {}
 	async ejecutarMigracion(sql: string) {}
+	async query(sql: string, params: any[] = []) { 
+		throw new Error('Método query no implementado en SQLiteDatabase')
+	}
 	async consultarInvestigadoresIncompletos() { return []; }
 	async obtenerProyectos?() { return []; }
 	async obtenerPublicaciones?() { return []; }
