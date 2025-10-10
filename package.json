@@ -18,6 +18,9 @@
     "test:registro": "node scripts/test-registro.js",
     "test:api": "node scripts/test-api-registro.js",
     "test:prisma": "node scripts/test-prisma.js",
+    "clean:clerk": "node scripts/reset-clerk-users.js",
+    "clean:postgres": "node scripts/clean-postgres-users.js",
+    "clean:all": "node scripts/reset-all-users.js",
     "postinstall": "prisma generate"
   },
   "dependencies": {
