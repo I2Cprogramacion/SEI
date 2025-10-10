@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
         WHERE proyectos_investigacion IS NOT NULL AND proyectos_investigacion != ''
       `)
 
-      proyectosData.forEach(inv => {
+      proyectosData.forEach((inv: any) => {
         if (inv.proyectos_investigacion) {
           const proyectosTexto = inv.proyectos_investigacion.split('\n').filter((p: string) => p.trim())
           proyectosTexto.forEach((proyectoTexto: string, index: number) => {
@@ -155,7 +155,7 @@ export async function GET(request: NextRequest) {
         `%${query.toLowerCase()}%`
       ])
 
-      publicaciones = publicacionesData.map(pub => ({
+      publicaciones = publicacionesData.map((pub: any) => ({
         id: pub.id,
         titulo: pub.titulo,
         investigador: pub.autor,
