@@ -9,13 +9,6 @@ export class PostgreSQLDatabase implements DatabaseInterface {
     this.config = config;
   }
 
-  async obtenerProyectos(): Promise<any[]> {
-    // Stub seguro: devuelve array vacío o lanza un error claro
-    // Puedes implementar la lógica real según tu modelo de datos
-    return [];
-    // Alternativamente, lanza un error si prefieres forzar la implementación:
-    // throw new Error('Método obtenerProyectos no implementado en PostgreSQLDatabase');
-  }
   async consultarInvestigadoresIncompletos() {
     if (!this.client) {
       await this.conectar();
@@ -380,13 +373,17 @@ export class PostgreSQLDatabase implements DatabaseInterface {
     }
   }
 
-  async query(sql: string, params: any[] = []): Promise<any[]> {
+  async query(sql: string, params: any[] = []): Promise<any> {
     try {
+      if (!this.client) {
+        await this.conectar()
+      }
+      
       const result = await this.client.query(sql, params)
-      return result.rows
+      return result
     } catch (error) {
       console.error("Error al ejecutar query:", error)
-      return []
+      throw error
     }
   }
 
