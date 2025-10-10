@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import sqlite3 from "sqlite3"
-import path from "path"
+import { getDatabase } from "@/lib/database-config"
 
 export const dynamic = 'force-dynamic'
 
@@ -24,61 +23,54 @@ export async function GET(
   try {
     const { slug } = params
     
-    // Conectar a la base de datos SQLite
-    const dbPath = path.join(process.cwd(), 'database.db')
-    const db = new sqlite3.Database(dbPath)
+    // Conectar a la base de datos usando la interfaz unificada
+    const db = await getDatabase()
 
     // Obtener todos los investigadores
-    const investigadores = await new Promise<any[]>((resolve, reject) => {
-      db.all(`
-        SELECT 
-          id,
-          nombre_completo,
-          correo,
-          curp,
-          rfc,
-          no_cvu,
-          telefono,
-          institucion,
-          area,
-          area_investigacion,
-          linea_investigacion,
-          fotografia_url,
-          ultimo_grado_estudios,
-          empleo_actual,
-          fecha_nacimiento,
-          nacionalidad,
+    const investigadores = await db.query(`
+      SELECT 
+        id,
+        nombre_completo,
+        correo,
+        curp,
+        rfc,
+        no_cvu,
+        telefono,
+        institucion,
+        area,
+        area_investigacion,
+        linea_investigacion,
+        fotografia_url,
+        ultimo_grado_estudios,
+        empleo_actual,
+        fecha_nacimiento,
+        nacionalidad,
           orcid,
           nivel,
-          estado_nacimiento,
-          municipio,
-          entidad_federativa,
-          domicilio,
-          cp,
-          grado_maximo_estudios,
-          disciplina,
-          especialidad,
-          sni,
-          anio_sni,
-          experiencia_docente,
-          experiencia_laboral,
-          proyectos_investigacion,
-          proyectos_vinculacion,
-          libros,
-          capitulos_libros,
-          articulos,
-          premios_distinciones,
-          idiomas,
-          colaboracion_internacional,
-          colaboracion_nacional
-        FROM investigadores
-        ORDER BY nombre_completo ASC
-      `, (err, rows) => {
-        db.close()
-        if (err) reject(err)
-        else resolve(rows)
-      })
-    })
+        estado_nacimiento,
+        municipio,
+        entidad_federativa,
+        domicilio,
+        cp,
+        grado_maximo_estudios,
+        disciplina,
+        especialidad,
+        sni,
+        anio_sni,
+        experiencia_docente,
+        experiencia_laboral,
+        proyectos_investigacion,
+        proyectos_vinculacion,
+        libros,
+        capitulos_libros,
+        articulos,
+        premios_distinciones,
+        idiomas,
+        colaboracion_internacional,
+        colaboracion_nacional
+      FROM investigadores
+      ORDER BY nombre_completo ASC
+    `)
 
     // Buscar investigador por slug
     const investigador = investigadores.find((inv: any) => {
