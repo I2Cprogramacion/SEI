@@ -459,6 +459,9 @@ export default function RegistroPage() {
   const { isLoaded, signUp } = useSignUp()
   const clerk = useClerk()
 
+  // Mounted state for hydration fix
+  const [isMounted, setIsMounted] = useState(false)
+
   // State
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [isLoading, setIsLoading] = useState(false)
@@ -470,6 +473,11 @@ export default function RegistroPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [submitAttempts, setSubmitAttempts] = useState(0)
   const [lastAttempt, setLastAttempt] = useState(0)
+
+  // Hydration fix effect
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   // Memoized values
   const passwordValidation = useMemo(() => validatePassword(formData.password), [formData.password])
@@ -737,6 +745,24 @@ export default function RegistroPage() {
       lastAttempt,
     ]
   )
+
+  return (
+        }
+  }
+
+  // Prevent hydration mismatch
+  if (!isMounted || !isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+            <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+          </div>
+          <p className="text-blue-600 font-medium">Cargando formulario...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
