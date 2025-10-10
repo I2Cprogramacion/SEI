@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { 
   User as UserIcon, 
-  LogOut, 
   Building, 
   Award, 
   FileText, 
@@ -73,7 +72,6 @@ interface Estadisticas {
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser()
-  const { signOut } = useClerk()
   const router = useRouter()
   const [investigadorData, setInvestigadorData] = useState<InvestigadorData | null>(null)
   const [sugerencias, setSugerencias] = useState<Sugerencia[]>([])
@@ -154,11 +152,6 @@ export default function DashboardPage() {
     cargarEstadisticas()
   }, [isLoaded, user])
 
-  const handleLogout = async () => {
-    await signOut()
-    router.push("/")
-  }
-
   if (!isLoaded || isLoadingData) {
     return (
       <div className="container mx-auto py-10 px-4">
@@ -178,15 +171,9 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       <div className="container mx-auto py-6 px-4">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-blue-900">Dashboard Social</h1>
-            <p className="text-blue-600">Tu red de colaboración científica</p>
-          </div>
-          <Button onClick={handleLogout} variant="outline" className="border-red-200 text-red-700 hover:bg-red-50">
-            <LogOut className="mr-2 h-4 w-4" />
-            Cerrar sesión
-          </Button>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-blue-900">Dashboard Social</h1>
+          <p className="text-blue-600">Tu red de colaboración científica</p>
         </div>
 
         {/* Estadísticas Rápidas */}

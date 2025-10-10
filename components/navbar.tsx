@@ -33,6 +33,7 @@ import { useUser, useClerk } from "@clerk/nextjs"
 export default function Navbar() {
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
+  const [fotografiaUrl, setFotografiaUrl] = useState<string | null>(null)
   const router = useRouter()
   const { user, isSignedIn } = useUser()
   const { signOut } = useClerk()
@@ -46,6 +47,27 @@ export default function Navbar() {
     if (!user) return ""
     return user.fullName || user.primaryEmailAddress?.emailAddress || ""
   }
+
+  // Cargar foto del investigador desde PostgreSQL
+  useEffect(() => {
+    const cargarFotoInvestigador = async () => {
+      if (!isSignedIn || !user) return
+      
+      try {
+        const response = await fetch("/api/investigadores/perfil")
+        if (response.ok) {
+          const result = await response.json()
+          if (result.success && result.data?.fotografia_url) {
+            setFotografiaUrl(result.data.fotografia_url)
+          }
+        }
+      } catch (error) {
+        console.error("Error al cargar foto del investigador:", error)
+      }
+    }
+
+    cargarFotoInvestigador()
+  }, [isSignedIn, user])
 
   useEffect(() => {
     const controlNavbar = () => {
@@ -167,7 +189,10 @@ export default function Navbar() {
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="hidden md:flex items-center gap-2 hover:bg-blue-50">
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={user.imageUrl} alt={getDisplayName()} />
+                          <AvatarImage 
+                            src={fotografiaUrl || user.imageUrl} 
+                            alt={getDisplayName()} 
+                          />
                           <AvatarFallback className="bg-blue-100 text-blue-700">
                             {(getDisplayName().charAt(0) || "U").toUpperCase()}
                           </AvatarFallback>
