@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { UploadFotografia } from "@/components/upload-fotografia"
 import {
@@ -130,7 +131,7 @@ export default function EditarPerfilPage() {
     cargarDatos()
   }, [isLoaded, user])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
@@ -435,14 +436,15 @@ export default function EditarPerfilPage() {
                     <Label htmlFor="linea_investigacion" className="text-blue-900 font-medium flex items-center gap-2">
                       <Edit className="h-4 w-4" />
                       Línea de Investigación
+                      <span className="text-xs text-blue-600">(Describe tu área de investigación)</span>
                     </Label>
-                    <Input
+                    <Textarea
                       id="linea_investigacion"
                       name="linea_investigacion"
                       value={formData.linea_investigacion}
                       onChange={handleChange}
-                      placeholder="Tu línea de investigación principal"
-                      className="bg-white border-blue-200"
+                      placeholder="Describe detalladamente tu línea de investigación principal, metodologías utilizadas, y objetivos..."
+                      className="bg-white border-blue-200 min-h-[100px]"
                     />
                   </div>
 
