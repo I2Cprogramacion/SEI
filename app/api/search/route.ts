@@ -9,6 +9,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const query = searchParams.get('q') || ''
     const type = searchParams.get('type') || 'all'
+    const areaFilter = searchParams.get('area') || 'all'
+    const institucionFilter = searchParams.get('institucion') || 'all'
     
     if (!query.trim()) {
       return NextResponse.json({ 
@@ -20,24 +22,75 @@ export async function GET(request: NextRequest) {
 
     const db = await getDatabase()
     
-    // Buscar investigadores
-    const investigadores = await db.buscarInvestigadores({
-      termino: query,
-      limite: 50
-    })
+    // Construir query dinámico con filtros
+    let whereConditions = []
+    let queryParams: any[] = []
+    let paramIndex = 1
+
+    // Condición de búsqueda general
+    const searchPattern = `%${query.toLowerCase()}%`
+    whereConditions.push(`(
+      LOWER(nombre_completo) LIKE $${paramIndex} OR
+      LOWER(area) LIKE $${paramIndex + 1} OR
+      LOWER(area_investigacion) LIKE $${paramIndex + 2} OR
+      LOWER(linea_investigacion) LIKE $${paramIndex + 3} OR
+      LOWER(institucion) LIKE $${paramIndex + 4}
+    )`)
+    queryParams.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern)
+    paramIndex += 5
+
+    // Filtro por área
+    if (areaFilter !== 'all') {
+      whereConditions.push(`(area = $${paramIndex} OR area_investigacion = $${paramIndex})`)
+      queryParams.push(areaFilter)
+      paramIndex++
+    }
+
+    // Filtro por institución
+    if (institucionFilter !== 'all') {
+      whereConditions.push(`institucion = $${paramIndex}`)
+      queryParams.push(institucionFilter)
+      paramIndex++
+    }
+
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : ''
+
+    // Buscar investigadores con filtros
+    const investigadoresQuery = `
+      SELECT 
+        id,
+        nombre_completo,
+        correo,
+        institucion,
+        area,
+        area_investigacion,
+        linea_investigacion,
+        fotografia_url,
+        ultimo_grado_estudios,
+        slug
+      FROM investigadores 
+      ${whereClause}
+      ORDER BY nombre_completo ASC
+      LIMIT 50
+    `
+    
+    const investigadores = await db.query(investigadoresQuery, queryParams)
 
     // Transformar investigadores al formato esperado
-    const investigadoresFormateados = investigadores.map(inv => ({
+    const investigadoresFormateados = investigadores.map((inv: any) => ({
       id: inv.id,
-      nombre: inv.nombre || inv.nombre_completo,
-      email: inv.email || inv.correo,
+      nombre: inv.nombre_completo,
+      email: inv.correo,
       institucion: inv.institucion || 'Institución no especificada',
-      area: inv.area || 'Investigación',
-      slug: inv.slug || (inv.nombre || inv.nombre_completo)?.toLowerCase()
+      area: inv.area || inv.area_investigacion || 'Investigación',
+      lineaInvestigacion: inv.linea_investigacion,
+      fotografiaUrl: inv.fotografia_url,
+      ultimoGradoEstudios: inv.ultimo_grado_estudios,
+      slug: inv.slug || inv.nombre_completo?.toLowerCase()
         .replace(/[^a-z0-9\s]/g, '')
         .replace(/\s+/g, '-')
         .trim() || `investigador-${inv.id}`,
-      keywords: [inv.area].filter(Boolean)
+      keywords: [inv.area, inv.area_investigacion].filter(Boolean)
     }))
 
     // Buscar proyectos (extraer de los campos de investigadores)
