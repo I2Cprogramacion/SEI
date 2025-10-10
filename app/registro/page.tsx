@@ -746,10 +746,6 @@ export default function RegistroPage() {
     ]
   )
 
-  return (
-        }
-  }
-
   // Prevent hydration mismatch
   if (!isMounted || !isLoaded) {
     return (
