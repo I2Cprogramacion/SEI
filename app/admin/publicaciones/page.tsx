@@ -58,18 +58,28 @@ export default function PublicacionesAdmin() {
       try {
         setIsLoading(true)
         const response = await fetch("/api/publicaciones")
+        
         if (!response.ok) {
-          throw new Error("Error al cargar las publicaciones")
+          const data = await response.json()
+          console.warn("⚠️ No se pudieron cargar publicaciones:", data.error)
+          setPublicaciones([])
+          setFilteredData([])
+          setError("No se pudieron cargar las publicaciones. La tabla podría no existir aún.")
+          return
         }
+        
         const data = await response.json()
         console.log("Datos recibidos de la API:", data)
         const publicacionesData = Array.isArray(data.publicaciones) ? data.publicaciones : Array.isArray(data) ? data : []
         console.log("Datos procesados:", publicacionesData)
         setPublicaciones(publicacionesData)
         setFilteredData(publicacionesData)
+        setError(null)
       } catch (error) {
-        console.error("Error al cargar publicaciones:", error)
-        setError("No se pudieron cargar las publicaciones.")
+        console.warn("⚠️ Error al conectar con API de publicaciones:", error)
+        setPublicaciones([])
+        setFilteredData([])
+        setError("No se pudo conectar con el servidor. Intenta nuevamente.")
       } finally {
         setIsLoading(false)
       }

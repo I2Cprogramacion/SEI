@@ -179,11 +179,13 @@ export default function PublicacionesPage() {
         if (response.ok) {
           setPublicaciones(data.publicaciones || [])
         } else {
-          console.error("Error fetching publicaciones:", data.error)
+          // Manejo silencioso de errores - tabla podría no existir aún
+          console.warn("⚠️ No se pudieron cargar publicaciones:", data.error)
           setPublicaciones([])
         }
       } catch (error) {
-        console.error("Error fetching publicaciones:", error)
+        // Error de red o parsing - manejar gracefully
+        console.warn("⚠️ Error al conectar con API de publicaciones:", error)
         setPublicaciones([])
       } finally {
         setLoading(false)

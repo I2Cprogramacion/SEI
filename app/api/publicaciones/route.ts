@@ -73,7 +73,23 @@ export async function GET(request: NextRequest) {
     query += ` ORDER BY fecha_creacion DESC`
 
     // Ejecutar query
-    const publicaciones = await db.query(query, params)
+    let publicaciones
+    try {
+      publicaciones = await db.query(query, params)
+    } catch (dbError: any) {
+      // Si la tabla no existe, retornar array vacío en lugar de error
+      if (dbError?.code === '42P01' || dbError?.message?.includes('does not exist')) {
+        console.warn('⚠️ Tabla publicaciones no existe en la base de datos, retornando datos vacíos')
+        return NextResponse.json({
+          publicaciones: [],
+          filtros: {
+            categorias: [],
+            años: []
+          }
+        })
+      }
+      throw dbError
+    }
 
     // Formatear respuesta
     const publicacionesFormateadas = publicaciones.map((pub: any) => ({
@@ -98,19 +114,30 @@ export async function GET(request: NextRequest) {
     }))
 
     // Obtener opciones únicas para filtros
-    const categorias = await db.query(`
-      SELECT DISTINCT categoria 
-      FROM publicaciones 
-      WHERE categoria IS NOT NULL 
-      ORDER BY categoria
-    `)
+    let categorias = []
+    let años = []
+    
+    try {
+      categorias = await db.query(`
+        SELECT DISTINCT categoria 
+        FROM publicaciones 
+        WHERE categoria IS NOT NULL 
+        ORDER BY categoria
+      `)
+    } catch (error) {
+      console.warn('No se pudieron obtener categorías')
+    }
 
-    const años = await db.query(`
-      SELECT DISTINCT año_creacion 
-      FROM publicaciones 
-      WHERE año_creacion IS NOT NULL 
-      ORDER BY año_creacion DESC
-    `)
+    try {
+      años = await db.query(`
+        SELECT DISTINCT año_creacion 
+        FROM publicaciones 
+        WHERE año_creacion IS NOT NULL 
+        ORDER BY año_creacion DESC
+      `)
+    } catch (error) {
+      console.warn('No se pudieron obtener años')
+    }
 
     return NextResponse.json({
       publicaciones: publicacionesFormateadas,
