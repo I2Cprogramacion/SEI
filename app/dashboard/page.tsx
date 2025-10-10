@@ -5,8 +5,34 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { User as UserIcon, LogOut, Building, Award, FileText, Phone, Mail, Briefcase, GraduationCap, MapPin, Edit, Loader2, AlertCircle } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { 
+  User as UserIcon, 
+  LogOut, 
+  Building, 
+  Award, 
+  FileText, 
+  Phone, 
+  Mail, 
+  Briefcase, 
+  GraduationCap, 
+  MapPin, 
+  Edit, 
+  Loader2, 
+  AlertCircle,
+  Users,
+  TrendingUp,
+  BookOpen,
+  Network,
+  MessageCircle,
+  UserPlus,
+  BarChart3,
+  Eye,
+  Sparkles
+} from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import Link from "next/link"
 
 interface InvestigadorData {
   id: number
@@ -25,12 +51,41 @@ interface InvestigadorData {
   fotografia_url?: string
 }
 
+interface Sugerencia {
+  id: number
+  name: string
+  email: string
+  institution?: string
+  area?: string
+  lineaInvestigacion?: string
+  fotografiaUrl?: string
+  title?: string
+  slug: string
+  razonSugerencia?: string
+}
+
+interface Estadisticas {
+  publicaciones: number
+  proyectos: number
+  conexiones: number
+  perfilCompleto: number
+}
+
 export default function DashboardPage() {
   const { user, isLoaded } = useUser()
   const { signOut } = useClerk()
   const router = useRouter()
   const [investigadorData, setInvestigadorData] = useState<InvestigadorData | null>(null)
+  const [sugerencias, setSugerencias] = useState<Sugerencia[]>([])
+  const [estadisticas, setEstadisticas] = useState<Estadisticas>({
+    publicaciones: 0,
+    proyectos: 0,
+    conexiones: 0,
+    perfilCompleto: 0
+  })
   const [isLoadingData, setIsLoadingData] = useState(true)
+  const [isLoadingSugerencias, setIsLoadingSugerencias] = useState(true)
+  const [isLoadingEstadisticas, setIsLoadingEstadisticas] = useState(true)
 
   // Cargar datos del investigador
   useEffect(() => {
@@ -45,18 +100,58 @@ export default function DashboardPage() {
             setInvestigadorData(result.data)
           }
         } else {
-          // Si falla, solo registrar el error pero no bloquear la UI
           console.warn("No se pudieron cargar los datos del perfil desde PostgreSQL")
         }
       } catch (error) {
         console.error("Error al cargar datos del investigador:", error)
-        // No mostramos error al usuario, solo usamos datos de Clerk
       } finally {
         setIsLoadingData(false)
       }
     }
 
     cargarDatos()
+  }, [isLoaded, user])
+
+  // Cargar sugerencias de colaboración
+  useEffect(() => {
+    const cargarSugerencias = async () => {
+      if (!isLoaded || !user) return
+
+      try {
+        const response = await fetch("/api/dashboard/sugerencias")
+        if (response.ok) {
+          const data = await response.json()
+          setSugerencias(data)
+        }
+      } catch (error) {
+        console.error("Error al cargar sugerencias:", error)
+      } finally {
+        setIsLoadingSugerencias(false)
+      }
+    }
+
+    cargarSugerencias()
+  }, [isLoaded, user])
+
+  // Cargar estadísticas
+  useEffect(() => {
+    const cargarEstadisticas = async () => {
+      if (!isLoaded || !user) return
+
+      try {
+        const response = await fetch("/api/dashboard/estadisticas")
+        if (response.ok) {
+          const data = await response.json()
+          setEstadisticas(data)
+        }
+      } catch (error) {
+        console.error("Error al cargar estadísticas:", error)
+      } finally {
+        setIsLoadingEstadisticas(false)
+      }
+    }
+
+    cargarEstadisticas()
   }, [isLoaded, user])
 
   const handleLogout = async () => {
@@ -85,13 +180,80 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-blue-900">Dashboard</h1>
-            <p className="text-blue-600">Bienvenido a tu panel de investigador</p>
+            <h1 className="text-3xl font-bold text-blue-900">Dashboard Social</h1>
+            <p className="text-blue-600">Tu red de colaboración científica</p>
           </div>
           <Button onClick={handleLogout} variant="outline" className="border-red-200 text-red-700 hover:bg-red-50">
             <LogOut className="mr-2 h-4 w-4" />
             Cerrar sesión
           </Button>
+        </div>
+
+        {/* Estadísticas Rápidas */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <BookOpen className="h-8 w-8 opacity-80" />
+                {isLoadingEstadisticas ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <div className="text-3xl font-bold">{estadisticas.publicaciones}</div>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-blue-100 text-sm">Publicaciones</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-0">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <FileText className="h-8 w-8 opacity-80" />
+                {isLoadingEstadisticas ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <div className="text-3xl font-bold">{estadisticas.proyectos}</div>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-green-100 text-sm">Proyectos</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <Users className="h-8 w-8 opacity-80" />
+                {isLoadingEstadisticas ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <div className="text-3xl font-bold">{estadisticas.conexiones}</div>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-purple-100 text-sm">Conexiones</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <BarChart3 className="h-8 w-8 opacity-80" />
+                {isLoadingEstadisticas ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <div className="text-3xl font-bold">{estadisticas.perfilCompleto}%</div>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-orange-100 text-sm">Perfil Completo</p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Mensaje informativo si no hay datos de PostgreSQL */}
