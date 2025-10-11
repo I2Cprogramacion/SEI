@@ -54,7 +54,9 @@ const RATE_LIMITS = {
 
 // Types
 interface FormData {
-  nombre_completo: string
+  nombres: string
+  apellidos: string
+  nombre_completo: string // Se generará automáticamente
   curp: string
   rfc: string
   no_cvu: string
@@ -84,6 +86,8 @@ interface PasswordValidation {
 }
 
 const initialFormData: FormData = {
+  nombres: "",
+  apellidos: "",
   nombre_completo: "",
   curp: "",
   rfc: "",
@@ -115,12 +119,38 @@ const validatePassword = (password: string): PasswordValidation => {
 }
 
 const sanitizeOcrData = (data: any) => {
+  // Extraer nombre completo y separarlo en nombres y apellidos
+  const nombreCompleto = data.nombre_completo?.trim() || ""
+  let nombres = ""
+  let apellidos = ""
+  
+  if (nombreCompleto) {
+    const partes = nombreCompleto.split(/\s+/)
+    if (partes.length >= 2) {
+      // Asumimos que los primeros 2 elementos son nombres y el resto apellidos
+      nombres = partes.slice(0, 2).join(' ')
+      apellidos = partes.slice(2).join(' ')
+      
+      // Si solo hay 2 partes, asumimos 1 nombre y 1 apellido
+      if (partes.length === 2) {
+        nombres = partes[0]
+        apellidos = partes[1]
+      }
+    } else if (partes.length === 1) {
+      nombres = partes[0]
+    }
+  }
+
   return {
+    nombres: nombres,
+    apellidos: apellidos,
+    nombre_completo: nombreCompleto,
     curp: data.curp?.trim().toUpperCase() || "",
     rfc: data.rfc?.trim().toUpperCase() || "",
     no_cvu: data.no_cvu?.trim() || "",
     correo: data.correo?.trim().toLowerCase() || "",
     telefono: data.telefono?.trim() || "",
+    fecha_nacimiento: data.fecha_nacimiento?.trim() || "",
   }
 }
 
@@ -468,7 +498,7 @@ export default function RegistroPage() {
   const [error, setError] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isProcessingPDF, setIsProcessingPDF] = useState(false)
-  const [ocrCompleted, setOcrCompleted] = useState(true) // Cambiar a true para permitir llenado manual
+  const [ocrCompleted, setOcrCompleted] = useState(false) // false: no mostrar mensaje hasta procesar PDF
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [submitAttempts, setSubmitAttempts] = useState(0)
@@ -486,7 +516,8 @@ export default function RegistroPage() {
 
   const requiredFields = useMemo(
     () => [
-      { field: "nombre_completo", label: "Nombre Completo" },
+      { field: "nombres", label: "Nombre(s)" },
+      { field: "apellidos", label: "Apellidos" },
       { field: "correo", label: "Correo Electrónico" },
       { field: "telefono", label: "Teléfono" },
       { field: "ultimo_grado_estudios", label: "Último Grado de Estudios" },
@@ -513,10 +544,21 @@ export default function RegistroPage() {
   // Handlers
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        [name]: value,
+      }
+      
+      // Generar nombre_completo automáticamente cuando cambien nombres o apellidos
+      if (name === 'nombres' || name === 'apellidos') {
+        const nombres = name === 'nombres' ? value : prev.nombres
+        const apellidos = name === 'apellidos' ? value : prev.apellidos
+        updated.nombre_completo = `${nombres} ${apellidos}`.trim()
+      }
+      
+      return updated
+    })
   }, [])
 
   const handleFileChange = useCallback(
@@ -834,78 +876,35 @@ export default function RegistroPage() {
                         <span className="text-xs md:text-sm text-amber-600 font-normal">(Verificar datos)</span>
                       )}
                     </h3>
-                    <div className="grid grid-cols-1 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {/* Columna 1: Nombre(s) */}
                       <div className="space-y-2">
                         <Label
-                          htmlFor="nombre_completo"
-                          className="text-blue-900 text-sm md:text-base font-medium flex items-center gap-2"
+                          htmlFor="nombres"
+                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
                         >
                           <User className="h-4 w-4" />
-                          Nombre Completo *
+                          Nombre(s) *
                         </Label>
                         <Input
-                          id="nombre_completo"
-                          name="nombre_completo"
-                          value={formData.nombre_completo}
+                          id="nombres"
+                          name="nombres"
+                          value={formData.nombres}
                           onChange={handleChange}
-                          placeholder="Nombre completo"
+                          placeholder="Nombre(s)"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.nombre_completo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                            !formData.nombres.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
                           disabled={false}
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="correo"
-                          className="text-blue-900 text-sm md:text-base font-medium flex items-center gap-2"
-                        >
-                          <Mail className="h-4 w-4" />
-                          Correo Electrónico *
-                        </Label>
-                        <Input
-                          id="correo"
-                          name="correo"
-                          type="email"
-                          value={formData.correo}
-                          onChange={handleChange}
-                          placeholder="Correo electrónico"
-                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.correo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="telefono"
-                          className="text-blue-900 text-sm md:text-base font-medium flex items-center gap-2"
-                        >
-                          <Phone className="h-4 w-4" />
-                          Teléfono *
-                        </Label>
-                        <Input
-                          id="telefono"
-                          name="telefono"
-                          value={formData.telefono}
-                          onChange={handleChange}
-                          placeholder="Teléfono"
-                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.telefono.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
-                      </div>
-
+                      {/* Columna 2: Fecha de Nacimiento */}
                       <div className="space-y-2">
                         <Label
                           htmlFor="fecha_nacimiento"
-                          className="text-blue-900 text-sm md:text-base font-medium flex items-center gap-2"
+                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
                         >
                           <Calendar className="h-4 w-4" />
                           Fecha de Nacimiento *
@@ -924,34 +923,124 @@ export default function RegistroPage() {
                         />
                       </div>
 
+                      {/* Columna 3: Teléfono */}
                       <div className="space-y-2">
                         <Label
-                          htmlFor="nacionalidad"
-                          className="text-blue-900 text-sm md:text-base font-medium flex items-center gap-2"
+                          htmlFor="telefono"
+                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
                         >
-                          <Flag className="h-4 w-4" />
-                          Nacionalidad *
+                          <Phone className="h-4 w-4" />
+                          Teléfono *
                         </Label>
                         <Input
-                          id="nacionalidad"
-                          name="nacionalidad"
-                          value={formData.nacionalidad}
+                          id="telefono"
+                          name="telefono"
+                          value={formData.telefono}
                           onChange={handleChange}
-                          className={`bg-white border-blue-200 text-blue-900 ${
-                            !formData.nacionalidad.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                          placeholder="Teléfono"
+                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
+                            !formData.telefono.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                          }`}
+                          required
+                          disabled={false}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {/* Columna 1: Apellidos */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="apellidos"
+                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
+                        >
+                          <User className="h-4 w-4" />
+                          Apellidos *
+                        </Label>
+                        <Input
+                          id="apellidos"
+                          name="apellidos"
+                          value={formData.apellidos}
+                          onChange={handleChange}
+                          placeholder="Apellidos"
+                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
+                            !formData.apellidos.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
                           disabled={false}
                         />
                       </div>
 
-                      {/* Fotografía de Perfil */}
-                      <div className="sm:col-span-2">
+                      {/* Columna 2-3: Correo Electrónico (ocupa 2 columnas) */}
+                      <div className="space-y-2 sm:col-span-2">
+                        <Label
+                          htmlFor="correo"
+                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
+                        >
+                          <Mail className="h-4 w-4" />
+                          Correo Electrónico *
+                        </Label>
+                        <Input
+                          id="correo"
+                          name="correo"
+                          type="email"
+                          value={formData.correo}
+                          onChange={handleChange}
+                          placeholder="Correo electrónico"
+                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
+                            !formData.correo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                          }`}
+                          required
+                          disabled={false}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="nacionalidad"
+                        className="text-blue-900 text-sm font-medium flex items-center gap-2"
+                      >
+                        <Flag className="h-4 w-4" />
+                        Nacionalidad *
+                      </Label>
+                      <Input
+                        id="nacionalidad"
+                        name="nacionalidad"
+                        value={formData.nacionalidad}
+                        onChange={handleChange}
+                        className={`bg-white border-blue-200 text-blue-900 ${
+                          !formData.nacionalidad.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                        }`}
+                        required
+                        disabled={false}
+                      />
+                    </div>
+
+                    {/* Fotografía de Perfil */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                      {/* Componente de subir foto - 2 columnas */}
+                      <div className="md:col-span-2">
                         <UploadFotografia
                           value={formData.fotografia_url}
                           onChange={(url: string) => setFormData((prev) => ({ ...prev, fotografia_url: url }))}
                           nombreCompleto={formData.nombre_completo}
                         />
+                      </div>
+
+                      {/* Recomendaciones - 1 columna */}
+                      <div className="md:col-span-1">
+                        <Alert className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 h-full">
+                          <Info className="h-4 w-4 text-blue-600" />
+                          <AlertTitle className="text-blue-900 font-semibold text-sm">
+                            Recomendaciones para la foto
+                          </AlertTitle>
+                          <AlertDescription className="text-blue-700 text-xs space-y-1 mt-2">
+                            <p>✓ Formato JPG, PNG o WEBP</p>
+                            <p>✓ Tamaño máximo: 2MB</p>
+                            <p>✓ Foto profesional</p>
+                          </AlertDescription>
+                        </Alert>
                       </div>
                     </div>
                   </div>
@@ -1097,7 +1186,7 @@ export default function RegistroPage() {
                         placeholder="Crea una contraseña segura"
                         showPassword={showPassword}
                         onTogglePassword={() => setShowPassword(!showPassword)}
-                        disabled={!ocrCompleted}
+                        disabled={false}
                         hasError={!formData.password.trim() && ocrCompleted}
                         label="Contraseña *"
                       />
@@ -1110,7 +1199,7 @@ export default function RegistroPage() {
                         placeholder="Confirma tu contraseña"
                         showPassword={showConfirmPassword}
                         onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
-                        disabled={!ocrCompleted}
+                        disabled={false}
                         hasError={
                           (!formData.confirm_password.trim() && ocrCompleted) ||
                           (!!formData.confirm_password &&
@@ -1130,23 +1219,25 @@ export default function RegistroPage() {
                     )}
                   </div>
 
-                  {/* Línea de Investigación */}
+                  {/* Área y Línea de Investigación */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
                       <Edit className="h-5 w-5" />
-                      Línea de Investigación
+                      Área y Línea de Investigación
                       <span className="text-sm text-blue-600 font-normal">(Captura manual requerida)</span>
                     </h3>
                     <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-sm">
                       <Edit className="h-4 w-4 text-blue-600" />
                       <AlertTitle className="text-blue-800 font-semibold">Captura manual requerida</AlertTitle>
                       <AlertDescription className="text-blue-700">
-                        Este campo requiere que describas manualmente tu línea de investigación principal.
+                        Estos campos requieren que describas manualmente tu área y línea de investigación.
                       </AlertDescription>
                     </Alert>
+                    
+                    {/* Área de Investigación Principal */}
                     <div className="space-y-2">
                       <Label
-                        htmlFor="linea_investigacion"
+                        htmlFor="area_investigacion"
                         className="text-blue-900 font-medium flex items-center gap-2"
                       >
                         <Edit className="h-4 w-4" />
@@ -1154,11 +1245,35 @@ export default function RegistroPage() {
                         <span className="text-xs text-blue-600">(Escribir manualmente)</span>
                       </Label>
                       <Textarea
+                        id="area_investigacion"
+                        name="area_investigacion"
+                        value={formData.area_investigacion}
+                        onChange={handleChange}
+                        placeholder="Describe tu área general de investigación (ej: Ciencias de la Computación, Biotecnología, Física Aplicada, etc.)..."
+                        className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 min-h-[100px] ${
+                          !formData.area_investigacion.trim() ? "border-red-300 bg-red-50" : ""
+                        }`}
+                        required
+                        disabled={false}
+                      />
+                    </div>
+
+                    {/* Línea de Investigación */}
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="linea_investigacion"
+                        className="text-blue-900 font-medium flex items-center gap-2"
+                      >
+                        <Edit className="h-4 w-4" />
+                        Línea de Investigación Específica *
+                        <span className="text-xs text-blue-600">(Escribir manualmente)</span>
+                      </Label>
+                      <Textarea
                         id="linea_investigacion"
                         name="linea_investigacion"
                         value={formData.linea_investigacion}
                         onChange={handleChange}
-                        placeholder="Describe detalladamente tu área de investigación principal, metodologías utilizadas, y objetivos de tu trabajo académico..."
+                        placeholder="Describe detalladamente tu línea específica de investigación, metodologías utilizadas, y objetivos de tu trabajo académico..."
                         className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 min-h-[120px] ${
                           !formData.linea_investigacion.trim() ? "border-red-300 bg-red-50" : ""
                         }`}
@@ -1215,7 +1330,7 @@ export default function RegistroPage() {
                     <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-700">
-                          Progreso del formulario: {13 - emptyFields.length}/13 campos completos
+                          Progreso del formulario: {15 - emptyFields.length}/15 campos completos
                         </span>
                         <div className="flex items-center gap-2">
                           {isFormComplete && passwordValidation.isValid && passwordsMatch ? (

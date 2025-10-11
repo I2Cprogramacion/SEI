@@ -22,7 +22,6 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    // @ts-expect-error - ClerkProvider is async in Clerk 6.x with Next.js 15
     <ClerkProvider>
       <html lang="es">
         <body>
