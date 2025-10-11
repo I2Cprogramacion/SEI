@@ -22,7 +22,18 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        elements: {
+          footer: "hidden",
+          footerAction: "hidden",
+          footerActionLink: "hidden",
+          formFooter: "hidden",
+          badge: "hidden",
+          badgeSecuredByClerk: "hidden",
+        },
+      }}
+    >
       <html lang="es">
         <body>
           <header>

@@ -60,3 +60,28 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Ocultar elementos de Clerk */
+/* Ocultar "Secured by Clerk" badge */
+.cl-internal-b3fm6y,
+.cl-footerAction,
+[data-localization-key="signUp.start.subtitle"],
+[data-localization-key="signIn.start.subtitle"],
+.cl-footer,
+.cl-footerActionLink,
+.cl-formFooter {
+  display: none !important;
+}
+
+/* Ocultar "Development mode" badge */
+.cl-dev-mode-banner,
+[data-testid="development-mode-banner"],
+.cl-internal-dev-badge {
+  display: none !important;
+}
+
+/* Ocultar cualquier badge de Clerk */
+.cl-badge,
+.cl-badgeSecuredByClerk {
+  display: none !important;
+}
