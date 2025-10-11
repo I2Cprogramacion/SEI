@@ -2,17 +2,27 @@
 -- TABLAS SQL PARA RED SOCIAL DE INVESTIGADORES
 -- Sistema: SEI (Sistema Estatal de Investigadores)
 -- Base de datos: PostgreSQL (Neon)
+-- Ultima actualizacion: Octubre 2025
+-- ============================================
+
+-- CAMBIOS RECIENTES:
+-- - Agregados campos 'nombres' y 'apellidos' separados (nombre_completo sigue como campo compuesto)
+-- - Campos area_investigacion y linea_investigacion ahora son independientes y requieren captura manual
+-- - OCR extrae y separa automaticamente nombres y apellidos del PDF
 -- ============================================
 
 -- ============================================
 -- TABLA: investigadores
 -- Almacena la información completa de los investigadores
+-- NOTA: nombres + apellidos se auto-generan en nombre_completo al registrarse
 -- ============================================
 CREATE TABLE IF NOT EXISTS investigadores (
   id SERIAL PRIMARY KEY,
   
   -- Datos básicos
   nombre_completo VARCHAR(255) NOT NULL,
+  nombres VARCHAR(150),
+  apellidos VARCHAR(150),
   curp VARCHAR(18) UNIQUE,
   rfc VARCHAR(13),
   correo VARCHAR(255) UNIQUE NOT NULL,
@@ -31,8 +41,8 @@ CREATE TABLE IF NOT EXISTS investigadores (
   
   -- Investigación
   area VARCHAR(255),
-  area_investigacion TEXT,
-  linea_investigacion TEXT,
+  area_investigacion TEXT, -- Area de investigación principal
+  linea_investigacion TEXT, -- Linea de investigación especifica
   nivel VARCHAR(50),
   sni VARCHAR(10),
   anio_sni INTEGER,
@@ -133,6 +143,8 @@ CREATE TABLE IF NOT EXISTS investigadores (
 
 -- Índices para mejorar el rendimiento
 CREATE INDEX IF NOT EXISTS idx_investigadores_nombre ON investigadores(nombre_completo);
+CREATE INDEX IF NOT EXISTS idx_investigadores_nombres ON investigadores(nombres);
+CREATE INDEX IF NOT EXISTS idx_investigadores_apellidos ON investigadores(apellidos);
 CREATE INDEX IF NOT EXISTS idx_investigadores_area ON investigadores(area);
 CREATE INDEX IF NOT EXISTS idx_investigadores_institucion ON investigadores(institucion);
 CREATE INDEX IF NOT EXISTS idx_investigadores_slug ON investigadores(slug);
@@ -356,6 +368,8 @@ CREATE OR REPLACE VIEW estadisticas_investigador AS
 SELECT 
   i.id,
   i.nombre_completo,
+  i.nombres,
+  i.apellidos,
   i.correo,
   COUNT(DISTINCT p.id) AS total_publicaciones,
   COUNT(DISTINCT pr.id) AS total_proyectos,
@@ -366,18 +380,19 @@ SELECT
     CASE WHEN i.telefono IS NOT NULL THEN 1 ELSE 0 END +
     CASE WHEN i.institucion IS NOT NULL THEN 1 ELSE 0 END +
     CASE WHEN i.area IS NOT NULL THEN 1 ELSE 0 END +
+    CASE WHEN i.area_investigacion IS NOT NULL THEN 1 ELSE 0 END +
     CASE WHEN i.linea_investigacion IS NOT NULL THEN 1 ELSE 0 END +
     CASE WHEN i.ultimo_grado_estudios IS NOT NULL THEN 1 ELSE 0 END +
     CASE WHEN i.empleo_actual IS NOT NULL THEN 1 ELSE 0 END +
     CASE WHEN i.fotografia_url IS NOT NULL THEN 1 ELSE 0 END
-  ) * 100 / 9 AS perfil_completo_porcentaje
+  ) * 100 / 10 AS perfil_completo_porcentaje
 FROM investigadores i
 LEFT JOIN publicaciones p ON LOWER(p.autor) LIKE LOWER('%' || i.nombre_completo || '%')
 LEFT JOIN proyectos pr ON pr.investigador_principal_id = i.id
 LEFT JOIN conexiones c1 ON c1.investigador_origen_id = i.id AND c1.estado = 'aceptada'
 LEFT JOIN conexiones c2 ON c2.investigador_destino_id = i.id AND c2.estado = 'aceptada'
-GROUP BY i.id, i.nombre_completo, i.correo, i.telefono, i.institucion, i.area, 
-         i.linea_investigacion, i.ultimo_grado_estudios, i.empleo_actual, i.fotografia_url;
+GROUP BY i.id, i.nombre_completo, i.nombres, i.apellidos, i.correo, i.telefono, i.institucion, i.area, 
+         i.area_investigacion, i.linea_investigacion, i.ultimo_grado_estudios, i.empleo_actual, i.fotografia_url;
 
 -- ============================================
 -- FUNCIONES ÚTILES
@@ -420,21 +435,27 @@ CREATE TRIGGER before_insert_investigador_slug
 /*
 -- Insertar investigador de ejemplo
 INSERT INTO investigadores (
-  nombre_completo, 
+  nombre_completo,
+  nombres,
+  apellidos,
   correo, 
   telefono, 
   institucion, 
-  area, 
+  area,
+  area_investigacion,
   linea_investigacion,
   ultimo_grado_estudios,
   empleo_actual,
   nacionalidad
 ) VALUES (
   'Dr. Juan Pérez García',
+  'Juan',
+  'Pérez García',
   'juan.perez@ejemplo.com',
   '6141234567',
   'Universidad Autónoma de Chihuahua',
   'Ingeniería',
+  'Ciencias de la Computación',
   'Inteligencia Artificial y Aprendizaje Automático',
   'Doctorado en Ciencias Computacionales',
   'Investigador Senior',
@@ -473,6 +494,8 @@ INSERT INTO publicaciones (
 -- Este script crea todas las tablas necesarias para la red social de investigadores
 -- Incluye:
 -- - investigadores: Tabla principal con toda la información
+--   * NUEVO: Campos nombres y apellidos separados (nombre_completo auto-generado)
+--   * NUEVO: area_investigacion y linea_investigacion como campos independientes
 -- - publicaciones: Almacena publicaciones científicas
 -- - conexiones: Red social entre investigadores
 -- - mensajes: Sistema de mensajería interna
@@ -488,6 +511,15 @@ INSERT INTO publicaciones (
 -- 3. Abre el SQL Editor
 -- 4. Pega el script
 -- 5. Ejecuta (Run)
+
+-- CAMBIOS EN FORMULARIO DE REGISTRO (Octubre 2025):
+-- El formulario ahora tiene 15 campos obligatorios en lugar de 13:
+-- - nombres (nuevo campo separado)
+-- - apellidos (nuevo campo separado)
+-- - nombre_completo (se genera automáticamente)
+-- - area_investigacion (ahora es campo independiente con Textarea de 100px)
+-- - linea_investigacion (ahora es campo independiente con Textarea de 120px)
+-- El OCR extrae automáticamente nombres, apellidos, correo y fecha de nacimiento del PDF
 
 COMMENT ON TABLE investigadores IS 'Tabla principal de investigadores del SEI';
 COMMENT ON TABLE publicaciones IS 'Publicaciones científicas de los investigadores';

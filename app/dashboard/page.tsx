@@ -28,8 +28,20 @@ import {
   UserPlus,
   BarChart3,
   Eye,
-  Sparkles
+  Sparkles,
+  Trash2
 } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link"
 
@@ -72,6 +84,7 @@ interface Estadisticas {
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser()
+  const { signOut } = useClerk()
   const router = useRouter()
   const [investigadorData, setInvestigadorData] = useState<InvestigadorData | null>(null)
   const [sugerencias, setSugerencias] = useState<Sugerencia[]>([])
@@ -84,6 +97,7 @@ export default function DashboardPage() {
   const [isLoadingData, setIsLoadingData] = useState(true)
   const [isLoadingSugerencias, setIsLoadingSugerencias] = useState(true)
   const [isLoadingEstadisticas, setIsLoadingEstadisticas] = useState(true)
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false)
 
   // Cargar datos del investigador
   useEffect(() => {
@@ -151,6 +165,32 @@ export default function DashboardPage() {
 
     cargarEstadisticas()
   }, [isLoaded, user])
+
+  // Función para eliminar cuenta
+  const handleEliminarCuenta = async () => {
+    setIsDeletingAccount(true)
+    
+    try {
+      const response = await fetch("/api/usuario/eliminar", {
+        method: "DELETE",
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        // Cerrar sesión de Clerk y redirigir
+        await signOut()
+        router.push("/")
+      } else {
+        alert(`Error al eliminar cuenta: ${data.error || data.warning}`)
+      }
+    } catch (error) {
+      console.error("Error al eliminar cuenta:", error)
+      alert("Error al eliminar la cuenta. Por favor, intenta de nuevo.")
+    } finally {
+      setIsDeletingAccount(false)
+    }
+  }
 
   if (!isLoaded || isLoadingData) {
     return (
@@ -436,6 +476,82 @@ export default function DashboardPage() {
                   <div className="text-2xl font-bold text-orange-700">0</div>
                   <div className="text-sm text-orange-600">Premios</div>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Zona de peligro - Eliminar cuenta */}
+        <div className="mt-8">
+          <Card className="bg-white border-red-200">
+            <CardHeader>
+              <CardTitle className="text-red-900 flex items-center">
+                <AlertCircle className="mr-2 h-5 w-5" />
+                Zona de Peligro
+              </CardTitle>
+              <CardDescription className="text-red-600">
+                Acciones irreversibles
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-start justify-between p-4 bg-red-50 rounded-lg border border-red-200">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-red-900">Eliminar Cuenta</h3>
+                  <p className="text-sm text-red-700 mt-1">
+                    Esta acción eliminará permanentemente tu cuenta, todos tus datos del sistema y tu usuario de Clerk. 
+                    <strong className="block mt-1">Esta acción no se puede deshacer.</strong>
+                  </p>
+                </div>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      className="ml-4 bg-red-600 hover:bg-red-700"
+                      disabled={isDeletingAccount}
+                    >
+                      {isDeletingAccount ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Eliminando...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Eliminar Cuenta
+                        </>
+                      )}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-red-900">
+                        ¿Estás completamente seguro?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription className="text-red-700">
+                        Esta acción <strong>NO SE PUEDE DESHACER</strong>. Se eliminarán permanentemente:
+                        <ul className="list-disc list-inside mt-2 space-y-1">
+                          <li>Todos tus datos personales</li>
+                          <li>Tu perfil de investigador</li>
+                          <li>Tus publicaciones y proyectos</li>
+                          <li>Tus conexiones y mensajes</li>
+                          <li>Tu usuario de Clerk</li>
+                        </ul>
+                        <p className="mt-3 font-semibold">
+                          No podrás recuperar esta información después de eliminar tu cuenta.
+                        </p>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleEliminarCuenta}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        Sí, eliminar mi cuenta permanentemente
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </CardContent>
           </Card>
