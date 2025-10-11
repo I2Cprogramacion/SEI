@@ -34,8 +34,8 @@ export default async function RootLayout({
         },
       }}
     >
-      <html lang="es">
-        <body className="bg-gradient-to-br from-blue-50 via-white to-blue-50">
+      <html lang="es" className="m-0 p-0">
+        <body className="m-0 p-0 min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
           <Navbar />
           <main className="pt-[60px] sm:pt-[65px] lg:pt-[73px]">{children}</main>
         </body>
