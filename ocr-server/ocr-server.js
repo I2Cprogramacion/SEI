@@ -24,6 +24,10 @@ const reCVU = /NO\.CVU[:\s-]*([0-9]{5,})|CVU[:\s-]*([0-9]{5,})/gi;
 const reEmail = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
 // Teléfono: soporta CELULAR: y TELÉFONO:
 const reTel = /(?:CELULAR|TEL[ÉE]FONO)[:\s-]*([0-9]{7,15})/gi;
+// Nombre completo: después de NOMBRE: o al inicio del documento
+const reNombre = /(?:NOMBRE|NOMBRE COMPLETO|APELLIDOS Y NOMBRE)[:\s-]*([A-ZÁÉÍÓÚÑ\s]{3,60})/gi;
+// Fecha de nacimiento: formatos DD/MM/YYYY, DD-MM-YYYY, YYYY-MM-DD
+const reFechaNac = /(?:FECHA DE NACIMIENTO|NACIMIENTO|FECHA NAC)[:\s-]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})|(\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2})/gi;
 
 function firstMatch(re, text) {
   re.lastIndex = 0;
@@ -61,9 +65,11 @@ app.post('/process-pdf', upload.any(), async (req, res) => {
     const curp = getFirstGroup(reCURP, text);
     const rfc = getFirstGroup(reRFC, text);
     const no_cvu = getFirstGroup(reCVU, text);
-    // Para email/teléfono usamos el texto original (sensibles a mayúsculas/minúsculas)
+    // Para email/teléfono/nombre usamos el texto original (sensibles a mayúsculas/minúsculas)
     const correo = getFirstGroup(reEmail, data.text || '');
     const telefono = getFirstGroup(reTel, data.text || '');
+    const nombre_completo = getFirstGroup(reNombre, data.text || '');
+    const fecha_nacimiento = getFirstGroup(reFechaNac, data.text || '');
 
     if (process.env.NODE_ENV !== 'production') {
       console.log('[OCR DEBUG] Extraídos:', {
@@ -71,7 +77,9 @@ app.post('/process-pdf', upload.any(), async (req, res) => {
         rfc,
         no_cvu,
         correo,
-        telefono
+        telefono,
+        nombre_completo,
+        fecha_nacimiento
       });
     }
     res.json({
@@ -79,7 +87,9 @@ app.post('/process-pdf', upload.any(), async (req, res) => {
       rfc: rfc || null,
       no_cvu: no_cvu || null,
       correo: correo || null,
-      telefono: telefono || null
+      telefono: telefono || null,
+      nombre_completo: nombre_completo || null,
+      fecha_nacimiento: fecha_nacimiento || null
     });
   } catch (err) {
     res.status(500).json({ error: 'Error al procesar el PDF', details: String(err?.message || err) });
