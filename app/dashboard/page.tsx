@@ -216,73 +216,6 @@ export default function DashboardPage() {
           <p className="text-blue-600">Tu red de colaboración científica</p>
         </div>
 
-        {/* Estadísticas Rápidas */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <BookOpen className="h-8 w-8 opacity-80" />
-                {isLoadingEstadisticas ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <div className="text-3xl font-bold">{estadisticas.publicaciones}</div>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-blue-100 text-sm">Publicaciones</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-0">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <FileText className="h-8 w-8 opacity-80" />
-                {isLoadingEstadisticas ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <div className="text-3xl font-bold">{estadisticas.proyectos}</div>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-green-100 text-sm">Proyectos</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <Users className="h-8 w-8 opacity-80" />
-                {isLoadingEstadisticas ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <div className="text-3xl font-bold">{estadisticas.conexiones}</div>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-purple-100 text-sm">Conexiones</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <BarChart3 className="h-8 w-8 opacity-80" />
-                {isLoadingEstadisticas ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <div className="text-3xl font-bold">{estadisticas.perfilCompleto}%</div>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-orange-100 text-sm">Perfil Completo</p>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Mensaje informativo si no hay datos de PostgreSQL */}
         {!investigadorData && (
           <Card className="mb-6 bg-amber-50 border-amber-200">
@@ -460,21 +393,49 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div className="p-4 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-700">0</div>
-                  <div className="text-sm text-blue-600">Publicaciones</div>
+                <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                  {isLoadingEstadisticas ? (
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+                  ) : (
+                    <div className="text-3xl font-bold mb-1">{estadisticas.publicaciones}</div>
+                  )}
+                  <div className="text-sm opacity-90 flex items-center justify-center gap-1">
+                    <BookOpen className="h-4 w-4" />
+                    Publicaciones
+                  </div>
                 </div>
-                <div className="p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-700">0</div>
-                  <div className="text-sm text-green-600">Proyectos</div>
+                <div className="p-4 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                  {isLoadingEstadisticas ? (
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+                  ) : (
+                    <div className="text-3xl font-bold mb-1">{estadisticas.proyectos}</div>
+                  )}
+                  <div className="text-sm opacity-90 flex items-center justify-center gap-1">
+                    <FileText className="h-4 w-4" />
+                    Proyectos
+                  </div>
                 </div>
-                <div className="p-4 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-700">0</div>
-                  <div className="text-sm text-purple-600">Colaboraciones</div>
+                <div className="p-4 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                  {isLoadingEstadisticas ? (
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+                  ) : (
+                    <div className="text-3xl font-bold mb-1">{estadisticas.conexiones}</div>
+                  )}
+                  <div className="text-sm opacity-90 flex items-center justify-center gap-1">
+                    <Users className="h-4 w-4" />
+                    Conexiones
+                  </div>
                 </div>
-                <div className="p-4 bg-orange-50 rounded-lg">
-                  <div className="text-2xl font-bold text-orange-700">0</div>
-                  <div className="text-sm text-orange-600">Premios</div>
+                <div className="p-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                  {isLoadingEstadisticas ? (
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+                  ) : (
+                    <div className="text-3xl font-bold mb-1">{estadisticas.perfilCompleto}%</div>
+                  )}
+                  <div className="text-sm opacity-90 flex items-center justify-center gap-1">
+                    <BarChart3 className="h-4 w-4" />
+                    Perfil Completo
+                  </div>
                 </div>
               </div>
             </CardContent>

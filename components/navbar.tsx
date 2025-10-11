@@ -303,7 +303,10 @@ export default function Navbar() {
                         <>
                           <div className="flex items-center gap-3 px-1 py-2 border-t border-b border-blue-100">
                             <Avatar className="h-10 w-10">
-                              <AvatarImage src={user.imageUrl} alt={getDisplayName()} />
+                              <AvatarImage 
+                                src={fotografiaUrl || user.imageUrl} 
+                                alt={getDisplayName()} 
+                              />
                               <AvatarFallback className="bg-blue-100 text-blue-700">
                                 {(getDisplayName().charAt(0) || "U").toUpperCase()}
                               </AvatarFallback>
