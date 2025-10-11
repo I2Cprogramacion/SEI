@@ -79,7 +79,8 @@ export async function GET(request: NextRequest) {
     // Ejecutar query
     let publicaciones
     try {
-      publicaciones = await db.query(query, params)
+      const result = await db.query(query, params)
+      publicaciones = Array.isArray(result) ? result : (result.rows || [])
     } catch (dbError: any) {
       // Si la tabla no existe, retornar array vacío en lugar de error
       if (dbError?.code === '42P01' || dbError?.message?.includes('does not exist')) {

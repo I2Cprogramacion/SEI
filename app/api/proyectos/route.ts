@@ -72,7 +72,8 @@ export async function GET(request: NextRequest) {
     query += ` ORDER BY fecha_inicio DESC NULLS LAST`
 
     // Ejecutar query
-    const proyectos = await db.query(query, params)
+    const result = await db.query(query, params)
+    const proyectos = Array.isArray(result) ? result : (result.rows || [])
 
     // Formatear respuesta
     const proyectosFormateados = proyectos.map((proyecto: any) => ({

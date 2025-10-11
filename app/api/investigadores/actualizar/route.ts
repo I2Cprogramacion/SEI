@@ -68,13 +68,16 @@ export async function PUT(request: NextRequest) {
     const db = await getDatabase()
     const result = await db.query(query, valores)
 
-    if (result.rowCount === 0) {
+    const rows = Array.isArray(result) ? result : (result.rows || [])
+    const rowCount = Array.isArray(result) ? result.length : (result.rowCount || 0)
+
+    if (rowCount === 0) {
       return NextResponse.json({ 
         error: "No se encontró el perfil para actualizar" 
       }, { status: 404 })
     }
 
-    const actualizado = result.rows[0]
+    const actualizado = rows[0]
 
     return NextResponse.json({
       success: true,

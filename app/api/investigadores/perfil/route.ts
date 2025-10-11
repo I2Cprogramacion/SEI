@@ -31,15 +31,16 @@ export async function GET(request: NextRequest) {
     `
     
     const result = await db.query(query, [email])
+    const rows = Array.isArray(result) ? result : (result.rows || [])
 
-    if (result.rows.length === 0) {
+    if (rows.length === 0) {
       return NextResponse.json({ 
         error: "Perfil no encontrado",
         message: "No se encontró un perfil de investigador asociado a este correo"
       }, { status: 404 })
     }
 
-    const investigador = result.rows[0]
+    const investigador = rows[0]
 
     return NextResponse.json({
       success: true,

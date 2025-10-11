@@ -380,7 +380,7 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       }
       
       const result = await this.client.query(sql, params)
-      return result
+      return result.rows // Retornar solo el array de filas
     } catch (error: any) {
       // Solo loggear errores inesperados, no errores de tabla no existe
       if (error?.code !== '42P01') {
