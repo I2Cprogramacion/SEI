@@ -29,7 +29,7 @@ export default function IniciarSesionPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-7xl mx-auto">
         {/* Botón de regreso */}
-        <div className="mb-6">
+        <div className="mb-6 max-w-6xl mx-auto">
           <Link 
             href="/" 
             className="inline-flex items-center text-blue-700 hover:text-blue-800 font-medium transition-colors group"
@@ -39,9 +39,9 @@ export default function IniciarSesionPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 items-start xl:items-center">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-8 lg:gap-12 items-center justify-items-center max-w-6xl mx-auto">
           {/* Panel izquierdo - Información */}
-          <div className="hidden xl:block space-y-6">
+          <div className="hidden xl:block space-y-6 w-full max-w-lg justify-self-end">
             <div className="space-y-4">
               <div className="flex items-center gap-3 mb-4">
                 <div className="relative h-14 w-14 flex-shrink-0">
@@ -103,7 +103,7 @@ export default function IniciarSesionPage() {
           </div>
 
           {/* Panel derecho - Formulario de inicio de sesión */}
-          <div className="w-full max-w-lg mx-auto xl:max-w-none">
+          <div className="w-full max-w-md justify-self-start">
             {/* Header móvil */}
             <div className="xl:hidden text-center mb-6">
               <div className="flex justify-center mb-3">
