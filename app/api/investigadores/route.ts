@@ -4,6 +4,18 @@ import { getDatabase } from "@/lib/database-config"
 
 export const dynamic = 'force-dynamic'
 
+// Función para generar slug (consistente con [slug]/route.ts)
+function generarSlug(nombreCompleto: string): string {
+  return nombreCompleto
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -110,7 +122,7 @@ export async function GET(request: NextRequest) {
       estadoNacimiento: cleanValue(inv.estado_nacimiento),
       municipio: cleanValue(inv.municipio),
       entidadFederativa: cleanValue(inv.entidad_federativa),
-      slug: inv.nombre_completo?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || `investigador-${inv.id}`
+      slug: inv.nombre_completo ? generarSlug(inv.nombre_completo) : `investigador-${inv.id}`
     }))
 
     // Obtener opciones únicas para filtros

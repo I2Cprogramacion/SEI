@@ -49,8 +49,6 @@ interface FormData {
   idioma: string
   revista_indexada: string
   archivo?: File
-  enlaceExterno?: string
-  tipoDocumento: 'archivo' | 'enlace' | 'ninguno'
 }
 
 interface ErrorMessage {
@@ -91,9 +89,7 @@ export default function NuevaPublicacionPage() {
     acceso: "Abierto",
     idioma: "Español",
     revista_indexada: "",
-    archivo: undefined,
-    enlaceExterno: "",
-    tipoDocumento: 'ninguno'
+    archivo: undefined
   })
 
   // Categorías
@@ -422,11 +418,6 @@ export default function NuevaPublicacionPage() {
       newErrors.push({ field: "url", message: "URL inválida (debe empezar con http:// o https://)" })
     }
 
-    // Validar enlace externo si se seleccionó
-    if (formData.tipoDocumento === 'enlace' && formData.enlaceExterno && !validateURL(formData.enlaceExterno)) {
-      newErrors.push({ field: "enlaceExterno", message: "Enlace externo inválido (debe empezar con http:// o https://)" })
-    }
-
     setErrors(newErrors)
     return newErrors.length === 0
   }
@@ -501,9 +492,7 @@ export default function NuevaPublicacionPage() {
         idioma: formData.idioma,
         revista_indexada: formData.revista_indexada || null,
         archivo: archivoNombre,
-        archivoUrl: archivoUrl,
-        enlaceExterno: formData.enlaceExterno || null,
-        tipoDocumento: formData.tipoDocumento
+        archivoUrl: archivoUrl
       }
 
       // Enviar a la API
@@ -1233,226 +1222,92 @@ export default function NuevaPublicacionPage() {
                 </div>
               </div>
 
-              {/* Documento - Archivo o Enlace */}
+              {/* Archivo */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Documento de la Publicación (Opcional)
                 </h3>
                 
-                <div className="space-y-4">
-                  {/* Selector de tipo de documento */}
-                  <div className="space-y-3">
-                    <Label className="text-blue-900">
-                      ¿Cómo quieres compartir el documento?
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="archivo" className="text-blue-900">
+                      Subir Documento
                     </Label>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, tipoDocumento: 'ninguno', archivo: undefined, enlaceExterno: '' }))}
-                        className={`p-4 border-2 rounded-lg text-center transition-all ${
-                          formData.tipoDocumento === 'ninguno' 
-                            ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                            : 'border-gray-200 hover:border-blue-300 text-gray-600'
-                        }`}
-                      >
-                        <div className="text-2xl mb-2">📄</div>
-                        <div className="font-medium">Solo información</div>
-                        <div className="text-xs mt-1">Sin documento</div>
-                      </button>
-                      
-                      <button
-                        type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, tipoDocumento: 'archivo', enlaceExterno: '' }))}
-                        className={`p-4 border-2 rounded-lg text-center transition-all ${
-                          formData.tipoDocumento === 'archivo' 
-                            ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                            : 'border-gray-200 hover:border-blue-300 text-gray-600'
-                        }`}
-                      >
-                        <div className="text-2xl mb-2">📎</div>
-                        <div className="font-medium">Subir archivo</div>
-                        <div className="text-xs mt-1">PDF, DOC, DOCX</div>
-                      </button>
-                      
-                      <button
-                        type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, tipoDocumento: 'enlace', archivo: undefined }))}
-                        className={`p-4 border-2 rounded-lg text-center transition-all ${
-                          formData.tipoDocumento === 'enlace' 
-                            ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                            : 'border-gray-200 hover:border-blue-300 text-gray-600'
-                        }`}
-                      >
-                        <div className="text-2xl mb-2">🔗</div>
-                        <div className="font-medium">Enlace externo</div>
-                        <div className="text-xs mt-1">URL del documento</div>
-                      </button>
-                    </div>
+                    <Input
+                      id="archivo"
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={handleFileChange}
+                      className={`file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 ${
+                        errors.some(e => e.field === "archivo") ? "border-red-300" : ""
+                      }`}
+                    />
+                    <p className="text-sm text-blue-600">
+                      Formatos permitidos: PDF, DOC, DOCX (máximo 15MB)
+                    </p>
+                    {errors.some(e => e.field === "archivo") && (
+                      <Alert className="border-red-200 bg-red-50">
+                        <AlertDescription className="text-red-700 text-sm">
+                          {errors.find(e => e.field === "archivo")?.message}
+                        </AlertDescription>
+                      </Alert>
+                    )}
                   </div>
 
-                  {/* Subir archivo */}
-                  {formData.tipoDocumento === 'archivo' && (
-                    <div className="space-y-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <div className="space-y-2">
-                        <Label htmlFor="archivo" className="text-blue-900">
-                          Subir Documento
-                        </Label>
-                        <Input
-                          id="archivo"
-                          type="file"
-                          accept=".pdf,.doc,.docx"
-                          onChange={handleFileChange}
-                          className={`file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 ${
-                            errors.some(e => e.field === "archivo") ? "border-red-300" : ""
-                          }`}
-                        />
-                        <p className="text-sm text-blue-600">
-                          Formatos permitidos: PDF, DOC, DOCX (máximo 15MB)
-                        </p>
-                        {errors.some(e => e.field === "archivo") && (
-                          <Alert className="border-red-200 bg-red-50">
-                            <AlertDescription className="text-red-700 text-sm">
-                              {errors.find(e => e.field === "archivo")?.message}
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                      </div>
-
-                      {/* Vista previa del archivo */}
-                      {formData.archivo && !errors.some(e => e.field === "archivo") && (
-                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                          <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0">
-                              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                <FileText className="h-6 w-6 text-green-700" />
-                              </div>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-green-900 truncate">
-                                {formData.archivo.name}
-                              </p>
-                              <p className="text-xs text-green-700 mt-1">
-                                Tamaño: {(formData.archivo.size / 1024 / 1024).toFixed(2)} MB
-                              </p>
-                              <p className="text-xs text-green-600 mt-1">
-                                Tipo: {formData.archivo.type || 'Desconocido'}
-                              </p>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setFormData(prev => ({ ...prev, archivo: undefined }))
-                                const fileInput = document.getElementById('archivo') as HTMLInputElement
-                                if (fileInput) fileInput.value = ''
-                              }}
-                              className="flex-shrink-0 text-red-600 hover:text-red-700 transition-colors"
-                              title="Eliminar archivo"
-                            >
-                              <X className="h-5 w-5" />
-                            </button>
-                          </div>
-                          <div className="mt-3 pt-3 border-t border-green-200">
-                            <p className="text-xs text-green-700 flex items-center gap-1">
-                              <CheckCircle2 className="h-3 w-3" />
-                              Archivo listo para ser subido
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Enlace externo */}
-                  {formData.tipoDocumento === 'enlace' && (
-                    <div className="space-y-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <div className="space-y-2">
-                        <Label htmlFor="enlaceExterno" className="text-blue-900">
-                          Enlace al Documento
-                        </Label>
-                        <div className="flex gap-2">
-                          <Input
-                            id="enlaceExterno"
-                            type="url"
-                            placeholder="https://ejemplo.com/documento.pdf"
-                            value={formData.enlaceExterno || ''}
-                            onChange={(e) => handleInputChange("enlaceExterno", e.target.value)}
-                            className={`flex-1 ${errors.some(e => e.field === "enlaceExterno") ? "border-red-300" : ""}`}
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                              if (formData.enlaceExterno) {
-                                window.open(formData.enlaceExterno, '_blank')
-                              }
-                            }}
-                            disabled={!formData.enlaceExterno}
-                            className="px-3"
-                          >
-                            <LinkIcon className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <p className="text-sm text-blue-600">
-                          Ingresa la URL donde se encuentra el documento (PDF, página web, etc.)
-                        </p>
-                        {errors.some(e => e.field === "enlaceExterno") && (
-                          <Alert className="border-red-200 bg-red-50">
-                            <AlertDescription className="text-red-700 text-sm">
-                              {errors.find(e => e.field === "enlaceExterno")?.message}
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                      </div>
-
-                      {/* Vista previa del enlace */}
-                      {formData.enlaceExterno && !errors.some(e => e.field === "enlaceExterno") && (
-                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                          <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0">
-                              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                <LinkIcon className="h-6 w-6 text-green-700" />
-                              </div>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-green-900 truncate">
-                                {formData.enlaceExterno}
-                              </p>
-                              <p className="text-xs text-green-600 mt-1">
-                                Enlace externo configurado
-                              </p>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => handleInputChange("enlaceExterno", "")}
-                              className="flex-shrink-0 text-red-600 hover:text-red-700 transition-colors"
-                              title="Eliminar enlace"
-                            >
-                              <X className="h-5 w-5" />
-                            </button>
-                          </div>
-                          <div className="mt-3 pt-3 border-t border-green-200">
-                            <p className="text-xs text-green-700 flex items-center gap-1">
-                              <CheckCircle2 className="h-3 w-3" />
-                              Enlace listo para ser guardado
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Mensaje informativo */}
-                  {formData.tipoDocumento === 'ninguno' && (
-                    <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                  {/* Vista previa del archivo */}
+                  {formData.archivo && !errors.some(e => e.field === "archivo") && (
+                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                       <div className="flex items-start gap-3">
-                        <FileText className="h-5 w-5 text-gray-600 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">
-                            Solo información de la publicación
+                        <div className="flex-shrink-0">
+                          <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <FileText className="h-6 w-6 text-green-700" />
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-green-900 truncate">
+                            {formData.archivo.name}
                           </p>
-                          <p className="text-xs text-gray-600 mt-1">
-                            Se guardará únicamente la información de la publicación sin documento adjunto.
+                          <p className="text-xs text-green-700 mt-1">
+                            Tamaño: {(formData.archivo.size / 1024).toFixed(2)} KB
+                          </p>
+                          <p className="text-xs text-green-600 mt-1">
+                            Tipo: {formData.archivo.type || 'Desconocido'}
+                          </p>
+                        </div>
+                        <button
+                    type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, archivo: undefined }))
+                            const fileInput = document.getElementById('archivo') as HTMLInputElement
+                            if (fileInput) fileInput.value = ''
+                          }}
+                          className="flex-shrink-0 text-red-600 hover:text-red-700 transition-colors"
+                          title="Eliminar archivo"
+                        >
+                          <X className="h-5 w-5" />
+                        </button>
+                </div>
+                      <div className="mt-3 pt-3 border-t border-green-200">
+                        <p className="text-xs text-green-700 flex items-center gap-1">
+                          <span className="font-medium">✓</span>
+                          Archivo listo para ser subido
+                </p>
+              </div>
+                    </div>
+                  )}
+
+                  {/* Mensaje informativo si no hay archivo */}
+                  {!formData.archivo && !errors.some(e => e.field === "archivo") && (
+                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <FileText className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-blue-900">
+                            Agrega un documento (opcional)
+                          </p>
+                          <p className="text-xs text-blue-600 mt-1">
+                            Puedes adjuntar el PDF de tu publicación, artículo completo o documento relacionado.
                           </p>
                         </div>
                       </div>
