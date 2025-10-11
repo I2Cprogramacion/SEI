@@ -53,6 +53,7 @@ interface FormData {
   nombre: string
   siglas: string
   tipo: string
+  tipoOtroEspecificar?: string
   añoFundacion: string
   sitioWeb: string
   descripcion: string
@@ -479,6 +480,11 @@ export default function NuevaInstitucionPage() {
       newErrors.push({ field: "tipo", message: "El tipo de institución es obligatorio" })
     }
 
+    // Validar campo "Otro" especificar
+    if (formData.tipo === "Otro" && !formData.tipoOtroEspecificar?.trim()) {
+      newErrors.push({ field: "tipoOtroEspecificar", message: "Debe especificar el tipo de institución" })
+    }
+
     if (!formData.añoFundacion) {
       newErrors.push({ field: "añoFundacion", message: "El año de fundación es obligatorio" })
         } else {
@@ -875,6 +881,27 @@ export default function NuevaInstitucionPage() {
                   )}
                   </div>
                 </div>
+
+                {/* Campo condicional para especificar "Otro" tipo de institución */}
+                {formData.tipo === "Otro" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="tipoOtroEspecificar" className="text-blue-900">
+                      Especificar Tipo de Institución *
+                    </Label>
+                    <Input
+                      id="tipoOtroEspecificar"
+                      placeholder="Especifica el tipo de institución"
+                      value={formData.tipoOtroEspecificar || ""}
+                      onChange={(e) => handleInputChange("tipoOtroEspecificar", e.target.value)}
+                      className={errors.some(e => e.field === "tipoOtroEspecificar") ? "border-red-300" : ""}
+                    />
+                    {errors.some(e => e.field === "tipoOtroEspecificar") && (
+                      <p className="text-sm text-red-600">
+                        {errors.find(e => e.field === "tipoOtroEspecificar")?.message}
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 <div className="space-y-2">
                 <Label htmlFor="sitioWeb" className="text-blue-900">
@@ -1742,7 +1769,7 @@ export default function NuevaInstitucionPage() {
                         type="file"
                   accept=".pdf,.jpg,.jpeg,.png"
                   onChange={(e) => handleFileChange("constanciaSituacionFiscal", e)}
-                  className={`file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 ${
+                  className={`h-14 py-2.5 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 ${
                     errors.some(e => e.field === "constanciaSituacionFiscal") ? "border-red-300" : ""
                   }`}
                 />
@@ -1773,7 +1800,7 @@ export default function NuevaInstitucionPage() {
                     type="file"
                     accept=".pdf"
                     onChange={(e) => handleFileChange("actaConstitutiva", e)}
-                    className={`file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 ${
+                    className={`h-14 py-2.5 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 ${
                       errors.some(e => e.field === "actaConstitutiva") ? "border-red-300" : ""
                     }`}
                   />
@@ -1805,7 +1832,7 @@ export default function NuevaInstitucionPage() {
                     type="file"
                     accept=".pdf"
                     onChange={(e) => handleFileChange("poderRepresentante", e)}
-                    className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    className="h-14 py-2.5 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   />
                   <p className="text-xs text-blue-600">
                     Documento que acredita facultades del representante (PDF - máx 10MB)
@@ -1829,7 +1856,7 @@ export default function NuevaInstitucionPage() {
                   type="file"
                   accept=".pdf,.jpg,.jpeg,.png"
                   onChange={(e) => handleFileChange("comprobanteDomicilio", e)}
-                  className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  className="h-14 py-2.5 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
                 <p className="text-xs text-blue-600">
                   Recibo de luz, agua o predial no mayor a 3 meses (PDF, JPG, PNG - máx 10MB)
@@ -1852,7 +1879,7 @@ export default function NuevaInstitucionPage() {
                   type="file"
                   accept=".pdf,.jpg,.jpeg,.png"
                   onChange={(e) => handleFileChange("identificacionOficial", e)}
-                  className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  className="h-14 py-2.5 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
                 <p className="text-xs text-blue-600">
                   INE, Pasaporte o Cédula Profesional (PDF, JPG, PNG - máx 10MB)

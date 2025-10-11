@@ -178,17 +178,17 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
         <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-3">
           <span className="text-blue-600 font-bold text-lg">1</span>
         </div>
-        <CardTitle className="text-2xl text-blue-900 flex items-center justify-center gap-2">
-          <Upload className="h-6 w-6" />
+        <CardTitle className="text-xl sm:text-2xl text-blue-900 flex items-center justify-center gap-2">
+          <Upload className="h-5 w-5 sm:h-6 sm:w-6" />
           Subir Perfil Único
         </CardTitle>
-        <CardDescription className="text-blue-600">
+        <CardDescription className="text-sm sm:text-base text-blue-600 px-2">
           Selecciona tu Perfil Único (PU) en formato PDF para extraer automáticamente tu información académica
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-3">
-          <Label htmlFor="pdf-upload" className="text-blue-900 font-medium">
+          <Label htmlFor="pdf-upload" className="text-sm sm:text-base text-blue-900 font-medium">
             Archivo PDF del Perfil Único * (Máximo {FILE_CONSTRAINTS.MAX_SIZE_MB}MB)
           </Label>
           <div className="relative">
@@ -199,7 +199,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
               onChange={onFileChange}
               aria-label="Subir archivo PDF del Perfil Único"
               aria-required="true"
-              className="bg-white border-blue-200 text-blue-900 file:bg-blue-50 file:text-blue-700 file:border-0 file:rounded-md file:px-4 file:py-2 file:mr-4 hover:file:bg-blue-100 transition-colors"
+              className="bg-white border-blue-200 text-blue-900 file:bg-blue-50 file:text-blue-700 file:border-0 file:rounded-md file:px-4 file:py-2 file:mr-4 hover:file:bg-blue-100 transition-colors h-14 py-2.5"
               required
             />
           </div>
@@ -1306,7 +1306,7 @@ export default function RegistroPage() {
                     <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-700">
-                          Progreso del formulario: {15 - emptyFields.length}/15 campos completos
+                          Progreso del formulario: {14 - emptyFields.length}/14 campos completos
                         </span>
                         <div className="flex items-center gap-2">
                           {isFormComplete && passwordValidation.isValid && passwordsMatch ? (
