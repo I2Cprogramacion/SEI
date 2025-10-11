@@ -15,10 +15,11 @@ export async function GET(request: NextRequest) {
         COALESCE(institucion, 'Sin institución') as institution,
         COALESCE(area, area_investigacion, 'Sin especificar') as field,
         fotografia_url as avatar,
-        COALESCE(slug, LOWER(REGEXP_REPLACE(nombre_completo, '[^a-zA-Z0-9\\s]', '', 'g'))) as slug
+        slug
       FROM investigadores
       WHERE nombre_completo IS NOT NULL
         AND correo NOT LIKE '%admin%'
+        AND slug IS NOT NULL
       ORDER BY RANDOM()
       LIMIT 5
     `

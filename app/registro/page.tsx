@@ -1234,14 +1234,14 @@ export default function RegistroPage() {
                       </AlertDescription>
                     </Alert>
                     
-                    {/* Área de Investigación Principal */}
+                    {/* Área o Campo de Investigación */}
                     <div className="space-y-2">
                       <Label
                         htmlFor="area_investigacion"
                         className="text-blue-900 font-medium flex items-center gap-2"
                       >
                         <Edit className="h-4 w-4" />
-                        Área de Investigación Principal *
+                        Área o Campo de Investigación *
                         <span className="text-xs text-blue-600">(Escribir manualmente)</span>
                       </Label>
                       <Textarea
@@ -1249,13 +1249,18 @@ export default function RegistroPage() {
                         name="area_investigacion"
                         value={formData.area_investigacion}
                         onChange={handleChange}
-                        placeholder="Describe tu área general de investigación (ej: Ciencias de la Computación, Biotecnología, Física Aplicada, etc.)..."
+                        placeholder="Describe tu área o campo general de investigación (ej: Ciencias Exactas, Ingeniería, Ciencias de la Computación, Biotecnología, Ciencias Sociales, Humanidades, etc.)..."
                         className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 min-h-[100px] ${
                           !formData.area_investigacion.trim() ? "border-red-300 bg-red-50" : ""
                         }`}
                         required
                         disabled={false}
                       />
+                      {!formData.area_investigacion.trim() && (
+                        <p className="text-sm text-red-600">
+                          Este campo es obligatorio y debe ser completado manualmente
+                        </p>
+                      )}
                     </div>
 
                     {/* Línea de Investigación */}
@@ -1281,35 +1286,6 @@ export default function RegistroPage() {
                         disabled={false}
                       />
                       {!formData.linea_investigacion.trim() && (
-                        <p className="text-sm text-red-600">
-                          Este campo es obligatorio y debe ser completado manualmente
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Campo de Área de Investigación */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="area_investigacion"
-                        className="text-blue-900 font-medium flex items-center gap-2"
-                      >
-                        <Edit className="h-4 w-4" />
-                        Área o Campo de Investigación *
-                        <span className="text-xs text-blue-600">(Escribir manualmente)</span>
-                      </Label>
-                      <Input
-                        id="area_investigacion"
-                        name="area_investigacion"
-                        value={formData.area_investigacion}
-                        onChange={handleChange}
-                        placeholder="Ej: Ciencias Exactas, Ingeniería, Ciencias Sociales, Humanidades, etc."
-                        className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                          !formData.area_investigacion.trim() ? "border-red-300 bg-red-50" : ""
-                        }`}
-                        required
-                        disabled={false}
-                      />
-                      {!formData.area_investigacion.trim() && (
                         <p className="text-sm text-red-600">
                           Este campo es obligatorio y debe ser completado manualmente
                         </p>

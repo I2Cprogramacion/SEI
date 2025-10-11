@@ -250,11 +250,11 @@ export default function Navbar() {
                     <span className="sr-only">Menú</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="bg-white text-blue-900 border-blue-100">
+                <SheetContent side="right" className="bg-white text-blue-900 border-blue-100 overflow-y-auto max-h-screen">
                   <SheetHeader>
                     <SheetTitle className="text-left">Menú de Navegación</SheetTitle>
                   </SheetHeader>
-                  <div className="flex flex-col gap-6 mt-6">
+                  <div className="flex flex-col gap-6 mt-6 pb-6">
                     <div className="flex items-center gap-2">
                       <div className="relative h-6 w-6 sm:h-8 sm:w-8">
                         <Image
