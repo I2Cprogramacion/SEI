@@ -42,32 +42,36 @@ export async function GET(request: NextRequest) {
     const params: any[] = []
     let paramIndex = 1
 
-    // Agregar filtros (usando ? para SQLite)
+    // Agregar filtros (usando $1, $2 para PostgreSQL)
     if (search) {
-      query += ` AND (
-        LOWER(titulo) LIKE ? OR 
-        LOWER(autor) LIKE ? OR 
-        LOWER(institucion) LIKE ? OR 
-        LOWER(editorial) LIKE ? OR
-        LOWER(palabras_clave) LIKE ?
-      )`
       const searchParam = `%${search.toLowerCase()}%`
+      query += ` AND (
+        LOWER(titulo) LIKE $${paramIndex} OR 
+        LOWER(autor) LIKE $${paramIndex + 1} OR 
+        LOWER(institucion) LIKE $${paramIndex + 2} OR 
+        LOWER(editorial) LIKE $${paramIndex + 3} OR
+        LOWER(palabras_clave) LIKE $${paramIndex + 4}
+      )`
       params.push(searchParam, searchParam, searchParam, searchParam, searchParam)
+      paramIndex += 5
     }
 
     if (categoria !== 'all') {
-      query += ` AND categoria = ?`
+      query += ` AND categoria = $${paramIndex}`
       params.push(categoria)
+      paramIndex += 1
     }
 
     if (año !== 'all') {
-      query += ` AND año_creacion = ?`
+      query += ` AND año_creacion = $${paramIndex}`
       params.push(parseInt(año))
+      paramIndex += 1
     }
 
     if (acceso !== 'all') {
-      query += ` AND acceso = ?`
+      query += ` AND acceso = $${paramIndex}`
       params.push(acceso)
+      paramIndex += 1
     }
 
     query += ` ORDER BY fecha_creacion DESC`

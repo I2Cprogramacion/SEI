@@ -27,7 +27,8 @@ export async function GET(request: NextRequest) {
       [email]
     )
 
-    if (!miPerfil || miPerfil.length === 0) {
+    if (!miPerfil || miPerfil.length === 0 || !miPerfil[0]) {
+      console.log(`⚠️ No hay perfil de investigador para: ${email}`)
       return NextResponse.json({
         publicaciones: 0,
         proyectos: 0,
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
     }
 
     const perfil = miPerfil[0]
-    const nombreCompleto = perfil.nombre_completo
+    const nombreCompleto = perfil?.nombre_completo || 'Usuario'
     
     // Contar publicaciones del investigador
     let totalPublicaciones = 0

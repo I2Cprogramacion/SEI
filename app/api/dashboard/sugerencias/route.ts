@@ -27,8 +27,9 @@ export async function GET(request: NextRequest) {
       [email]
     )
 
-    if (!miPerfil || miPerfil.length === 0) {
-      return NextResponse.json({ error: "Perfil no encontrado" }, { status: 404 })
+    if (!miPerfil || miPerfil.length === 0 || !miPerfil[0]) {
+      console.log(`⚠️ No hay perfil de investigador para sugerencias: ${email}`)
+      return NextResponse.json([]) // Retornar array vacío en lugar de error
     }
 
     const perfil = miPerfil[0]
