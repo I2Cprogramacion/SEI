@@ -35,12 +35,9 @@ export default async function RootLayout({
       }}
     >
       <html lang="es">
-        <body>
-          <header>
-            {/* Botones de Clerk ocultos, solo acceso por /iniciar-sesion */}
-          </header>
+        <body className="bg-gradient-to-br from-blue-50 via-white to-blue-50">
           <Navbar />
-          <main className="flex-1">{children}</main>
+          <main className="pt-[60px] sm:pt-[65px] lg:pt-[73px]">{children}</main>
         </body>
       </html>
     </ClerkProvider>

@@ -90,14 +90,13 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="pt-[60px] sm:pt-[65px] lg:pt-[73px]">
-        <header
-          className={`border-b border-blue-100 fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm transition-transform duration-300 ${
-            isVisible ? "translate-y-0" : "-translate-y-full"
-          }`}
-        >
-          <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-2 sm:py-3 flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-3">
+      <header
+        className={`border-b border-blue-100 fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm transition-transform duration-300 ${
+          isVisible ? "translate-y-0" : "-translate-y-full"
+        }`}
+      >
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-2 sm:py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3">
               <Link href="/" className="flex items-center gap-1 sm:gap-2">
                 <div className="relative h-8 w-8 sm:h-10 sm:w-10">
                   <Image
@@ -354,7 +353,6 @@ export default function Navbar() {
             </div>
           </div>
         </header>
-      </div>
     </>
   )
 }
