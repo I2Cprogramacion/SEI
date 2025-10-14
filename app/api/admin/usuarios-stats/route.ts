@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { auth, currentUser } from '@clerk/nextjs/server'
 import { sql } from '@vercel/postgres'
 
 /**
@@ -9,7 +9,7 @@ import { sql } from '@vercel/postgres'
  */
 export async function GET() {
   try {
-    const { userId, sessionClaims } = await auth()
+    const { userId } = await auth()
 
     if (!userId) {
       return NextResponse.json(
@@ -18,12 +18,23 @@ export async function GET() {
       )
     }
 
-    // Verificar que el usuario sea admin
-    const userEmail = sessionClaims?.email as string
+    // Obtener el usuario de Clerk
+    const user = await currentUser()
+    
+    if (!user?.emailAddresses?.[0]?.emailAddress) {
+      return NextResponse.json(
+        { error: 'Email no encontrado' },
+        { status: 400 }
+      )
+    }
+
+    const userEmail = user.emailAddresses[0].emailAddress
+
+    // Verificar que el usuario existe y es admin en la base de datos
     const userResult = await sql`
-      SELECT i.*, i.password IS NOT NULL as tiene_password 
-      FROM investigadores i
-      WHERE i.correo = ${userEmail}
+      SELECT id, nombre_completo, correo, es_admin 
+      FROM investigadores 
+      WHERE correo = ${userEmail}
     `
 
     if (userResult.rows.length === 0) {
@@ -33,8 +44,15 @@ export async function GET() {
       )
     }
 
-    // Por ahora, cualquier usuario autenticado puede ver las estadísticas
-    // TODO: Implementar verificación de rol de admin
+    const usuario = userResult.rows[0]
+
+    // Verificar que el usuario es admin
+    if (!usuario.es_admin) {
+      return NextResponse.json(
+        { error: 'Acceso denegado: No eres administrador' },
+        { status: 403 }
+      )
+    }
 
     // Contar total de usuarios registrados
     const totalResult = await sql`
@@ -42,8 +60,8 @@ export async function GET() {
     `
     const totalUsuarios = parseInt(totalResult.rows[0].total)
 
-    // Definir tiempo de actividad (usuarios activos en los últimos 5 minutos)
-    const tiempoActividad = new Date(Date.now() - 5 * 60 * 1000)
+    // Definir tiempo de actividad (usuarios activos en los últimos 10 minutos)
+    const tiempoActividad = new Date(Date.now() - 10 * 60 * 1000)
     
     // Contar usuarios activos
     const activosResult = await sql`
@@ -56,52 +74,64 @@ export async function GET() {
     // Usuarios nuevos hoy
     const inicioHoy = new Date()
     inicioHoy.setHours(0, 0, 0, 0)
-    const nuevosHoyResult = await sql`
-      SELECT COUNT(*) as total 
-      FROM investigadores
-      WHERE fecha_registro >= ${inicioHoy.toISOString()}
-    `
-    const usuariosNuevosHoy = parseInt(nuevosHoyResult.rows[0].total)
+    
+    // Intentar contar usuarios nuevos por fecha_registro si existe
+    let usuariosNuevosHoy = 0
+    try {
+      const nuevosHoyResult = await sql`
+        SELECT COUNT(*) as total 
+        FROM investigadores
+        WHERE fecha_registro >= ${inicioHoy.toISOString()}
+      `
+      usuariosNuevosHoy = parseInt(nuevosHoyResult.rows[0].total)
+    } catch (e) {
+      // Si la columna fecha_registro no existe, intentar con created_at
+      try {
+        const nuevosHoyResult = await sql`
+          SELECT COUNT(*) as total 
+          FROM investigadores
+          WHERE created_at >= ${inicioHoy.toISOString()}
+        `
+        usuariosNuevosHoy = parseInt(nuevosHoyResult.rows[0].total)
+      } catch (err) {
+        // Si ninguna columna existe, dejar en 0
+        usuariosNuevosHoy = 0
+      }
+    }
 
     // Usuarios nuevos esta semana
     const inicioSemana = new Date()
     inicioSemana.setDate(inicioSemana.getDate() - 7)
     inicioSemana.setHours(0, 0, 0, 0)
-    const nuevosSemanaResult = await sql`
-      SELECT COUNT(*) as total 
-      FROM investigadores
-      WHERE fecha_registro >= ${inicioSemana.toISOString()}
-    `
-    const usuariosNuevosSemana = parseInt(nuevosSemanaResult.rows[0].total)
-
-    // Obtener detalles de usuarios activos
-    const activosDetalleResult = await sql`
-      SELECT 
-        id,
-        nombre_completo,
-        correo,
-        ultima_actividad,
-        fotografia_url
-      FROM investigadores
-      WHERE ultima_actividad >= ${tiempoActividad.toISOString()}
-      ORDER BY ultima_actividad DESC
-      LIMIT 10
-    `
-
-    const usuariosActivosDetalle = activosDetalleResult.rows.map(usuario => ({
-      id: usuario.id,
-      nombre_completo: usuario.nombre_completo || 'Sin nombre',
-      correo: usuario.correo,
-      ultima_actividad: usuario.ultima_actividad,
-      fotografia_url: usuario.fotografia_url || null
-    }))
+    
+    let usuariosNuevosSemana = 0
+    try {
+      const nuevosSemanaResult = await sql`
+        SELECT COUNT(*) as total 
+        FROM investigadores
+        WHERE fecha_registro >= ${inicioSemana.toISOString()}
+      `
+      usuariosNuevosSemana = parseInt(nuevosSemanaResult.rows[0].total)
+    } catch (e) {
+      // Si la columna fecha_registro no existe, intentar con created_at
+      try {
+        const nuevosSemanaResult = await sql`
+          SELECT COUNT(*) as total 
+          FROM investigadores
+          WHERE created_at >= ${inicioSemana.toISOString()}
+        `
+        usuariosNuevosSemana = parseInt(nuevosSemanaResult.rows[0].total)
+      } catch (err) {
+        // Si ninguna columna existe, dejar en 0
+        usuariosNuevosSemana = 0
+      }
+    }
 
     return NextResponse.json({
       totalUsuarios,
       usuariosActivos,
       usuariosNuevosHoy,
       usuariosNuevosSemana,
-      usuariosActivosDetalle,
       timestamp: new Date().toISOString()
     })
   } catch (error) {

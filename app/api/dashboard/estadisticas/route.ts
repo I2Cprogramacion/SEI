@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { currentUser } from "@clerk/nextjs/server"
-import { getDatabase } from "@/lib/database-config"
+import { sql } from "@vercel/postgres"
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,18 +16,15 @@ export async function GET(request: NextRequest) {
     if (!email) {
       return NextResponse.json({ error: "No se pudo obtener el email del usuario" }, { status: 400 })
     }
-
-    const db = await getDatabase()
     
     // Obtener datos del investigador actual
-    const miPerfil = await db.query(
-      `SELECT id, nombre_completo 
-       FROM investigadores 
-       WHERE correo = $1`,
-      [email]
-    )
+    const miPerfil = await sql`
+      SELECT id, nombre_completo 
+      FROM investigadores 
+      WHERE correo = ${email}
+    `
 
-    if (!miPerfil || miPerfil.length === 0 || !miPerfil[0]) {
+    if (!miPerfil || miPerfil.rows.length === 0 || !miPerfil.rows[0]) {
       console.log(`⚠️ No hay perfil de investigador para: ${email}`)
       return NextResponse.json({
         publicaciones: 0,
@@ -37,22 +34,22 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    const perfil = miPerfil[0]
+    const perfil = miPerfil.rows[0]
     const nombreCompleto = perfil?.nombre_completo || 'Usuario'
     
-    // Contar publicaciones del investigador
+    // Contar publicaciones del investigador (de campo articulos)
     let totalPublicaciones = 0
     try {
-      const publicaciones = await db.query(
-        `SELECT COUNT(*) as total 
-         FROM publicaciones 
-         WHERE LOWER(autor) LIKE $1 OR LOWER(autor) LIKE $2`,
-        [
-          `%${nombreCompleto.toLowerCase()}%`,
-          `%${email.toLowerCase()}%`
-        ]
-      )
-      totalPublicaciones = publicaciones[0]?.total || 0
+      const articulos = await sql`
+        SELECT articulos 
+        FROM investigadores 
+        WHERE id = ${perfil.id} AND articulos IS NOT NULL
+      `
+      
+      if (articulos.rows.length > 0 && articulos.rows[0].articulos) {
+        const articulosTexto = articulos.rows[0].articulos
+        totalPublicaciones = articulosTexto.split('\n').filter((p: string) => p.trim()).length
+      }
     } catch (error) {
       console.log("No se pudieron contar publicaciones:", error)
     }
@@ -60,15 +57,14 @@ export async function GET(request: NextRequest) {
     // Contar proyectos (extraer del campo proyectos_investigacion)
     let totalProyectos = 0
     try {
-      const proyectos = await db.query(
-        `SELECT proyectos_investigacion 
-         FROM investigadores 
-         WHERE id = $1 AND proyectos_investigacion IS NOT NULL`,
-        [perfil.id]
-      )
+      const proyectos = await sql`
+        SELECT proyectos_investigacion 
+        FROM investigadores 
+        WHERE id = ${perfil.id} AND proyectos_investigacion IS NOT NULL
+      `
       
-      if (proyectos.length > 0 && proyectos[0].proyectos_investigacion) {
-        const proyectosTexto = proyectos[0].proyectos_investigacion
+      if (proyectos.rows.length > 0 && proyectos.rows[0].proyectos_investigacion) {
+        const proyectosTexto = proyectos.rows[0].proyectos_investigacion
         totalProyectos = proyectosTexto.split('\n').filter((p: string) => p.trim()).length
       }
     } catch (error) {
@@ -79,8 +75,8 @@ export async function GET(request: NextRequest) {
     const totalConexiones = 0
 
     // Calcular porcentaje de perfil completo
-    const camposRequeridos = await db.query(
-      `SELECT 
+    const camposRequeridos = await sql`
+      SELECT 
         nombre_completo, 
         correo, 
         telefono, 
@@ -88,18 +84,16 @@ export async function GET(request: NextRequest) {
         area, 
         linea_investigacion, 
         ultimo_grado_estudios, 
-        empleo_actual,
-        fotografia_url
-       FROM investigadores 
-       WHERE id = $1`,
-      [perfil.id]
-    )
+        empleo_actual
+      FROM investigadores 
+      WHERE id = ${perfil.id}
+    `
 
     let camposCompletados = 0
-    const totalCampos = 9
+    const totalCampos = 8
     
-    if (camposRequeridos.length > 0) {
-      const datos = camposRequeridos[0]
+    if (camposRequeridos.rows.length > 0) {
+      const datos = camposRequeridos.rows[0]
       if (datos.nombre_completo) camposCompletados++
       if (datos.correo) camposCompletados++
       if (datos.telefono) camposCompletados++
@@ -108,7 +102,6 @@ export async function GET(request: NextRequest) {
       if (datos.linea_investigacion) camposCompletados++
       if (datos.ultimo_grado_estudios) camposCompletados++
       if (datos.empleo_actual) camposCompletados++
-      if (datos.fotografia_url) camposCompletados++
     }
 
     const perfilCompleto = Math.round((camposCompletados / totalCampos) * 100)

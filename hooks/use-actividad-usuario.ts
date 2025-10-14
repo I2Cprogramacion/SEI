@@ -1,11 +1,11 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useCallback, useRef } from 'react'
 import { useAuth } from '@clerk/nextjs'
 
 /**
  * Hook para registrar la actividad del usuario en la base de datos
- * Actualiza cada 2 minutos mientras el usuario está activo
+ * Actualiza cada 10 minutos mientras el usuario está activo
  */
 export function useActividadUsuario() {
   const { userId } = useAuth()
@@ -34,35 +34,16 @@ export function useActividadUsuario() {
     // Registrar actividad inicial
     registrarActividad()
 
-    // Configurar intervalo para actualizar cada 2 minutos
+    // Configurar intervalo para actualizar cada 10 minutos
     intervalRef.current = setInterval(() => {
       registrarActividad()
-    }, 2 * 60 * 1000) // 2 minutos
-
-    // Registrar actividad cuando el usuario interactúa
-    const handleActivity = () => {
-      const now = Date.now()
-      // Solo actualizar si han pasado al menos 1 minuto desde la última actualización
-      if (now - lastActivityRef.current > 60 * 1000) {
-        registrarActividad()
-      }
-    }
-
-    // Eventos que indican actividad del usuario
-    window.addEventListener('click', handleActivity)
-    window.addEventListener('keypress', handleActivity)
-    window.addEventListener('scroll', handleActivity)
-    window.addEventListener('mousemove', handleActivity)
+    }, 10 * 60 * 1000) // 10 minutos
 
     // Limpiar al desmontar
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
       }
-      window.removeEventListener('click', handleActivity)
-      window.removeEventListener('keypress', handleActivity)
-      window.removeEventListener('scroll', handleActivity)
-      window.removeEventListener('mousemove', handleActivity)
     }
   }, [userId, registrarActividad])
 
