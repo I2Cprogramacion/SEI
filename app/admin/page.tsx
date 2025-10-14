@@ -8,6 +8,7 @@ import { Users, FileText, Building, Award, TrendingUp, AlertTriangle, Plus, Eye 
 import Link from "next/link"
 import { FeaturedResearchers } from "@/components/featured-researchers"
 import { RecentProjects } from "@/components/recent-projects"
+import { UsuariosActivosWidget } from "@/components/usuarios-activos-widget"
 
 // Interfaces para tipos de datos
 interface DashboardStats {
@@ -251,6 +252,9 @@ export default function AdminDashboard() {
             </Link>
           </Card>
         </div>
+
+        {/* Widget de Usuarios Activos */}
+        <UsuariosActivosWidget />
 
         {/* Alertas y acciones rápidas */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
