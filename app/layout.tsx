@@ -36,10 +36,10 @@ export default async function RootLayout({
       }}
     >
       <html lang="es" className="m-0 p-0">
-        <body className="m-0 p-0 min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
+        <body className="m-0 p-0 min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
           <ActividadUsuarioTracker />
           <Navbar />
-          <main className="pt-[60px] sm:pt-[65px] lg:pt-[73px]">{children}</main>
+          <main className="pt-16">{children}</main>
         </body>
       </html>
     </ClerkProvider>
