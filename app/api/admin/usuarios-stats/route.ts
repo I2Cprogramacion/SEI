@@ -5,6 +5,9 @@ import { sql } from '@vercel/postgres'
 /**
  * GET /api/admin/usuarios-stats
  * Retorna estadísticas de usuarios registrados y activos
+ * - Total de usuarios registrados
+ * - Usuarios activos en los últimos 10 minutos
+ * - Nuevos usuarios hoy y esta semana
  * Solo accesible para administradores
  */
 export async function GET() {
