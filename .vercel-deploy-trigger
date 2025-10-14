@@ -1,6 +1,0 @@
-# Deploy Trigger
-
-Este archivo fuerza un nuevo deploy con el pnpm-lock.yaml actualizado.
-
-Fecha: 2025-10-09
-Commit: Actualización de dependencias a Next.js 15.5.4 y React 19.2.0
