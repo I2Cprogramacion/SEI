@@ -27,6 +27,8 @@ import {
   MessageCircle,
   Network,
 } from "lucide-react"
+import { ConectarInvestigadorDialog } from "@/components/conectar-investigador-dialog"
+import { EnviarMensajeDialog } from "@/components/enviar-mensaje-dialog"
 
 interface InvestigadorData {
   id: number
@@ -108,6 +110,8 @@ export default function InvestigadorPage() {
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [conectarDialogOpen, setConectarDialogOpen] = useState(false)
+  const [mensajeDialogOpen, setMensajeDialogOpen] = useState(false)
 
   useEffect(() => {
     if (!slug) return
@@ -237,11 +241,19 @@ export default function InvestigadorPage() {
                         Contactar
                       </a>
                     </Button>
-                    <Button variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50">
+                    <Button 
+                      variant="outline" 
+                      className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                      onClick={() => setConectarDialogOpen(true)}
+                    >
                       <UserPlus className="mr-2 h-4 w-4" />
                       Conectar
                     </Button>
-                    <Button variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50">
+                    <Button 
+                      variant="outline" 
+                      className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                      onClick={() => setMensajeDialogOpen(true)}
+                    >
                       <MessageCircle className="mr-2 h-4 w-4" />
                       Mensaje
                     </Button>
@@ -617,6 +629,25 @@ export default function InvestigadorPage() {
           </Card>
         )}
       </div>
+
+      {/* Diálogos */}
+      {investigador && (
+        <>
+          <ConectarInvestigadorDialog
+            open={conectarDialogOpen}
+            onOpenChange={setConectarDialogOpen}
+            investigadorId={investigador.id}
+            investigadorNombre={investigador.name}
+          />
+          <EnviarMensajeDialog
+            open={mensajeDialogOpen}
+            onOpenChange={setMensajeDialogOpen}
+            investigadorId={investigador.id}
+            investigadorNombre={investigador.name}
+            investigadorEmail={investigador.email}
+          />
+        </>
+      )}
     </div>
   )
 }
