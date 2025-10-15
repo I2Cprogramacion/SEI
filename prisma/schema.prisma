@@ -44,6 +44,7 @@ model Profile {
   lineaInvestigacion  String?
   areaInvestigacion   String?
   fotografiaUrl       String?
+  cvUrl               String?
   nacionalidad        String       @default("Mexicana")
   fechaNacimiento     DateTime?
   institucionId       String?
@@ -111,6 +112,7 @@ model Investigador {
   linea_investigacion              String?
   area_investigacion               String?      @db.VarChar(255)
   fotografia_url                   String?
+  cv_url                           String?
   sni                              String?      @db.VarChar(10)
   anio_sni                         Int?
   cv_conacyt                       String?

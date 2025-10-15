@@ -24,6 +24,7 @@ import {
   Briefcase,
   Loader2,
 } from "lucide-react"
+import { CvViewerEnhanced } from "@/components/cv-viewer-enhanced"
 
 interface InvestigadorData {
   id: number
@@ -63,6 +64,7 @@ interface InvestigadorData {
   idiomas?: string
   colaboracionInternacional?: string
   colaboracionNacional?: string
+  cvUrl?: string
   slug: string
 }
 
@@ -185,6 +187,15 @@ export default function InvestigadorPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Curriculum Vitae */}
+        {investigador.cvUrl && (
+          <CvViewerEnhanced 
+            cvUrl={investigador.cvUrl} 
+            investigadorNombre={investigador.name}
+            showAsCard={true}
+          />
+        )}
 
         {/* Información de registro */}
         {(investigador.curp || investigador.rfc || investigador.noCvu) && (

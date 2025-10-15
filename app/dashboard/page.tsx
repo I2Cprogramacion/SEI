@@ -6,6 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { User as UserIcon, LogOut, Building, Award, FileText, Phone, Mail, Briefcase, GraduationCap, MapPin } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { UploadCv } from "@/components/upload-cv"
+import { CvViewerEnhanced } from "@/components/cv-viewer-enhanced"
+import { TestButton } from "@/components/test-button"
 
 interface User {
   id: number
@@ -23,6 +26,7 @@ interface User {
   linea_investigacion?: string
   institucion?: string
   fotografia_url?: string
+  cv_url?: string
   ultimo_grado_estudios?: string
   empleo_actual?: string
   nacionalidad?: string
@@ -216,6 +220,151 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Gestión de Curriculum Vitae */}
+        <Card className="mb-8 bg-white border-blue-100">
+          <CardHeader>
+            <CardTitle className="text-blue-900 flex items-center">
+              <FileText className="mr-2 h-5 w-5" />
+              Curriculum Vitae
+            </CardTitle>
+            <CardDescription className="text-blue-600">
+              Gestiona tu curriculum vitae para que sea visible en tu perfil público
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {user.cv_url ? (
+              <div className="space-y-4">
+                {/* Botón de prueba */}
+                <TestButton />
+                
+                <CvViewerEnhanced 
+                  cvUrl={user.cv_url} 
+                  investigadorNombre={user.nombre_completo || user.nombre}
+                  showAsCard={true}
+                />
+                <UploadCv
+                  value={user.cv_url}
+                  onChange={async (url) => {
+                    console.log("=== onChange LLAMADO (CON CV) ===")
+                    console.log("URL recibida:", url)
+                    
+                    // Actualizar el CV en la base de datos
+                    try {
+                      const token = localStorage.getItem('token')
+                      console.log("Token:", token ? "Existe" : "NO EXISTE")
+                      console.log("Email usuario:", user.correo || user.email)
+                      
+                      console.log("Llamando a /api/investigadores/update-cv...")
+                      const response = await fetch('/api/investigadores/update-cv', {
+                        method: 'POST',
+                        headers: { 
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${token}`,
+                          'x-user-email': user.correo || user.email
+                        },
+                        body: JSON.stringify({ cv_url: url })
+                      })
+                      
+                      console.log("Response status:", response.status)
+                      const responseData = await response.json()
+                      console.log("Response data:", responseData)
+                      
+                      if (response.ok) {
+                        console.log("✅ BD actualizada correctamente")
+                        // Actualizar el estado local
+                        setUser({ ...user, cv_url: url })
+                        
+                        // Actualizar localStorage para mantener sincronizado
+                        const updatedUser = { ...user, cv_url: url }
+                        localStorage.setItem("user", JSON.stringify(updatedUser))
+                        window.dispatchEvent(new CustomEvent('userUpdated'))
+                        
+                        console.log("🔄 FORZANDO RECARGA INMEDIATA (CON CV)...")
+                        // Forzar recarga inmediata con cache-busting
+                        const currentUrl = new URL(window.location.href)
+                        currentUrl.searchParams.set('_t', Date.now().toString())
+                        window.location.href = currentUrl.toString()
+                      } else {
+                        console.error("❌ Error en la respuesta:", responseData)
+                        alert(`Error al actualizar: ${responseData.error || 'Error desconocido'}. Por favor, recarga la página manualmente (F5).`)
+                      }
+                    } catch (error) {
+                      console.error('❌ Error al actualizar CV:', error)
+                      alert('Error al actualizar el CV. Por favor, recarga la página manualmente (F5).')
+                    }
+                  }}
+                  nombreCompleto={user.nombre_completo || user.nombre}
+                  showPreview={false}
+                />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                  <FileText className="h-12 w-12 text-blue-400 mx-auto mb-2" />
+                  <p className="text-blue-700 font-medium mb-1">No has subido tu CV aún</p>
+                  <p className="text-sm text-blue-600">
+                    Sube tu curriculum vitae para que sea visible en tu perfil público
+                  </p>
+                </div>
+                <UploadCv
+                  value={user.cv_url || ""}
+                  onChange={async (url) => {
+                    console.log("=== onChange LLAMADO (SIN CV) ===")
+                    console.log("URL recibida:", url)
+                    
+                    // Actualizar el CV en la base de datos
+                    try {
+                      const token = localStorage.getItem('token')
+                      console.log("Token:", token ? "Existe" : "NO EXISTE")
+                      console.log("Email usuario:", user.correo || user.email)
+                      
+                      console.log("Llamando a /api/investigadores/update-cv...")
+                      const response = await fetch('/api/investigadores/update-cv', {
+                        method: 'POST',
+                        headers: { 
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${token}`,
+                          'x-user-email': user.correo || user.email
+                        },
+                        body: JSON.stringify({ cv_url: url })
+                      })
+                      
+                      console.log("Response status:", response.status)
+                      const responseData = await response.json()
+                      console.log("Response data:", responseData)
+                      
+                      if (response.ok) {
+                        console.log("✅ BD actualizada correctamente")
+                        // Actualizar el estado local
+                        setUser({ ...user, cv_url: url })
+                        
+                        // Actualizar localStorage para mantener sincronizado
+                        const updatedUser = { ...user, cv_url: url }
+                        localStorage.setItem("user", JSON.stringify(updatedUser))
+                        window.dispatchEvent(new CustomEvent('userUpdated'))
+                        
+                        console.log("🔄 FORZANDO RECARGA INMEDIATA (SIN CV)...")
+                        // Forzar recarga inmediata con cache-busting
+                        const currentUrl = new URL(window.location.href)
+                        currentUrl.searchParams.set('_t', Date.now().toString())
+                        window.location.href = currentUrl.toString()
+                      } else {
+                        console.error("❌ Error en la respuesta:", responseData)
+                        alert(`Error al actualizar: ${responseData.error || 'Error desconocido'}. Por favor, recarga la página manualmente (F5).`)
+                      }
+                    } catch (error) {
+                      console.error('❌ Error al actualizar CV:', error)
+                      alert('Error al actualizar el CV. Por favor, recarga la página manualmente (F5).')
+                    }
+                  }}
+                  nombreCompleto={user.nombre_completo || user.nombre}
+                  showPreview={true}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
 

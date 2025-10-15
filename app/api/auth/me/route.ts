@@ -53,6 +53,7 @@ export async function GET(request: NextRequest) {
       linea_investigacion: usuario.linea_investigacion,
       institucion: usuario.institucion,
       fotografia_url: usuario.fotografia_url,
+      cv_url: usuario.cv_url,
       ultimo_grado_estudios: usuario.ultimo_grado_estudios,
       empleo_actual: usuario.empleo_actual,
       nacionalidad: usuario.nacionalidad,

@@ -35,6 +35,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Textarea } from "@/components/ui/textarea"
 import { UploadFotografia } from "@/components/upload-fotografia"
+import { UploadCv } from "@/components/upload-cv"
 
 export default function RegistroPage() {
   const [formData, setFormData] = useState({
@@ -49,6 +50,7 @@ export default function RegistroPage() {
     linea_investigacion: "",
     area_investigacion: "",
     fotografia_url: "",
+    cv_url: "",
     nacionalidad: "Mexicana",
     fecha_nacimiento: "",
     password: "",
@@ -107,6 +109,7 @@ export default function RegistroPage() {
         linea_investigacion: "", // Este campo siempre se mantiene vacío para captura manual
         area_investigacion: "", // Campo adicional para área
         fotografia_url: "", // URL de Cloudinary
+        cv_url: "", // URL del CV en Cloudinary
         nacionalidad: "Mexicana",
         fecha_nacimiento: "",
         password: "",
@@ -154,6 +157,7 @@ export default function RegistroPage() {
           linea_investigacion: "", // Asegurar que siempre esté vacía para captura manual
           area_investigacion: "", // Asegurar que siempre esté vacía para captura manual
           fotografia_url: prev.fotografia_url, // Mantener la foto si ya fue subida
+          cv_url: prev.cv_url, // Mantener el CV si ya fue subido
           password: "", // Asegurar que siempre esté vacía
           confirm_password: "", // Asegurar que siempre esté vacía
         }))
@@ -666,6 +670,16 @@ export default function RegistroPage() {
                           value={formData.fotografia_url}
                           onChange={(url) => setFormData((prev) => ({ ...prev, fotografia_url: url }))}
                           nombreCompleto={formData.nombre_completo}
+                        />
+                      </div>
+
+                      {/* Curriculum Vitae */}
+                      <div className="sm:col-span-2">
+                        <UploadCv
+                          value={formData.cv_url}
+                          onChange={(url) => setFormData((prev) => ({ ...prev, cv_url: url }))}
+                          nombreCompleto={formData.nombre_completo}
+                          showPreview={true}
                         />
                       </div>
                     </div>

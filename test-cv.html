@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Visualización de CV</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .test-section {
+            margin: 20px 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Prueba de Visualización de CV</h1>
+    
+    <div class="card">
+        <h2>Información del CV</h2>
+        <p><strong>URL:</strong> <a href="https://res.cloudinary.com/sei-cloudinary/raw/upload/v1760458478/investigadores-cvs/cv_1760458470433.pdf" target="_blank">https://res.cloudinary.com/sei-cloudinary/raw/upload/v1760458478/investigadores-cvs/cv_1760458470433.pdf</a></p>
+        <p><strong>Tamaño:</strong> 221.95 KB</p>
+        <p><strong>Usuario:</strong> Dynhora</p>
+    </div>
+
+    <div class="card">
+        <h2>Botones de Acción</h2>
+        <button onclick="abrirNuevaPestana()">📤 Abrir en Nueva Pestaña</button>
+        <button onclick="descargar()">💾 Descargar PDF</button>
+        <button onclick="cambiarVisor()">🔄 Cambiar Método de Visualización</button>
+    </div>
+
+    <div class="card test-section">
+        <h2>Método 1: Iframe Directo</h2>
+        <div id="iframe-status" class="info">
+            ℹ️ Este método puede fallar por restricciones CORS de Cloudinary
+        </div>
+        <iframe 
+            id="iframe-directo"
+            src="https://res.cloudinary.com/sei-cloudinary/raw/upload/v1760458478/investigadores-cvs/cv_1760458470433.pdf"
+            onload="iframeLoaded('directo')"
+            onerror="iframeError('directo')">
+        </iframe>
+    </div>
+
+    <div class="card test-section">
+        <h2>Método 2: Google Docs Viewer (Fallback)</h2>
+        <div class="info">
+            ℹ️ Este método debería funcionar siempre
+        </div>
+        <iframe 
+            id="iframe-google"
+            src="https://docs.google.com/viewer?url=https://res.cloudinary.com/sei-cloudinary/raw/upload/v1760458478/investigadores-cvs/cv_1760458470433.pdf&embedded=true"
+            onload="iframeLoaded('google')"
+            onerror="iframeError('google')">
+        </iframe>
+    </div>
+
+    <script>
+        let usingGoogle = false;
+
+        function iframeLoaded(method) {
+            console.log(`✅ Iframe ${method} cargado exitosamente`);
+            document.getElementById(`iframe-status`).innerHTML = `✅ Iframe directo cargado correctamente`;
+            document.getElementById(`iframe-status`).className = 'status success';
+        }
+
+        function iframeError(method) {
+            console.error(`❌ Error al cargar iframe ${method}`);
+            if (method === 'directo') {
+                document.getElementById(`iframe-status`).innerHTML = `❌ Error con iframe directo. Usa Google Docs Viewer (Método 2 abajo)`;
+                document.getElementById(`iframe-status`).className = 'status error';
+            }
+        }
+
+        function abrirNuevaPestana() {
+            window.open('https://res.cloudinary.com/sei-cloudinary/raw/upload/v1760458478/investigadores-cvs/cv_1760458470433.pdf', '_blank');
+        }
+
+        async function descargar() {
+            try {
+                const response = await fetch('https://res.cloudinary.com/sei-cloudinary/raw/upload/v1760458478/investigadores-cvs/cv_1760458470433.pdf');
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'CV_Dynhora.pdf';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                alert('✅ Descarga iniciada');
+            } catch (error) {
+                alert('❌ Error al descargar: ' + error.message);
+                // Fallback: abrir en nueva pestaña
+                abrirNuevaPestana();
+            }
+        }
+
+        function cambiarVisor() {
+            const iframe = document.getElementById('iframe-directo');
+            if (!usingGoogle) {
+                iframe.src = 'https://docs.google.com/viewer?url=https://res.cloudinary.com/sei-cloudinary/raw/upload/v1760458478/investigadores-cvs/cv_1760458470433.pdf&embedded=true';
+                usingGoogle = true;
+                alert('📄 Cambiado a Google Docs Viewer');
+            } else {
+                iframe.src = 'https://res.cloudinary.com/sei-cloudinary/raw/upload/v1760458478/investigadores-cvs/cv_1760458470433.pdf';
+                usingGoogle = false;
+                alert('📄 Cambiado a iframe directo');
+            }
+        }
+
+        // Verificar acceso al PDF
+        fetch('https://res.cloudinary.com/sei-cloudinary/raw/upload/v1760458478/investigadores-cvs/cv_1760458470433.pdf', {
+            method: 'HEAD'
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('✅ PDF accesible:', response.status);
+            } else {
+                console.log('⚠️ PDF status:', response.status);
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error al verificar PDF:', error);
+        });
+    </script>
+</body>
+</html>
+
+
