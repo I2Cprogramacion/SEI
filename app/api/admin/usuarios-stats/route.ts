@@ -2,14 +2,6 @@ import { NextResponse } from 'next/server'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { sql } from '@vercel/postgres'
 
-/**
- * GET /api/admin/usuarios-stats
- * Retorna estadísticas de usuarios registrados y activos
- * - Total de usuarios registrados
- * - Usuarios activos en los últimos 10 minutos
- * - Nuevos usuarios hoy y esta semana
- * Solo accesible para administradores
- */
 export async function GET() {
   try {
     const { userId } = await auth()
@@ -63,8 +55,9 @@ export async function GET() {
     `
     const totalUsuarios = parseInt(totalResult.rows[0].total)
 
-    // Definir tiempo de actividad (usuarios activos en los últimos 10 minutos)
-    const tiempoActividad = new Date(Date.now() - 10 * 60 * 1000)
+    // Definir tiempo de actividad (usuarios activos en el último minuto para pruebas)
+    // En producción cambiar a: 10 * 60 * 1000 (10 minutos)
+    const tiempoActividad = new Date(Date.now() - 1 * 60 * 1000) // 1 minuto
     
     // Contar usuarios activos
     const activosResult = await sql`

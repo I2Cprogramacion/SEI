@@ -34,10 +34,11 @@ export function useActividadUsuario() {
     // Registrar actividad inicial
     registrarActividad()
 
-    // Configurar intervalo para actualizar cada 10 minutos
+    // Configurar intervalo para actualizar cada 1 minuto (para pruebas)
+    // En producción cambiar a: 10 * 60 * 1000 (10 minutos)
     intervalRef.current = setInterval(() => {
       registrarActividad()
-    }, 10 * 60 * 1000) // 10 minutos
+    }, 1 * 60 * 1000) // 1 minuto para pruebas
 
     // Limpiar al desmontar
     return () => {
