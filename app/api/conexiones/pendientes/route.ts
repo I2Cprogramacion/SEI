@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { currentUser } from "@clerk/nextjs/server"
-import { sql } from "@vercel/postgres"
+import { querySafe } from "@/lib/db-connection"
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const userEmail = user.emailAddresses[0]?.emailAddress
 
     // Obtener el investigador actual
-    const investigadorResult = await sql`
+    const investigadorResult = await querySafe<{ id: number }>`
       SELECT id FROM investigadores WHERE correo = ${userEmail}
     `
 
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     const investigadorId = investigadorResult.rows[0].id
 
     // Contar conexiones pendientes donde el usuario es el destinatario
-    const result = await sql`
+    const result = await querySafe<{ count: string }>`
       SELECT COUNT(*) as count
       FROM conexiones
       WHERE investigador_destino_id = ${investigadorId}
