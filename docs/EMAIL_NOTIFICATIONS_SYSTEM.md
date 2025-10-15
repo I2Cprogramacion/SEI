@@ -280,7 +280,7 @@ SMTP_FROM="SECCTI <tu-email@gmail.com>"
 SMTP_HOST=smtp.sendgrid.net
 SMTP_PORT=587
 SMTP_USER=apikey
-SMTP_PASS=SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+SMTP_PASS=SG.xxxxxxxxxxxxxxxxxx_APIKEY_AQUI_xxxxxxxxxxxxxxxxxx
 SMTP_FROM="SECCTI <noreply@tudominio.com>"
 ```
 
@@ -526,7 +526,7 @@ node scripts/test-email.js
    SMTP_HOST=smtp.sendgrid.net
    SMTP_PORT=587
    SMTP_USER=apikey
-   SMTP_PASS=SG.xxxxxxxxxxxxx
+   SMTP_PASS=SG.xxxxxxxxxxxxxxxxxx_APIKEY_AQUI_xxxxxxxxxxxxxxxxxx
    SMTP_FROM="SECCTI <noreply@tudominio.com>"
    ```
 
