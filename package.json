@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build": "next build",
+    "build:no-prerender": "SKIP_ENV_VALIDATION=true next build",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
@@ -88,6 +89,7 @@
     "react-resizable-panels": "^2.1.7",
     "recharts": "2.15.0",
     "sonner": "^1.7.1",
+    "sqlite3": "^5.1.7",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.6",
@@ -99,6 +101,7 @@
     "@types/pdf-parse": "^1.1.5",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/sqlite3": "^5.1.0",
     "@types/tesseract.js": "^0.0.2",
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
