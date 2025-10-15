@@ -1,55 +1,83 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
+# ========================================
+# DEPENDENCIES
+# ========================================
 node_modules/
-# logs
-*.log
 /.pnp
 .pnp.js
 .yarn/install-state.gz
+package-lock.json
 
-# testing
-/coverage
-
-# next.js
+# ========================================
+# NEXT.JS
+# ========================================
 /.next/
 /out/
-
-# production
+/.next/trace
 /build
+*.trace
 
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# local env files
+# ========================================
+# ENVIRONMENT VARIABLES & SECRETS
+# ========================================
 .env
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
 .env.*.local
+.env.backup
+*.env.backup
 
-# vercel
+# ========================================
+# VERCEL
+# ========================================
 .vercel
+.vercel.json
 
-# typescript
+# ========================================
+# TYPESCRIPT
+# ========================================
 *.tsbuildinfo
 next-env.d.ts
 
-# IDEs
+# ========================================
+# LOGS
+# ========================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ========================================
+# TESTING
+# ========================================
+/coverage
+.nyc_output
+
+# ========================================
+# IDEs & EDITORS
+# ========================================
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+.DS_Store
 
-# Python
+# ========================================
+# PYTHON (OCR SERVER)
+# ========================================
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
 env/
+venv/
+ENV/
 build/
 develop-eggs/
 dist/
@@ -60,30 +88,51 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 
-# Database
+# ========================================
+# DATABASE
+# ========================================
 *.db
 *.sqlite
 *.sqlite3
-.env.local
 prisma/.env
-prisma/migrations/*/README.md
 
-# Temporary files
-/tmp
+# ========================================
+# CLERK (AUTHENTICATION)
+# ========================================
+/.clerk/
 
-# OS
+# ========================================
+# UPLOADS & TEMPORARY FILES
+# ========================================
+/tmp/
+/temp/
+public/uploads/*
+!public/uploads/.gitkeep
+.vercel-deploy-trigger
+.vercel-force-redeploy
+*.trigger
+
+# ========================================
+# OS SPECIFIC
+# ========================================
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+.DS_Store
+*.DS_Store
 
+# ========================================
+# PRISMA GENERATED
+# ========================================
 /lib/generated/prisma
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+
+# ========================================
+# MISC
+# ========================================
+*.pem
+.npmrc.local

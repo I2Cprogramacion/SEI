@@ -74,24 +74,36 @@ export async function verificarCredenciales(email: string, password: string) {
 }
 
 // Función para obtener proyectos (nueva)
+
 export async function obtenerProyectos() {
-  const db = await getDatabase()
-  return await db.obtenerProyectos()
+  const db = await getDatabase();
+  if (typeof db.obtenerProyectos === 'function') {
+    return await db.obtenerProyectos();
+  }
+  throw new Error('Método obtenerProyectos no implementado en la base de datos actual');
 }
 
 // Función para obtener publicaciones (nueva)
+
 export async function obtenerPublicaciones() {
-  const db = await getDatabase()
-  return await db.obtenerPublicaciones()
+  const db = await getDatabase();
+  if (typeof db.obtenerPublicaciones === 'function') {
+    return await db.obtenerPublicaciones();
+  }
+  throw new Error('Método obtenerPublicaciones no implementado en la base de datos actual');
 }
 
 // Función para insertar publicación (nueva)
+
 export async function insertarPublicacion(datos: any) {
-  const db = await getDatabase()
-  return await db.insertarPublicacion(datos)
+  const db = await getDatabase();
+  if (typeof db.insertarPublicacion === 'function') {
+    return await db.insertarPublicacion(datos);
+  }
+  throw new Error('Método insertarPublicacion no implementado en la base de datos actual');
 }
 
 // Exportar también las nuevas funciones para uso avanzado
-export { getDatabase, updateDatabaseConfig, autoConfigureDatabase, useVercelPostgres, useSQLite } from './database-config'
+export { getDatabase } from './database-config'
 export type { DatabaseInterface, DatabaseConfig } from './database-interface'
 export { DatabaseFactory } from './database-interface'

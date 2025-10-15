@@ -141,11 +141,12 @@ export async function GET(request: NextRequest) {
     `)
 
     const ubicaciones = await db.query(`
-      SELECT DISTINCT estado_nacimiento, entidad_federativa
+      SELECT DISTINCT 
+        COALESCE(estado_nacimiento, entidad_federativa) as ubicacion
       FROM investigadores 
       WHERE (estado_nacimiento IS NOT NULL AND estado_nacimiento != '') 
          OR (entidad_federativa IS NOT NULL AND entidad_federativa != '')
-      ORDER BY COALESCE(estado_nacimiento, entidad_federativa)
+      ORDER BY ubicacion
     `)
 
     return NextResponse.json({
@@ -153,7 +154,7 @@ export async function GET(request: NextRequest) {
       filtros: {
         areas: areas.map((a: any) => a.area),
         instituciones: instituciones.map((i: any) => i.institucion),
-        ubicaciones: ubicaciones.map((u: any) => u.estado_nacimiento || u.entidad_federativa)
+        ubicaciones: ubicaciones.map((u: any) => u.ubicacion)
       }
     })
 

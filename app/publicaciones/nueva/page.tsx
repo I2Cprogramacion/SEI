@@ -505,7 +505,12 @@ export default function NuevaPublicacionPage() {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
+        let errorData
+        try {
+          errorData = await response.json()
+        } catch {
+          errorData = { error: `Error ${response.status}: ${response.statusText}` }
+        }
         toast.error('Error al guardar la publicación', { 
           id: 'save',
           description: errorData.error || 'Inténtalo de nuevo más tarde' 
@@ -513,7 +518,12 @@ export default function NuevaPublicacionPage() {
         throw new Error(errorData.error || 'Error al guardar la publicación')
       }
 
-      const result = await response.json()
+      let result
+      try {
+        result = await response.json()
+      } catch {
+        result = { success: true }
+      }
       console.log("Publicación creada:", result.publicacion)
       
       // Mostrar éxito

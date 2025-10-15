@@ -47,16 +47,45 @@
   --ring: 224.3 76.3% 48%;
 }
 
-body {
-  background-color: #ffffff;
-  color: #0056b3;
-}
-
 @layer base {
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
+  
+  html {
+    margin: 0;
+    padding: 0;
   }
+  
+  body {
+    @apply text-foreground;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+}
+
+/* Ocultar elementos de Clerk */
+/* Ocultar "Secured by Clerk" badge */
+.cl-internal-b3fm6y,
+.cl-footerAction,
+[data-localization-key="signUp.start.subtitle"],
+[data-localization-key="signIn.start.subtitle"],
+.cl-footer,
+.cl-footerActionLink,
+.cl-formFooter {
+  display: none !important;
+}
+
+/* Ocultar "Development mode" badge */
+.cl-dev-mode-banner,
+[data-testid="development-mode-banner"],
+.cl-internal-dev-badge {
+  display: none !important;
+}
+
+/* Ocultar cualquier badge de Clerk */
+.cl-badge,
+.cl-badgeSecuredByClerk {
+  display: none !important;
 }

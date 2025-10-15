@@ -1,52 +1,55 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
 
-// Email del único administrador autorizado
-const AUTHORIZED_ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@sei.com.mx'
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export function middleware(request: NextRequest) {
-  // Solo aplicar middleware a rutas de admin
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    // Obtener el token de autenticación de las cookies
-    const token = request.cookies.get('auth-token')?.value
-    const userData = request.cookies.get('user-data')?.value
-    
-    // Si no hay token o datos de usuario, redirigir al login
-    if (!token || !userData) {
-      return NextResponse.redirect(new URL('/iniciar-sesion', request.url))
-    }
+// Definir las rutas públicas (sin autenticación)
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/registro(.*)",
+  "/verificar-email(.*)",
+  "/iniciar-sesion(.*)",
+  "/explorar(.*)",
+  "/investigadores(.*)",
+  "/proyectos(.*)",
+  "/publicaciones(.*)",
+  "/convocatorias(.*)",
+  "/ubicaciones(.*)",
+  "/instituciones(.*)",
+  "/redes(.*)",
+  "/campos(.*)",
+  "/buscar(.*)",
+  "/cookies(.*)",
+  "/privacidad(.*)",
+  "/terminos(.*)",
+  "/api/registro",
+  "/api/investigadores",
+  "/api/proyectos",
+  "/api/publicaciones",
+]);
 
-    try {
-      // Parsear los datos del usuario
-      const user = JSON.parse(userData)
-      
-      // Verificar que el usuario sea admin Y que sea el email autorizado
-      if (!user.isAdmin || user.email !== AUTHORIZED_ADMIN_EMAIL) {
-        // Redirigir a la página principal con mensaje de error
-        const response = NextResponse.redirect(new URL('/', request.url))
-        response.cookies.set('admin-error', 'Acceso denegado: Solo el administrador principal puede acceder al panel')
-        return response
-      }
-      
-      // Si todo está bien, continuar con la solicitud
-      return NextResponse.next()
-      
-    } catch (error) {
-      // Si hay error al parsear los datos, redirigir al login
-      console.error('Error parsing user data in middleware:', error)
-      return NextResponse.redirect(new URL('/iniciar-sesion', request.url))
-    }
+// Definir las rutas protegidas (requieren autenticación)
+const isProtectedRoute = createRouteMatcher([
+  "/admin(.*)",
+  "/dashboard(.*)",
+]);
+
+export default clerkMiddleware(async (auth, req) => {
+  // Proteger las rutas del admin y dashboard
+  if (isProtectedRoute(req)) {
+    await auth.protect();
   }
-
-  // Para rutas que no son de admin, continuar normalmente
-  return NextResponse.next()
-}
+  // Las rutas públicas no requieren autenticación
+}, {
+  // Configuración de duración de sesión (12 horas)
+  // Nota: La duración exacta se configura en el dashboard de Clerk
+  // Esta es la configuración del lado del servidor
+  debug: false,
+});
 
 export const config = {
   matcher: [
-    '/admin/:path*',
-    '/dashboard/:path*'
-  ]
-}
+    "/((?!_next|[^?]*\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
+  ],
+};
 
 

@@ -3,11 +3,11 @@ import { DatabaseConfig, DatabaseFactory } from './database-interface'
 // Configuración de la base de datos actual
 export const currentDatabaseConfig: DatabaseConfig = {
   type: 'vercelPostgres',
-  host: process.env.POSTGRES_HOST || 'localhost',
-  port: parseInt(process.env.POSTGRES_PORT || '5432'),
-  database: process.env.POSTGRES_DATABASE || 'researcher_platform',
-  username: process.env.POSTGRES_USER || 'postgres',
-  password: process.env.POSTGRES_PASSWORD || '',
+  host: process.env.POSTGRES_HOST || process.env.NEON_HOST || 'localhost',
+  port: parseInt(process.env.POSTGRES_PORT || process.env.NEON_PORT || '5432'),
+  database: process.env.POSTGRES_DATABASE || process.env.NEON_DATABASE || 'researcher_platform',
+  username: process.env.POSTGRES_USER || process.env.NEON_USER || 'postgres',
+  password: process.env.POSTGRES_PASSWORD || process.env.NEON_JWT || '',
   ssl: process.env.NODE_ENV === 'production'
 }
 
@@ -19,7 +19,7 @@ export async function getDatabase() {
 // Función para cambiar la configuración de base de datos en tiempo de ejecución
 export function updateDatabaseConfig(newConfig: DatabaseConfig) {
   Object.assign(currentDatabaseConfig, newConfig)
-  console.log('Configuración de base de datos actualizada:', currentDatabaseConfig)
+    // (Eliminado log de actualización de config para reducir el rate limit)
 }
 
 // Función para cambiar automáticamente según el entorno
@@ -27,8 +27,20 @@ export function autoConfigureDatabase() {
   const env = process.env.NODE_ENV || 'development'
   
   if (env === 'production') {
-    // En producción, usar Vercel Postgres si está disponible
-    if (process.env.POSTGRES_HOST && process.env.POSTGRES_DATABASE) {
+    // En producción, usar Neon Auth si está disponible
+    if (process.env.NEON_PROJECT_ID && process.env.NEON_JWKS_URL && process.env.NEON_JWT) {
+      const neonConfig: DatabaseConfig = {
+        type: 'vercelPostgres',
+        host: process.env.NEON_HOST,
+        port: parseInt(process.env.NEON_PORT || '5432'),
+        database: process.env.NEON_DATABASE,
+        username: process.env.NEON_USER,
+        password: process.env.NEON_JWT,
+        ssl: true,
+        connectionString: `postgresql://${process.env.NEON_USER}:${process.env.NEON_JWT}@${process.env.NEON_HOST}/${process.env.NEON_DATABASE}?sslmode=require`
+      }
+      updateDatabaseConfig(neonConfig)
+    } else if (process.env.POSTGRES_HOST && process.env.POSTGRES_DATABASE) {
       const vercelConfig: DatabaseConfig = {
         type: 'vercelPostgres',
         host: process.env.POSTGRES_HOST,
@@ -39,9 +51,6 @@ export function autoConfigureDatabase() {
         ssl: true
       }
       updateDatabaseConfig(vercelConfig)
-      console.log('✅ Configurado para usar Vercel Postgres en producción')
-    } else {
-      console.log('⚠️ Variables de entorno de Vercel Postgres no encontradas')
     }
   } else {
     // En desarrollo, usar SQLite por defecto
@@ -50,7 +59,7 @@ export function autoConfigureDatabase() {
       filename: 'database.db'
     }
     updateDatabaseConfig(sqliteConfig)
-    console.log('✅ Configurado para usar SQLite en desarrollo')
+      // (Eliminado log de configuración para reducir el rate limit)
   }
 }
 

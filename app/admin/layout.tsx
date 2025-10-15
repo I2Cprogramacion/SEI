@@ -16,24 +16,22 @@ export default function AdminLayout({
   const router = useRouter()
 
   useEffect(() => {
-    // Verificar autenticación del lado del cliente también
-    const checkAuth = () => {
+    // Verificar si el usuario es admin desde el servidor
+    const checkAuth = async () => {
       try {
-        const userData = localStorage.getItem("user")
-        if (!userData) {
-          // No hay sesión, redirigir al login
-          router.push("/iniciar-sesion")
+        const response = await fetch('/api/admin/verificar')
+        
+        if (!response.ok) {
+          console.warn('Acceso denegado: Usuario no es administrador')
+          router.push("/dashboard")
           return
         }
 
-        const user = JSON.parse(userData)
+        const data = await response.json()
         
-        // Verificar que el usuario sea admin Y que sea el email autorizado
-        const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@sei.com.mx'
-        if (!user.isAdmin || user.email !== adminEmail) {
-          // Usuario no es admin, redirigir a la página principal
+        if (!data.esAdmin) {
           console.warn('Acceso denegado: Usuario no es administrador')
-          router.push("/")
+          router.push("/dashboard")
           return
         }
         

@@ -1,80 +1,46 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { obtenerInvestigadores } from "@/lib/db"
-import fs from 'fs'
-import path from 'path'
+import { neon } from "@neondatabase/serverless"
+
+const sql = neon(process.env.DATABASE_URL!)
 
 export async function GET(request: NextRequest) {
   try {
-    // Obtener todos los investigadores de la base de datos
-    const investigadores = await obtenerInvestigadores()
-    
-    // Filtrar solo investigadores con datos básicos completos y excluir administradores
-    const investigadoresCompletos = investigadores.filter(inv => 
-      inv.nombre_completo && 
-      inv.correo && 
-      inv.institucion &&
-      inv.correo !== 'admin@sei.com.mx' && // Excluir administrador
-      !inv.nombre_completo.toLowerCase().includes('administrador')
-    )
-    
-    // Obtener autores de proyectos del archivo JSON
-    const proyectosPath = path.join(process.cwd(), 'data', 'proyectos.json')
-    let autoresProyectos = []
-    
-    try {
-      const proyectosData = fs.readFileSync(proyectosPath, 'utf8')
-      const proyectos = JSON.parse(proyectosData)
-      
-      // Extraer autores únicos de los proyectos
-      const autoresUnicos = new Map()
-      proyectos.forEach(proyecto => {
-        if (proyecto.autor && proyecto.autor.nombreCompleto) {
-          const nombre = proyecto.autor.nombreCompleto
-          if (!autoresUnicos.has(nombre)) {
-            autoresUnicos.set(nombre, {
-              nombre_completo: nombre,
-              correo: proyecto.autor.email || '',
-              institucion: proyecto.autor.instituto || 'Institución no especificada',
-              telefono: proyecto.autor.telefono || '',
-              area: proyecto.categoria || 'Investigación',
-              slug: nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-            })
-          }
-        }
-      })
-      
-      autoresProyectos = Array.from(autoresUnicos.values())
-    } catch (error) {
-      console.error("Error al leer proyectos:", error)
-    }
-    
-    // Combinar investigadores de la base de datos con autores de proyectos
-    const todosInvestigadores = [...investigadoresCompletos, ...autoresProyectos]
-    
-    // Si no hay investigadores, devolver array vacío
-    if (todosInvestigadores.length === 0) {
-      return NextResponse.json([])
-    }
-    
-    // Mezclar array y tomar máximo 6 investigadores aleatorios
-    const shuffled = [...todosInvestigadores].sort(() => 0.5 - Math.random())
-    const featuredResearchers = shuffled.slice(0, Math.min(6, shuffled.length))
-    
-    // Transformar datos al formato esperado por el componente
-    const formattedResearchers = featuredResearchers.map(inv => ({
-      id: inv.id || Math.random().toString(36).substr(2, 9), // ID temporal para autores de proyectos
-      name: inv.nombre_completo,
-      title: inv.grado_maximo_estudios || "Investigador",
-      institution: inv.institucion,
-      field: inv.area || inv.disciplina || inv.especialidad || "Investigación",
-      avatar: inv.foto_perfil || undefined,
-      slug: inv.slug || inv.nombre_completo.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+    // Obtener 5 investigadores aleatorios con datos completos de PostgreSQL
+    const investigadores = await sql`
+      SELECT 
+        id,
+        nombre_completo as name,
+        COALESCE(ultimo_grado_estudios, empleo_actual, 'Investigador') as title,
+        COALESCE(institucion, 'Sin institución') as institution,
+        COALESCE(area, area_investigacion, 'Sin especificar') as field,
+        fotografia_url as avatar,
+        slug
+      FROM investigadores
+      WHERE nombre_completo IS NOT NULL
+        AND correo NOT LIKE '%admin%'
+        AND slug IS NOT NULL
+      ORDER BY RANDOM()
+      LIMIT 5
+    `
+
+    // Transformar datos al formato esperado
+    const featured = investigadores.map(inv => ({
+      id: inv.id,
+      name: inv.name,
+      title: inv.title,
+      institution: inv.institution,
+      field: inv.field,
+      avatar: inv.avatar,
+      slug: inv.slug
     }))
-    
-    return NextResponse.json(formattedResearchers)
+
+    return NextResponse.json(featured)
   } catch (error) {
     console.error("Error al obtener investigadores destacados:", error)
-    return NextResponse.json({ error: "Error al obtener los investigadores destacados" }, { status: 500 })
+    return NextResponse.json(
+      { error: "Error al cargar investigadores destacados" },
+      { status: 500 }
+    )
   }
 }

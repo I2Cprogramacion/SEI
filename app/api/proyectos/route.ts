@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import fs from 'fs'
-import path from 'path'
+import { getDatabase } from "@/lib/database-config"
 
 export const dynamic = 'force-dynamic'
 
@@ -13,82 +12,99 @@ export async function GET(request: NextRequest) {
     const estado = searchParams.get('estado') || 'all'
     const institucion = searchParams.get('institucion') || 'all'
 
-    // Leer proyectos del archivo JSON
-    const proyectosPath = path.join(process.cwd(), 'data', 'proyectos.json')
-    let proyectos: any[] = []
+    const db = await getDatabase()
     
-    try {
-      const proyectosData = fs.readFileSync(proyectosPath, 'utf8')
-      proyectos = JSON.parse(proyectosData)
-    } catch (error) {
-      console.error("Error al leer proyectos:", error)
-      return NextResponse.json({
-        proyectos: [],
-        filtros: {
-          categorias: [],
-          estados: [],
-          instituciones: []
-        }
-      })
-    }
+    // Construir query base
+    let query = `
+      SELECT 
+        id,
+        titulo,
+        descripcion,
+        investigador_principal_id,
+        investigador_principal,
+        fecha_inicio,
+        fecha_fin,
+        estado,
+        area_investigacion,
+        categoria,
+        presupuesto,
+        fuente_financiamiento,
+        institucion,
+        slug
+      FROM proyectos
+      WHERE 1=1
+    `
+    
+    const params: any[] = []
+    let paramIndex = 1
 
-    // Filtrar proyectos
-    let proyectosFiltrados = proyectos
-
+    // Agregar filtros con sintaxis PostgreSQL
     if (search) {
-      const searchLower = search.toLowerCase()
-      proyectosFiltrados = proyectosFiltrados.filter(proyecto => 
-        proyecto.titulo?.toLowerCase().includes(searchLower) ||
-        proyecto.descripcion?.toLowerCase().includes(searchLower) ||
-        proyecto.autor?.nombreCompleto?.toLowerCase().includes(searchLower) ||
-        proyecto.autor?.instituto?.toLowerCase().includes(searchLower) ||
-        proyecto.categoria?.toLowerCase().includes(searchLower) ||
-        proyecto.palabrasClave?.some((keyword: string) => keyword.toLowerCase().includes(searchLower))
-      )
+      const searchParam = `%${search.toLowerCase()}%`
+      query += ` AND (
+        LOWER(titulo) LIKE $${paramIndex} OR 
+        LOWER(descripcion) LIKE $${paramIndex + 1} OR 
+        LOWER(investigador_principal) LIKE $${paramIndex + 2} OR
+        LOWER(institucion) LIKE $${paramIndex + 3}
+      )`
+      params.push(searchParam, searchParam, searchParam, searchParam)
+      paramIndex += 4
     }
 
     if (categoria !== 'all') {
-      proyectosFiltrados = proyectosFiltrados.filter(proyecto => proyecto.categoria === categoria)
+      query += ` AND categoria = $${paramIndex}`
+      params.push(categoria)
+      paramIndex += 1
     }
 
     if (estado !== 'all') {
-      proyectosFiltrados = proyectosFiltrados.filter(proyecto => proyecto.estado === estado)
+      query += ` AND estado = $${paramIndex}`
+      params.push(estado)
+      paramIndex += 1
     }
 
     if (institucion !== 'all') {
-      proyectosFiltrados = proyectosFiltrados.filter(proyecto => proyecto.autor?.instituto === institucion)
+      query += ` AND institucion = $${paramIndex}`
+      params.push(institucion)
+      paramIndex += 1
     }
 
+    query += ` ORDER BY fecha_inicio DESC NULLS LAST`
+
+    // Ejecutar query
+    const result = await db.query(query, params)
+    const proyectos = Array.isArray(result) ? result : (result.rows || [])
+
     // Formatear respuesta
-    const proyectosFormateados = proyectosFiltrados.map((proyecto: any) => ({
+    const proyectosFormateados = proyectos.map((proyecto: any) => ({
       id: proyecto.id,
       titulo: proyecto.titulo,
       descripcion: proyecto.descripcion,
       autor: {
-        nombre: proyecto.autor?.nombreCompleto,
-        institucion: proyecto.autor?.instituto,
-        email: proyecto.autor?.email,
-        telefono: proyecto.autor?.telefono
+        nombre: proyecto.investigador_principal,
+        institucion: proyecto.institucion,
+        email: null,
+        telefono: null
       },
-      categoria: proyecto.categoria,
+      categoria: proyecto.categoria || proyecto.area_investigacion,
       estado: proyecto.estado,
-      fechaInicio: proyecto.fechaInicio,
-      fechaFin: proyecto.fechaFin,
+      fechaInicio: proyecto.fecha_inicio,
+      fechaFin: proyecto.fecha_fin,
       presupuesto: proyecto.presupuesto,
-      palabrasClave: proyecto.palabrasClave || [],
-      objetivos: proyecto.objetivos || [],
-      resultados: proyecto.resultados || [],
-      metodologia: proyecto.metodologia,
-      impacto: proyecto.impacto,
-      colaboradores: proyecto.colaboradores || [],
-      financiamiento: proyecto.financiamiento,
-      slug: proyecto.slug
+      palabrasClave: [],
+      objetivos: [],
+      resultados: [],
+      metodologia: null,
+      impacto: null,
+      colaboradores: [],
+      financiamiento: proyecto.fuente_financiamiento,
+      slug: proyecto.slug || proyecto.titulo?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
     }))
 
     // Obtener opciones únicas para filtros
-    const categorias = [...new Set(proyectos.map(p => p.categoria).filter(Boolean))]
-    const estados = [...new Set(proyectos.map(p => p.estado).filter(Boolean))]
-    const instituciones = [...new Set(proyectos.map(p => p.autor?.instituto).filter(Boolean))]
+    const categorias = [...new Set(proyectos.map((p: any) => p.categoria || p.area_investigacion).filter(Boolean))]
+    const estados = [...new Set(proyectos.map((p: any) => p.estado).filter(Boolean))]
+    const instituciones = [...new Set(proyectos.map((p: any) => p.institucion).filter(Boolean))]
 
     return NextResponse.json({
       proyectos: proyectosFormateados,

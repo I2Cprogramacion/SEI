@@ -2,6 +2,13 @@ import { DatabaseInterface, DatabaseConfig } from "../database-interface"
 import bcrypt from "bcryptjs"
 
 export class PostgreSQLDatabase implements DatabaseInterface {
+  private client: any = null;
+  private config: DatabaseConfig;
+
+  constructor(config: DatabaseConfig) {
+    this.config = config;
+  }
+
   async consultarInvestigadoresIncompletos() {
     if (!this.client) {
       await this.conectar();
@@ -13,12 +20,7 @@ export class PostgreSQLDatabase implements DatabaseInterface {
     `);
     return result.rows;
   }
-  private client: any = null
-  private config: DatabaseConfig
-
-  constructor(config: DatabaseConfig) {
-    this.config = config
-  }
+  // ...existing code...
 
   async conectar(): Promise<void> {
     try {
@@ -289,41 +291,49 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       
       // Buscar usuario por email
       const result = await this.client.query(
-        'SELECT * FROM investigadores WHERE correo = $1',
+          'SELECT * FROM investigadores WHERE correo = $1',
         [email]
       )
       
       const usuario = result.rows[0]
-      
-      if (!usuario) {
+        
+        if (!usuario) {
+          console.error('Usuario no encontrado:', email);
+          return {
+            success: false,
+            message: "Usuario no encontrado"
+          }
+        }
+        
+        // Verificar hash de contraseña con bcryptjs
+        const hash = usuario.password;
+        if (!hash || typeof hash !== 'string') {
+          console.error('Hash de contraseña no encontrado o inválido para el usuario:', email);
+          return {
+            success: false,
+            message: "Hash de contraseña no encontrado o inválido"
+          }
+        }
+        const valido = await bcrypt.compare(password, hash);
+        if (!valido) {
+          return {
+            success: false,
+            message: "Contraseña incorrecta"
+          }
+        }
+        // Login exitoso
         return {
-          success: false,
-          message: "Usuario no encontrado"
+          success: true,
+          message: "Login exitoso",
+          user: {
+            id: usuario.id,
+            nombre: usuario.nombre_completo,
+            email: usuario.correo,
+            nivel: usuario.nivel,
+            area: usuario.area,
+            institucion: usuario.institucion
+          }
         }
-      }
-
-      // Verificar hash de contraseña con bcryptjs
-      const hash = usuario.contrasena;
-      const valido = await bcrypt.compare(password, hash);
-      if (!valido) {
-        return {
-          success: false,
-          message: "Contraseña incorrecta"
-        }
-      }
-      // Login exitoso
-      return {
-        success: true,
-        message: "Login exitoso",
-        user: {
-          id: usuario.id,
-          nombre: usuario.nombre_completo,
-          email: usuario.correo,
-          nivel: usuario.nivel,
-          area: usuario.area,
-          institucion: usuario.institucion
-        }
-      }
 
     } catch (error) {
       console.error('Error al verificar credenciales en PostgreSQL:', error)
@@ -363,13 +373,20 @@ export class PostgreSQLDatabase implements DatabaseInterface {
     }
   }
 
-  async query(sql: string, params: any[] = []): Promise<any[]> {
+  async query(sql: string, params: any[] = []): Promise<any> {
     try {
+      if (!this.client) {
+        await this.conectar()
+      }
+      
       const result = await this.client.query(sql, params)
-      return result.rows
-    } catch (error) {
-      console.error("Error al ejecutar query:", error)
-      return []
+      return result.rows // Retornar solo el array de filas
+    } catch (error: any) {
+      // Solo loggear errores inesperados, no errores de tabla no existe
+      if (error?.code !== '42P01') {
+        console.error("Error al ejecutar query:", error)
+      }
+      throw error
     }
   }
 

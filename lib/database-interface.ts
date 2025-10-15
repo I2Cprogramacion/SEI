@@ -29,34 +29,20 @@ export interface DatabaseInterface {
   // Métodos de migración
   ejecutarMigracion(sql: string): Promise<void>
 
+  // Método de consulta genérica
+  query(sql: string, params?: any[]): Promise<any>
+
   // Consultar investigadores incompletos (sin CURP)
   consultarInvestigadoresIncompletos(): Promise<any[]>
-  
-  // Buscar investigadores por término
-  buscarInvestigadores(params: {
-    termino: string
-    limite?: number
-  }): Promise<any[]>
-  
-  // Ejecutar query personalizada
-  query(sql: string, params?: any[]): Promise<any[]>
-  
-  // Métodos de proyectos
-  obtenerProyectos(): Promise<any[]>
-  
-  // Métodos de publicaciones
-  obtenerPublicaciones(): Promise<any[]>
-  
-  insertarPublicacion(datos: any): Promise<{
-    success: boolean
-    message: string
-    id?: number
-    error?: any
-  }>
+
+  // Métodos para proyectos y publicaciones (opcional, según implementación)
+  obtenerProyectos?(): Promise<any[]>
+  obtenerPublicaciones?(): Promise<any[]>
+  insertarPublicacion?(datos: any): Promise<any>
 }
 
 // Tipos de base de datos soportados
-export type DatabaseType = 'sqlite' | 'postgresql' | 'mysql' | 'mongodb' | 'vercelPostgres'
+export type DatabaseType = 'postgresql' | 'mysql' | 'mongodb' | 'vercelPostgres' | 'sqlite'
 
 // Configuración de base de datos
 export interface DatabaseConfig {
@@ -66,7 +52,7 @@ export interface DatabaseConfig {
   database?: string
   username?: string
   password?: string
-  filename?: string // Para SQLite
+  filename?: string // Solo para SQLite
   ssl?: boolean
   connectionString?: string
 }
@@ -78,18 +64,14 @@ export class DatabaseFactory {
       case 'sqlite':
         const { SQLiteDatabase } = await import('./databases/sqlite-database')
         return new SQLiteDatabase(config)
-        
       case 'postgresql':
       case 'vercelPostgres':
         const { PostgreSQLDatabase } = await import('./databases/postgresql-database')
         return new PostgreSQLDatabase(config)
-        
       case 'mysql':
         throw new Error('MySQL no está implementado aún')
-        
       case 'mongodb':
         throw new Error('MongoDB no está implementado aún')
-        
       default:
         throw new Error(`Tipo de base de datos no soportado: ${config.type}`)
     }
@@ -97,15 +79,14 @@ export class DatabaseFactory {
 }
 
 // Configuración por defecto
-export const defaultDatabaseConfig: DatabaseConfig = {
-  type: 'sqlite',
-  filename: 'database.db'
-}
+// export const defaultDatabaseConfig: DatabaseConfig = {
+//   type: 'sqlite',
+//   filename: 'database.db'
+// }
 
 // Configuración para diferentes entornos
 export const databaseConfigs = {
   development: {
-    sqlite: { type: 'sqlite' as const, filename: 'database.db' },
     postgresql: {
       type: 'postgresql' as const,
       host: 'localhost',
