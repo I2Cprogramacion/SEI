@@ -38,7 +38,8 @@ export async function GET(request: NextRequest) {
         fecha_nacimiento,
         estado_nacimiento,
         municipio,
-        entidad_federativa
+        entidad_federativa,
+        slug
       FROM investigadores 
       WHERE 1=1
     `
@@ -110,7 +111,7 @@ export async function GET(request: NextRequest) {
       estadoNacimiento: cleanValue(inv.estado_nacimiento),
       municipio: cleanValue(inv.municipio),
       entidadFederativa: cleanValue(inv.entidad_federativa),
-      slug: inv.nombre_completo?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || `investigador-${inv.id}`
+      slug: cleanValue(inv.slug) || `investigador-${inv.id}`
     }))
 
     // Obtener opciones únicas para filtros
