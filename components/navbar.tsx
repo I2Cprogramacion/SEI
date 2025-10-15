@@ -233,6 +233,14 @@ export default function Navbar() {
                       <User className="mr-2 h-4 w-4 text-blue-600" />
                       <span>Editar Perfil</span>
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push("/dashboard/mensajes")} className="cursor-pointer">
+                      <FileText className="mr-2 h-4 w-4 text-blue-600" />
+                      <span>Mensajes</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push("/dashboard/conexiones")} className="cursor-pointer">
+                      <Users className="mr-2 h-4 w-4 text-blue-600" />
+                      <span>Conexiones</span>
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50">
                       <LogOut className="mr-2 h-4 w-4" />
