@@ -10,51 +10,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    const userEmail = user.emailAddresses[0]?.emailAddress
+    const clerkUserId = user.id
+    const { destinatarioClerkId, asunto, mensaje } = await request.json()
 
-    if (!userEmail) {
-      return NextResponse.json({ error: "Email no encontrado" }, { status: 400 })
-    }
-
-    // Obtener el investigador remitente
-    const remitenteResult = await sql`
-      SELECT id, nombre_completo
-      FROM investigadores
-      WHERE correo = ${userEmail}
-    `
-
-    if (remitenteResult.rows.length === 0) {
-      return NextResponse.json(
-        { error: "Perfil de investigador no encontrado" },
-        { status: 404 }
-      )
-    }
-
-    const remitente = remitenteResult.rows[0]
-    const { destinatarioId, asunto, mensaje } = await request.json()
-
-    if (!destinatarioId || !asunto || !mensaje) {
+    if (!destinatarioClerkId || !asunto || !mensaje) {
       return NextResponse.json(
         { error: "Faltan campos requeridos" },
         { status: 400 }
       )
     }
 
-    // Verificar que el destinatario existe
-    const destinatarioResult = await sql`
-      SELECT id, nombre_completo, correo
-      FROM investigadores
-      WHERE id = ${destinatarioId}
-    `
-
-    if (destinatarioResult.rows.length === 0) {
-      return NextResponse.json(
-        { error: "Destinatario no encontrado" },
-        { status: 404 }
-      )
-    }
-
-    // Guardar el mensaje en la base de datos
+    // Guardar el mensaje usando Clerk IDs directamente
     const result = await sql`
       INSERT INTO mensajes (
         remitente_id,
@@ -64,8 +30,8 @@ export async function POST(request: NextRequest) {
         fecha_envio,
         leido
       ) VALUES (
-        ${remitente.id},
-        ${destinatarioId},
+        ${clerkUserId},
+        ${destinatarioClerkId},
         ${asunto},
         ${mensaje},
         CURRENT_TIMESTAMP,
@@ -73,9 +39,6 @@ export async function POST(request: NextRequest) {
       )
       RETURNING id
     `
-
-    // TODO: Enviar email de notificación al destinatario
-    // Puedes usar un servicio como SendGrid, Resend, etc.
 
     return NextResponse.json({
       success: true,
@@ -99,20 +62,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    const userEmail = user.emailAddresses[0]?.emailAddress
+    const clerkUserId = user.id
 
-    // Obtener el investigador actual
-    const investigadorResult = await sql`
-      SELECT id FROM investigadores WHERE correo = ${userEmail}
-    `
-
-    if (investigadorResult.rows.length === 0) {
-      return NextResponse.json({ error: "Perfil no encontrado" }, { status: 404 })
-    }
-
-    const investigadorId = investigadorResult.rows[0].id
-
-    // Obtener todos los mensajes (enviados y recibidos)
+    // Obtener todos los mensajes (enviados y recibidos) usando Clerk ID directamente
     const mensajes = await sql`
       SELECT 
         m.id,
@@ -123,25 +75,25 @@ export async function GET(request: NextRequest) {
         m.remitente_id,
         m.destinatario_id,
         CASE 
-          WHEN m.remitente_id = ${investigadorId} THEN 'enviado'
+          WHEN m.remitente_id = ${clerkUserId} THEN 'enviado'
           ELSE 'recibido'
         END as tipo,
         CASE 
-          WHEN m.remitente_id = ${investigadorId} THEN i_dest.nombre_completo
+          WHEN m.remitente_id = ${clerkUserId} THEN i_dest.nombre_completo
           ELSE i_rem.nombre_completo
         END as otro_usuario,
         CASE 
-          WHEN m.remitente_id = ${investigadorId} THEN i_dest.correo
+          WHEN m.remitente_id = ${clerkUserId} THEN i_dest.correo
           ELSE i_rem.correo
         END as otro_email,
         CASE 
-          WHEN m.remitente_id = ${investigadorId} THEN i_dest.fotografia_url
+          WHEN m.remitente_id = ${clerkUserId} THEN i_dest.fotografia_url
           ELSE i_rem.fotografia_url
         END as otro_foto
       FROM mensajes m
-      JOIN investigadores i_rem ON m.remitente_id = i_rem.id
-      JOIN investigadores i_dest ON m.destinatario_id = i_dest.id
-      WHERE m.remitente_id = ${investigadorId} OR m.destinatario_id = ${investigadorId}
+      LEFT JOIN investigadores i_rem ON m.remitente_id = i_rem.clerk_user_id
+      LEFT JOIN investigadores i_dest ON m.destinatario_id = i_dest.clerk_user_id
+      WHERE m.remitente_id = ${clerkUserId} OR m.destinatario_id = ${clerkUserId}
       ORDER BY m.fecha_envio DESC
     `
 
@@ -164,7 +116,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    const userEmail = user.emailAddresses[0]?.emailAddress
+    const clerkUserId = user.id
     const { mensajeId } = await request.json()
 
     if (!mensajeId) {
@@ -174,26 +126,12 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    // Obtener investigador actual
-    const investigadorResult = await sql`
-      SELECT id FROM investigadores WHERE correo = ${userEmail}
-    `
-
-    if (investigadorResult.rows.length === 0) {
-      return NextResponse.json(
-        { error: "Investigador no encontrado" },
-        { status: 404 }
-      )
-    }
-
-    const investigadorId = investigadorResult.rows[0].id
-
     // Marcar como leído solo si el usuario es el destinatario
     await sql`
       UPDATE mensajes 
       SET leido = true 
       WHERE id = ${mensajeId} 
-      AND destinatario_id = ${investigadorId}
+      AND destinatario_id = ${clerkUserId}
     `
 
     return NextResponse.json({ success: true })
