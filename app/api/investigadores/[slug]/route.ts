@@ -24,6 +24,7 @@ export async function GET(
     const result = await sql`
       SELECT 
         id,
+        clerk_user_id as "clerkUserId",
         nombre_completo as name,
         correo as email,
         curp,

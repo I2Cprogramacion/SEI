@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { currentUser } from "@clerk/nextjs/server"
 import { sql } from "@vercel/postgres"
+import { notifyNewMessage } from "@/lib/email-notifications"
+import { clerkClient } from "@clerk/nextjs/server"
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,6 +41,30 @@ export async function POST(request: NextRequest) {
       )
       RETURNING id
     `
+
+    // Enviar notificación por correo (no bloquear si falla)
+    try {
+      // Obtener datos del remitente
+      const senderName = user.fullName || user.firstName || 'Un investigador'
+      const senderEmail = user.emailAddresses[0]?.emailAddress || ''
+
+      // Obtener datos del destinatario desde Clerk
+      const recipient = await (await clerkClient()).users.getUser(destinatarioClerkId)
+      const recipientEmail = recipient.emailAddresses[0]?.emailAddress
+
+      if (recipientEmail) {
+        await notifyNewMessage(
+          recipientEmail,
+          senderName,
+          senderEmail,
+          asunto,
+          mensaje.substring(0, 100) // Preview de 100 caracteres
+        )
+      }
+    } catch (emailError) {
+      // Si falla el email, solo logear pero no fallar la request
+      console.warn('⚠️ No se pudo enviar notificación por email:', emailError)
+    }
 
     return NextResponse.json({
       success: true,

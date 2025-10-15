@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { currentUser } from "@clerk/nextjs/server"
 import { sql } from "@vercel/postgres"
+import { notifyNewConnectionRequest, notifyConnectionAccepted } from "@/lib/email-notifications"
+import { clerkClient } from "@clerk/nextjs/server"
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,6 +53,21 @@ export async function POST(request: NextRequest) {
       )
       RETURNING id
     `
+
+    // Enviar notificación por correo (no bloquear si falla)
+    try {
+      const senderName = user.fullName || user.firstName || 'Un investigador'
+      const senderEmail = user.emailAddresses[0]?.emailAddress || ''
+
+      const recipient = await (await clerkClient()).users.getUser(destinatarioClerkId)
+      const recipientEmail = recipient.emailAddresses[0]?.emailAddress
+
+      if (recipientEmail) {
+        await notifyNewConnectionRequest(recipientEmail, senderName, senderEmail)
+      }
+    } catch (emailError) {
+      console.warn('⚠️ No se pudo enviar notificación por email:', emailError)
+    }
 
     return NextResponse.json({
       success: true,
@@ -158,6 +175,15 @@ export async function PATCH(request: NextRequest) {
 
     const nuevoEstado = accion === 'aceptar' ? 'aceptada' : 'rechazada'
 
+    // Obtener datos de la conexión antes de actualizar
+    const conexion = await sql`
+      SELECT investigador_origen_id 
+      FROM conexiones 
+      WHERE id = ${conexionId} 
+      AND investigador_destino_id = ${clerkUserId}
+      AND estado = 'pendiente'
+    `
+
     // Actualizar estado solo si el usuario es el destinatario
     await sql`
       UPDATE conexiones 
@@ -167,6 +193,23 @@ export async function PATCH(request: NextRequest) {
       AND investigador_destino_id = ${clerkUserId}
       AND estado = 'pendiente'
     `
+
+    // Si se aceptó, enviar notificación al remitente
+    if (accion === 'aceptar' && conexion.rows.length > 0) {
+      try {
+        const senderClerkId = conexion.rows[0].investigador_origen_id
+        const accepterName = user.fullName || user.firstName || 'Un investigador'
+
+        const sender = await (await clerkClient()).users.getUser(senderClerkId)
+        const senderEmail = sender.emailAddresses[0]?.emailAddress
+
+        if (senderEmail) {
+          await notifyConnectionAccepted(senderEmail, accepterName)
+        }
+      } catch (emailError) {
+        console.warn('⚠️ No se pudo enviar notificación por email:', emailError)
+      }
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

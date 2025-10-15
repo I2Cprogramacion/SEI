@@ -32,6 +32,7 @@ import { EnviarMensajeDialog } from "@/components/enviar-mensaje-dialog"
 
 interface InvestigadorData {
   id: number
+  clerkUserId?: string
   name: string
   email: string
   curp?: string
@@ -638,12 +639,14 @@ export default function InvestigadorPage() {
             open={conectarDialogOpen}
             onOpenChange={setConectarDialogOpen}
             investigadorId={investigador.id}
+            investigadorClerkId={investigador.clerkUserId || ''}
             investigadorNombre={investigador.name}
           />
           <EnviarMensajeDialog
             open={mensajeDialogOpen}
             onOpenChange={setMensajeDialogOpen}
             investigadorId={investigador.id}
+            investigadorClerkId={investigador.clerkUserId || ''}
             investigadorNombre={investigador.name}
             investigadorEmail={investigador.email}
           />

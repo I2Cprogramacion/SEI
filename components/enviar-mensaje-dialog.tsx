@@ -21,6 +21,7 @@ interface EnviarMensajeDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   investigadorId: number
+  investigadorClerkId: string
   investigadorNombre: string
   investigadorEmail: string
 }
@@ -29,6 +30,7 @@ export function EnviarMensajeDialog({
   open,
   onOpenChange,
   investigadorId,
+  investigadorClerkId,
   investigadorNombre,
   investigadorEmail,
 }: EnviarMensajeDialogProps) {
@@ -67,7 +69,7 @@ export function EnviarMensajeDialog({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          destinatarioId: investigadorId,
+          destinatarioClerkId: investigadorClerkId,
           asunto,
           mensaje,
         }),
