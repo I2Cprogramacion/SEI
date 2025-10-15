@@ -3,10 +3,10 @@ import { getDatabase } from "@/lib/database-config"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = params
+    const { slug } = await params
     const db = await getDatabase()
     
     // Primero obtener el investigador para conseguir su nombre y correo
