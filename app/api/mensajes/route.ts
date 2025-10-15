@@ -120,6 +120,8 @@ export async function GET(request: NextRequest) {
         m.mensaje,
         m.fecha_envio,
         m.leido,
+        m.remitente_id,
+        m.destinatario_id,
         CASE 
           WHEN m.remitente_id = ${investigadorId} THEN 'enviado'
           ELSE 'recibido'
@@ -148,6 +150,57 @@ export async function GET(request: NextRequest) {
     console.error("Error al obtener mensajes:", error)
     return NextResponse.json(
       { error: "Error al obtener mensajes" },
+      { status: 500 }
+    )
+  }
+}
+
+// PATCH - Marcar mensaje como leído
+export async function PATCH(request: NextRequest) {
+  try {
+    const user = await currentUser()
+
+    if (!user) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 })
+    }
+
+    const userEmail = user.emailAddresses[0]?.emailAddress
+    const { mensajeId } = await request.json()
+
+    if (!mensajeId) {
+      return NextResponse.json(
+        { error: "ID de mensaje requerido" },
+        { status: 400 }
+      )
+    }
+
+    // Obtener investigador actual
+    const investigadorResult = await sql`
+      SELECT id FROM investigadores WHERE correo = ${userEmail}
+    `
+
+    if (investigadorResult.rows.length === 0) {
+      return NextResponse.json(
+        { error: "Investigador no encontrado" },
+        { status: 404 }
+      )
+    }
+
+    const investigadorId = investigadorResult.rows[0].id
+
+    // Marcar como leído solo si el usuario es el destinatario
+    await sql`
+      UPDATE mensajes 
+      SET leido = true 
+      WHERE id = ${mensajeId} 
+      AND destinatario_id = ${investigadorId}
+    `
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("Error al marcar mensaje como leído:", error)
+    return NextResponse.json(
+      { error: "Error al marcar mensaje como leído" },
       { status: 500 }
     )
   }

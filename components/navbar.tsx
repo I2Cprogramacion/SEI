@@ -4,6 +4,7 @@ import React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -34,6 +35,8 @@ export default function Navbar() {
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
   const [fotografiaUrl, setFotografiaUrl] = useState<string | null>(null)
+  const [mensajesNoLeidos, setMensajesNoLeidos] = useState(0)
+  const [conexionesPendientes, setConexionesPendientes] = useState(0)
   const router = useRouter()
   const { user, isSignedIn } = useUser()
   const { signOut } = useClerk()
@@ -47,6 +50,37 @@ export default function Navbar() {
     if (!user) return ""
     return user.fullName || user.primaryEmailAddress?.emailAddress || ""
   }
+
+  // Cargar contadores de notificaciones
+  useEffect(() => {
+    if (isSignedIn) {
+      const cargarContadores = async () => {
+        try {
+          const [mensajesRes, conexionesRes] = await Promise.all([
+            fetch("/api/mensajes/no-leidos"),
+            fetch("/api/conexiones/pendientes"),
+          ])
+
+          if (mensajesRes.ok) {
+            const data = await mensajesRes.json()
+            setMensajesNoLeidos(data.count || 0)
+          }
+
+          if (conexionesRes.ok) {
+            const data = await conexionesRes.json()
+            setConexionesPendientes(data.count || 0)
+          }
+        } catch (error) {
+          console.error("Error al cargar contadores:", error)
+        }
+      }
+
+      cargarContadores()
+      // Recargar cada 30 segundos
+      const interval = setInterval(cargarContadores, 30000)
+      return () => clearInterval(interval)
+    }
+  }, [isSignedIn])
 
   // Cargar foto del investigador desde PostgreSQL
   useEffect(() => {
@@ -236,10 +270,20 @@ export default function Navbar() {
                     <DropdownMenuItem onClick={() => router.push("/dashboard/mensajes")} className="cursor-pointer">
                       <FileText className="mr-2 h-4 w-4 text-blue-600" />
                       <span>Mensajes</span>
+                      {mensajesNoLeidos > 0 && (
+                        <Badge className="ml-auto bg-orange-500 text-white">
+                          {mensajesNoLeidos}
+                        </Badge>
+                      )}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => router.push("/dashboard/conexiones")} className="cursor-pointer">
                       <Users className="mr-2 h-4 w-4 text-blue-600" />
                       <span>Conexiones</span>
+                      {conexionesPendientes > 0 && (
+                        <Badge className="ml-auto bg-blue-500 text-white">
+                          {conexionesPendientes}
+                        </Badge>
+                      )}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50">

@@ -7,6 +7,17 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
   MessageCircle,
   Mail,
   Send,
@@ -15,9 +26,12 @@ import {
   User,
   AlertCircle,
   CheckCircle2,
+  Reply,
+  X,
 } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { es } from "date-fns/locale"
+import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 
 interface Mensaje {
@@ -30,12 +44,19 @@ interface Mensaje {
   otro_usuario: string
   otro_email: string
   otro_foto?: string
+  remitente_id?: number
+  destinatario_id?: number
 }
 
 export default function MensajesPage() {
   const [mensajes, setMensajes] = useState<Mensaje[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedMensaje, setSelectedMensaje] = useState<Mensaje | null>(null)
+  const [isReplying, setIsReplying] = useState(false)
+  const [replyAsunto, setReplyAsunto] = useState("")
+  const [replyMensaje, setReplyMensaje] = useState("")
+  const [isSending, setIsSending] = useState(false)
+  const { toast } = useToast()
 
   useEffect(() => {
     fetchMensajes()
@@ -56,6 +77,85 @@ export default function MensajesPage() {
     }
   }
 
+  const marcarComoLeido = async (mensajeId: number) => {
+    try {
+      const response = await fetch("/api/mensajes", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mensajeId }),
+      })
+
+      if (response.ok) {
+        // Actualizar el mensaje en el estado
+        setMensajes((prev) =>
+          prev.map((m) => (m.id === mensajeId ? { ...m, leido: true } : m))
+        )
+      }
+    } catch (error) {
+      console.error("Error al marcar como leído:", error)
+    }
+  }
+
+  const handleOpenMensaje = (mensaje: Mensaje) => {
+    setSelectedMensaje(mensaje)
+    // Si es un mensaje recibido y no está leído, marcarlo como leído
+    if (mensaje.tipo === "recibido" && !mensaje.leido) {
+      marcarComoLeido(mensaje.id)
+    }
+  }
+
+  const handleResponder = () => {
+    if (selectedMensaje) {
+      setReplyAsunto(`Re: ${selectedMensaje.asunto}`)
+      setReplyMensaje("")
+      setIsReplying(true)
+    }
+  }
+
+  const enviarRespuesta = async () => {
+    if (!selectedMensaje || !replyAsunto || !replyMensaje) {
+      toast({
+        title: "Error",
+        description: "Por favor completa todos los campos",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      setIsSending(true)
+      const response = await fetch("/api/mensajes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          destinatarioId: selectedMensaje.remitente_id,
+          asunto: replyAsunto,
+          mensaje: replyMensaje,
+        }),
+      })
+
+      if (response.ok) {
+        toast({
+          title: "¡Respuesta enviada!",
+          description: "Tu mensaje ha sido enviado exitosamente",
+        })
+        setIsReplying(false)
+        setSelectedMensaje(null)
+        fetchMensajes() // Recargar mensajes
+      } else {
+        throw new Error("Error al enviar respuesta")
+      }
+    } catch (error) {
+      console.error("Error:", error)
+      toast({
+        title: "Error",
+        description: "No se pudo enviar la respuesta",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSending(false)
+    }
+  }
   const mensajesRecibidos = mensajes.filter((m) => m.tipo === "recibido")
   const mensajesEnviados = mensajes.filter((m) => m.tipo === "enviado")
   const mensajesNoLeidos = mensajesRecibidos.filter((m) => !m.leido)
@@ -158,7 +258,7 @@ export default function MensajesPage() {
                   className={`cursor-pointer transition-all hover:shadow-md ${
                     !mensaje.leido ? "border-l-4 border-l-orange-500 bg-orange-50" : ""
                   }`}
-                  onClick={() => setSelectedMensaje(mensaje)}
+                  onClick={() => handleOpenMensaje(mensaje)}
                 >
                   <CardContent className="pt-6">
                     <div className="flex items-start justify-between gap-4">
@@ -249,51 +349,111 @@ export default function MensajesPage() {
       </Tabs>
 
       {/* Modal de detalle del mensaje */}
-      {selectedMensaje && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
-          onClick={() => setSelectedMensaje(null)}
-        >
-          <Card
-            className="max-w-2xl w-full max-h-[80vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-xl text-blue-900">
-                    {selectedMensaje.asunto}
-                  </CardTitle>
-                  <CardDescription className="mt-2">
-                    <div className="flex items-center gap-2">
-                      {selectedMensaje.tipo === "recibido" ? "De:" : "Para:"}
-                      <span className="font-semibold">{selectedMensaje.otro_usuario}</span>
-                      <span className="text-xs">({selectedMensaje.otro_email})</span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1 text-xs">
-                      <Clock className="h-3 w-3" />
-                      {formatDistanceToNow(new Date(selectedMensaje.fecha_envio), {
-                        addSuffix: true,
-                        locale: es,
-                      })}
-                    </div>
-                  </CardDescription>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedMensaje(null)}
-                >
-                  ✕
-                </Button>
+      <Dialog open={!!selectedMensaje && !isReplying} onOpenChange={() => setSelectedMensaje(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-blue-900">
+              {selectedMensaje?.asunto}
+            </DialogTitle>
+            <DialogDescription>
+              <div className="flex items-center gap-2 mt-2">
+                {selectedMensaje?.tipo === "recibido" ? "De:" : "Para:"}
+                <span className="font-semibold">{selectedMensaje?.otro_usuario}</span>
+                <span className="text-xs">({selectedMensaje?.otro_email})</span>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="whitespace-pre-wrap text-blue-900">{selectedMensaje.mensaje}</div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+              <div className="flex items-center gap-2 mt-1 text-xs">
+                <Clock className="h-3 w-3" />
+                {selectedMensaje &&
+                  formatDistanceToNow(new Date(selectedMensaje.fecha_envio), {
+                    addSuffix: true,
+                    locale: es,
+                  })}
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
+            <div className="whitespace-pre-wrap text-blue-900 p-4 bg-gray-50 rounded-lg">
+              {selectedMensaje?.mensaje}
+            </div>
+          </div>
+          {selectedMensaje?.tipo === "recibido" && (
+            <DialogFooter className="mt-6">
+              <Button variant="outline" onClick={() => setSelectedMensaje(null)}>
+                Cerrar
+              </Button>
+              <Button onClick={handleResponder} className="flex items-center gap-2">
+                <Reply className="h-4 w-4" />
+                Responder
+              </Button>
+            </DialogFooter>
+          )}
+          {selectedMensaje?.tipo === "enviado" && (
+            <DialogFooter className="mt-6">
+              <Button onClick={() => setSelectedMensaje(null)}>Cerrar</Button>
+            </DialogFooter>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de respuesta */}
+      <Dialog open={isReplying} onOpenChange={setIsReplying}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-blue-900">Responder mensaje</DialogTitle>
+            <DialogDescription>
+              Respondiendo a {selectedMensaje?.otro_usuario}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div>
+              <Label htmlFor="asunto">Asunto</Label>
+              <Input
+                id="asunto"
+                value={replyAsunto}
+                onChange={(e) => setReplyAsunto(e.target.value)}
+                placeholder="Asunto del mensaje"
+              />
+            </div>
+            <div>
+              <Label htmlFor="mensaje">Mensaje</Label>
+              <Textarea
+                id="mensaje"
+                value={replyMensaje}
+                onChange={(e) => setReplyMensaje(e.target.value)}
+                placeholder="Escribe tu respuesta..."
+                rows={8}
+              />
+            </div>
+          </div>
+          <DialogFooter className="mt-6">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsReplying(false)
+                setReplyAsunto("")
+                setReplyMensaje("")
+              }}
+              disabled={isSending}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={enviarRespuesta}
+              disabled={isSending || !replyAsunto || !replyMensaje}
+              className="flex items-center gap-2"
+            >
+              {isSending ? (
+                <>Enviando...</>
+              ) : (
+                <>
+                  <Send className="h-4 w-4" />
+                  Enviar respuesta
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

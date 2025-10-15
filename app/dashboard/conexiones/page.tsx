@@ -14,9 +14,12 @@ import {
   Clock,
   Building2,
   Mail,
+  Check,
+  X,
 } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { es } from "date-fns/locale"
+import { useToast } from "@/hooks/use-toast"
 
 interface Conexion {
   id: number
@@ -28,11 +31,14 @@ interface Conexion {
   email: string
   fotografia_url?: string
   institucion?: string
+  es_destinatario?: boolean
 }
 
 export default function ConexionesPage() {
   const [conexiones, setConexiones] = useState<Conexion[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [processingId, setProcessingId] = useState<number | null>(null)
+  const { toast } = useToast()
 
   useEffect(() => {
     fetchConexiones()
@@ -50,6 +56,39 @@ export default function ConexionesPage() {
       console.error("Error al cargar conexiones:", error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleRespuesta = async (conexionId: number, estado: "aceptada" | "rechazada") => {
+    try {
+      setProcessingId(conexionId)
+      const response = await fetch("/api/conexiones", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conexionId, estado }),
+      })
+
+      if (response.ok) {
+        toast({
+          title: estado === "aceptada" ? "¡Conexión aceptada!" : "Solicitud rechazada",
+          description:
+            estado === "aceptada"
+              ? "Ahora estás conectado con este investigador"
+              : "Has rechazado esta solicitud de conexión",
+        })
+        fetchConexiones() // Recargar conexiones
+      } else {
+        throw new Error("Error al procesar solicitud")
+      }
+    } catch (error) {
+      console.error("Error:", error)
+      toast({
+        title: "Error",
+        description: "No se pudo procesar la solicitud",
+        variant: "destructive",
+      })
+    } finally {
+      setProcessingId(null)
     }
   }
 
@@ -203,7 +242,7 @@ export default function ConexionesPage() {
           <div>
             <h2 className="text-xl font-semibold text-blue-900 mb-4 flex items-center gap-2">
               <Clock className="h-5 w-5 text-orange-600" />
-              Pendientes ({conexionesPendientes.length})
+              Solicitudes Pendientes ({conexionesPendientes.length})
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {conexionesPendientes.map((conexion) => (
@@ -222,7 +261,7 @@ export default function ConexionesPage() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <div className="flex items-start justify-between">
+                        <div className="flex items-start justify-between mb-2">
                           <div>
                             <h3 className="font-semibold text-blue-900">{conexion.nombre}</h3>
                             {conexion.institucion && (
@@ -231,16 +270,43 @@ export default function ConexionesPage() {
                                 {conexion.institucion}
                               </p>
                             )}
+                            <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                              <Mail className="h-3 w-3" />
+                              {conexion.email}
+                            </p>
                           </div>
                           {getEstadoBadge(conexion.estado)}
                         </div>
-                        <p className="text-xs text-muted-foreground mt-2">
-                          Solicitado{" "}
+                        <p className="text-xs text-muted-foreground mb-3">
+                          Solicitud enviada{" "}
                           {formatDistanceToNow(new Date(conexion.fecha_solicitud), {
                             addSuffix: true,
                             locale: es,
                           })}
                         </p>
+                        {conexion.es_destinatario && (
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => handleRespuesta(conexion.id, "aceptada")}
+                              disabled={processingId === conexion.id}
+                              className="flex-1 bg-green-600 hover:bg-green-700"
+                            >
+                              <Check className="h-4 w-4 mr-1" />
+                              Aceptar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleRespuesta(conexion.id, "rechazada")}
+                              disabled={processingId === conexion.id}
+                              className="flex-1 text-red-600 border-red-300 hover:bg-red-50"
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              Rechazar
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </CardContent>

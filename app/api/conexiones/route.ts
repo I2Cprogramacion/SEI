@@ -123,6 +123,8 @@ export async function GET(request: NextRequest) {
         c.estado,
         c.fecha_solicitud,
         c.fecha_respuesta,
+        c.investigador_origen_id,
+        c.investigador_destino_id,
         CASE 
           WHEN c.investigador_origen_id = ${investigadorId} THEN i2.id
           ELSE i1.id
@@ -142,7 +144,11 @@ export async function GET(request: NextRequest) {
         CASE 
           WHEN c.investigador_origen_id = ${investigadorId} THEN i2.institucion
           ELSE i1.institucion
-        END as institucion
+        END as institucion,
+        CASE 
+          WHEN c.investigador_destino_id = ${investigadorId} THEN true
+          ELSE false
+        END as es_destinatario
       FROM conexiones c
       JOIN investigadores i1 ON c.investigador_origen_id = i1.id
       JOIN investigadores i2 ON c.investigador_destino_id = i2.id
@@ -155,6 +161,62 @@ export async function GET(request: NextRequest) {
     console.error("Error al obtener conexiones:", error)
     return NextResponse.json(
       { error: "Error al obtener conexiones" },
+      { status: 500 }
+    )
+  }
+}
+
+// PATCH - Aceptar o rechazar conexión
+export async function PATCH(request: NextRequest) {
+  try {
+    const user = await currentUser()
+
+    if (!user) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 })
+    }
+
+    const userEmail = user.emailAddresses[0]?.emailAddress
+    const { conexionId, estado } = await request.json()
+
+    if (!conexionId || !estado) {
+      return NextResponse.json(
+        { error: "ID de conexión y estado son requeridos" },
+        { status: 400 }
+      )
+    }
+
+    if (!["aceptada", "rechazada"].includes(estado)) {
+      return NextResponse.json({ error: "Estado inválido" }, { status: 400 })
+    }
+
+    // Obtener investigador actual
+    const investigadorResult = await sql`
+      SELECT id FROM investigadores WHERE correo = ${userEmail}
+    `
+
+    if (investigadorResult.rows.length === 0) {
+      return NextResponse.json(
+        { error: "Investigador no encontrado" },
+        { status: 404 }
+      )
+    }
+
+    const investigadorId = investigadorResult.rows[0].id
+
+    // Actualizar estado solo si el usuario es el destinatario
+    await sql`
+      UPDATE conexiones 
+      SET estado = ${estado}, fecha_respuesta = CURRENT_TIMESTAMP
+      WHERE id = ${conexionId} 
+      AND investigador_destino_id = ${investigadorId}
+      AND estado = 'pendiente'
+    `
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("Error al actualizar conexión:", error)
+    return NextResponse.json(
+      { error: "Error al actualizar conexión" },
       { status: 500 }
     )
   }
