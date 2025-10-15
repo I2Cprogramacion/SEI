@@ -235,11 +235,12 @@ export default function InvestigadorPage() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Button className="bg-blue-700 text-white hover:bg-blue-800" asChild>
-                      <a href={`mailto:${investigador.email}`}>
-                        <Mail className="mr-2 h-4 w-4" />
-                        Contactar
-                      </a>
+                    <Button 
+                      className="bg-blue-700 text-white hover:bg-blue-800"
+                      onClick={() => setMensajeDialogOpen(true)}
+                    >
+                      <Mail className="mr-2 h-4 w-4" />
+                      Contactar
                     </Button>
                     <Button 
                       variant="outline" 
