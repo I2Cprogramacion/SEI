@@ -1,9 +1,17 @@
 /**
  * Script de seed para inicializar datos de los nuevos módulos
  * 
- * Ejecutar con: npx prisma db seed
+ * ⚠️ IMPORTANTE: Este archivo es solo un EJEMPLO y NO se puede ejecutar todavía.
+ * 
+ * ANTES DE USAR:
+ * 1. Integrar los modelos de 'schema-nuevos-modulos.prisma' en 'schema.prisma'
+ * 2. Ejecutar: npx prisma migrate dev --name add-nuevos-modulos
+ * 3. Luego ejecutar: npx prisma db seed (configurar en package.json)
+ * 
+ * Los errores de TypeScript son normales porque los modelos aún no existen.
  */
 
+// @ts-nocheck - Deshabilitar errores de TypeScript hasta que se integren los modelos
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()

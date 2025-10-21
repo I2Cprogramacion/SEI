@@ -1,4 +1,3 @@
-
 import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -31,12 +30,14 @@ export default async function RootLayout({
           badgeSecuredByClerk: "hidden",
         },
       }}
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
     >
-      <html lang="es" className="m-0 p-0">
-        <body className="m-0 p-0 min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+      <html lang="es">
+        <body className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
           <ActividadUsuarioTracker />
           <Navbar />
           <main className="pt-16">{children}</main>
+          <Footer />
         </body>
       </html>
     </ClerkProvider>
