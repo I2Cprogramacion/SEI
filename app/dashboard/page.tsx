@@ -46,6 +46,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link"
 import { CvViewerEnhanced } from "@/components/cv-viewer-enhanced"
 import { UploadCv } from "@/components/upload-cv"
+import { GestionarCvDialog } from "@/components/gestionar-cv-dialog"
 
 interface InvestigadorData {
   id: number
@@ -101,6 +102,7 @@ export default function DashboardPage() {
   const [isLoadingSugerencias, setIsLoadingSugerencias] = useState(true)
   const [isLoadingEstadisticas, setIsLoadingEstadisticas] = useState(true)
   const [isDeletingAccount, setIsDeletingAccount] = useState(false)
+  const [gestionarCvDialogOpen, setGestionarCvDialogOpen] = useState(false)
 
   // Cargar datos del investigador
   useEffect(() => {
@@ -349,13 +351,27 @@ export default function DashboardPage() {
         {/* Perfil del Investigador */}
         <Card className="mb-8 bg-white border-blue-100">
           <CardHeader>
-            <CardTitle className="text-blue-900 flex items-center">
-              <FileText className="mr-2 h-5 w-5" />
-              Perfil del Investigador
-            </CardTitle>
-            <CardDescription className="text-blue-600">
-              {investigadorData?.cv_url ? "Tu perfil es visible públicamente" : "Sube tu CV para completar tu perfil público"}
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-blue-900 flex items-center">
+                  <FileText className="mr-2 h-5 w-5" />
+                  Perfil del Investigador
+                </CardTitle>
+                <CardDescription className="text-blue-600">
+                  {investigadorData?.cv_url ? "Tu perfil es visible públicamente" : "Sube tu CV para completar tu perfil público"}
+                </CardDescription>
+              </div>
+              {investigadorData?.cv_url && (
+                <Button
+                  onClick={() => setGestionarCvDialogOpen(true)}
+                  variant="outline"
+                  className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Gestionar CV
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {investigadorData?.cv_url ? (
@@ -594,6 +610,18 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
+
+      {/* Dialog para gestionar CV */}
+      <GestionarCvDialog
+        open={gestionarCvDialogOpen}
+        onOpenChange={setGestionarCvDialogOpen}
+        cvUrlActual={investigadorData?.cv_url}
+        onCvUpdated={(newUrl) => {
+          if (investigadorData) {
+            setInvestigadorData({ ...investigadorData, cv_url: newUrl || undefined })
+          }
+        }}
+      />
     </div>
   )
 }

@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams, notFound } from "next/navigation"
+import { useParams, useRouter, notFound } from "next/navigation"
+import { useAuth } from "@clerk/nextjs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -107,6 +108,8 @@ interface Publicacion {
 
 export default function InvestigadorPage() {
   const params = useParams()
+  const router = useRouter()
+  const { userId } = useAuth()
   const slug = params?.slug as string
   const [investigador, setInvestigador] = useState<InvestigadorData | null>(null)
   const [relacionados, setRelacionados] = useState<InvestigadorRelacionado[]>([])
@@ -115,6 +118,13 @@ export default function InvestigadorPage() {
   const [error, setError] = useState<string | null>(null)
   const [conectarDialogOpen, setConectarDialogOpen] = useState(false)
   const [mensajeDialogOpen, setMensajeDialogOpen] = useState(false)
+
+  // Redirigir si es tu propio perfil
+  useEffect(() => {
+    if (userId && investigador?.clerkUserId && investigador.clerkUserId === userId) {
+      router.push('/dashboard')
+    }
+  }, [userId, investigador, router])
 
   useEffect(() => {
     if (!slug) return
@@ -240,18 +250,10 @@ export default function InvestigadorPage() {
                   <div className="flex flex-col gap-2">
                     <Button 
                       className="bg-blue-700 text-white hover:bg-blue-800"
-                      onClick={() => setMensajeDialogOpen(true)}
+                      onClick={() => window.location.href = `mailto:${investigador.email}?subject=Contacto desde SEI&body=Hola ${investigador.name},%0D%0A%0D%0A`}
                     >
                       <Mail className="mr-2 h-4 w-4" />
-                      Contactar
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="border-blue-300 text-blue-700 hover:bg-blue-50"
-                      onClick={() => setConectarDialogOpen(true)}
-                    >
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      Conectar
+                      Enviar Email
                     </Button>
                     <Button 
                       variant="outline" 
@@ -259,7 +261,15 @@ export default function InvestigadorPage() {
                       onClick={() => setMensajeDialogOpen(true)}
                     >
                       <MessageCircle className="mr-2 h-4 w-4" />
-                      Mensaje
+                      Mensaje Interno
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="border-green-300 text-green-700 hover:bg-green-50"
+                      onClick={() => setConectarDialogOpen(true)}
+                    >
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      Conectar
                     </Button>
                   </div>
                 </div>
