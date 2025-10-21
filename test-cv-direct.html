@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prueba Directa de CV</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .status { padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        iframe { width: 100%; height: 600px; border: 1px solid #ddd; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Prueba de CV - Dynhora</h1>
+    
+    <div class="info">
+        <strong>URL Firmada:</strong><br>
+        <a href="https://res.cloudinary.com/sei-cloudinary/raw/upload/s--HyXUeE6n--/v1/investigadores-cvs/cv_1760458470433?_a=BAMAK+ZW0" target="_blank">
+            Abrir en nueva pestaña
+        </a>
+    </div>
+
+    <div id="status" class="info">
+        ⏳ Probando acceso al PDF...
+    </div>
+
+    <button onclick="probarDirecto()">📄 Probar Directo</button>
+    <button onclick="probarGoogle()">🌐 Probar con Google Viewer</button>
+    <button onclick="descargar()">💾 Descargar</button>
+
+    <div id="viewer"></div>
+
+    <script>
+        const cvUrl = 'https://res.cloudinary.com/sei-cloudinary/raw/upload/s--HyXUeE6n--/v1/investigadores-cvs/cv_1760458470433?_a=BAMAK+ZW0';
+        
+        // Probar acceso
+        fetch(cvUrl, { method: 'HEAD' })
+            .then(response => {
+                const status = document.getElementById('status');
+                if (response.ok) {
+                    status.className = 'status success';
+                    status.innerHTML = `✅ PDF accesible (Status: ${response.status})`;
+                    console.log('Headers:', response.headers);
+                } else {
+                    status.className = 'status error';
+                    status.innerHTML = `❌ Error al acceder (Status: ${response.status})`;
+                }
+            })
+            .catch(error => {
+                const status = document.getElementById('status');
+                status.className = 'status error';
+                status.innerHTML = `❌ Error: ${error.message}`;
+            });
+
+        function probarDirecto() {
+            document.getElementById('viewer').innerHTML = `
+                <h3>Visor Directo:</h3>
+                <iframe src="${cvUrl}" onload="console.log('✅ Iframe cargado')" onerror="console.error('❌ Error en iframe')"></iframe>
+            `;
+        }
+
+        function probarGoogle() {
+            const googleUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(cvUrl)}&embedded=true`;
+            document.getElementById('viewer').innerHTML = `
+                <h3>Google Docs Viewer:</h3>
+                <iframe src="${googleUrl}"></iframe>
+            `;
+        }
+
+        async function descargar() {
+            try {
+                const response = await fetch(cvUrl);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'CV_Dynhora.pdf';
+                a.click();
+                window.URL.revokeObjectURL(url);
+                alert('✅ Descarga iniciada');
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
+
+
