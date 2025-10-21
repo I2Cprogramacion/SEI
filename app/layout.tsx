@@ -8,14 +8,11 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ActividadUsuarioTracker } from "@/components/actividad-usuario-tracker";
+import { createMetadata } from "./metadata";
 
 const inter = Inter({ subsets: ["latin"] })
 
-export const metadata: Metadata = {
-  title: "Clerk Next.js Quickstart",
-  description: "Plataforma para conectar investigadores y sus proyectos en el estado de Chihuahua",
-    generator: 'v0.app'
-}
+export const metadata: Metadata = createMetadata()
 
 export default async function RootLayout({
   children,
