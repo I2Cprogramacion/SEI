@@ -26,11 +26,12 @@ export function CvViewerEnhanced({
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [viewMode, setViewMode] = useState<'iframe' | 'object' | 'embed'>('iframe')
-  const [zoom, setZoom] = useState<number>(150)
+  const [zoom, setZoom] = useState<number>(100)
+  const [isScrollLocked, setIsScrollLocked] = useState(true)
 
-  // Log para verificar que se está usando el CV correcto del usuario
-  console.log('📄 CvViewerEnhanced cargado para:', investigadorNombre)
-  console.log('🔗 CV URL:', cvUrl)
+  // Log para verificar que se esta usando el CV correcto del usuario
+  console.log('CvViewerEnhanced cargado para:', investigadorNombre)
+  console.log('CV URL:', cvUrl)
 
   const handleDownload = async () => {
     try {
@@ -69,10 +70,19 @@ export function CvViewerEnhanced({
   }
 
   const resetZoom = () => {
-    setZoom(150)
+    setZoom(100)
   }
 
-  // Renderiza el PDF con el método seleccionado
+  // Funciones para manejar el bloqueo de scroll (solo para vista de tarjeta)
+  const handlePdfClick = () => {
+    setIsScrollLocked(false)
+  }
+
+  const handlePdfMouseLeave = () => {
+    setIsScrollLocked(true)
+  }
+
+  // Renderiza el PDF con el metodo seleccionado
   const renderPdf = (className: string = "") => {
     if (!cvUrl) {
       return (
@@ -81,7 +91,7 @@ export function CvViewerEnhanced({
             <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600 font-medium">No hay CV disponible</p>
             <p className="text-sm text-gray-500 mt-2">
-              Sube tu CV desde el dashboard para verlo aquí
+              Sube tu CV desde el dashboard para verlo aqui
             </p>
           </div>
         </div>
@@ -91,9 +101,10 @@ export function CvViewerEnhanced({
     const commonProps = {
       className: `w-full h-full border-0 ${className}`,
       title: `CV de ${investigadorNombre || "Investigador"}`,
+      style: { width: '100%', height: '100%' }
     }
 
-    // Método 1: iframe con #toolbar=0 para ocultar barra de herramientas
+    // Metodo 1: iframe con #toolbar=0 para ocultar barra de herramientas
     if (viewMode === 'iframe') {
       return (
         <iframe
@@ -104,7 +115,7 @@ export function CvViewerEnhanced({
       )
     }
 
-    // Método 2: object tag (mejor compatibilidad con algunos navegadores)
+    // Metodo 2: object tag (mejor compatibilidad con algunos navegadores)
     if (viewMode === 'object') {
       return (
         <object
@@ -113,16 +124,16 @@ export function CvViewerEnhanced({
           type="application/pdf"
         >
           <p className="p-4 text-center">
-            Tu navegador no soporta la visualización de PDFs.{" "}
+            Tu navegador no soporta la visualizacion de PDFs.{" "}
             <Button variant="link" onClick={handleOpenNewTab}>
-              Haz clic aquí para abrirlo en una nueva pestaña
+              Haz clic aqui para abrirlo en una nueva pestana
             </Button>
           </p>
         </object>
       )
     }
 
-    // Método 3: embed tag (fallback adicional)
+    // Metodo 3: embed tag (fallback adicional)
     return (
       <embed
         {...commonProps}
@@ -176,7 +187,7 @@ export function CvViewerEnhanced({
             {/* Barra de Herramientas de Zoom - AGREGADA AL CARD */}
             <div className="mt-4 px-4 py-2 border border-gray-200 rounded-lg bg-white flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600 font-medium">🔍 Zoom:</span>
+                <span className="text-sm text-gray-600 font-medium">Zoom:</span>
                 <Button
                   variant="outline"
                   size="sm"
@@ -211,7 +222,7 @@ export function CvViewerEnhanced({
                 </Button>
               </div>
               <div className="text-xs text-gray-500">
-                Usa los controles para ajustar el tamaño del documento
+                Usa los controles para ajustar el tamano del documento
               </div>
             </div>
             
@@ -229,14 +240,48 @@ export function CvViewerEnhanced({
               </div>
               <div className="p-4 overflow-auto" style={{ height: '500px' }}>
                 <div 
-                  className="bg-white rounded-lg overflow-hidden shadow-inner transition-transform duration-200"
+                  className={`bg-white rounded-lg overflow-hidden shadow-inner transition-transform duration-200 relative ${
+                    isScrollLocked ? 'overflow-hidden' : 'overflow-auto'
+                  }`}
                   style={{
                     transform: `scale(${zoom / 100})`,
                     transformOrigin: 'top center',
                     width: '100%',
-                    minHeight: '400px'
+                    minHeight: '400px',
+                    cursor: isScrollLocked ? 'not-allowed' : 'auto'
                   }}
+                  onClick={handlePdfClick}
+                  onMouseLeave={handlePdfMouseLeave}
                 >
+                  {/* Overlay de bloqueo solo sobre el PDF */}
+                  {isScrollLocked && (
+                    <div 
+                      className="absolute inset-0 bg-blue-50 bg-opacity-80 flex items-center justify-center z-10 rounded-lg"
+                      style={{ 
+                        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 197, 253, 0.1) 100%)',
+                        backdropFilter: 'blur(1px)'
+                      }}
+                    >
+                      <div className="text-center p-4 bg-white rounded-lg shadow-lg border border-blue-200">
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <Eye className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <h3 className="text-base font-semibold text-blue-900 mb-2">PDF Bloqueado</h3>
+                        <p className="text-xs text-blue-700 mb-3">
+                          Haz clic en el PDF para desbloquear el scroll
+                        </p>
+                        <Button
+                          onClick={handlePdfClick}
+                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Desbloquear PDF
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div style={{ width: '100%', height: '400px' }}>
                     {renderPdf("rounded-lg")}
                   </div>
@@ -244,11 +289,34 @@ export function CvViewerEnhanced({
               </div>
             </div>
 
-            {/* Botones de métodos de visualización */}
+            {/* Estado del scroll en la vista de tarjeta */}
+            <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${
+                    isScrollLocked ? 'bg-red-500' : 'bg-green-500'
+                  }`}></div>
+                  <span className="text-sm font-medium text-gray-700">
+                    {isScrollLocked ? 'Scroll Bloqueado' : 'Scroll Desbloqueado'}
+                  </span>
+                </div>
+                <Button
+                  variant={isScrollLocked ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setIsScrollLocked(!isScrollLocked)}
+                  className="text-xs"
+                >
+                  <Eye className="h-3 w-3 mr-1" />
+                  {isScrollLocked ? 'Desbloquear' : 'Bloquear'}
+                </Button>
+              </div>
+            </div>
+
+            {/* Botones de metodos de visualizacion */}
             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                 <span className="text-xs font-medium text-blue-900">
-                  Prueba los siguientes métodos en caso de no poder visualizar el PDF correctamente:
+                  Prueba los siguientes metodos en caso de no poder visualizar el PDF correctamente:
                 </span>
                 <div className="flex gap-1 flex-wrap">
                   <Button
@@ -257,7 +325,7 @@ export function CvViewerEnhanced({
                     onClick={() => setViewMode('iframe')}
                     className={`text-xs h-7 ${viewMode === 'iframe' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'hover:bg-blue-100'}`}
                   >
-                    Método 1
+                    Metodo 1
                   </Button>
                   <Button
                     variant="ghost"
@@ -265,7 +333,7 @@ export function CvViewerEnhanced({
                     onClick={() => setViewMode('object')}
                     className={`text-xs h-7 ${viewMode === 'object' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'hover:bg-blue-100'}`}
                   >
-                    Método 2
+                    Metodo 2
                   </Button>
                   <Button
                     variant="ghost"
@@ -273,7 +341,7 @@ export function CvViewerEnhanced({
                     onClick={() => setViewMode('embed')}
                     className={`text-xs h-7 ${viewMode === 'embed' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'hover:bg-blue-100'}`}
                   >
-                    Método 3
+                    Metodo 3
                   </Button>
                   <Button
                     variant="ghost"
@@ -282,7 +350,7 @@ export function CvViewerEnhanced({
                     className="text-xs h-7 hover:bg-blue-100"
                   >
                     <ExternalLink className="h-3 w-3 mr-1" />
-                    Nueva pestaña
+                    Nueva pestana
                   </Button>
                 </div>
               </div>
@@ -333,77 +401,64 @@ export function CvViewerEnhanced({
                     className="text-blue-700 hover:bg-blue-100"
                   >
                     <ExternalLink className="h-4 w-4 mr-2" />
-                    Nueva pestaña
+                    Nueva pestana
                   </Button>
                 </div>
               </div>
             </DialogHeader>
             
-            {/* Barra de Herramientas de Zoom - AGREGADA */}
-            <div className="px-4 py-2 border-b bg-white flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600 font-medium">🔍 Zoom:</span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={zoomOut}
-                  disabled={zoom <= 50}
-                  className="h-8 w-8 p-0"
-                  title="Alejar (zoom out)"
-                >
-                  <ZoomOut className="h-4 w-4" />
-                </Button>
-                <span className="text-sm font-semibold text-blue-700 min-w-[55px] text-center bg-blue-50 px-3 py-1 rounded">
-                  {zoom}%
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={zoomIn}
-                  disabled={zoom >= 200}
-                  className="h-8 w-8 p-0"
-                  title="Acercar (zoom in)"
-                >
-                  <ZoomIn className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={resetZoom}
-                  className="h-8 text-xs px-3"
-                  title="Restablecer zoom al 150%"
-                >
-                  Restablecer
-                </Button>
-              </div>
-              <div className="text-xs text-gray-500">
-                Usa los controles para ajustar el tamaño del documento
-              </div>
-            </div>
-            
-            <div className="flex-1 overflow-auto bg-gray-100 p-4">
-              <div 
-                className="bg-white rounded-lg overflow-hidden shadow-inner transition-transform duration-200"
-                style={{
-                  transform: `scale(${zoom / 100})`,
-                  transformOrigin: 'top center'
-                }}
-              >
-                {renderPdf("rounded-lg")}
-              </div>
-            </div>
+            {/* Layout con barra lateral izquierda */}
+            <div className="flex h-[calc(100vh-200px)]">
+              {/* Barra lateral izquierda con controles */}
+              <div className="w-80 bg-white border-r border-gray-200 p-4 space-y-4">
+                {/* Controles de Zoom */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-gray-900">Controles de Zoom</h3>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={zoomOut}
+                      disabled={zoom <= 50}
+                      className="h-8 w-8 p-0"
+                      title="Alejar (zoom out)"
+                    >
+                      <ZoomOut className="h-4 w-4" />
+                    </Button>
+                    <span className="text-sm font-semibold text-blue-700 min-w-[55px] text-center bg-blue-50 px-3 py-1 rounded">
+                      {zoom}%
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={zoomIn}
+                      disabled={zoom >= 200}
+                      className="h-8 w-8 p-0"
+                      title="Acercar (zoom in)"
+                    >
+                      <ZoomIn className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={resetZoom}
+                      className="h-8 text-xs px-3"
+                      title="Restablecer zoom al 100%"
+                    >
+                      Restablecer
+                    </Button>
+                  </div>
+                </div>
 
-            {/* Selector de método de visualización en el modal */}
-            <div className="px-6 py-3 border-t bg-gradient-to-r from-blue-50 to-indigo-50">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-xs text-blue-900 font-medium">
-                  <span>💡 Método de visualización actual:</span>
-                  <div className="flex gap-1">
+                {/* Métodos de visualización */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-gray-900">Método de Visualización</h3>
+                  <div className="space-y-2">
                     <Button
                       variant={viewMode === 'iframe' ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setViewMode('iframe')}
-                      className="text-xs h-7"
+                      className="w-full justify-start"
                     >
                       IFrame
                     </Button>
@@ -411,7 +466,7 @@ export function CvViewerEnhanced({
                       variant={viewMode === 'object' ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setViewMode('object')}
-                      className="text-xs h-7"
+                      className="w-full justify-start"
                     >
                       Object
                     </Button>
@@ -419,15 +474,57 @@ export function CvViewerEnhanced({
                       variant={viewMode === 'embed' ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setViewMode('embed')}
-                      className="text-xs h-7"
+                      className="w-full justify-start"
                     >
                       Embed
                     </Button>
                   </div>
+                  <p className="text-xs text-gray-500">
+                    Prueba los métodos si el PDF no se visualiza correctamente
+                  </p>
                 </div>
-                <p className="text-xs text-blue-600">
-                  Prueba los métodos si el PDF no se visualiza correctamente
-                </p>
+
+
+                {/* Acciones rápidas */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-gray-900">Acciones</h3>
+                  <div className="space-y-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDownload}
+                      className="w-full justify-start"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Descargar PDF
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleOpenNewTab}
+                      className="w-full justify-start"
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Abrir en nueva pestaña
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Área principal del PDF */}
+              <div className="flex-1 overflow-auto bg-gray-100 p-2">
+                <div 
+                  className="bg-white rounded-lg overflow-hidden shadow-inner transition-transform duration-200 mx-auto"
+                  style={{
+                    transform: `scale(${zoom / 100})`,
+                    transformOrigin: 'top center',
+                    width: '100%',
+                    height: 'calc(100vh - 120px)',
+                    minHeight: '800px'
+                  }}
+                >
+                  {renderPdf("rounded-lg")}
+                </div>
               </div>
             </div>
           </DialogContent>
@@ -436,7 +533,7 @@ export function CvViewerEnhanced({
     )
   }
 
-  // Versión simple (botón)
+  // Version simple (boton)
   return (
     <>
       <Button 
@@ -489,7 +586,7 @@ export function CvViewerEnhanced({
                   className="text-blue-700 hover:bg-blue-100"
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
-                  Nueva pestaña
+                  Nueva pestana
                 </Button>
               </div>
             </div>
@@ -498,7 +595,7 @@ export function CvViewerEnhanced({
           {/* Barra de Herramientas de Zoom */}
           <div className="px-4 py-2 border-b bg-white flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 font-medium">🔍 Zoom:</span>
+              <span className="text-sm text-gray-600 font-medium">Zoom:</span>
               <Button
                 variant="outline"
                 size="sm"
@@ -533,7 +630,7 @@ export function CvViewerEnhanced({
               </Button>
             </div>
             <div className="text-xs text-gray-500">
-              Usa los controles para ajustar el tamaño del documento
+              Usa los controles para ajustar el tamano del documento
             </div>
           </div>
 
@@ -552,7 +649,7 @@ export function CvViewerEnhanced({
           <div className="px-6 py-3 border-t bg-gradient-to-r from-blue-50 to-indigo-50">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-xs text-blue-900 font-medium">
-                <span>💡 Método de visualización actual:</span>
+                <span>Metodo de visualizacion actual:</span>
                 <div className="flex gap-1">
                   <Button
                     variant={viewMode === 'iframe' ? 'default' : 'outline'}
@@ -581,7 +678,7 @@ export function CvViewerEnhanced({
                 </div>
               </div>
               <p className="text-xs text-blue-600">
-                Prueba los métodos si el PDF no se visualiza correctamente
+                Prueba los metodos si el PDF no se visualiza correctamente
               </p>
             </div>
           </div>

@@ -9,6 +9,7 @@ import Link from "next/link"
 import { FeaturedResearchers } from "@/components/featured-researchers"
 import { RecentProjects } from "@/components/recent-projects"
 import { UsuariosActivosWidget } from "@/components/usuarios-activos-widget"
+import { MetricCard, ProgressCard } from "@/components/admin/metric-cards"
 
 // Interfaces para tipos de datos
 interface DashboardStats {
@@ -158,99 +159,70 @@ export default function AdminDashboard() {
 
         {/* Estadísticas principales */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-white border-blue-100 hover:border-blue-300 transition-colors cursor-pointer">
-            <Link href="/admin/investigadores">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-blue-900">Total Investigadores</CardTitle>
-                <Users className="h-4 w-4 text-blue-600" />
-              </CardHeader>
-              <CardContent>
-              <div className="text-2xl font-bold text-blue-900">
-                {loading ? (
-                  <div className="animate-pulse bg-blue-100 h-8 w-16 rounded"></div>
-                ) : (
-                  stats.totalInvestigadores
-                )}
-              </div>
-              <p className="text-xs text-blue-600">
-                +{loading ? (
-                  <span className="animate-pulse bg-blue-100 h-3 w-8 rounded inline-block"></span>
-                ) : (
-                  stats.investigadoresNuevos
-                )} nuevos este mes
-              </p>
-              </CardContent>
-            </Link>
-          </Card>
+          {loading ? (
+            <>
+              {[...Array(4)].map((_, i) => (
+                <Card key={i} className="bg-white border-blue-100">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <div className="animate-pulse bg-blue-100 h-4 w-32 rounded"></div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="animate-pulse bg-blue-100 h-8 w-16 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))}
+            </>
+          ) : (
+            <>
+              <Link href="/admin/investigadores">
+                <MetricCard
+                  title="Total Investigadores"
+                  value={stats.totalInvestigadores}
+                  change={{
+                    value: stats.investigadoresNuevos,
+                    isPositive: true,
+                    label: "nuevos este mes"
+                  }}
+                  icon={Users}
+                  iconColor="text-blue-600"
+                />
+              </Link>
 
-          <Card className="bg-white border-blue-100 hover:border-blue-300 transition-colors cursor-pointer">
-            <Link href="/admin/proyectos">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-blue-900">Proyectos Activos</CardTitle>
-                <FileText className="h-4 w-4 text-blue-600" />
-              </CardHeader>
-              <CardContent>
-              <div className="text-2xl font-bold text-blue-900">
-                {loading ? (
-                  <div className="animate-pulse bg-blue-100 h-8 w-16 rounded"></div>
-                ) : (
-                  stats.proyectosActivos
-                )}
-              </div>
-              <p className="text-xs text-blue-600">
-                de {loading ? (
-                  <span className="animate-pulse bg-blue-100 h-3 w-8 rounded inline-block"></span>
-                ) : (
-                  stats.totalProyectos
-                )} totales
-              </p>
-              </CardContent>
-            </Link>
-          </Card>
+              <Link href="/admin/proyectos">
+                <ProgressCard
+                  title="Proyectos Activos"
+                  current={stats.proyectosActivos}
+                  total={stats.totalProyectos}
+                  icon={FileText}
+                  iconColor="text-blue-600"
+                />
+              </Link>
 
-          <Card className="bg-white border-blue-100 hover:border-blue-300 transition-colors cursor-pointer">
-            <Link href="/admin/publicaciones">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-blue-900">Publicaciones</CardTitle>
-                <Award className="h-4 w-4 text-blue-600" />
-              </CardHeader>
-              <CardContent>
-              <div className="text-2xl font-bold text-blue-900">
-                {loading ? (
-                  <div className="animate-pulse bg-blue-100 h-8 w-16 rounded"></div>
-                ) : (
-                  stats.totalPublicaciones
-                )}
-              </div>
-              <p className="text-xs text-blue-600">
-                +{loading ? (
-                  <span className="animate-pulse bg-blue-100 h-3 w-8 rounded inline-block"></span>
-                ) : (
-                  stats.publicacionesRecientes
-                )} este mes
-              </p>
-              </CardContent>
-            </Link>
-          </Card>
+              <Link href="/admin/publicaciones">
+                <MetricCard
+                  title="Publicaciones"
+                  value={stats.totalPublicaciones}
+                  change={{
+                    value: stats.publicacionesRecientes,
+                    isPositive: true,
+                    label: "este mes"
+                  }}
+                  icon={Award}
+                  iconColor="text-blue-600"
+                />
+              </Link>
 
-          <Card className="bg-white border-blue-100 hover:border-blue-300 transition-colors cursor-pointer">
-            <Link href="/admin/instituciones">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-blue-900">Instituciones</CardTitle>
-                <Building className="h-4 w-4 text-blue-600" />
-              </CardHeader>
-              <CardContent>
-              <div className="text-2xl font-bold text-blue-900">
-                {loading ? (
-                  <div className="animate-pulse bg-blue-100 h-8 w-16 rounded"></div>
-                ) : (
-                  stats.totalInstituciones
-                )}
-              </div>
-              <p className="text-xs text-blue-600">registradas</p>
-              </CardContent>
-            </Link>
-          </Card>
+              <Link href="/admin/instituciones">
+                <MetricCard
+                  title="Instituciones"
+                  value={stats.totalInstituciones}
+                  description="registradas en la plataforma"
+                  icon={Building}
+                  iconColor="text-blue-600"
+                />
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Widget de Usuarios Activos */}

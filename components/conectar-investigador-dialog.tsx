@@ -20,6 +20,7 @@ interface ConectarInvestigadorDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   investigadorId: number
+  investigadorClerkId: string
   investigadorNombre: string
 }
 
@@ -27,6 +28,7 @@ export function ConectarInvestigadorDialog({
   open,
   onOpenChange,
   investigadorId,
+  investigadorClerkId,
   investigadorNombre,
 }: ConectarInvestigadorDialogProps) {
   const { userId } = useAuth()
@@ -54,7 +56,7 @@ export function ConectarInvestigadorDialog({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          investigadorId,
+          destinatarioClerkId: investigadorClerkId,
           mensaje: mensaje || `Hola ${investigadorNombre}, me gustaría conectar contigo.`,
         }),
       })

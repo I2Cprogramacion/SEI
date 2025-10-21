@@ -1,69 +1,49 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { put } from '@vercel/blob'
-
-export const runtime = 'edge' // Requerido para Vercel Blob
+import { NextRequest, NextResponse } from "next/server"
+import { put } from "@vercel/blob"
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("=== INICIO UPLOAD CV (VERCEL BLOB) ===");
-    
     const formData = await request.formData()
     const file = formData.get("file") as File
 
-    console.log("Archivo recibido:", file ? file.name : "No hay archivo");
-
     if (!file) {
-      return NextResponse.json({ error: "No se proporcionó ningún archivo" }, { status: 400 })
+      return NextResponse.json({ error: "No se encontró el archivo" }, { status: 400 })
     }
 
-    // Validar tipo de archivo
+    // Validar que sea un PDF
     if (file.type !== "application/pdf") {
-      return NextResponse.json({ error: "El archivo debe ser un PDF" }, { status: 400 })
+      return NextResponse.json({ error: "Solo se permiten archivos PDF" }, { status: 400 })
     }
 
     // Validar tamaño (máximo 10MB)
-    const maxSize = 10 * 1024 * 1024
+    const maxSize = 10 * 1024 * 1024 // 10MB
     if (file.size > maxSize) {
-      return NextResponse.json({ error: "El archivo excede el tamaño máximo de 10MB" }, { status: 400 })
+      return NextResponse.json({ error: "El archivo es demasiado grande. Tamaño máximo: 10MB" }, { status: 400 })
     }
 
-    // Sanitizar nombre del archivo
+    // Generar nombre único para el archivo
     const timestamp = Date.now()
-    const originalName = file.name.replace(/\.[^/.]+$/, "")
-    const sanitizedName = originalName
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-zA-Z0-9_-]/g, "_")
-      .substring(0, 50)
-    
-    const fileName = `cvs/${sanitizedName}_${timestamp}.pdf`
+    const fileName = `cv-${timestamp}-${file.name}`
 
     // Subir a Vercel Blob
     const blob = await put(fileName, file, {
-      access: 'public', // Acceso público para que sea visible
-      addRandomSuffix: false, // No agregar sufijo random
+      access: "public",
     })
 
-    console.log("✅ CV subido a Vercel Blob:", blob.url);
+    console.log("✅ Archivo subido a Vercel Blob:", blob.url)
 
     return NextResponse.json({
       success: true,
       url: blob.url,
-      fileName: fileName,
-      originalName: file.name,
+      filename: fileName,
       size: file.size,
+      type: file.type
     })
 
   } catch (error) {
-    console.error("❌ Error al subir CV:", error)
-    return NextResponse.json(
-      { 
-        error: "Error al procesar el archivo",
-        details: error instanceof Error ? error.message : String(error)
-      },
-      { status: 500 }
-    )
+    console.error("Error al subir archivo a Vercel Blob:", error)
+    return NextResponse.json({
+      error: `Error al subir el archivo: ${error instanceof Error ? error.message : "Error desconocido"}`,
+    }, { status: 500 })
   }
 }
-
-

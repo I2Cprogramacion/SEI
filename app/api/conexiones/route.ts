@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { currentUser } from "@clerk/nextjs/server"
 import { sql } from "@vercel/postgres"
+import { notifyNewConnectionRequest, notifyConnectionAccepted } from "@/lib/email-notifications"
+import { clerkClient } from "@clerk/nextjs/server"
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,60 +12,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    const userEmail = user.emailAddresses[0]?.emailAddress
+    const clerkUserId = user.id
+    const { destinatarioClerkId, mensaje } = await request.json()
 
-    if (!userEmail) {
-      return NextResponse.json({ error: "Email no encontrado" }, { status: 400 })
-    }
-
-    // Obtener el investigador solicitante
-    const solicitanteResult = await sql`
-      SELECT id, nombre_completo
-      FROM investigadores
-      WHERE correo = ${userEmail}
-    `
-
-    if (solicitanteResult.rows.length === 0) {
+    if (!destinatarioClerkId) {
       return NextResponse.json(
-        { error: "Perfil de investigador no encontrado" },
-        { status: 404 }
-      )
-    }
-
-    const solicitante = solicitanteResult.rows[0]
-    const { investigadorId, mensaje } = await request.json()
-
-    if (!investigadorId) {
-      return NextResponse.json(
-        { error: "ID de investigador requerido" },
+        { error: "Destinatario requerido" },
         { status: 400 }
       )
     }
 
-    // Verificar si ya existe una conexión
-    const conexionExistente = await sql`
-      SELECT id, estado
-      FROM conexiones
-      WHERE (investigador_origen_id = ${solicitante.id} AND investigador_destino_id = ${investigadorId})
-         OR (investigador_origen_id = ${investigadorId} AND investigador_destino_id = ${solicitante.id})
+    // Verificar que no existe ya una conexión
+    const existente = await sql`
+      SELECT id FROM conexiones 
+      WHERE (investigador_origen_id = ${clerkUserId} AND investigador_destino_id = ${destinatarioClerkId})
+         OR (investigador_origen_id = ${destinatarioClerkId} AND investigador_destino_id = ${clerkUserId})
     `
 
-    if (conexionExistente.rows.length > 0) {
-      const estado = conexionExistente.rows[0].estado
-      if (estado === 'aceptada') {
-        return NextResponse.json(
-          { error: "Ya estás conectado con este investigador" },
-          { status: 400 }
-        )
-      } else if (estado === 'pendiente') {
-        return NextResponse.json(
-          { error: "Ya existe una solicitud pendiente" },
-          { status: 400 }
-        )
-      }
+    if (existente.rows.length > 0) {
+      return NextResponse.json(
+        { error: "Ya existe una solicitud de conexión" },
+        { status: 400 }
+      )
     }
 
-    // Crear la solicitud de conexión
+    // Crear solicitud de conexión
     const result = await sql`
       INSERT INTO conexiones (
         investigador_origen_id,
@@ -72,24 +45,39 @@ export async function POST(request: NextRequest) {
         mensaje,
         fecha_solicitud
       ) VALUES (
-        ${solicitante.id},
-        ${investigadorId},
+        ${clerkUserId},
+        ${destinatarioClerkId},
         'pendiente',
-        ${mensaje || 'Solicitud de conexión'},
+        ${mensaje || null},
         CURRENT_TIMESTAMP
       )
       RETURNING id
     `
 
+    // Enviar notificación por correo (no bloquear si falla)
+    try {
+      const senderName = user.fullName || user.firstName || 'Un investigador'
+      const senderEmail = user.emailAddresses[0]?.emailAddress || ''
+
+      const recipient = await (await clerkClient()).users.getUser(destinatarioClerkId)
+      const recipientEmail = recipient.emailAddresses[0]?.emailAddress
+
+      if (recipientEmail) {
+        await notifyNewConnectionRequest(recipientEmail, senderName, senderEmail)
+      }
+    } catch (emailError) {
+      console.warn('⚠️ No se pudo enviar notificación por email:', emailError)
+    }
+
     return NextResponse.json({
       success: true,
-      message: "Solicitud de conexión enviada",
+      message: "Solicitud enviada exitosamente",
       conexionId: result.rows[0].id,
     })
   } catch (error) {
-    console.error("Error al crear conexión:", error)
+    console.error("Error al solicitar conexión:", error)
     return NextResponse.json(
-      { error: "Error al enviar la solicitud" },
+      { error: "Error al solicitar conexión" },
       { status: 500 }
     )
   }
@@ -103,20 +91,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    const userEmail = user.emailAddresses[0]?.emailAddress
+    const clerkUserId = user.id
 
-    // Obtener el investigador actual
-    const investigadorResult = await sql`
-      SELECT id FROM investigadores WHERE correo = ${userEmail}
-    `
-
-    if (investigadorResult.rows.length === 0) {
-      return NextResponse.json({ error: "Perfil no encontrado" }, { status: 404 })
-    }
-
-    const investigadorId = investigadorResult.rows[0].id
-
-    // Obtener todas las conexiones (aceptadas y pendientes)
+    // Obtener todas las conexiones usando Clerk IDs
     const conexiones = await sql`
       SELECT 
         c.id,
@@ -125,35 +102,39 @@ export async function GET(request: NextRequest) {
         c.fecha_respuesta,
         c.investigador_origen_id,
         c.investigador_destino_id,
+        c.mensaje,
         CASE 
-          WHEN c.investigador_origen_id = ${investigadorId} THEN i2.id
-          ELSE i1.id
-        END as id_conexion,
+          WHEN c.investigador_origen_id = ${clerkUserId} THEN 'enviada'
+          ELSE 'recibida'
+        END as tipo,
         CASE 
-          WHEN c.investigador_origen_id = ${investigadorId} THEN i2.nombre_completo
-          ELSE i1.nombre_completo
-        END as nombre,
+          WHEN c.investigador_origen_id = ${clerkUserId} THEN i_dest.id
+          ELSE i_orig.id
+        END as otro_id,
         CASE 
-          WHEN c.investigador_origen_id = ${investigadorId} THEN i2.correo
-          ELSE i1.correo
-        END as email,
+          WHEN c.investigador_origen_id = ${clerkUserId} THEN i_dest.nombre_completo
+          ELSE i_orig.nombre_completo
+        END as otro_nombre,
         CASE 
-          WHEN c.investigador_origen_id = ${investigadorId} THEN i2.fotografia_url
-          ELSE i1.fotografia_url
-        END as fotografia_url,
+          WHEN c.investigador_origen_id = ${clerkUserId} THEN i_dest.correo
+          ELSE i_orig.correo
+        END as otro_email,
         CASE 
-          WHEN c.investigador_origen_id = ${investigadorId} THEN i2.institucion
-          ELSE i1.institucion
-        END as institucion,
+          WHEN c.investigador_origen_id = ${clerkUserId} THEN i_dest.fotografia_url
+          ELSE i_orig.fotografia_url
+        END as otro_foto,
         CASE 
-          WHEN c.investigador_destino_id = ${investigadorId} THEN true
-          ELSE false
-        END as es_destinatario
+          WHEN c.investigador_origen_id = ${clerkUserId} THEN i_dest.institucion
+          ELSE i_orig.institucion
+        END as otro_institucion
       FROM conexiones c
-      JOIN investigadores i1 ON c.investigador_origen_id = i1.id
-      JOIN investigadores i2 ON c.investigador_destino_id = i2.id
-      WHERE c.investigador_origen_id = ${investigadorId} OR c.investigador_destino_id = ${investigadorId}
-      ORDER BY c.fecha_solicitud DESC
+      LEFT JOIN investigadores i_orig ON c.investigador_origen_id = i_orig.clerk_user_id
+      LEFT JOIN investigadores i_dest ON c.investigador_destino_id = i_dest.clerk_user_id
+      WHERE c.investigador_origen_id = ${clerkUserId} 
+         OR c.investigador_destino_id = ${clerkUserId}
+      ORDER BY 
+        CASE WHEN c.estado = 'pendiente' THEN 0 ELSE 1 END,
+        c.fecha_solicitud DESC
     `
 
     return NextResponse.json(conexiones.rows)
@@ -175,42 +156,60 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    const userEmail = user.emailAddresses[0]?.emailAddress
-    const { conexionId, estado } = await request.json()
+    const clerkUserId = user.id
+    const { conexionId, accion } = await request.json()
 
-    if (!conexionId || !estado) {
+    if (!conexionId || !accion) {
       return NextResponse.json(
-        { error: "ID de conexión y estado son requeridos" },
+        { error: "Faltan campos requeridos" },
         { status: 400 }
       )
     }
 
-    if (!["aceptada", "rechazada"].includes(estado)) {
-      return NextResponse.json({ error: "Estado inválido" }, { status: 400 })
-    }
-
-    // Obtener investigador actual
-    const investigadorResult = await sql`
-      SELECT id FROM investigadores WHERE correo = ${userEmail}
-    `
-
-    if (investigadorResult.rows.length === 0) {
+    if (accion !== 'aceptar' && accion !== 'rechazar') {
       return NextResponse.json(
-        { error: "Investigador no encontrado" },
-        { status: 404 }
+        { error: "Acción inválida" },
+        { status: 400 }
       )
     }
 
-    const investigadorId = investigadorResult.rows[0].id
+    const nuevoEstado = accion === 'aceptar' ? 'aceptada' : 'rechazada'
+
+    // Obtener datos de la conexión antes de actualizar
+    const conexion = await sql`
+      SELECT investigador_origen_id 
+      FROM conexiones 
+      WHERE id = ${conexionId} 
+      AND investigador_destino_id = ${clerkUserId}
+      AND estado = 'pendiente'
+    `
 
     // Actualizar estado solo si el usuario es el destinatario
     await sql`
       UPDATE conexiones 
-      SET estado = ${estado}, fecha_respuesta = CURRENT_TIMESTAMP
+      SET estado = ${nuevoEstado},
+          fecha_respuesta = CURRENT_TIMESTAMP
       WHERE id = ${conexionId} 
-      AND investigador_destino_id = ${investigadorId}
+      AND investigador_destino_id = ${clerkUserId}
       AND estado = 'pendiente'
     `
+
+    // Si se aceptó, enviar notificación al remitente
+    if (accion === 'aceptar' && conexion.rows.length > 0) {
+      try {
+        const senderClerkId = conexion.rows[0].investigador_origen_id
+        const accepterName = user.fullName || user.firstName || 'Un investigador'
+
+        const sender = await (await clerkClient()).users.getUser(senderClerkId)
+        const senderEmail = sender.emailAddresses[0]?.emailAddress
+
+        if (senderEmail) {
+          await notifyConnectionAccepted(senderEmail, accepterName)
+        }
+      } catch (emailError) {
+        console.warn('⚠️ No se pudo enviar notificación por email:', emailError)
+      }
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

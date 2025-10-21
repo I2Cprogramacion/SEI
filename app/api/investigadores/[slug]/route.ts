@@ -1,145 +1,82 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import sqlite3 from "sqlite3"
-import path from "path"
+import { neon } from "@neondatabase/serverless"
+
+const sql = neon(process.env.DATABASE_URL!)
 
 export const dynamic = 'force-dynamic'
 
-// Función para generar slug
-function generarSlug(nombreCompleto: string): string {
-  return nombreCompleto
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-}
-
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = params
-    
-    // Conectar a la base de datos SQLite
-    const dbPath = path.join(process.cwd(), 'database.db')
-    const db = new sqlite3.Database(dbPath)
+    const { slug } = await params
 
-    // Obtener todos los investigadores
-    const investigadores = await new Promise<any[]>((resolve, reject) => {
-      db.all(`
-        SELECT 
-          id,
-          nombre_completo,
-          correo,
-          curp,
-          rfc,
-          no_cvu,
-          telefono,
-          institucion,
-          area,
-          area_investigacion,
-          linea_investigacion,
-          fotografia_url,
-          cv_url,
-          ultimo_grado_estudios,
-          empleo_actual,
-          fecha_nacimiento,
-          nacionalidad,
-          orcid,
-          nivel,
-          estado_nacimiento,
-          municipio,
-          entidad_federativa,
-          domicilio,
-          cp,
-          grado_maximo_estudios,
-          disciplina,
-          especialidad,
-          sni,
-          anio_sni,
-          experiencia_docente,
-          experiencia_laboral,
-          proyectos_investigacion,
-          proyectos_vinculacion,
-          libros,
-          capitulos_libros,
-          articulos,
-          premios_distinciones,
-          idiomas,
-          colaboracion_internacional,
-          colaboracion_nacional
-        FROM investigadores
-        ORDER BY nombre_completo ASC
-      `, (err, rows) => {
-        db.close()
-        if (err) reject(err)
-        else resolve(rows)
-      })
-    })
+    if (!slug) {
+      return NextResponse.json(
+        { error: "Slug es requerido" },
+        { status: 400 }
+      )
+    }
 
-    // Buscar investigador por slug
-    const investigador = investigadores.find((inv: any) => {
-      const generatedSlug = generarSlug(inv.nombre_completo)
-      return generatedSlug === slug
-    })
+    // Buscar investigador por slug en PostgreSQL
+    const result = await sql`
+      SELECT 
+        id,
+        COALESCE(clerk_user_id, '') as "clerkUserId",
+        nombre_completo as name,
+        correo as email,
+        curp,
+        rfc,
+        no_cvu as "noCvu",
+        telefono,
+        institucion as institution,
+        area,
+        area_investigacion as "areaInvestigacion",
+        linea_investigacion as "lineaInvestigacion",
+        fotografia_url as "fotografiaUrl",
+        ultimo_grado_estudios as title,
+        empleo_actual as "empleoActual",
+        fecha_nacimiento as "fechaNacimiento",
+        nacionalidad,
+        orcid,
+        nivel,
+        domicilio,
+        cp,
+        grado_maximo_estudios as "gradoMaximoEstudios",
+        disciplina,
+        especialidad,
+        sni,
+        anio_sni as "anioSni",
+        experiencia_docente as "experienciaDocente",
+        experiencia_laboral as "experienciaLaboral",
+        proyectos_investigacion as "proyectosInvestigacion",
+        proyectos_vinculacion as "proyectosVinculacion",
+        libros,
+        capitulos_libros as "capitulosLibros",
+        articulos,
+        premios_distinciones as "premiosDistinciones",
+        idiomas,
+        colaboracion_internacional as "colaboracionInternacional",
+        colaboracion_nacional as "colaboracionNacional",
+        cv_url as "cvUrl",
+        slug,
+        entidad_federativa as location
+      FROM investigadores
+      WHERE slug = ${slug}
+      LIMIT 1
+    `
 
-    if (!investigador) {
+    if (result.length === 0) {
       return NextResponse.json(
         { error: "Investigador no encontrado" },
         { status: 404 }
       )
     }
 
-    // Formatear respuesta
-    const investigadorFormateado = {
-      id: investigador.id,
-      name: investigador.nombre_completo,
-      email: investigador.correo,
-      curp: investigador.curp,
-      rfc: investigador.rfc,
-      noCvu: investigador.no_cvu,
-      telefono: investigador.telefono,
-      institution: investigador.institucion,
-      area: investigador.area,
-      areaInvestigacion: investigador.area_investigacion,
-      lineaInvestigacion: investigador.linea_investigacion,
-      fotografiaUrl: investigador.fotografia_url,
-      cvUrl: investigador.cv_url,
-      title: investigador.ultimo_grado_estudios,
-      empleoActual: investigador.empleo_actual,
-      fechaNacimiento: investigador.fecha_nacimiento,
-      nacionalidad: investigador.nacionalidad,
-      orcid: investigador.orcid,
-      nivel: investigador.nivel,
-      location: [investigador.municipio, investigador.estado_nacimiento, investigador.entidad_federativa]
-        .filter(Boolean)
-        .join(", "),
-      domicilio: investigador.domicilio,
-      cp: investigador.cp,
-      gradoMaximoEstudios: investigador.grado_maximo_estudios,
-      disciplina: investigador.disciplina,
-      especialidad: investigador.especialidad,
-      sni: investigador.sni,
-      anioSni: investigador.anio_sni,
-      experienciaDocente: investigador.experiencia_docente,
-      experienciaLaboral: investigador.experiencia_laboral,
-      proyectosInvestigacion: investigador.proyectos_investigacion,
-      proyectosVinculacion: investigador.proyectos_vinculacion,
-      libros: investigador.libros,
-      capitulosLibros: investigador.capitulos_libros,
-      articulos: investigador.articulos,
-      premiosDistinciones: investigador.premios_distinciones,
-      idiomas: investigador.idiomas,
-      colaboracionInternacional: investigador.colaboracion_internacional,
-      colaboracionNacional: investigador.colaboracion_nacional,
-      slug: slug,
-    }
-
-    return NextResponse.json(investigadorFormateado)
+    // El resultado ya tiene los campos con alias correctos (camelCase)
+    return NextResponse.json(result[0])
   } catch (error) {
     console.error("Error al obtener investigador:", error)
     return NextResponse.json(

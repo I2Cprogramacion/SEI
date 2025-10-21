@@ -1,13 +1,16 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import React, { useState, useMemo, useCallback, useEffect } from "react"
+import { useSignUp, useClerk } from "@clerk/nextjs"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { UploadFotografia } from "@/components/upload-fotografia"
 import {
   Info,
   AlertCircle,
@@ -31,178 +34,490 @@ import {
   Lock,
   Shield,
 } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Textarea } from "@/components/ui/textarea"
-import { UploadFotografia } from "@/components/upload-fotografia"
-import { UploadCv } from "@/components/upload-cv"
 
+// Constants
+const FILE_CONSTRAINTS = {
+  MAX_SIZE_MB: 2,
+  ACCEPTED_TYPE: "application/pdf",
+  MAX_SIZE_BYTES: 2 * 1024 * 1024,
+}
+
+const PASSWORD_REQUIREMENTS = {
+  MIN_LENGTH: 8,
+  MIN_SCORE: 4,
+}
+
+const RATE_LIMITS = {
+  MAX_ATTEMPTS: 3,
+  LOCKOUT_DURATION_MS: 60000,
+}
+
+// Types
+interface FormData {
+  nombres: string
+  apellidos: string
+  nombre_completo: string // Se generará automáticamente
+  curp: string
+  rfc: string
+  no_cvu: string
+  correo: string
+  telefono: string
+  ultimo_grado_estudios: string
+  empleo_actual: string
+  linea_investigacion: string
+  area_investigacion: string
+  nacionalidad: string
+  fecha_nacimiento: string
+  password: string
+  confirm_password: string
+  fotografia_url?: string
+}
+
+interface PasswordValidation {
+  requirements: {
+    length: boolean
+    uppercase: boolean
+    lowercase: boolean
+    number: boolean
+    special: boolean
+  }
+  score: number
+  isValid: boolean
+}
+
+const initialFormData: FormData = {
+  nombres: "",
+  apellidos: "",
+  nombre_completo: "",
+  curp: "",
+  rfc: "",
+  no_cvu: "",
+  correo: "",
+  telefono: "",
+  ultimo_grado_estudios: "",
+  empleo_actual: "",
+  linea_investigacion: "",
+  area_investigacion: "",
+  nacionalidad: "Mexicana",
+  fecha_nacimiento: "",
+  password: "",
+  confirm_password: "",
+  fotografia_url: "",
+}
+
+// Utility functions
+const validatePassword = (password: string): PasswordValidation => {
+  const requirements = {
+    length: password.length >= PASSWORD_REQUIREMENTS.MIN_LENGTH,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /\d/.test(password),
+    special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+  }
+  const score = Object.values(requirements).filter(Boolean).length
+  return { requirements, score, isValid: score >= PASSWORD_REQUIREMENTS.MIN_SCORE }
+}
+
+const sanitizeOcrData = (data: any) => {
+  // Extraer nombre completo y separarlo en nombres y apellidos
+  const nombreCompleto = data.nombre_completo?.trim() || ""
+  let nombres = ""
+  let apellidos = ""
+  
+  if (nombreCompleto) {
+    const partes = nombreCompleto.split(/\s+/)
+    if (partes.length >= 2) {
+      // Asumimos que los primeros 2 elementos son nombres y el resto apellidos
+      nombres = partes.slice(0, 2).join(' ')
+      apellidos = partes.slice(2).join(' ')
+      
+      // Si solo hay 2 partes, asumimos 1 nombre y 1 apellido
+      if (partes.length === 2) {
+        nombres = partes[0]
+        apellidos = partes[1]
+      }
+    } else if (partes.length === 1) {
+      nombres = partes[0]
+    }
+  }
+
+  return {
+    nombres: nombres,
+    apellidos: apellidos,
+    nombre_completo: nombreCompleto,
+    curp: data.curp?.trim().toUpperCase() || "",
+    rfc: data.rfc?.trim().toUpperCase() || "",
+    no_cvu: data.no_cvu?.trim() || "",
+    correo: data.correo?.trim().toLowerCase() || "",
+    telefono: data.telefono?.trim() || "",
+    fecha_nacimiento: data.fecha_nacimiento?.trim() || "",
+  }
+}
+
+// File Upload Section Component
+interface FileUploadSectionProps {
+  selectedFile: File | null
+  isProcessing: boolean
+  error: string | null
+  ocrCompleted: boolean
+  onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onProcess: () => void
+}
+
+const FileUploadSection: React.FC<FileUploadSectionProps> = ({
+  selectedFile,
+  isProcessing,
+  error,
+  ocrCompleted,
+  onFileChange,
+  onProcess,
+}) => {
+  return (
+    <Card className="bg-white/80 backdrop-blur-sm border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300">
+      <CardHeader className="text-center pb-6">
+        <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-3">
+          <span className="text-blue-600 font-bold text-lg">1</span>
+        </div>
+        <CardTitle className="text-xl sm:text-2xl text-blue-900 flex items-center justify-center gap-2">
+          <Upload className="h-5 w-5 sm:h-6 sm:w-6" />
+          Subir Perfil Único
+        </CardTitle>
+        <CardDescription className="text-sm sm:text-base text-blue-600 px-2">
+          Selecciona tu Perfil Único (PU) en formato PDF para extraer automáticamente tu información académica
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="space-y-3">
+          <Label htmlFor="pdf-upload" className="text-sm sm:text-base text-blue-900 font-medium">
+            Archivo PDF del Perfil Único * (Máximo {FILE_CONSTRAINTS.MAX_SIZE_MB}MB)
+          </Label>
+          <div className="relative">
+            <Input
+              id="pdf-upload"
+              type="file"
+              accept=".pdf"
+              onChange={onFileChange}
+              aria-label="Subir archivo PDF del Perfil Único"
+              aria-required="true"
+              className="bg-white border-blue-200 text-blue-900 file:bg-blue-50 file:text-blue-700 file:border-0 file:rounded-md file:px-4 file:py-2 file:mr-4 hover:file:bg-blue-100 transition-colors h-14 py-2.5"
+              required
+            />
+          </div>
+          {error && (
+            <Alert variant="destructive" className="bg-red-50 border-red-200 text-red-700">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error de archivo</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          {selectedFile && (
+            <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              <div className="flex-1">
+                <span className="text-sm text-green-700 font-medium block">{selectedFile.name}</span>
+                <span className="text-xs text-green-600">
+                  Archivo válido - Tamaño: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <Button
+          onClick={onProcess}
+          disabled={!selectedFile || isProcessing}
+          className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all duration-300 h-12"
+        >
+          {isProcessing ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Procesando PDF con OCR...
+            </>
+          ) : (
+            <>
+              <Upload className="mr-2 h-5 w-5" />
+              Procesar Perfil Único
+            </>
+          )}
+        </Button>
+
+        {ocrCompleted && (
+          <div className="space-y-3">
+            <Alert className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 shadow-sm">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              <AlertTitle className="text-green-800 font-semibold">¡Datos extraídos exitosamente!</AlertTitle>
+              <AlertDescription className="text-green-700">
+                Se han extraído los datos de tu Perfil Único. Revisa cuidadosamente la información en el formulario
+                antes de continuar.
+              </AlertDescription>
+            </Alert>
+
+            <Alert className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 shadow-sm">
+              <AlertTriangle className="h-5 w-5 text-amber-600" />
+              <AlertTitle className="text-amber-800 font-semibold">⚠️ Importante: Verificación requerida</AlertTitle>
+              <AlertDescription className="text-amber-700">
+                <div className="space-y-2">
+                  <p>
+                    El OCR puede contener errores de interpretación. Es <strong>fundamental</strong> que revises y
+                    corrijas:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 text-sm">
+                    <li>Números de identificación (CURP, RFC, CVU)</li>
+                    <li>
+                      <strong>Línea de investigación (captura manual requerida)</strong>
+                    </li>
+                    <li>
+                      <strong>Contraseña segura (captura manual requerida)</strong>
+                    </li>
+                  </ul>
+                </div>
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
+
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+          <h3 className="font-semibold mb-3 text-blue-900 flex items-center gap-2">
+            <Info className="h-4 w-4" />
+            Requisitos del archivo
+          </h3>
+          <ul className="space-y-2 text-sm text-blue-700">
+            <li className="flex items-center gap-2">
+              <CheckCircle className="h-3 w-3 text-green-600" />
+              <span>
+                <strong>Formato:</strong> Solo archivos PDF
+              </span>
+            </li>
+            <li className="flex items-center gap-2">
+              <CheckCircle className="h-3 w-3 text-green-600" />
+              <span>
+                <strong>Tamaño máximo:</strong> {FILE_CONSTRAINTS.MAX_SIZE_MB}MB
+              </span>
+            </li>
+            <li className="flex items-center gap-2">
+              <CheckCircle className="h-3 w-3 text-green-600" />
+              <span>
+                <strong>Contenido:</strong> Perfil Único (PU) actualizado
+              </span>
+            </li>
+            <li className="flex items-center gap-2">
+              <AlertTriangle className="h-3 w-3 text-amber-600" />
+              <span>
+                <strong>Verificación necesaria:</strong> Siempre revisa los datos extraídos
+              </span>
+            </li>
+          </ul>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// Password Input Component
+interface PasswordInputProps {
+  id: string
+  name: string
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  placeholder: string
+  showPassword: boolean
+  onTogglePassword: () => void
+  disabled: boolean
+  hasError: boolean
+  label: string
+}
+
+const PasswordInput: React.FC<PasswordInputProps> = ({
+  id,
+  name,
+  value,
+  onChange,
+  placeholder,
+  showPassword,
+  onTogglePassword,
+  disabled,
+  hasError,
+  label,
+}) => {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id} className="text-blue-900 font-medium flex items-center gap-2">
+        <Lock className="h-4 w-4" />
+        {label}
+      </Label>
+      <div className="relative">
+        <Input
+          id={id}
+          name={name}
+          type={showPassword ? "text" : "password"}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 pr-10 ${
+            hasError ? "border-red-300 bg-red-50" : ""
+          }`}
+          required
+          disabled={disabled}
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+          onClick={onTogglePassword}
+          disabled={disabled}
+          aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+        >
+          {showPassword ? <EyeOff className="h-4 w-4 text-gray-500" /> : <Eye className="h-4 w-4 text-gray-500" />}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+// Password Strength Indicator Component
+interface PasswordStrengthProps {
+  validation: PasswordValidation
+  confirmPassword: string
+  password: string
+}
+
+const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirmPassword, password }) => {
+  const passwordsMatch = password === confirmPassword
+
+  return (
+    <div className="space-y-3">
+      <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+        <h4 className="text-sm font-medium text-gray-700 mb-2">Requisitos de contraseña:</h4>
+        <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 text-xs">
+          <div
+            className={`flex items-center gap-2 ${
+              validation.requirements.length ? "text-green-600" : "text-gray-500"
+            }`}
+          >
+            {validation.requirements.length ? (
+              <CheckCircle className="h-3 w-3" />
+            ) : (
+              <AlertCircle className="h-3 w-3" />
+            )}
+            Mínimo 8 caracteres
+          </div>
+          <div
+            className={`flex items-center gap-2 ${
+              validation.requirements.uppercase ? "text-green-600" : "text-gray-500"
+            }`}
+          >
+            {validation.requirements.uppercase ? (
+              <CheckCircle className="h-3 w-3" />
+            ) : (
+              <AlertCircle className="h-3 w-3" />
+            )}
+            Una mayúscula (A-Z)
+          </div>
+          <div
+            className={`flex items-center gap-2 ${
+              validation.requirements.lowercase ? "text-green-600" : "text-gray-500"
+            }`}
+          >
+            {validation.requirements.lowercase ? (
+              <CheckCircle className="h-3 w-3" />
+            ) : (
+              <AlertCircle className="h-3 w-3" />
+            )}
+            Una minúscula (a-z)
+          </div>
+          <div
+            className={`flex items-center gap-2 ${
+              validation.requirements.number ? "text-green-600" : "text-gray-500"
+            }`}
+          >
+            {validation.requirements.number ? (
+              <CheckCircle className="h-3 w-3" />
+            ) : (
+              <AlertCircle className="h-3 w-3" />
+            )}
+            Un número (0-9)
+          </div>
+          <div
+            className={`flex items-center gap-2 ${
+              validation.requirements.special ? "text-green-600" : "text-gray-500"
+            }`}
+          >
+            {validation.requirements.special ? (
+              <CheckCircle className="h-3 w-3" />
+            ) : (
+              <AlertCircle className="h-3 w-3" />
+            )}
+            Un carácter especial
+          </div>
+        </div>
+        <div className="mt-3">
+          <div className="flex items-center justify-between text-xs mb-1">
+            <span className="text-gray-600">Fortaleza:</span>
+            <span
+              className={`font-medium ${
+                validation.score >= 4 ? "text-green-600" : validation.score >= 3 ? "text-yellow-600" : "text-red-600"
+              }`}
+            >
+              {validation.score >= 4 ? "Fuerte" : validation.score >= 3 ? "Media" : "Débil"}
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className={`h-2 rounded-full transition-all duration-300 ${
+                validation.score >= 4 ? "bg-green-500" : validation.score >= 3 ? "bg-yellow-500" : "bg-red-500"
+              }`}
+              style={{ width: `${(validation.score / 5) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      {confirmPassword && (
+        <div className={`flex items-center gap-2 text-sm ${passwordsMatch ? "text-green-600" : "text-red-600"}`}>
+          {passwordsMatch ? <CheckCircle className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+          {passwordsMatch ? "Las contraseñas coinciden" : "Las contraseñas no coinciden"}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Main Component
 export default function RegistroPage() {
-  const [formData, setFormData] = useState({
-    nombre_completo: "",
-    curp: "",
-    rfc: "",
-    no_cvu: "",
-    correo: "",
-    telefono: "",
-    ultimo_grado_estudios: "",
-    empleo_actual: "",
-    linea_investigacion: "",
-    area_investigacion: "",
-    fotografia_url: "",
-    cv_url: "",
-    nacionalidad: "Mexicana",
-    fecha_nacimiento: "",
-    password: "",
-    confirm_password: "",
-  })
+  const router = useRouter()
+  const { isLoaded, signUp } = useSignUp()
+  const clerk = useClerk()
+
+  // Mounted state for hydration fix
+  const [isMounted, setIsMounted] = useState(false)
+
+  // State
+  const [formData, setFormData] = useState<FormData>(initialFormData)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isProcessingPDF, setIsProcessingPDF] = useState(false)
-  const [ocrCompleted, setOcrCompleted] = useState(true) // Cambiar a true para permitir llenado manual
+  const [ocrCompleted, setOcrCompleted] = useState(false) // false: no mostrar mensaje hasta procesar PDF
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const router = useRouter()
+  const [submitAttempts, setSubmitAttempts] = useState(0)
+  const [lastAttempt, setLastAttempt] = useState(0)
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      // Validar tipo de archivo
-      if (file.type !== "application/pdf") {
-        setError("Por favor selecciona un archivo PDF válido")
-        setSelectedFile(null)
-        setOcrCompleted(false)
-        // Reset the input value
-        e.target.value = ""
-        return
-      }
+  // Hydration fix effect
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
-      // Validar tamaño de archivo (2MB = 2 * 1024 * 1024 bytes)
-      const maxSize = 2 * 1024 * 1024 // 2MB en bytes
-      const fileSizeMB = (file.size / 1024 / 1024).toFixed(2)
+  // Memoized values
+  const passwordValidation = useMemo(() => validatePassword(formData.password), [formData.password])
 
-      if (file.size > maxSize) {
-        setError(`El archivo es demasiado grande. El tamaño máximo permitido es 2MB. Tu archivo pesa ${fileSizeMB}MB`)
-        setSelectedFile(null)
-        setOcrCompleted(false)
-        // Reset the input value
-        e.target.value = ""
-        return
-      }
+  const passwordsMatch = formData.password === formData.confirm_password
 
-      // Si el archivo es válido, mostrar mensaje de éxito con el peso
-      setSelectedFile(file)
-      setError(null)
-      setOcrCompleted(false)
-
-      // Limpiar formulario cuando se selecciona nuevo archivo
-      setFormData({
-        nombre_completo: "",
-        curp: "",
-        rfc: "",
-        no_cvu: "",
-        correo: "",
-        telefono: "",
-        ultimo_grado_estudios: "",
-        empleo_actual: "",
-        linea_investigacion: "", // Este campo siempre se mantiene vacío para captura manual
-        area_investigacion: "", // Campo adicional para área
-        fotografia_url: "", // URL de Cloudinary
-        cv_url: "", // URL del CV en Cloudinary
-        nacionalidad: "Mexicana",
-        fecha_nacimiento: "",
-        password: "",
-        confirm_password: "",
-      })
-    } else {
-      setSelectedFile(null)
-      setOcrCompleted(false)
-      setError(null)
-    }
-  }
-
-  const handlePDFUpload = async () => {
-    if (!selectedFile) return
-
-    setIsProcessingPDF(true)
-    setError(null)
-
-    try {
-      // Crear FormData para enviar el archivo
-      const formData = new FormData()
-      formData.append("file", selectedFile)
-
-      // Enviar archivo al endpoint de OCR (sin autenticación para registro público)
-      const response = await fetch("/api/ocr", {
-        method: "POST",
-        body: formData,
-      })
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        // Si el OCR falla, no es un error crítico - el usuario puede llenar manualmente
-        console.warn("OCR no disponible, continuando con llenado manual")
-        setOcrCompleted(true) // Permitir llenado manual
-        setError(null)
-        return
-      }
-
-      if (result.success && result.data) {
-        // Actualizar el formulario con los datos extraídos
-        setFormData((prev) => ({
-          ...prev,
-          ...result.data,
-          linea_investigacion: "", // Asegurar que siempre esté vacía para captura manual
-          area_investigacion: "", // Asegurar que siempre esté vacía para captura manual
-          fotografia_url: prev.fotografia_url, // Mantener la foto si ya fue subida
-          cv_url: prev.cv_url, // Mantener el CV si ya fue subido
-          password: "", // Asegurar que siempre esté vacía
-          confirm_password: "", // Asegurar que siempre esté vacía
-        }))
-
-        setOcrCompleted(true)
-        setError(null)
-        
-        if (result.fallback) {
-          // Si es fallback, mostrar mensaje informativo
-          console.log("Procesamiento automático no disponible, formulario listo para llenado manual")
-        } else {
-          // Mostrar mensaje de éxito con información sobre los campos encontrados
-          console.log(`PDF procesado exitosamente. Campos encontrados: ${result.total_fields}`)
-        }
-      } else {
-        throw new Error("No se pudieron extraer datos del PDF")
-      }
-    } catch (error) {
-      console.warn("Error en OCR, continuando con llenado manual:", error)
-      // No mostrar error al usuario, permitir llenado manual
-      setOcrCompleted(true)
-      setError(null)
-    } finally {
-      setIsProcessingPDF(false)
-    }
-  }
-
-  // Validar fortaleza de contraseña
-  const validatePassword = (password: string) => {
-    const requirements = {
-      length: password.length >= 8,
-      uppercase: /[A-Z]/.test(password),
-      lowercase: /[a-z]/.test(password),
-      number: /\d/.test(password),
-      special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
-    }
-
-    const score = Object.values(requirements).filter(Boolean).length
-    return { requirements, score, isValid: score >= 4 }
-  }
-
-  // Validar que todos los campos requeridos estén completos
-  const validateForm = () => {
-    const requiredFields = [
-      { field: "nombre_completo", label: "Nombre Completo" },
+  const requiredFields = useMemo(
+    () => [
+      { field: "nombres", label: "Nombre(s)" },
+      { field: "apellidos", label: "Apellidos" },
       { field: "correo", label: "Correo Electrónico" },
       { field: "telefono", label: "Teléfono" },
       { field: "ultimo_grado_estudios", label: "Último Grado de Estudios" },
@@ -216,120 +531,275 @@ export default function RegistroPage() {
       { field: "rfc", label: "RFC" },
       { field: "password", label: "Contraseña" },
       { field: "confirm_password", label: "Confirmar Contraseña" },
-    ]
+    ],
+    []
+  )
 
-    const emptyFields = requiredFields.filter((field) => !formData[field.field as keyof typeof formData]?.trim())
+  const emptyFields = useMemo(() => {
+    return requiredFields.filter((field) => !formData[field.field as keyof FormData]?.trim())
+  }, [formData, requiredFields])
 
-    return emptyFields
-  }
+  const isFormComplete = emptyFields.length === 0
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!ocrCompleted) {
-      setError("Debes procesar un Perfil Único antes de continuar con el registro")
-      return
-    }
-
-    // Validar que todos los campos estén completos
-    const emptyFields = validateForm()
-    if (emptyFields.length > 0) {
-      const fieldNames = emptyFields.map((field) => field.label).join(", ")
-      setError(`Los siguientes campos son obligatorios y no pueden estar vacíos: ${fieldNames}`)
-      return
-    }
-
-    // Validar fortaleza de contraseña
-    const passwordValidation = validatePassword(formData.password)
-    if (!passwordValidation.isValid) {
-      setError("La contraseña no cumple con los requisitos de seguridad mínimos")
-      return
-    }
-
-    // Validar que las contraseñas coincidan
-    if (formData.password !== formData.confirm_password) {
-      setError("Las contraseñas no coinciden")
-      return
-    }
-
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      // Validaciones adicionales
-      if (!formData.correo.includes("@")) {
-        throw new Error("El correo electrónico debe tener un formato válido")
+  // Handlers
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        [name]: value,
       }
-
-      // Añadir fecha de registro
-      const dataToSend = {
-        ...formData,
-        fecha_registro: new Date().toISOString(),
-        origen: "ocr",
-        archivo_procesado: selectedFile?.name || "",
+      
+      // Generar nombre_completo automáticamente cuando cambien nombres o apellidos
+      if (name === 'nombres' || name === 'apellidos') {
+        const nombres = name === 'nombres' ? value : prev.nombres
+        const apellidos = name === 'apellidos' ? value : prev.apellidos
+        updated.nombre_completo = `${nombres} ${apellidos}`.trim()
       }
+      
+      return updated
+    })
+  }, [])
 
-      // No enviar la confirmación de contraseña
-      const { confirm_password, ...dataToSendWithoutConfirm } = dataToSend
-
-      console.log("Enviando datos:", dataToSendWithoutConfirm)
-
-      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-      const response = await fetch("/api/registro", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify(dataToSendWithoutConfirm),
-      })
-
-      const responseData = await response.json()
-      console.log("Respuesta del servidor:", responseData)
-      if (responseData.token) {
-        localStorage.setItem("token", responseData.token)
-        console.log("Token guardado en localStorage (registro):", responseData.token)
-      } else {
-        console.log("No se recibió token en la respuesta de registro.")
-      }
-
-      if (!response.ok) {
-        // Manejar caso de duplicado (código 409)
-        if (response.status === 409 && responseData.duplicado) {
-          setError(`${responseData.message} ID: ${responseData.id}`)
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (file) {
+        if (file.type !== FILE_CONSTRAINTS.ACCEPTED_TYPE) {
+          setError("Por favor selecciona un archivo PDF válido")
+          setSelectedFile(null)
+          setOcrCompleted(false)
+          e.target.value = ""
           return
         }
 
-        throw new Error(responseData.error || "Error al guardar los datos")
-      }
+        const fileSizeMB = (file.size / 1024 / 1024).toFixed(2)
+        if (file.size > FILE_CONSTRAINTS.MAX_SIZE_BYTES) {
+          setError(
+            `El archivo es demasiado grande. El tamaño máximo permitido es ${FILE_CONSTRAINTS.MAX_SIZE_MB}MB. Tu archivo pesa ${fileSizeMB}MB`
+          )
+          setSelectedFile(null)
+          setOcrCompleted(false)
+          e.target.value = ""
+          return
+        }
 
-      // Redirigir a la página de éxito
-      const tipo = responseData.message && responseData.message.includes("⚠️") ? "warning" : "success"
-      const urlParams = new URLSearchParams({
-        mensaje: responseData.message || "Registro completado exitosamente",
-        tipo: tipo,
+        setSelectedFile(file)
+        setError(null)
+        setOcrCompleted(false)
+        setFormData(initialFormData)
+      } else {
+        setSelectedFile(null)
+        setOcrCompleted(false)
+        setError(null)
+      }
+    },
+    []
+  )
+
+  const handlePDFUpload = useCallback(async () => {
+    if (!selectedFile) return
+
+    setIsProcessingPDF(true)
+    setError(null)
+
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000)
+
+    try {
+      const formDataPDF = new FormData()
+      formDataPDF.append("file", selectedFile)
+
+      const response = await fetch("/api/ocr", {
+        method: "POST",
+        body: formDataPDF,
+        signal: controller.signal,
       })
 
-      router.push(`/registro/exito?${urlParams.toString()}`)
-    } catch (error) {
-      console.error("Error al registrar:", error)
-      setError(`Error al registrar: ${error instanceof Error ? error.message : "Error desconocido"}`)
-    } finally {
-      setIsLoading(false)
+      clearTimeout(timeoutId)
+
+      let result = null
+      try {
+        result = await response.json()
+      } catch (jsonErr) {
+        setError("Error inesperado procesando el PDF. Intenta de nuevo.")
+        setIsProcessingPDF(false)
+        return
+      }
+
+      const ocrData = result.ocr || result
+      const sanitizedData = sanitizeOcrData(ocrData)
+
+      if (sanitizedData.curp || sanitizedData.rfc || sanitizedData.no_cvu || sanitizedData.telefono) {
+        setFormData((prev) => ({
+          ...prev,
+          ...sanitizedData,
+        }))
+        setOcrCompleted(true)
+        setError(null)
+        setIsProcessingPDF(false)
+        console.log("PDF procesado exitosamente. Campos extraídos:", sanitizedData)
+        return
+      } else {
+        setError("No se pudieron extraer datos clave del PDF (CURP, RFC, CVU, Teléfono)")
+        setOcrCompleted(true)
+        setIsProcessingPDF(false)
+        return
+      }
+    } catch (error: any) {
+      clearTimeout(timeoutId)
+      if (error.name === "AbortError") {
+        setError("La solicitud tardó demasiado tiempo. Por favor intenta de nuevo.")
+      } else {
+        console.error("Error procesando PDF:", error)
+        setError("No se pudieron extraer datos clave del PDF (CURP, RFC, CVU, Teléfono)")
+      }
+      setOcrCompleted(true)
+      setIsProcessingPDF(false)
     }
-  }
+  }, [selectedFile])
 
-  // Verificar si el formulario está completo
-  const isFormComplete = validateForm().length === 0
-  const passwordValidation = validatePassword(formData.password)
-  const passwordsMatch = formData.password === formData.confirm_password
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+      // Rate limiting check
+      const now = Date.now()
+      if (submitAttempts >= RATE_LIMITS.MAX_ATTEMPTS && now - lastAttempt < RATE_LIMITS.LOCKOUT_DURATION_MS) {
+        setError("Demasiados intentos. Por favor espera 1 minuto antes de intentar nuevamente.")
+        return
+      }
+
+      if (!ocrCompleted) {
+        setError("Debes procesar un Perfil Único antes de continuar con el registro")
+        return
+      }
+
+      if (emptyFields.length > 0) {
+        const fieldNames = emptyFields.map((field) => field.label).join(", ")
+        setError(`Los siguientes campos son obligatorios y no pueden estar vacíos: ${fieldNames}`)
+        return
+      }
+
+      if (!passwordValidation.isValid) {
+        setError("La contraseña no cumple con los requisitos de seguridad mínimos")
+        return
+      }
+
+      if (formData.password !== formData.confirm_password) {
+        setError("Las contraseñas no coinciden")
+        return
+      }
+
+      setIsLoading(true)
+      setError(null)
+      setSubmitAttempts((prev) => prev + 1)
+      setLastAttempt(Date.now())
+
+      try {
+        if (!formData.correo.includes("@")) {
+          throw new Error("El correo electrónico debe tener un formato válido")
+        }
+
+        const dataToSend = {
+          ...formData,
+          fecha_registro: new Date().toISOString(),
+          origen: "ocr",
+          archivo_procesado: selectedFile?.name || "",
+        }
+
+        const { confirm_password, ...dataToSendWithoutConfirm } = dataToSend
+
+        const response = await fetch("/api/registro", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dataToSendWithoutConfirm),
+        })
+
+        const responseData = await response.json()
+
+        if (!response.ok) {
+          if (response.status === 409 && responseData.duplicado) {
+            setError(`${responseData.message} ID: ${responseData.id}`)
+            return
+          }
+          throw new Error(responseData.error || "Error al guardar los datos")
+        }
+
+        // Clerk logic - Verificar que signUp esté cargado y disponible
+        if (!isLoaded || !signUp) {
+          throw new Error("El sistema de registro no está listo. Intenta de nuevo.")
+        }
+
+        try {
+          // Crear el usuario en Clerk
+          const signUpAttempt = await signUp.create({
+            emailAddress: formData.correo,
+            password: formData.password,
+          })
+
+          // Preparar verificación de email
+          await signUp.prepareEmailAddressVerification({
+            strategy: "email_code",
+          })
+
+          // Verificar el estado del registro
+          if (signUpAttempt.status === "complete") {
+            // Si el registro está completo, iniciar sesión automáticamente
+            await clerk.setActive({ session: signUpAttempt.createdSessionId })
+            router.push("/admin")
+          } else if (signUpAttempt.status === "missing_requirements") {
+            // Si falta verificación de email, redirigir a la página de verificación
+            router.push("/verificar-email")
+          } else {
+            // Para cualquier otro estado, redirigir a verificación
+            router.push("/verificar-email")
+          }
+        } catch (clerkError: any) {
+          console.error("Error de Clerk:", clerkError)
+          
+          // Manejar error de email duplicado específicamente
+          const errorMessage = clerkError.errors?.[0]?.message || ""
+          if (errorMessage.toLowerCase().includes("email address is taken")) {
+            throw new Error("Este correo electrónico ya está registrado. Por favor, usa otro correo o inicia sesión.")
+          }
+          
+          throw new Error(errorMessage || "Error al crear la cuenta")
+        }
+      } catch (error) {
+        console.error("Error al registrar:", error)
+        setError(`Error al registrar: ${error instanceof Error ? error.message : "Error desconocido"}`)
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [
+      ocrCompleted,
+      emptyFields,
+      passwordValidation,
+      formData,
+      selectedFile,
+      signUp,
+      router,
+      submitAttempts,
+      lastAttempt,
+    ]
+  )
+
+  // Prevent hydration mismatch
+  if (!isMounted || !isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+            <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+          </div>
+          <p className="text-blue-600 font-medium">Cargando formulario...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -347,167 +817,18 @@ export default function RegistroPage() {
             </p>
           </div>
 
-          {/* Info Alert OCR campos */}
-          <div className="max-w-3xl mx-auto">
-            <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-sm">
-              <Info className="h-5 w-5 text-blue-600" />
-              <AlertTitle className="text-blue-900 font-semibold">¿Qué datos se extraen automáticamente?</AlertTitle>
-              <AlertDescription className="text-blue-700">
-                <ul className="list-disc pl-5 space-y-1">
-                  <li><b>CVU/PU</b> <span className="text-green-700">(extraído por OCR)</span></li>
-                  <li><b>CURP</b> <span className="text-green-700">(extraído por OCR)</span></li>
-                  <li><b>RFC</b> <span className="text-green-700">(extraído por OCR)</span></li>
-                </ul>
-                <div className="mt-2 text-blue-800">
-                  <b>Todos los demás campos deben ser llenados manualmente por el usuario.</b>
-                </div>
-              </AlertDescription>
-            </Alert>
-          </div>
-
-          {/* Main Content */}
           <div className="grid grid-cols-1 gap-6 md:gap-8 max-w-6xl mx-auto">
-            {/* Paso 1: Subir PDF */}
-            <Card className="bg-white/80 backdrop-blur-sm border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300">
-              <CardHeader className="text-center pb-6">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-3">
-                  <span className="text-blue-600 font-bold text-lg">1</span>
-                </div>
-                <CardTitle className="text-2xl text-blue-900 flex items-center justify-center gap-2">
-                  <Upload className="h-6 w-6" />
-                  Subir Perfil Único
-                </CardTitle>
-                <CardDescription className="text-blue-600">
-                  Selecciona tu Perfil Único (PU) en formato PDF para extraer automáticamente tu información académica
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-3">
-                  <Label htmlFor="pdf-upload" className="text-blue-900 font-medium">
-                    Archivo PDF del Perfil Único * (Máximo 2MB)
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="pdf-upload"
-                      type="file"
-                      accept=".pdf"
-                      onChange={handleFileChange}
-                      className="bg-white border-blue-200 text-blue-900 file:bg-blue-50 file:text-blue-700 file:border-0 file:rounded-md file:px-4 file:py-2 file:mr-4 hover:file:bg-blue-100 transition-colors"
-                      required
-                    />
-                  </div>
-                  {error && (
-                    <Alert variant="destructive" className="bg-red-50 border-red-200 text-red-700">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>Error de archivo</AlertTitle>
-                      <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                  )}
-                  {selectedFile && (
-                    <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
-                      <CheckCircle className="h-5 w-5 text-green-600" />
-                      <div className="flex-1">
-                        <span className="text-sm text-green-700 font-medium block">{selectedFile.name}</span>
-                        <span className="text-xs text-green-600">
-                          Archivo válido - Tamaño: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
+            {/* Step 1: Upload PDF */}
+            <FileUploadSection
+              selectedFile={selectedFile}
+              isProcessing={isProcessingPDF}
+              error={error}
+              ocrCompleted={ocrCompleted}
+              onFileChange={handleFileChange}
+              onProcess={handlePDFUpload}
+            />
 
-                <Button
-                  onClick={handlePDFUpload}
-                  disabled={!selectedFile || isProcessingPDF}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all duration-300 h-10 md:h-12"
-                >
-                  {isProcessingPDF ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Procesando PDF con OCR...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="mr-2 h-5 w-5" />
-                      Procesar Perfil Único
-                    </>
-                  )}
-                </Button>
-
-                {(
-                  <div className="space-y-3">
-                    <Alert className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 shadow-sm">
-                      <CheckCircle className="h-5 w-5 text-green-600" />
-                      <AlertTitle className="text-green-800 font-semibold">¡Datos extraídos exitosamente!</AlertTitle>
-                      <AlertDescription className="text-green-700">
-                        Se han extraído los datos de tu Perfil Único. Revisa cuidadosamente la información en el
-                        formulario antes de continuar.
-                      </AlertDescription>
-                    </Alert>
-
-                    <Alert className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 shadow-sm">
-                      <AlertTriangle className="h-5 w-5 text-amber-600" />
-                      <AlertTitle className="text-amber-800 font-semibold">
-                        ⚠️ Importante: Verificación requerida
-                      </AlertTitle>
-                      <AlertDescription className="text-amber-700">
-                        <div className="space-y-2">
-                          <p>
-                            El OCR puede contener errores de interpretación. Es <strong>fundamental</strong> que revises
-                            y corrijas:
-                          </p>
-                          <ul className="list-disc list-inside space-y-1 text-sm">
-                            <li>Números de identificación (CURP, RFC, CVU)</li>
-                            <li>
-                              <strong>Línea de investigación (captura manual requerida)</strong>
-                            </li>
-                            <li>
-                              <strong>Contraseña segura (captura manual requerida)</strong>
-                            </li>
-                          </ul>
-                        </div>
-                      </AlertDescription>
-                    </Alert>
-                  </div>
-                )}
-
-                {/* Benefits */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
-                  <h3 className="font-semibold mb-3 text-blue-900 flex items-center gap-2">
-                    <Info className="h-4 w-4" />
-                    Requisitos del archivo
-                  </h3>
-                  <ul className="space-y-2 text-sm text-blue-700">
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-3 w-3 text-green-600" />
-                      <span>
-                        <strong>Formato:</strong> Solo archivos PDF
-                      </span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-3 w-3 text-green-600" />
-                      <span>
-                        <strong>Tamaño máximo:</strong> 2MB
-                      </span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-3 w-3 text-green-600" />
-                      <span>
-                        <strong>Contenido:</strong> Perfil Único (PU) actualizado
-                      </span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <AlertTriangle className="h-3 w-3 text-amber-600" />
-                      <span>
-                        <strong>Verificación necesaria:</strong> Siempre revisa los datos extraídos
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Paso 2: Revisar y completar datos */}
+            {/* Step 2: Review and Complete */}
             <Card
               className={`bg-white/80 backdrop-blur-sm border-blue-100 shadow-lg transition-all duration-300 ${
                 !ocrCompleted ? "opacity-50" : "hover:shadow-xl"
@@ -535,7 +856,9 @@ export default function RegistroPage() {
                 {(
                   <Alert className="mb-4 md:mb-6 bg-gradient-to-r from-red-50 to-pink-50 border-red-200 shadow-sm">
                     <AlertCircle className="h-5 w-5 text-red-600" />
-                    <AlertTitle className="text-red-800 font-semibold">🔍 Todos los campos son obligatorios</AlertTitle>
+                    <AlertTitle className="text-red-800 font-semibold">
+                      🔍 Todos los campos son obligatorios
+                    </AlertTitle>
                     <AlertDescription className="text-red-700">
                       <strong>No puedes completar el registro si algún campo está vacío.</strong> Revisa cada campo
                       cuidadosamente y asegúrate de que toda la información esté completa y correcta.
@@ -553,78 +876,35 @@ export default function RegistroPage() {
                         <span className="text-xs md:text-sm text-amber-600 font-normal">(Verificar datos)</span>
                       )}
                     </h3>
-                    <div className="grid grid-cols-1 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {/* Columna 1: Nombre(s) */}
                       <div className="space-y-2">
                         <Label
-                          htmlFor="nombre_completo"
-                          className="text-blue-900 text-sm md:text-base font-medium flex items-center gap-2"
+                          htmlFor="nombres"
+                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
                         >
                           <User className="h-4 w-4" />
-                          Nombre Completo *
+                          Nombre(s) *
                         </Label>
                         <Input
-                          id="nombre_completo"
-                          name="nombre_completo"
-                          value={formData.nombre_completo}
+                          id="nombres"
+                          name="nombres"
+                          value={formData.nombres}
                           onChange={handleChange}
-                          placeholder="Nombre completo"
+                          placeholder="Nombre(s)"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.nombre_completo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                            !formData.nombres.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
                           disabled={false}
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="correo"
-                          className="text-blue-900 text-sm md:text-base font-medium flex items-center gap-2"
-                        >
-                          <Mail className="h-4 w-4" />
-                          Correo Electrónico *
-                        </Label>
-                        <Input
-                          id="correo"
-                          name="correo"
-                          type="email"
-                          value={formData.correo}
-                          onChange={handleChange}
-                          placeholder="Correo electrónico"
-                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.correo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="telefono"
-                          className="text-blue-900 text-sm md:text-base font-medium flex items-center gap-2"
-                        >
-                          <Phone className="h-4 w-4" />
-                          Teléfono *
-                        </Label>
-                        <Input
-                          id="telefono"
-                          name="telefono"
-                          value={formData.telefono}
-                          onChange={handleChange}
-                          placeholder="Teléfono"
-                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.telefono.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
-                      </div>
-
+                      {/* Columna 2: Fecha de Nacimiento */}
                       <div className="space-y-2">
                         <Label
                           htmlFor="fecha_nacimiento"
-                          className="text-blue-900 text-sm md:text-base font-medium flex items-center gap-2"
+                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
                         >
                           <Calendar className="h-4 w-4" />
                           Fecha de Nacimiento *
@@ -643,44 +923,124 @@ export default function RegistroPage() {
                         />
                       </div>
 
-                      <div className="space-y-2 sm:col-span-2">
+                      {/* Columna 3: Teléfono */}
+                      <div className="space-y-2">
                         <Label
-                          htmlFor="nacionalidad"
-                          className="text-blue-900 text-sm md:text-base font-medium flex items-center gap-2"
+                          htmlFor="telefono"
+                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
                         >
-                          <Flag className="h-4 w-4" />
-                          Nacionalidad *
+                          <Phone className="h-4 w-4" />
+                          Teléfono *
                         </Label>
                         <Input
-                          id="nacionalidad"
-                          name="nacionalidad"
-                          value={formData.nacionalidad}
+                          id="telefono"
+                          name="telefono"
+                          value={formData.telefono}
                           onChange={handleChange}
-                          className={`bg-white border-blue-200 text-blue-900 ${
-                            !formData.nacionalidad.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                          placeholder="Teléfono"
+                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
+                            !formData.telefono.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                          }`}
+                          required
+                          disabled={false}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {/* Columna 1: Apellidos */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="apellidos"
+                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
+                        >
+                          <User className="h-4 w-4" />
+                          Apellidos *
+                        </Label>
+                        <Input
+                          id="apellidos"
+                          name="apellidos"
+                          value={formData.apellidos}
+                          onChange={handleChange}
+                          placeholder="Apellidos"
+                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
+                            !formData.apellidos.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
                           disabled={false}
                         />
                       </div>
 
-                      {/* Fotografía de Perfil */}
-                      <div className="sm:col-span-2">
+                      {/* Columna 2-3: Correo Electrónico (ocupa 2 columnas) */}
+                      <div className="space-y-2 sm:col-span-2">
+                        <Label
+                          htmlFor="correo"
+                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
+                        >
+                          <Mail className="h-4 w-4" />
+                          Correo Electrónico *
+                        </Label>
+                        <Input
+                          id="correo"
+                          name="correo"
+                          type="email"
+                          value={formData.correo}
+                          onChange={handleChange}
+                          placeholder="Correo electrónico"
+                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
+                            !formData.correo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                          }`}
+                          required
+                          disabled={false}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="nacionalidad"
+                        className="text-blue-900 text-sm font-medium flex items-center gap-2"
+                      >
+                        <Flag className="h-4 w-4" />
+                        Nacionalidad *
+                      </Label>
+                      <Input
+                        id="nacionalidad"
+                        name="nacionalidad"
+                        value={formData.nacionalidad}
+                        onChange={handleChange}
+                        className={`bg-white border-blue-200 text-blue-900 ${
+                          !formData.nacionalidad.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                        }`}
+                        required
+                        disabled={false}
+                      />
+                    </div>
+
+                    {/* Fotografía de Perfil */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                      {/* Componente de subir foto - 2 columnas */}
+                      <div className="md:col-span-2">
                         <UploadFotografia
                           value={formData.fotografia_url}
-                          onChange={(url) => setFormData((prev) => ({ ...prev, fotografia_url: url }))}
+                          onChange={(url: string) => setFormData((prev) => ({ ...prev, fotografia_url: url }))}
                           nombreCompleto={formData.nombre_completo}
                         />
                       </div>
 
-                      {/* Curriculum Vitae */}
-                      <div className="sm:col-span-2">
-                        <UploadCv
-                          value={formData.cv_url}
-                          onChange={(url) => setFormData((prev) => ({ ...prev, cv_url: url }))}
-                          nombreCompleto={formData.nombre_completo}
-                          showPreview={true}
-                        />
+                      {/* Recomendaciones - 1 columna */}
+                      <div className="md:col-span-1">
+                        <Alert className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 h-full">
+                          <Info className="h-4 w-4 text-blue-600" />
+                          <AlertTitle className="text-blue-900 font-semibold text-sm">
+                            Recomendaciones para la foto
+                          </AlertTitle>
+                          <AlertDescription className="text-blue-700 text-xs space-y-1 mt-2">
+                            <p>✓ Formato JPG, PNG o WEBP</p>
+                            <p>✓ Tamaño máximo: 2MB</p>
+                            <p>✓ Foto profesional</p>
+                          </AlertDescription>
+                        </Alert>
                       </div>
                     </div>
                   </div>
@@ -818,244 +1178,63 @@ export default function RegistroPage() {
                     </Alert>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="password" className="text-blue-900 font-medium flex items-center gap-2">
-                          <Lock className="h-4 w-4" />
-                          Contraseña *
-                        </Label>
-                        <div className="relative">
-                          <Input
-                            id="password"
-                            name="password"
-                            type={showPassword ? "text" : "password"}
-                            value={formData.password}
-                            onChange={handleChange}
-                            placeholder="Crea una contraseña segura"
-                            className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 pr-10 ${
-                              !formData.password.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                            }`}
-                            required
-                            disabled={false}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowPassword(!showPassword)}
-                            disabled={false}
-                          >
-                            {showPassword ? (
-                              <EyeOff className="h-4 w-4 text-gray-500" />
-                            ) : (
-                              <Eye className="h-4 w-4 text-gray-500" />
-                            )}
-                          </Button>
-                        </div>
-                      </div>
+                      <PasswordInput
+                        id="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="Crea una contraseña segura"
+                        showPassword={showPassword}
+                        onTogglePassword={() => setShowPassword(!showPassword)}
+                        disabled={false}
+                        hasError={!formData.password.trim() && ocrCompleted}
+                        label="Contraseña *"
+                      />
 
-                      <div className="space-y-2">
-                        <Label htmlFor="confirm_password" className="text-blue-900 font-medium flex items-center gap-2">
-                          <Lock className="h-4 w-4" />
-                          Confirmar Contraseña *
-                        </Label>
-                        <div className="relative">
-                          <Input
-                            id="confirm_password"
-                            name="confirm_password"
-                            type={showConfirmPassword ? "text" : "password"}
-                            value={formData.confirm_password}
-                            onChange={handleChange}
-                            placeholder="Confirma tu contraseña"
-                            className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 pr-10 ${
-                              !formData.confirm_password.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                            } ${
-                              formData.confirm_password &&
-                              formData.password &&
-                              formData.password !== formData.confirm_password
-                                ? "border-red-300 bg-red-50"
-                                : ""
-                            }`}
-                            required
-                            disabled={false}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            disabled={false}
-                          >
-                            {showConfirmPassword ? (
-                              <EyeOff className="h-4 w-4 text-gray-500" />
-                            ) : (
-                              <Eye className="h-4 w-4 text-gray-500" />
-                            )}
-                          </Button>
-                        </div>
-                      </div>
+                      <PasswordInput
+                        id="confirm_password"
+                        name="confirm_password"
+                        value={formData.confirm_password}
+                        onChange={handleChange}
+                        placeholder="Confirma tu contraseña"
+                        showPassword={showConfirmPassword}
+                        onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+                        disabled={false}
+                        hasError={
+                          (!formData.confirm_password.trim() && ocrCompleted) ||
+                          (!!formData.confirm_password &&
+                            !!formData.password &&
+                            formData.password !== formData.confirm_password)
+                        }
+                        label="Confirmar Contraseña *"
+                      />
                     </div>
 
-                    {/* Indicador de fortaleza de contraseña */}
-                    {formData.password && (
-                      <div className="space-y-3">
-                        <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                          <h4 className="text-sm font-medium text-gray-700 mb-2">Requisitos de contraseña:</h4>
-                          <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 text-xs">
-                            <div
-                              className={`flex items-center gap-2 ${
-                                passwordValidation.requirements.length ? "text-green-600" : "text-gray-500"
-                              }`}
-                            >
-                              {passwordValidation.requirements.length ? (
-                                <CheckCircle className="h-3 w-3" />
-                              ) : (
-                                <AlertCircle className="h-3 w-3" />
-                              )}
-                              Mínimo 8 caracteres
-                            </div>
-                            <div
-                              className={`flex items-center gap-2 ${
-                                passwordValidation.requirements.uppercase ? "text-green-600" : "text-gray-500"
-                              }`}
-                            >
-                              {passwordValidation.requirements.uppercase ? (
-                                <CheckCircle className="h-3 w-3" />
-                              ) : (
-                                <AlertCircle className="h-3 w-3" />
-                              )}
-                              Una mayúscula (A-Z)
-                            </div>
-                            <div
-                              className={`flex items-center gap-2 ${
-                                passwordValidation.requirements.lowercase ? "text-green-600" : "text-gray-500"
-                              }`}
-                            >
-                              {passwordValidation.requirements.lowercase ? (
-                                <CheckCircle className="h-3 w-3" />
-                              ) : (
-                                <AlertCircle className="h-3 w-3" />
-                              )}
-                              Una minúscula (a-z)
-                            </div>
-                            <div
-                              className={`flex items-center gap-2 ${
-                                passwordValidation.requirements.number ? "text-green-600" : "text-gray-500"
-                              }`}
-                            >
-                              {passwordValidation.requirements.number ? (
-                                <CheckCircle className="h-3 w-3" />
-                              ) : (
-                                <AlertCircle className="h-3 w-3" />
-                              )}
-                              Un número (0-9)
-                            </div>
-                            <div
-                              className={`flex items-center gap-2 ${
-                                passwordValidation.requirements.special ? "text-green-600" : "text-gray-500"
-                              }`}
-                            >
-                              {passwordValidation.requirements.special ? (
-                                <CheckCircle className="h-3 w-3" />
-                              ) : (
-                                <AlertCircle className="h-3 w-3" />
-                              )}
-                              Un carácter especial
-                            </div>
-                          </div>
-                          <div className="mt-3">
-                            <div className="flex items-center justify-between text-xs mb-1">
-                              <span className="text-gray-600">Fortaleza:</span>
-                              <span
-                                className={`font-medium ${
-                                  passwordValidation.score >= 4
-                                    ? "text-green-600"
-                                    : passwordValidation.score >= 3
-                                      ? "text-yellow-600"
-                                      : "text-red-600"
-                                }`}
-                              >
-                                {passwordValidation.score >= 4
-                                  ? "Fuerte"
-                                  : passwordValidation.score >= 3
-                                    ? "Media"
-                                    : "Débil"}
-                              </span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div
-                                className={`h-2 rounded-full transition-all duration-300 ${
-                                  passwordValidation.score >= 4
-                                    ? "bg-green-500"
-                                    : passwordValidation.score >= 3
-                                      ? "bg-yellow-500"
-                                      : "bg-red-500"
-                                }`}
-                                style={{ width: `${(passwordValidation.score / 5) * 100}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Verificación de coincidencia de contraseñas */}
-                        {formData.confirm_password && (
-                          <div
-                            className={`flex items-center gap-2 text-sm ${
-                              passwordsMatch ? "text-green-600" : "text-red-600"
-                            }`}
-                          >
-                            {passwordsMatch ? <CheckCircle className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
-                            {passwordsMatch ? "Las contraseñas coinciden" : "Las contraseñas no coinciden"}
-                          </div>
-                        )}
-                      </div>
+                    {formData.password && ocrCompleted && (
+                      <PasswordStrength
+                        validation={passwordValidation}
+                        confirmPassword={formData.confirm_password}
+                        password={formData.password}
+                      />
                     )}
                   </div>
 
-                  {/* Línea de Investigación */}
+                  {/* Área y Línea de Investigación */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
                       <Edit className="h-5 w-5" />
-                      Línea de Investigación
+                      Área y Línea de Investigación
                       <span className="text-sm text-blue-600 font-normal">(Captura manual requerida)</span>
                     </h3>
                     <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-sm">
                       <Edit className="h-4 w-4 text-blue-600" />
                       <AlertTitle className="text-blue-800 font-semibold">Captura manual requerida</AlertTitle>
                       <AlertDescription className="text-blue-700">
-                        Este campo requiere que describas manualmente tu línea de investigación principal.
+                        Estos campos requieren que describas manualmente tu área y línea de investigación.
                       </AlertDescription>
                     </Alert>
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="linea_investigacion"
-                        className="text-blue-900 font-medium flex items-center gap-2"
-                      >
-                        <Edit className="h-4 w-4" />
-                        Área de Investigación Principal *
-                        <span className="text-xs text-blue-600">(Escribir manualmente)</span>
-                      </Label>
-                      <Textarea
-                        id="linea_investigacion"
-                        name="linea_investigacion"
-                        value={formData.linea_investigacion}
-                        onChange={handleChange}
-                        placeholder="Describe detalladamente tu área de investigación principal, metodologías utilizadas, y objetivos de tu trabajo académico..."
-                        className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 min-h-[120px] ${
-                          !formData.linea_investigacion.trim() ? "border-red-300 bg-red-50" : ""
-                        }`}
-                        required
-                        disabled={false}
-                      />
-                      {!formData.linea_investigacion.trim() && (
-                        <p className="text-sm text-red-600">
-                          Este campo es obligatorio y debe ser completado manualmente
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Campo de Área de Investigación */}
+                    
+                    {/* Área o Campo de Investigación */}
                     <div className="space-y-2">
                       <Label
                         htmlFor="area_investigacion"
@@ -1065,19 +1244,48 @@ export default function RegistroPage() {
                         Área o Campo de Investigación *
                         <span className="text-xs text-blue-600">(Escribir manualmente)</span>
                       </Label>
-                      <Input
+                      <Textarea
                         id="area_investigacion"
                         name="area_investigacion"
                         value={formData.area_investigacion}
                         onChange={handleChange}
-                        placeholder="Ej: Ciencias Exactas, Ingeniería, Ciencias Sociales, Humanidades, etc."
-                        className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
+                        placeholder="Describe tu área o campo general de investigación (ej: Ciencias Exactas, Ingeniería, Ciencias de la Computación, Biotecnología, Ciencias Sociales, Humanidades, etc.)..."
+                        className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 min-h-[100px] ${
                           !formData.area_investigacion.trim() ? "border-red-300 bg-red-50" : ""
                         }`}
                         required
                         disabled={false}
                       />
                       {!formData.area_investigacion.trim() && (
+                        <p className="text-sm text-red-600">
+                          Este campo es obligatorio y debe ser completado manualmente
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Línea de Investigación */}
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="linea_investigacion"
+                        className="text-blue-900 font-medium flex items-center gap-2"
+                      >
+                        <Edit className="h-4 w-4" />
+                        Línea de Investigación Específica *
+                        <span className="text-xs text-blue-600">(Escribir manualmente)</span>
+                      </Label>
+                      <Textarea
+                        id="linea_investigacion"
+                        name="linea_investigacion"
+                        value={formData.linea_investigacion}
+                        onChange={handleChange}
+                        placeholder="Describe detalladamente tu línea específica de investigación, metodologías utilizadas, y objetivos de tu trabajo académico..."
+                        className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 min-h-[120px] ${
+                          !formData.linea_investigacion.trim() ? "border-red-300 bg-red-50" : ""
+                        }`}
+                        required
+                        disabled={false}
+                      />
+                      {!formData.linea_investigacion.trim() && (
                         <p className="text-sm text-red-600">
                           Este campo es obligatorio y debe ser completado manualmente
                         </p>
@@ -1098,7 +1306,7 @@ export default function RegistroPage() {
                     <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-700">
-                          Progreso del formulario: {14 - validateForm().length}/14 campos completos
+                          Progreso del formulario: {14 - emptyFields.length}/14 campos completos
                         </span>
                         <div className="flex items-center gap-2">
                           {isFormComplete && passwordValidation.isValid && passwordsMatch ? (
@@ -1121,6 +1329,9 @@ export default function RegistroPage() {
                       </div>
                     </div>
                   )}
+
+                  {/* Clerk CAPTCHA Container */}
+                  <div id="clerk-captcha" className="flex justify-center"></div>
 
                   <Button
                     type="submit"

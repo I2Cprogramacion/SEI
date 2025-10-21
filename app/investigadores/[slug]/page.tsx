@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useParams, notFound } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import {
@@ -23,11 +23,17 @@ import {
   GraduationCap,
   Briefcase,
   Loader2,
+  UserPlus,
+  MessageCircle,
+  Network,
 } from "lucide-react"
+import { ConectarInvestigadorDialog } from "@/components/conectar-investigador-dialog"
+import { EnviarMensajeDialog } from "@/components/enviar-mensaje-dialog"
 import { CvViewerEnhanced } from "@/components/cv-viewer-enhanced"
 
 interface InvestigadorData {
   id: number
+  clerkUserId?: string
   name: string
   email: string
   curp?: string
@@ -68,12 +74,47 @@ interface InvestigadorData {
   slug: string
 }
 
+interface InvestigadorRelacionado {
+  id: number
+  name: string
+  email: string
+  institution?: string
+  area?: string
+  lineaInvestigacion?: string
+  fotografiaUrl?: string
+  title?: string
+  slug: string
+}
+
+interface Publicacion {
+  id: number
+  titulo: string
+  autor: string
+  institucion?: string
+  revista?: string
+  año: number
+  volumen?: string
+  numero?: string
+  paginas?: string
+  doi?: string
+  resumen?: string
+  palabrasClave?: string[]
+  categoria?: string
+  tipo?: string
+  acceso?: string
+  archivoUrl?: string
+}
+
 export default function InvestigadorPage() {
   const params = useParams()
   const slug = params?.slug as string
   const [investigador, setInvestigador] = useState<InvestigadorData | null>(null)
+  const [relacionados, setRelacionados] = useState<InvestigadorRelacionado[]>([])
+  const [publicaciones, setPublicaciones] = useState<Publicacion[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [conectarDialogOpen, setConectarDialogOpen] = useState(false)
+  const [mensajeDialogOpen, setMensajeDialogOpen] = useState(false)
 
   useEffect(() => {
     if (!slug) return
@@ -92,6 +133,28 @@ export default function InvestigadorPage() {
 
         const data = await response.json()
         setInvestigador(data)
+
+        // Cargar investigadores relacionados
+        try {
+          const relacionadosResponse = await fetch(`/api/investigadores/${slug}/relacionados`)
+          if (relacionadosResponse.ok) {
+            const relacionadosData = await relacionadosResponse.json()
+            setRelacionados(relacionadosData)
+          }
+        } catch (err) {
+          console.error("Error loading related investigators:", err)
+        }
+
+        // Cargar publicaciones del investigador
+        try {
+          const publicacionesResponse = await fetch(`/api/investigadores/${slug}/publicaciones`)
+          if (publicacionesResponse.ok) {
+            const publicacionesData = await publicacionesResponse.json()
+            setPublicaciones(publicacionesData)
+          }
+        } catch (err) {
+          console.error("Error loading publications:", err)
+        }
       } catch (err) {
         console.error("Error fetching investigador:", err)
         setError(err instanceof Error ? err.message : "Error desconocido")
@@ -175,11 +238,28 @@ export default function InvestigadorPage() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Button className="bg-blue-700 text-white hover:bg-blue-800" asChild>
-                      <a href={`mailto:${investigador.email}`}>
-                        <Mail className="mr-2 h-4 w-4" />
-                        Contactar
-                      </a>
+                    <Button 
+                      className="bg-blue-700 text-white hover:bg-blue-800"
+                      onClick={() => setMensajeDialogOpen(true)}
+                    >
+                      <Mail className="mr-2 h-4 w-4" />
+                      Contactar
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                      onClick={() => setConectarDialogOpen(true)}
+                    >
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      Conectar
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                      onClick={() => setMensajeDialogOpen(true)}
+                    >
+                      <MessageCircle className="mr-2 h-4 w-4" />
+                      Mensaje
                     </Button>
                   </div>
                 </div>
@@ -302,12 +382,67 @@ export default function InvestigadorPage() {
             )}
 
             {/* Publicaciones */}
-            {(investigador.articulos || investigador.libros || investigador.capitulosLibros) && (
+            {(publicaciones.length > 0 || investigador.articulos || investigador.libros || investigador.capitulosLibros) && (
               <Card className="bg-white border-blue-100">
                 <CardHeader>
-                  <CardTitle className="text-blue-900">Publicaciones</CardTitle>
+                  <CardTitle className="text-blue-900 flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Publicaciones
+                  </CardTitle>
+                  {publicaciones.length > 0 && (
+                    <CardDescription className="text-blue-600">
+                      {publicaciones.length} publicacion{publicaciones.length !== 1 ? 'es' : ''} registrada{publicaciones.length !== 1 ? 's' : ''}
+                    </CardDescription>
+                  )}
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* Publicaciones de la base de datos */}
+                  {publicaciones.length > 0 && (
+                    <div className="space-y-4">
+                      <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                        <Award className="h-4 w-4" />
+                        Publicaciones Registradas
+                      </h4>
+                      <div className="space-y-3">
+                        {publicaciones.slice(0, 5).map((pub) => (
+                          <div
+                            key={pub.id}
+                            className="p-4 bg-blue-50 border border-blue-100 rounded-lg hover:shadow-md transition-shadow"
+                          >
+                            <h5 className="font-semibold text-blue-900 mb-2 line-clamp-2">
+                              {pub.titulo}
+                            </h5>
+                            <div className="text-sm text-blue-600 space-y-1">
+                              {pub.revista && (
+                                <p className="flex items-center gap-1">
+                                  <FileText className="h-3 w-3" />
+                                  {pub.revista} {pub.año && `(${pub.año})`}
+                                </p>
+                              )}
+                              {pub.doi && (
+                                <p className="flex items-center gap-1 text-blue-500">
+                                  <ExternalLink className="h-3 w-3" />
+                                  DOI: {pub.doi}
+                                </p>
+                              )}
+                              {pub.categoria && (
+                                <Badge className="mt-2 bg-blue-600 text-white text-xs">
+                                  {pub.categoria}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      {publicaciones.length > 5 && (
+                        <p className="text-sm text-blue-500 text-center pt-2">
+                          + {publicaciones.length - 5} publicaciones más
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Publicaciones del perfil (texto) */}
                   {investigador.articulos && (
                     <div>
                       <h4 className="font-semibold text-blue-900 mb-2">Artículos</h4>
@@ -443,7 +578,91 @@ export default function InvestigadorPage() {
             )}
           </div>
         </div>
+
+        {/* Investigadores Relacionados */}
+        {relacionados.length > 0 && (
+          <Card className="bg-white border-blue-100">
+            <CardHeader>
+              <CardTitle className="text-blue-900 flex items-center gap-2">
+                <Network className="h-5 w-5" />
+                Investigadores Relacionados
+              </CardTitle>
+              <CardDescription className="text-blue-600">
+                Otros investigadores con intereses similares
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {relacionados.map((rel) => (
+                  <Link
+                    key={rel.id}
+                    href={`/investigadores/${rel.slug}`}
+                    className="block group"
+                  >
+                    <Card className="bg-blue-50 border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all">
+                      <CardContent className="pt-6">
+                        <div className="flex flex-col items-center text-center space-y-3">
+                          <Avatar className="h-20 w-20 ring-2 ring-blue-200 group-hover:ring-blue-400 transition-all">
+                            <AvatarImage src={rel.fotografiaUrl || "/placeholder-user.jpg"} alt={rel.name} />
+                            <AvatarFallback className="bg-blue-100 text-blue-700">
+                              {rel.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .toUpperCase()
+                                .slice(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-grow">
+                            <h3 className="font-semibold text-blue-900 group-hover:text-blue-700 transition-colors line-clamp-2">
+                              {rel.name}
+                            </h3>
+                            {rel.title && (
+                              <p className="text-sm text-blue-600 mt-1 line-clamp-1">{rel.title}</p>
+                            )}
+                            {rel.institution && (
+                              <p className="text-xs text-blue-500 mt-1 line-clamp-1 flex items-center justify-center gap-1">
+                                <Building className="h-3 w-3" />
+                                {rel.institution}
+                              </p>
+                            )}
+                            {rel.area && (
+                              <Badge className="mt-2 bg-blue-600 text-white text-xs">
+                                {rel.area}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
+
+      {/* Diálogos */}
+      {investigador && (
+        <>
+          <ConectarInvestigadorDialog
+            open={conectarDialogOpen}
+            onOpenChange={setConectarDialogOpen}
+            investigadorId={investigador.id}
+            investigadorClerkId={investigador.clerkUserId || ''}
+            investigadorNombre={investigador.name}
+          />
+          <EnviarMensajeDialog
+            open={mensajeDialogOpen}
+            onOpenChange={setMensajeDialogOpen}
+            investigadorId={investigador.id}
+            investigadorClerkId={investigador.clerkUserId || ''}
+            investigadorNombre={investigador.name}
+            investigadorEmail={investigador.email}
+          />
+        </>
+      )}
     </div>
   )
 }

@@ -278,7 +278,7 @@ export default function InvestigadoresAdmin() {
                             className="h-8 w-8 text-blue-700 hover:bg-blue-50"
                             asChild
                           >
-                            <Link href={`/investigadores/${investigador.slug}`}>
+                            <Link href={`/investigadores/${investigador.id}`}>
                               <Eye className="h-4 w-4" />
                               <span className="sr-only">Ver perfil</span>
                             </Link>
@@ -289,7 +289,7 @@ export default function InvestigadoresAdmin() {
                             className="h-8 w-8 text-blue-700 hover:bg-blue-50"
                             asChild
                           >
-                            <Link href={`/admin/investigadores/editar/${investigador.slug}`}>
+                            <Link href={`/admin/investigadores/editar/${investigador.id}`}>
                               <UserCog className="h-4 w-4" />
                               <span className="sr-only">Editar investigador</span>
                             </Link>

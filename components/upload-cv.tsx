@@ -27,28 +27,28 @@ export function UploadCv({ value, onChange, nombreCompleto, showPreview = true }
     console.log("1. Archivo seleccionado:", file ? file.name : "NINGUNO")
     
     if (!file) {
-      console.log("❌ No hay archivo, abortando")
+      console.log("No hay archivo, abortando")
       return
     }
 
     // Validar tipo de archivo
     console.log("2. Tipo de archivo:", file.type)
     if (file.type !== "application/pdf") {
-      console.log("❌ No es PDF")
-      setError("Por favor selecciona un archivo PDF válido")
+      console.log("No es PDF")
+      setError("Por favor selecciona un archivo PDF valido")
       return
     }
 
-    // Validar tamaño (máximo 10MB)
+    // Validar tamaño (maximo 10MB)
     const maxSize = 10 * 1024 * 1024 // 10MB
-    console.log("3. Tamaño del archivo:", (file.size / 1024 / 1024).toFixed(2), "MB")
+    console.log("3. Tamano del archivo:", (file.size / 1024 / 1024).toFixed(2), "MB")
     if (file.size > maxSize) {
-      console.log("❌ Archivo muy grande")
-      setError(`El archivo es demasiado grande. Tamaño máximo: 10MB`)
+      console.log("Archivo muy grande")
+      setError(`El archivo es demasiado grande. Tamano maximo: 10MB`)
       return
     }
 
-    console.log("✅ Validaciones pasadas")
+    console.log("Validaciones pasadas")
     setError(null)
     setIsUploading(true)
     setFileName(file.name)
@@ -73,11 +73,11 @@ export function UploadCv({ value, onChange, nombreCompleto, showPreview = true }
       console.log("7. Result:", result)
 
       if (!response.ok) {
-        console.log("❌ Response no OK:", result.error)
+        console.log("Response no OK:", result.error)
         throw new Error(result.error || "Error al subir el archivo")
       }
 
-      console.log("✅ Archivo subido exitosamente")
+      console.log("Archivo subido exitosamente")
       console.log("8. URL del CV:", result.url)
       setUploadMessage("Archivo subido. Actualizando base de datos...")
       
@@ -86,10 +86,10 @@ export function UploadCv({ value, onChange, nombreCompleto, showPreview = true }
       onChange(result.url)
       setCvUrl(result.url)
       
-      setUploadMessage("¡CV actualizado exitosamente! Recargando página...")
-      console.log("✅ Proceso completado")
+      setUploadMessage("CV actualizado exitosamente! Recargando pagina...")
+      console.log("Proceso completado")
     } catch (error) {
-      console.error("❌ ERROR EN UPLOAD CV:", error)
+      console.error("ERROR EN UPLOAD CV:", error)
       console.error("Detalles:", error)
       setError(error instanceof Error ? error.message : "Error al subir el archivo")
       setCvUrl(null)
@@ -164,7 +164,7 @@ export function UploadCv({ value, onChange, nombreCompleto, showPreview = true }
         </div>
       )}
 
-      {/* Botón de upload */}
+      {/* Boton de upload */}
       <div className="space-y-2">
         <input
           ref={fileInputRef}
@@ -200,7 +200,7 @@ export function UploadCv({ value, onChange, nombreCompleto, showPreview = true }
           )}
         </Button>
         <p className="text-xs text-blue-600">
-          Formato: PDF. Tamaño máximo: 10MB. Este archivo estará visible en tu perfil público.
+          Formato: PDF. Tamano maximo: 10MB. Este archivo estara visible en tu perfil publico.
         </p>
       </div>
 
@@ -223,11 +223,10 @@ export function UploadCv({ value, onChange, nombreCompleto, showPreview = true }
         <Alert className="bg-green-50 border-green-200">
           <CheckCircle className="h-4 w-4 text-green-600" />
           <AlertDescription className="text-green-700">
-            CV cargado correctamente. Los visitantes de tu perfil podrán visualizarlo.
+            CV cargado correctamente. Los visitantes de tu perfil podran visualizarlo.
           </AlertDescription>
         </Alert>
       )}
     </div>
   )
 }
-
