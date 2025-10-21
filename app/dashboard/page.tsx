@@ -346,15 +346,15 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Curriculum Vitae */}
+        {/* Perfil del Investigador */}
         <Card className="mb-8 bg-white border-blue-100">
           <CardHeader>
             <CardTitle className="text-blue-900 flex items-center">
               <FileText className="mr-2 h-5 w-5" />
-              Mi Curriculum Vitae
+              Perfil del Investigador
             </CardTitle>
             <CardDescription className="text-blue-600">
-              {investigadorData?.cv_url ? "Tu CV es visible en tu perfil público" : "Sube tu CV para que sea visible en tu perfil público"}
+              {investigadorData?.cv_url ? "Tu perfil es visible públicamente" : "Sube tu CV para completar tu perfil público"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -370,7 +370,7 @@ export default function DashboardPage() {
                   <FileText className="h-12 w-12 text-blue-400 mx-auto mb-3" />
                   <p className="text-blue-700 font-medium mb-2">No has subido tu CV aún</p>
                   <p className="text-sm text-blue-600 mb-4">
-                    Sube tu curriculum vitae para que sea visible en tu perfil público
+                    Sube tu CV para completar tu perfil de investigador
                   </p>
                 </div>
                 <UploadCv

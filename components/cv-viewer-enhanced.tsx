@@ -155,10 +155,10 @@ export function CvViewerEnhanced({
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-blue-900 mb-1">
-                  Curriculum Vitae
+                  Perfil del Investigador
                 </h3>
                 <p className="text-sm text-blue-600">
-                  {investigadorNombre ? `CV de ${investigadorNombre}` : "Ver curriculum completo"}
+                  {investigadorNombre ? `Perfil de ${investigadorNombre}` : "Ver perfil completo"}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -364,7 +364,7 @@ export function CvViewerEnhanced({
             <DialogHeader className="p-6 pb-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <DialogTitle className="text-2xl text-blue-900">Curriculum Vitae</DialogTitle>
+                  <DialogTitle className="text-2xl text-blue-900">Perfil del Investigador</DialogTitle>
                   {investigadorNombre && (
                     <DialogDescription className="text-blue-600 mt-1">
                       {investigadorNombre}
@@ -542,7 +542,7 @@ export function CvViewerEnhanced({
         onClick={() => setIsDialogOpen(true)}
       >
         <Eye className="h-4 w-4" />
-        Ver Curriculum Vitae
+        Ver Perfil del Investigador
       </Button>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
