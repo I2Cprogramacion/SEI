@@ -396,7 +396,9 @@ export default function DashboardPage() {
                       if (response.ok) {
                         console.log("✅ CV actualizado en la base de datos")
                         // Actualizar el estado local
-                        setInvestigadorData({ ...investigadorData, cv_url: url })
+                        if (investigadorData) {
+                          setInvestigadorData({ ...investigadorData, cv_url: url })
+                        }
                         alert("¡CV subido exitosamente! Recargando página...")
                         // Recargar la página para mostrar el CV
                         window.location.reload()

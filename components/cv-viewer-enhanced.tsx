@@ -25,7 +25,7 @@ export function CvViewerEnhanced({
 }: CvViewerEnhancedProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const [viewMode, setViewMode] = useState<'iframe' | 'object' | 'embed'>('iframe')
+  const [viewMode, setViewMode] = useState<'iframe' | 'object' | 'embed'>('embed')
   const [zoom, setZoom] = useState<number>(100)
   const [isScrollLocked, setIsScrollLocked] = useState(true)
 
@@ -455,12 +455,20 @@ export function CvViewerEnhanced({
                   <h3 className="text-sm font-semibold text-gray-900">Método de Visualización</h3>
                   <div className="space-y-2">
                     <Button
+                      variant={viewMode === 'embed' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setViewMode('embed')}
+                      className="w-full justify-start"
+                    >
+                      Embed (Método 1)
+                    </Button>
+                    <Button
                       variant={viewMode === 'iframe' ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setViewMode('iframe')}
                       className="w-full justify-start"
                     >
-                      IFrame
+                      IFrame (Método 2)
                     </Button>
                     <Button
                       variant={viewMode === 'object' ? 'default' : 'outline'}
@@ -468,15 +476,7 @@ export function CvViewerEnhanced({
                       onClick={() => setViewMode('object')}
                       className="w-full justify-start"
                     >
-                      Object
-                    </Button>
-                    <Button
-                      variant={viewMode === 'embed' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setViewMode('embed')}
-                      className="w-full justify-start"
-                    >
-                      Embed
+                      Object (Método 3)
                     </Button>
                   </div>
                   <p className="text-xs text-gray-500">
