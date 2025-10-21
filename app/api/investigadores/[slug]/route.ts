@@ -24,7 +24,7 @@ export async function GET(
     const result = await sql`
       SELECT 
         id,
-        clerk_user_id as "clerkUserId",
+        COALESCE(clerk_user_id, '') as "clerkUserId",
         nombre_completo as name,
         correo as email,
         curp,
@@ -60,6 +60,7 @@ export async function GET(
         idiomas,
         colaboracion_internacional as "colaboracionInternacional",
         colaboracion_nacional as "colaboracionNacional",
+        cv_url as "cvUrl",
         slug,
         entidad_federativa as location
       FROM investigadores

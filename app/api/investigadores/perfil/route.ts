@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
         id, nombre_completo, curp, rfc, no_cvu, correo, telefono,
         ultimo_grado_estudios, empleo_actual, linea_investigacion,
         area_investigacion, nacionalidad, fecha_nacimiento, fotografia_url,
-        fecha_registro, origen
+        cv_url, fecha_registro, origen
       FROM investigadores 
       WHERE correo = $1
     `

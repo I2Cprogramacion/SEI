@@ -44,6 +44,8 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link"
+import { CvViewerEnhanced } from "@/components/cv-viewer-enhanced"
+import { UploadCv } from "@/components/upload-cv"
 
 interface InvestigadorData {
   id: number
@@ -60,6 +62,7 @@ interface InvestigadorData {
   nacionalidad: string
   fecha_nacimiento: string
   fotografia_url?: string
+  cv_url?: string
 }
 
 interface Sugerencia {
@@ -338,6 +341,77 @@ export default function DashboardPage() {
                     <p className="text-blue-900">{investigadorData.nacionalidad}</p>
                   </div>
                 )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Curriculum Vitae */}
+        <Card className="mb-8 bg-white border-blue-100">
+          <CardHeader>
+            <CardTitle className="text-blue-900 flex items-center">
+              <FileText className="mr-2 h-5 w-5" />
+              Mi Curriculum Vitae
+            </CardTitle>
+            <CardDescription className="text-blue-600">
+              {investigadorData?.cv_url ? "Tu CV es visible en tu perfil público" : "Sube tu CV para que sea visible en tu perfil público"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {investigadorData?.cv_url ? (
+              <CvViewerEnhanced 
+                cvUrl={investigadorData.cv_url} 
+                investigadorNombre={investigadorData.nombre_completo}
+                showAsCard={true}
+              />
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                  <FileText className="h-12 w-12 text-blue-400 mx-auto mb-3" />
+                  <p className="text-blue-700 font-medium mb-2">No has subido tu CV aún</p>
+                  <p className="text-sm text-blue-600 mb-4">
+                    Sube tu curriculum vitae para que sea visible en tu perfil público
+                  </p>
+                </div>
+                <UploadCv
+                  value={investigadorData?.cv_url || ""}
+                  onChange={async (url) => {
+                    console.log("=== CV SUBIDO ===")
+                    console.log("URL recibida:", url)
+                    
+                    // Actualizar el CV en la base de datos
+                    try {
+                      const response = await fetch('/api/investigadores/update-cv', {
+                        method: 'POST',
+                        headers: { 
+                          'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ cv_url: url })
+                      })
+                      
+                      console.log("Response status:", response.status)
+                      const responseData = await response.json()
+                      console.log("Response data:", responseData)
+                      
+                      if (response.ok) {
+                        console.log("✅ CV actualizado en la base de datos")
+                        // Actualizar el estado local
+                        setInvestigadorData({ ...investigadorData, cv_url: url })
+                        alert("¡CV subido exitosamente! Recargando página...")
+                        // Recargar la página para mostrar el CV
+                        window.location.reload()
+                      } else {
+                        console.error("❌ Error en la respuesta:", responseData)
+                        alert(`Error al actualizar: ${responseData.error || 'Error desconocido'}`)
+                      }
+                    } catch (error) {
+                      console.error('❌ Error al actualizar CV:', error)
+                      alert('Error al actualizar el CV. Por favor, intenta de nuevo.')
+                    }
+                  }}
+                  nombreCompleto={investigadorData?.nombre_completo || "Usuario"}
+                  showPreview={true}
+                />
               </div>
             )}
           </CardContent>
