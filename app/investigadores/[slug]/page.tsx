@@ -280,10 +280,9 @@ export default function InvestigadorPage() {
 
         {/* Curriculum Vitae */}
         {investigador.cvUrl && (
-          <CvViewerEnhanced 
+          <CvViewer 
             cvUrl={investigador.cvUrl} 
             investigadorNombre={investigador.name}
-            showAsCard={true}
           />
         )}
 
