@@ -174,11 +174,21 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         await this.conectar()
       }
 
-      console.log('Guardando investigador en PostgreSQL:', datos)
+      console.log("==================================================")
+      console.log("💾 GUARDANDO EN POSTGRESQL")
+      console.log("==================================================")
+      console.log('Datos completos recibidos:', JSON.stringify(datos, null, 2))
+      console.log("==================================================")
 
       const curp = datos.curp?.trim() || ""
       const nombre = datos.nombre_completo?.trim() || ""
       const correo = datos.correo?.trim() || ""
+
+      console.log("Valores extraídos:")
+      console.log("- CURP:", curp || "(vacío)")
+      console.log("- Nombre completo:", nombre || "(vacío)")
+      console.log("- Correo:", correo || "(vacío)")
+      console.log("- Clerk User ID:", datos.clerk_user_id || "(vacío)")
 
       // NOTA: Las verificaciones de duplicados ahora se manejan en Clerk
       // Solo verificamos CURP para evitar duplicados de documentos oficiales
@@ -206,6 +216,15 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       const placeholders = campos.map((_, index) => `$${index + 1}`).join(", ")
       const valores = campos.map((campo) => datos[campo])
 
+      console.log("==================================================")
+      console.log("🔧 CONSTRUYENDO QUERY SQL")
+      console.log("==================================================")
+      console.log('Campos a insertar:', campos)
+      console.log('Número de campos:', campos.length)
+      console.log('Placeholders:', placeholders)
+      console.log('Valores:', valores)
+      console.log("==================================================")
+
       // Construir la consulta SQL
       const query = `
         INSERT INTO investigadores (${campos.join(", ")})
@@ -213,12 +232,23 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         RETURNING id
       `
 
-      console.log('Query SQL:', query)
-      console.log('Valores:', valores)
+      console.log("==================================================")
+      console.log('📝 QUERY SQL FINAL:')
+      console.log("==================================================")
+      console.log(query)
+      console.log("==================================================")
+
+      console.log("🚀 Ejecutando INSERT...")
 
       // Ejecutar la consulta
       const result = await this.client.query(query, valores)
-      console.log('Resultado de la inserción:', result)
+      
+      console.log("==================================================")
+      console.log("✅ INSERT EXITOSO!")
+      console.log("==================================================")
+      console.log('Resultado completo:', result)
+      console.log('ID generado:', result.rows[0]?.id)
+      console.log("==================================================")
 
       return {
         success: true,
@@ -226,7 +256,15 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         id: result.rows[0].id,
       }
     } catch (error) {
-      console.error('Error al guardar investigador en PostgreSQL:', error)
+      console.error("==================================================")
+      console.error('❌ ERROR AL GUARDAR EN POSTGRESQL')
+      console.error("==================================================")
+      console.error('Tipo de error:', error instanceof Error ? error.constructor.name : typeof error)
+      console.error('Mensaje:', error instanceof Error ? error.message : String(error))
+      console.error('Stack:', error instanceof Error ? error.stack : 'No stack trace')
+      console.error('Error completo:', error)
+      console.error("==================================================")
+      
       return {
         success: false,
         message: `❌ Error al guardar: ${error instanceof Error ? error.message : "Error desconocido"}`,

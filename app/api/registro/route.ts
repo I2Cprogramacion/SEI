@@ -62,7 +62,18 @@ export async function POST(request: NextRequest) {
   }
   try {
     const data = await request.json()
-    console.log("Datos recibidos para registro:", data)
+    console.log("==================================================")
+    console.log("📥 DATOS RECIBIDOS PARA REGISTRO:")
+    console.log("==================================================")
+    console.log(JSON.stringify(data, null, 2))
+    console.log("==================================================")
+    console.log("Campos presentes:", Object.keys(data))
+    console.log("nombre_completo:", data.nombre_completo)
+    console.log("nombres:", data.nombres)
+    console.log("apellidos:", data.apellidos)
+    console.log("correo:", data.correo)
+    console.log("clerk_user_id:", data.clerk_user_id)
+    console.log("==================================================")
 
     // 🔒 VERIFICACIÓN DE CAPTCHA DESHABILITADA TEMPORALMENTE
     // const captchaToken = data.captchaToken || data.recaptcha
