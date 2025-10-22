@@ -44,7 +44,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link"
-import { CvViewerEnhanced } from "@/components/cv-viewer-enhanced"
+import { CvViewer } from "@/components/cv-viewer"
 import { UploadCv } from "@/components/upload-cv"
 import { GestionarCvDialog } from "@/components/gestionar-cv-dialog"
 
@@ -375,10 +375,9 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {investigadorData?.cv_url ? (
-              <CvViewerEnhanced 
+              <CvViewer 
                 cvUrl={investigadorData.cv_url} 
                 investigadorNombre={investigadorData.nombre_completo}
-                showAsCard={true}
               />
             ) : (
               <div className="space-y-4">

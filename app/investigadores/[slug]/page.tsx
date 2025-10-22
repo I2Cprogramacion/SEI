@@ -30,7 +30,7 @@ import {
 } from "lucide-react"
 import { ConectarInvestigadorDialog } from "@/components/conectar-investigador-dialog"
 import { EnviarMensajeDialog } from "@/components/enviar-mensaje-dialog"
-import { CvViewerEnhanced } from "@/components/cv-viewer-enhanced"
+import { CvViewer } from "@/components/cv-viewer"
 
 interface InvestigadorData {
   id: number
