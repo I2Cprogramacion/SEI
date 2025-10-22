@@ -718,9 +718,10 @@ export default function RegistroPage() {
             strategy: "email_code",
           })
 
-          // PASO 2: Si Clerk tuvo éxito, guardar en PostgreSQL
+          // PASO 2: Si Clerk tuvo éxito, guardar en PostgreSQL con el clerk_user_id
           const dataToSend = {
             ...formData,
+            clerk_user_id: signUpAttempt.createdUserId, // ID de Clerk para vincular
             fecha_registro: new Date().toISOString(),
             origen: "ocr",
             archivo_procesado: selectedFile?.name || "",
@@ -728,17 +729,27 @@ export default function RegistroPage() {
 
           const { confirm_password, ...dataToSendWithoutConfirm } = dataToSend
 
-          // Guardar en PostgreSQL (ahora sin verificación previa de duplicados)
-          const response = await fetch("/api/registro", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(dataToSendWithoutConfirm),
-          })
+          // Guardar en PostgreSQL
+          try {
+            const response = await fetch("/api/registro", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(dataToSendWithoutConfirm),
+            })
 
-          if (!response.ok) {
-            console.warn("Advertencia: No se pudo guardar en PostgreSQL, pero el usuario fue creado en Clerk")
+            const responseData = await response.json()
+
+            if (!response.ok) {
+              console.error("Error al guardar en PostgreSQL:", responseData)
+              // Si falla PostgreSQL, aún permitir continuar ya que Clerk tiene el usuario
+            } else {
+              console.log("✅ Datos guardados en PostgreSQL:", responseData)
+            }
+          } catch (dbError) {
+            console.error("Error de conexión con PostgreSQL:", dbError)
+            // Continuar de todos modos
           }
 
           // PASO 3: Verificar el estado del registro y redirigir
