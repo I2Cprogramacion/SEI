@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { neon } from "@neondatabase/serverless"
-
-const sql = neon(process.env.DATABASE_URL!)
+import { getDatabase } from "@/lib/database-config"
 
 export const dynamic = 'force-dynamic'
 
@@ -10,164 +8,144 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const query = searchParams.get('q') || ''
-    const type = searchParams.get('type') || 'all'
-    const areaFilter = searchParams.get('area') || 'all'
-    const institucionFilter = searchParams.get('institucion') || 'all'
     
-    if (!query.trim()) {
-      return NextResponse.json({ 
-        investigadores: [], 
-        proyectos: [], 
-        total: 0 
-      })
+    if (query.length < 2) {
+      return NextResponse.json({ results: [] })
     }
 
-    const searchPattern = `%${query.toLowerCase()}%`
-    
-    let investigadores: any[] = []
-    let proyectos: any[] = []
+    const db = await getDatabase()
+    const results = []
 
-    // Buscar investigadores si type es 'all' o 'investigadores'
-    if (type === 'all' || type === 'investigadores') {
-      let investigadoresQuery = sql`
+    // Buscar investigadores
+    try {
+      const investigadoresQuery = `
         SELECT 
           id,
-          nombre_completo as nombre,
-          correo,
-          institucion,
-          COALESCE(area, area_investigacion) as area,
-          linea_investigacion,
-          fotografia_url,
-          ultimo_grado_estudios,
-          slug
+          nombre_completo as title,
+          area as description,
+          'investigador' as type,
+          CONCAT('/investigadores/', slug) as href
         FROM investigadores 
-        WHERE (
-          LOWER(nombre_completo) LIKE ${searchPattern} OR
-          LOWER(COALESCE(area, '')) LIKE ${searchPattern} OR
-          LOWER(COALESCE(area_investigacion, '')) LIKE ${searchPattern} OR
-          LOWER(COALESCE(linea_investigacion, '')) LIKE ${searchPattern} OR
-          LOWER(COALESCE(institucion, '')) LIKE ${searchPattern}
-        )
+        WHERE LOWER(nombre_completo) LIKE ? 
+           OR LOWER(area) LIKE ? 
+           OR LOWER(especialidad) LIKE ?
+        LIMIT 5
       `
-
-      // Aplicar filtros adicionales
-      if (areaFilter !== 'all') {
-        investigadoresQuery = sql`
-          SELECT 
-            id,
-            nombre_completo as nombre,
-            correo,
-            institucion,
-            COALESCE(area, area_investigacion) as area,
-            linea_investigacion,
-            fotografia_url,
-            ultimo_grado_estudios,
-            slug
-          FROM investigadores 
-          WHERE (
-            LOWER(nombre_completo) LIKE ${searchPattern} OR
-            LOWER(COALESCE(area, '')) LIKE ${searchPattern} OR
-            LOWER(COALESCE(area_investigacion, '')) LIKE ${searchPattern} OR
-            LOWER(COALESCE(linea_investigacion, '')) LIKE ${searchPattern} OR
-            LOWER(COALESCE(institucion, '')) LIKE ${searchPattern}
-          )
-          AND (area = ${areaFilter} OR area_investigacion = ${areaFilter})
-        `
-      }
-
-      if (institucionFilter !== 'all') {
-        investigadoresQuery = sql`
-          SELECT 
-            id,
-            nombre_completo as nombre,
-            correo,
-            institucion,
-            COALESCE(area, area_investigacion) as area,
-            linea_investigacion,
-            fotografia_url,
-            ultimo_grado_estudios,
-            slug
-          FROM investigadores 
-          WHERE (
-            LOWER(nombre_completo) LIKE ${searchPattern} OR
-            LOWER(COALESCE(area, '')) LIKE ${searchPattern} OR
-            LOWER(COALESCE(area_investigacion, '')) LIKE ${searchPattern} OR
-            LOWER(COALESCE(linea_investigacion, '')) LIKE ${searchPattern} OR
-            LOWER(COALESCE(institucion, '')) LIKE ${searchPattern}
-          )
-          AND institucion = ${institucionFilter}
-        `
-      }
-
-      investigadoresQuery = sql`
-        ${investigadoresQuery}
-        ORDER BY nombre_completo ASC
-        LIMIT 50
-      `
-
-      const resultInv = await investigadoresQuery
-
-      investigadores = resultInv.map((inv: any) => ({
-        id: inv.id,
-        nombre: inv.nombre,
-        email: inv.correo,
-        institucion: inv.institucion || 'Institución no especificada',
-        area: inv.area || 'Investigación',
-        lineaInvestigacion: inv.linea_investigacion,
-        fotografiaUrl: inv.fotografia_url,
-        ultimoGradoEstudios: inv.ultimo_grado_estudios,
-        slug: inv.slug || `investigador-${inv.id}`,
-        keywords: [inv.area].filter(Boolean)
-      }))
+      const investigadores = await db.query(investigadoresQuery, [
+        `%${query.toLowerCase()}%`,
+        `%${query.toLowerCase()}%`,
+        `%${query.toLowerCase()}%`
+      ])
+      
+      investigadores.forEach((inv: any) => {
+        results.push({
+          id: `inv-${inv.id}`,
+          title: inv.title,
+          description: inv.description || 'Investigador',
+          type: 'investigador',
+          href: inv.href
+        })
+      })
+    } catch (error) {
+      console.log('Error buscando investigadores:', error)
     }
 
-    // Buscar proyectos si type es 'all' o 'proyectos'
-    if (type === 'all' || type === 'proyectos') {
-      const resultProyectos = await sql`
-        SELECT 
-          id,
-          titulo,
-          investigador_principal,
-          institucion,
-          COALESCE(categoria, area_investigacion, 'Investigación') as area,
-          slug
-        FROM proyectos
-        WHERE (
-          LOWER(titulo) LIKE ${searchPattern} OR
-          LOWER(COALESCE(descripcion, '')) LIKE ${searchPattern} OR
-          LOWER(COALESCE(investigador_principal, '')) LIKE ${searchPattern} OR
-          LOWER(COALESCE(institucion, '')) LIKE ${searchPattern}
-        )
-        ORDER BY titulo ASC
-        LIMIT 50
-      `
-
-      proyectos = resultProyectos.map((proy: any) => ({
-        id: proy.id,
-        titulo: proy.titulo,
-        investigador: proy.investigador_principal || 'Sin asignar',
-        institucion: proy.institucion || 'Institución no especificada',
-        area: proy.area,
-        slug: proy.slug || `proyecto-${proy.id}`,
-        keywords: [proy.area].filter(Boolean)
-      }))
+    // Buscar proyectos (datos de ejemplo por ahora)
+    try {
+      const proyectosEjemplo = [
+        {
+          id: 'proj-1',
+          title: 'Inteligencia Artificial en Salud',
+          description: 'Proyecto de investigación en IA médica',
+          type: 'proyecto',
+          href: '/proyectos/ia-salud'
+        },
+        {
+          id: 'proj-2', 
+          title: 'Energías Renovables',
+          description: 'Desarrollo de tecnologías solares',
+          type: 'proyecto',
+          href: '/proyectos/energias-renovables'
+        }
+      ]
+      
+      const proyectosFiltrados = proyectosEjemplo.filter(proj => 
+        proj.title.toLowerCase().includes(query.toLowerCase()) ||
+        proj.description.toLowerCase().includes(query.toLowerCase())
+      )
+      
+      results.push(...proyectosFiltrados)
+    } catch (error) {
+      console.log('Error buscando proyectos:', error)
     }
 
-    const total = investigadores.length + proyectos.length
+    // Buscar instituciones
+    try {
+      const institucionesQuery = `
+        SELECT DISTINCT institucion as title
+        FROM investigadores 
+        WHERE LOWER(institucion) LIKE ?
+        LIMIT 3
+      `
+      const instituciones = await db.query(institucionesQuery, [`%${query.toLowerCase()}%`])
+      
+      instituciones.forEach((inst: any, index: number) => {
+        results.push({
+          id: `inst-${index}`,
+          title: inst.title,
+          description: 'Institución de investigación',
+          type: 'institucion',
+          href: '/instituciones'
+        })
+      })
+    } catch (error) {
+      console.log('Error buscando instituciones:', error)
+    }
 
-    return NextResponse.json({
-      investigadores,
-      proyectos,
-      total
+    // Buscar campos de investigación
+    try {
+      const camposQuery = `
+        SELECT DISTINCT 
+          COALESCE(area, area_investigacion, 'Sin especificar') as title,
+          'Campo de investigación' as description
+        FROM investigadores 
+        WHERE LOWER(COALESCE(area, area_investigacion, '')) LIKE ?
+        LIMIT 3
+      `
+      const campos = await db.query(camposQuery, [`%${query.toLowerCase()}%`])
+      
+      campos.forEach((campo: any, index: number) => {
+        const slug = campo.title
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9\s]/g, '')
+          .replace(/\s+/g, '-')
+          .trim()
+          
+        results.push({
+          id: `campo-${index}`,
+          title: campo.title,
+          description: campo.description,
+          type: 'campo',
+          href: `/campos/${slug}`
+        })
+      })
+    } catch (error) {
+      console.log('Error buscando campos:', error)
+    }
+
+    return NextResponse.json({ 
+      results: results.slice(0, 10), // Limitar a 10 resultados
+      query 
     })
+    
   } catch (error) {
-    console.error("Error en búsqueda:", error)
+    console.error("Error en búsqueda global:", error)
     return NextResponse.json(
       { 
-        investigadores: [], 
-        proyectos: [], 
-        total: 0,
-        error: "Error al realizar la búsqueda"
+        error: "Error en búsqueda", 
+        results: []
       },
       { status: 500 }
     )

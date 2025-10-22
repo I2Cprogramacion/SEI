@@ -35,6 +35,7 @@ export default function RegistroSimplePage() {
       setError("Error de conexión");
     } finally {
       setIsLoading(false);
+      
     }
   };
 

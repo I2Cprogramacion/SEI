@@ -10,6 +10,7 @@ import { TrendingUp, Users, FileText, Award, Lightbulb, Loader2, Search, Filter,
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell } from "recharts"
+import { Breadcrumbs } from "@/components/breadcrumbs"
 
 interface CampoEstudio {
   id: number
@@ -152,6 +153,14 @@ export default function CamposPage() {
   }
   return (
     <div className="container mx-auto py-8 px-4">
+      {/* Breadcrumbs */}
+      <Breadcrumbs 
+        items={[
+          { label: "Campos de Investigación", current: true }
+        ]}
+        className="mb-6"
+      />
+      
       <div className="space-y-6">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-blue-900">Campos de Investigación</h1>

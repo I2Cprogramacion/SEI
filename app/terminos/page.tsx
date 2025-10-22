@@ -2,17 +2,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { FileText, Shield, Users, AlertTriangle, Scale, Calendar } from "lucide-react"
+import { Breadcrumbs } from "@/components/breadcrumbs"
 
 export default function TerminosPage() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
+      {/* Breadcrumbs */}
+      <Breadcrumbs 
+        items={[
+          { label: "Términos de Servicio", current: true }
+        ]}
+        className="mb-6"
+      />
+      
       <div className="space-y-6">
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-bold text-blue-900">Términos de Servicio</h1>
           <p className="text-blue-600">Sistema Estatal de Ciencia, Tecnología e Innovación de Chihuahua (SECCTI)</p>
           <div className="flex items-center justify-center gap-2">
             <Calendar className="h-4 w-4 text-blue-500" />
-            <span className="text-sm text-blue-600">Última actualización: 15 de enero de 2024</span>
+            <span className="text-sm text-blue-600">Última actualización: 22 de octubre de 2025</span>
           </div>
         </div>
 

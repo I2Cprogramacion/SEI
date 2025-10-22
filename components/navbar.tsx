@@ -29,6 +29,8 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { useUser, useClerk } from "@clerk/nextjs"
+import { GlobalSearch } from "@/components/global-search"
+import { useCurrentPage } from "@/hooks/use-current-page"
 
 
 export default function Navbar() {
@@ -40,6 +42,7 @@ export default function Navbar() {
   const router = useRouter()
   const { user, isSignedIn } = useUser()
   const { signOut } = useClerk()
+  const { name: currentPageName, section: currentSection } = useCurrentPage()
 
   const handleLogout = async () => {
     await signOut();
@@ -192,7 +195,14 @@ export default function Navbar() {
                 
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
-                    <Link href="/investigadores" className={cn(navigationMenuTriggerStyle(), "text-gray-700 hover:text-blue-600 font-medium")}>
+                    <Link 
+                      href="/investigadores" 
+                      className={cn(
+                        navigationMenuTriggerStyle(), 
+                        "text-gray-700 hover:text-blue-600 font-medium",
+                        currentSection === 'investigadores' && "bg-blue-50 text-blue-700 border-blue-200"
+                      )}
+                    > 
                       Investigadores
                     </Link>
                   </NavigationMenuLink>
@@ -200,7 +210,14 @@ export default function Navbar() {
                 
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
-                    <Link href="/proyectos" className={cn(navigationMenuTriggerStyle(), "text-gray-700 hover:text-blue-600 font-medium")}> 
+                    <Link 
+                      href="/proyectos" 
+                      className={cn(
+                        navigationMenuTriggerStyle(), 
+                        "text-gray-700 hover:text-blue-600 font-medium",
+                        currentSection === 'proyectos' && "bg-blue-50 text-blue-700 border-blue-200"
+                      )}
+                    > 
                       Proyectos
                     </Link>
                   </NavigationMenuLink>
@@ -218,6 +235,11 @@ export default function Navbar() {
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-3">
+              {/* Global Search */}
+              <div className="hidden md:block w-64">
+                <GlobalSearch />
+              </div>
+              
               {/* I2C Button */}
               <Button 
                 className="hidden lg:flex bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all px-4 h-10" 
