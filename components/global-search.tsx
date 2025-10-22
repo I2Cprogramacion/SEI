@@ -6,7 +6,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Search, User, FileText, Building2, Lightbulb } from "lucide-react"
+import { Search, User, FileText, Building2, Lightbulb, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface SearchResult {
@@ -72,14 +72,12 @@ export function GlobalSearch() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button 
-          variant="outline" 
-          className="relative h-9 w-full justify-start rounded-md bg-muted/50 px-3 text-sm text-muted-foreground sm:pr-12"
+          variant="ghost" 
+          size="icon"
+          className="h-9 w-9 hover:bg-blue-50 hover:text-blue-600 transition-colors"
         >
-          <Search className="mr-2 h-4 w-4" />
-          Buscar investigadores, proyectos...
-          <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-            <span className="text-xs">⌘</span>K
-          </kbd>
+          <Search className="h-4 w-4" />
+          <span className="sr-only">Buscar</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
@@ -91,20 +89,26 @@ export function GlobalSearch() {
             placeholder="Buscar investigadores, proyectos, instituciones, campos..."
             value={query}
             onValueChange={setQuery}
+            className="h-12"
           />
-          <CommandList>
+          <CommandList className="max-h-96">
             {loading && (
-              <div className="p-4 text-center text-sm text-muted-foreground">
-                Buscando...
+              <div className="flex items-center justify-center p-8">
+                <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+                <span className="ml-2 text-sm text-muted-foreground">Buscando...</span>
               </div>
             )}
             {!loading && query.length < 2 && (
-              <div className="p-4 text-center text-sm text-muted-foreground">
-                Escribe al menos 2 caracteres para buscar
+              <div className="p-8 text-center text-sm text-muted-foreground">
+                <Search className="h-8 w-8 mx-auto mb-2 text-blue-400" />
+                <p>Escribe al menos 2 caracteres para buscar</p>
               </div>
             )}
             {!loading && query.length >= 2 && results.length === 0 && (
-              <CommandEmpty>No se encontraron resultados para "{query}"</CommandEmpty>
+              <div className="p-8 text-center text-sm text-muted-foreground">
+                <Search className="h-8 w-8 mx-auto mb-2 text-blue-400" />
+                <p>No se encontraron resultados para "{query}"</p>
+              </div>
             )}
             {results.length > 0 && (
               <>
@@ -124,16 +128,16 @@ export function GlobalSearch() {
                         <CommandItem
                           key={result.id}
                           onSelect={() => handleSelect(result)}
-                          className="flex items-center gap-3 p-3"
+                          className="flex items-center gap-3 p-3 cursor-pointer hover:bg-blue-50"
                         >
-                          <div className={cn("p-2 rounded-full", typeInfo.color)}>
+                          <div className={cn("p-2 rounded-full flex-shrink-0", typeInfo.color)}>
                             <Icon className="h-4 w-4" />
                           </div>
-                          <div className="flex-1">
-                            <div className="font-medium">{result.title}</div>
-                            <div className="text-sm text-muted-foreground">{result.description}</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-gray-900 truncate">{result.title}</div>
+                            <div className="text-sm text-gray-500 truncate">{result.description}</div>
                           </div>
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="secondary" className="text-xs flex-shrink-0">
                             {typeInfo.label}
                           </Badge>
                         </CommandItem>
