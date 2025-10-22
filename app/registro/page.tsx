@@ -4,7 +4,7 @@ import React, { useState, useMemo, useCallback, useEffect, useRef } from "react"
 import { useSignUp, useClerk } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import ReCAPTCHA from "react-google-recaptcha"
+// import ReCAPTCHA from "react-google-recaptcha" // CAPTCHA DESHABILITADO
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -504,8 +504,8 @@ export default function RegistroPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [submitAttempts, setSubmitAttempts] = useState(0)
   const [lastAttempt, setLastAttempt] = useState(0)
-  const [captchaValue, setCaptchaValue] = useState<string | null>(null)
-  const recaptchaRef = useRef<ReCAPTCHA>(null)
+  // const [captchaValue, setCaptchaValue] = useState<string | null>(null) // CAPTCHA DESHABILITADO
+  // const recaptchaRef = useRef<ReCAPTCHA>(null) // CAPTCHA DESHABILITADO
 
   // Hydration fix effect
   useEffect(() => {
@@ -673,14 +673,14 @@ export default function RegistroPage() {
         return
       }
 
-      // Verificar CAPTCHA
-      console.log("🔍 Verificando CAPTCHA en handleSubmit. captchaValue:", captchaValue)
-      if (!captchaValue) {
-        console.log("❌ CAPTCHA no completado. Mostrando error.")
-        setError("Por favor, completa el CAPTCHA para continuar")
-        return
-      }
-      console.log("✅ CAPTCHA verificado. Continuando con el registro...")
+      // CAPTCHA DESHABILITADO TEMPORALMENTE
+      // console.log("🔍 Verificando CAPTCHA en handleSubmit. captchaValue:", captchaValue)
+      // if (!captchaValue) {
+      //   console.log("❌ CAPTCHA no completado. Mostrando error.")
+      //   setError("Por favor, completa el CAPTCHA para continuar")
+      //   return
+      // }
+      // console.log("✅ CAPTCHA verificado. Continuando con el registro...")
 
       if (!ocrCompleted) {
         setError("Debes procesar un Perfil Único antes de continuar con el registro")
@@ -750,7 +750,7 @@ export default function RegistroPage() {
               },
               body: JSON.stringify({
                 ...dataToSendWithoutConfirm,
-                captchaToken: captchaValue, // 🔒 Enviar token del CAPTCHA al backend
+                // captchaToken: captchaValue, // CAPTCHA DESHABILITADO
               }),
             })
 
@@ -759,10 +759,10 @@ export default function RegistroPage() {
             if (!response.ok) {
               console.error("Error al guardar en PostgreSQL:", responseData)
               
-              // Si el error es de CAPTCHA, mostrar mensaje específico
-              if (responseData.error?.includes("CAPTCHA")) {
-                throw new Error(responseData.message || "Error al verificar el CAPTCHA")
-              }
+              // CAPTCHA DESHABILITADO
+              // if (responseData.error?.includes("CAPTCHA")) {
+              //   throw new Error(responseData.message || "Error al verificar el CAPTCHA")
+              // }
               
               // Si falla PostgreSQL, aún permitir continuar ya que Clerk tiene el usuario
             } else {
@@ -770,10 +770,10 @@ export default function RegistroPage() {
             }
           } catch (dbError) {
             console.error("Error de conexión con PostgreSQL:", dbError)
-            // Si es un error de CAPTCHA, propagar el error
-            if (dbError instanceof Error && dbError.message.includes("CAPTCHA")) {
-              throw dbError
-            }
+            // CAPTCHA DESHABILITADO
+            // if (dbError instanceof Error && dbError.message.includes("CAPTCHA")) {
+            //   throw dbError
+            // }
             // Para otros errores de DB, continuar de todos modos
           }
 
@@ -1362,8 +1362,8 @@ export default function RegistroPage() {
                     </div>
                   )}
 
-                  {/* Google reCAPTCHA */}
-                  <div className="flex justify-center my-6">
+                  {/* CAPTCHA DESHABILITADO TEMPORALMENTE */}
+                  {/* <div className="flex justify-center my-6">
                     <ReCAPTCHA
                       ref={recaptchaRef}
                       sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}
@@ -1371,7 +1371,6 @@ export default function RegistroPage() {
                         console.log("🔵 CAPTCHA onChange triggered. Value:", value)
                         console.log("🔵 Setting captchaValue state to:", value)
                         setCaptchaValue(value)
-                        // Limpiar cualquier error previo cuando se completa el CAPTCHA
                         if (value) {
                           setError(null)
                           console.log("✅ CAPTCHA completado, error limpiado")
@@ -1384,10 +1383,10 @@ export default function RegistroPage() {
                       }}
                       theme="light"
                     />
-                  </div>
+                  </div> */}
 
-                  {/* Mostrar estado del CAPTCHA para debug */}
-                  {captchaValue && (
+                  {/* FEEDBACK VISUAL DEL CAPTCHA DESHABILITADO */}
+                  {/* {captchaValue && (
                     <div className="text-center text-sm text-green-600 font-medium mb-2 animate-fadeIn">
                       ✅ CAPTCHA verificado correctamente
                     </div>
@@ -1396,7 +1395,7 @@ export default function RegistroPage() {
                     <div className="text-center text-sm text-amber-600 mb-2">
                       ⚠️ Marca el checkbox "No soy un robot" para continuar
                     </div>
-                  )}
+                  )} */}
 
                   {/* Clerk CAPTCHA Container */}
                   <div id="clerk-captcha" className="flex justify-center"></div>
@@ -1404,10 +1403,12 @@ export default function RegistroPage() {
                   <Button
                     type="submit"
                     disabled={
-                      isLoading || !ocrCompleted || !isFormComplete || !passwordValidation.isValid || !passwordsMatch || !captchaValue
+                      isLoading || !ocrCompleted || !isFormComplete || !passwordValidation.isValid || !passwordsMatch
+                      // || !captchaValue // CAPTCHA DESHABILITADO
                     }
                     className={`w-full shadow-md hover:shadow-lg transition-all duration-300 h-10 md:h-12 text-sm md:text-base ${
-                      isFormComplete && passwordValidation.isValid && passwordsMatch && captchaValue
+                      isFormComplete && passwordValidation.isValid && passwordsMatch
+                      // && captchaValue // CAPTCHA DESHABILITADO
                         ? "bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800"
                         : "bg-gray-400 text-gray-200 cursor-not-allowed"
                     }`}

@@ -64,34 +64,35 @@ export async function POST(request: NextRequest) {
     const data = await request.json()
     console.log("Datos recibidos para registro:", data)
 
-    // 🔒 VERIFICAR CAPTCHA PRIMERO
-    const captchaToken = data.captchaToken || data.recaptcha
+    // 🔒 VERIFICACIÓN DE CAPTCHA DESHABILITADA TEMPORALMENTE
+    // const captchaToken = data.captchaToken || data.recaptcha
     
-    if (!captchaToken) {
-      console.error("❌ No se recibió token de CAPTCHA")
-      return NextResponse.json(
-        { 
-          error: "Token de CAPTCHA no proporcionado",
-          message: "Por favor, completa el CAPTCHA para continuar"
-        },
-        { status: 400 }
-      )
-    }
+    // if (!captchaToken) {
+    //   console.error("❌ No se recibió token de CAPTCHA")
+    //   return NextResponse.json(
+    //     { 
+    //       error: "Token de CAPTCHA no proporcionado",
+    //       message: "Por favor, completa el CAPTCHA para continuar"
+    //     },
+    //     { status: 400 }
+    //   )
+    // }
 
-    const captchaValido = await verificarCaptcha(captchaToken)
+    // const captchaValido = await verificarCaptcha(captchaToken)
     
-    if (!captchaValido) {
-      console.error("❌ CAPTCHA inválido o expirado")
-      return NextResponse.json(
-        {
-          error: "CAPTCHA inválido o expirado",
-          message: "Por favor, marca el CAPTCHA nuevamente e intenta de nuevo"
-        },
-        { status: 400 }
-      )
-    }
+    // if (!captchaValido) {
+    //   console.error("❌ CAPTCHA inválido o expirado")
+    //   return NextResponse.json(
+    //     {
+    //       error: "CAPTCHA inválido o expirado",
+    //       message: "Por favor, marca el CAPTCHA nuevamente e intenta de nuevo"
+    //     },
+    //     { status: 400 }
+    //   )
+    // }
 
-    console.log("✅ CAPTCHA verificado correctamente, continuando con el registro...")
+    // console.log("✅ CAPTCHA verificado correctamente, continuando con el registro...")
+    console.log("⚠️ CAPTCHA DESHABILITADO - Continuando sin verificación...")
     // Validar datos obligatorios
     if (!data.nombre_completo) {
       console.error("Falta el nombre completo")
