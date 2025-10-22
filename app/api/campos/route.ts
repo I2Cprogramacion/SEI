@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     
     const db = await getDatabase()
     
-    // Construir query base con filtros
+    // Query simplificada para evitar problemas de compatibilidad
     let areasQuery = `
       SELECT 
         COALESCE(area, area_investigacion, 'Sin especificar') as nombre,
@@ -23,43 +23,34 @@ export async function GET(request: NextRequest) {
         COUNT(DISTINCT id) as investigadores,
         COUNT(DISTINCT CASE WHEN proyectos_investigacion IS NOT NULL AND proyectos_investigacion != '' THEN id END) as proyectos,
         COUNT(DISTINCT CASE WHEN articulos IS NOT NULL AND articulos != '' THEN id END) as publicaciones,
-        COUNT(DISTINCT institucion) as instituciones,
-        AVG(CASE 
-          WHEN fecha_registro IS NOT NULL 
-          THEN EXTRACT(EPOCH FROM (NOW() - fecha_registro)) / 86400 
-          ELSE 0 
-        END) as dias_promedio_registro,
-        STRING_AGG(DISTINCT institucion, ', ') as instituciones_lista
+        COUNT(DISTINCT institucion) as instituciones
       FROM investigadores 
       WHERE (area IS NOT NULL AND area != '') 
          OR (area_investigacion IS NOT NULL AND area_investigacion != '')
     `
     
     const params: any[] = []
-    let paramIndex = 1
     
     // Agregar filtro de búsqueda
     if (search) {
       areasQuery += ` AND (
-        LOWER(COALESCE(area, area_investigacion, 'Sin especificar')) LIKE $${paramIndex} OR
-        LOWER(especialidad) LIKE $${paramIndex} OR
-        LOWER(disciplina) LIKE $${paramIndex} OR
-        LOWER(linea_investigacion) LIKE $${paramIndex}
+        LOWER(COALESCE(area, area_investigacion, 'Sin especificar')) LIKE ? OR
+        LOWER(especialidad) LIKE ? OR
+        LOWER(disciplina) LIKE ? OR
+        LOWER(linea_investigacion) LIKE ?
       )`
-      params.push(`%${search.toLowerCase()}%`)
-      paramIndex++
+      const searchParam = `%${search.toLowerCase()}%`
+      params.push(searchParam, searchParam, searchParam, searchParam)
     }
     
     // Agregar filtro por institución
     if (institucion !== 'all') {
-      areasQuery += ` AND LOWER(institucion) = $${paramIndex}`
+      areasQuery += ` AND LOWER(institucion) = ?`
       params.push(institucion.toLowerCase())
-      paramIndex++
     }
     
     areasQuery += ` GROUP BY COALESCE(area, area_investigacion, 'Sin especificar')`
     
-    // Agregar filtro por nivel de actividad (se aplicará después)
     // Agregar ordenamiento
     const ordenMap: { [key: string]: string } = {
       'investigadores': 'investigadores',
@@ -72,15 +63,19 @@ export async function GET(request: NextRequest) {
     const direccionSQL = direccion === 'asc' ? 'ASC' : 'DESC'
     areasQuery += ` ORDER BY ${ordenMap[orden] || 'investigadores'} ${direccionSQL}, nombre ASC`
     
-    const areas = await db.query(areasQuery)
+    console.log('Ejecutando query:', areasQuery)
+    console.log('Parámetros:', params)
+    
+    const areas = await db.query(areasQuery, params)
+    console.log('Resultados obtenidos:', areas.length)
     
     // Obtener subcampos/especialidades por área
     const subcamposQuery = `
       SELECT 
         COALESCE(area, area_investigacion, 'Sin especificar') as area,
-        STRING_AGG(DISTINCT especialidad, ', ') as especialidades,
-        STRING_AGG(DISTINCT disciplina, ', ') as disciplinas,
-        STRING_AGG(DISTINCT linea_investigacion, ', ') as lineas_investigacion
+        GROUP_CONCAT(DISTINCT especialidad, ', ') as especialidades,
+        GROUP_CONCAT(DISTINCT disciplina, ', ') as disciplinas,
+        GROUP_CONCAT(DISTINCT linea_investigacion, ', ') as lineas_investigacion
       FROM investigadores 
       WHERE (area IS NOT NULL AND area != '') 
          OR (area_investigacion IS NOT NULL AND area_investigacion != '')
@@ -151,7 +146,7 @@ export async function GET(request: NextRequest) {
         color: colores[colorIndex],
         slug: slug,
         instituciones_lista: area.instituciones_lista,
-        dias_promedio_registro: Math.round(area.dias_promedio_registro || 0)
+        dias_promedio_registro: 0
       }
     })
     
