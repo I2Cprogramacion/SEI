@@ -1,10 +1,10 @@
 "use client"
 
-import React, { useState, useMemo, useCallback, useEffect, useRef } from "react"
+import React, { useState, useMemo, useCallback, useEffect } from "react"
 import { useSignUp, useClerk } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-// import ReCAPTCHA from "react-google-recaptcha" // CAPTCHA DESHABILITADO
+// CAPTCHA DESHABILITADO: import ReCAPTCHA from "react-google-recaptcha"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -504,8 +504,6 @@ export default function RegistroPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [submitAttempts, setSubmitAttempts] = useState(0)
   const [lastAttempt, setLastAttempt] = useState(0)
-  // const [captchaValue, setCaptchaValue] = useState<string | null>(null) // CAPTCHA DESHABILITADO
-  // const recaptchaRef = useRef<ReCAPTCHA>(null) // CAPTCHA DESHABILITADO
 
   // Hydration fix effect
   useEffect(() => {
@@ -1417,11 +1415,6 @@ export default function RegistroPage() {
                       <>
                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                         Registrando...
-                      </>
-                    ) : !captchaValue ? (
-                      <>
-                        <AlertCircle className="mr-2 h-5 w-5" />
-                        Completa el CAPTCHA para continuar
                       </>
                     ) : !isFormComplete || !passwordValidation.isValid || !passwordsMatch ? (
                       <>
