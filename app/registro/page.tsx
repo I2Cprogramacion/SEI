@@ -674,10 +674,13 @@ export default function RegistroPage() {
       }
 
       // Verificar CAPTCHA
+      console.log("🔍 Verificando CAPTCHA en handleSubmit. captchaValue:", captchaValue)
       if (!captchaValue) {
+        console.log("❌ CAPTCHA no completado. Mostrando error.")
         setError("Por favor, completa el CAPTCHA para continuar")
         return
       }
+      console.log("✅ CAPTCHA verificado. Continuando con el registro...")
 
       if (!ocrCompleted) {
         setError("Debes procesar un Perfil Único antes de continuar con el registro")
@@ -1352,13 +1355,19 @@ export default function RegistroPage() {
                       ref={recaptchaRef}
                       sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}
                       onChange={(value) => {
-                        console.log("CAPTCHA value:", value)
+                        console.log("🔵 CAPTCHA onChange triggered. Value:", value)
+                        console.log("🔵 Setting captchaValue state to:", value)
                         setCaptchaValue(value)
-                        setError(null) // Limpiar error cuando se completa el CAPTCHA
+                        // Limpiar cualquier error previo cuando se completa el CAPTCHA
+                        if (value) {
+                          setError(null)
+                          console.log("✅ CAPTCHA completado, error limpiado")
+                        }
                       }}
                       onExpired={() => {
-                        console.log("CAPTCHA expired")
+                        console.log("⚠️ CAPTCHA expiró")
                         setCaptchaValue(null)
+                        setError("El CAPTCHA expiró. Por favor, márcalo nuevamente.")
                       }}
                       theme="light"
                     />
@@ -1366,8 +1375,13 @@ export default function RegistroPage() {
 
                   {/* Mostrar estado del CAPTCHA para debug */}
                   {captchaValue && (
-                    <div className="text-center text-sm text-green-600 mb-2">
+                    <div className="text-center text-sm text-green-600 font-medium mb-2 animate-fadeIn">
                       ✅ CAPTCHA verificado correctamente
+                    </div>
+                  )}
+                  {!captchaValue && (
+                    <div className="text-center text-sm text-amber-600 mb-2">
+                      ⚠️ Marca el checkbox "No soy un robot" para continuar
                     </div>
                   )}
 
