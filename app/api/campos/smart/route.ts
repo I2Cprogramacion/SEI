@@ -206,13 +206,13 @@ export async function GET() {
       }
     })
     
-    const totalInvestigadores = camposFormateados.reduce((sum, campo) => sum + campo.investigadores, 0)
+    const totalInvestigadoresCalculado = camposFormateados.reduce((sum, campo) => sum + campo.investigadores, 0)
     
     return NextResponse.json({
       campos: camposFormateados,
       estadisticas: {
         totalCampos: camposFormateados.length,
-        totalInvestigadores,
+        totalInvestigadores: totalInvestigadoresCalculado,
         totalProyectos: 0,
         totalPublicaciones: 0
       },
