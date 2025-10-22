@@ -731,6 +731,8 @@ export default function RegistroPage() {
           // PASO 2: Si Clerk tuvo éxito, guardar en PostgreSQL con el clerk_user_id
           const dataToSend = {
             ...formData,
+            // Asegurar que nombre_completo existe (la BD lo requiere)
+            nombre_completo: formData.nombre_completo || `${formData.nombres || ''} ${formData.apellidos || ''}`.trim(),
             clerk_user_id: signUpAttempt.createdUserId, // ID de Clerk para vincular
             fecha_registro: new Date().toISOString(),
             origen: "ocr",

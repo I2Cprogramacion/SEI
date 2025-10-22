@@ -93,14 +93,23 @@ export async function POST(request: NextRequest) {
 
     // console.log("✅ CAPTCHA verificado correctamente, continuando con el registro...")
     console.log("⚠️ CAPTCHA DESHABILITADO - Continuando sin verificación...")
+    
     // Validar datos obligatorios
-    if (!data.nombre_completo) {
-      console.error("Falta el nombre completo")
-      return NextResponse.json({ error: "El nombre completo es obligatorio" }, { status: 400 })
-    }
     if (!data.correo) {
       console.error("Falta el correo electrónico")
       return NextResponse.json({ error: "El correo electrónico es obligatorio" }, { status: 400 })
+    }
+    
+    // Si no hay nombre_completo pero sí nombres y apellidos, construirlo
+    if (!data.nombre_completo && data.nombres && data.apellidos) {
+      data.nombre_completo = `${data.nombres} ${data.apellidos}`.trim()
+      console.log("✅ nombre_completo construido desde nombres + apellidos:", data.nombre_completo)
+    }
+    
+    // Validar que ahora sí tengamos nombre_completo
+    if (!data.nombre_completo) {
+      console.error("Falta el nombre completo (no se pudo construir)")
+      return NextResponse.json({ error: "El nombre completo es obligatorio" }, { status: 400 })
     }
     // Añadir fecha de registro si no existe
     if (!data.fecha_registro) {
