@@ -1,9 +1,10 @@
 "use client"
 
-import React, { useState, useMemo, useCallback, useEffect } from "react"
+import React, { useState, useMemo, useCallback, useEffect, useRef } from "react"
 import { useSignUp, useClerk } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import ReCAPTCHA from "react-google-recaptcha"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -503,6 +504,8 @@ export default function RegistroPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [submitAttempts, setSubmitAttempts] = useState(0)
   const [lastAttempt, setLastAttempt] = useState(0)
+  const [captchaValue, setCaptchaValue] = useState<string | null>(null)
+  const recaptchaRef = useRef<ReCAPTCHA>(null)
 
   // Hydration fix effect
   useEffect(() => {
@@ -667,6 +670,12 @@ export default function RegistroPage() {
       const now = Date.now()
       if (submitAttempts >= RATE_LIMITS.MAX_ATTEMPTS && now - lastAttempt < RATE_LIMITS.LOCKOUT_DURATION_MS) {
         setError("Demasiados intentos. Por favor espera 1 minuto antes de intentar nuevamente.")
+        return
+      }
+
+      // Verificar CAPTCHA
+      if (!captchaValue) {
+        setError("Por favor, completa el CAPTCHA para continuar")
         return
       }
 
@@ -1337,16 +1346,27 @@ export default function RegistroPage() {
                     </div>
                   )}
 
+                  {/* Google reCAPTCHA */}
+                  <div className="flex justify-center my-6">
+                    <ReCAPTCHA
+                      ref={recaptchaRef}
+                      sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}
+                      onChange={(value) => setCaptchaValue(value)}
+                      onExpired={() => setCaptchaValue(null)}
+                      theme="light"
+                    />
+                  </div>
+
                   {/* Clerk CAPTCHA Container */}
                   <div id="clerk-captcha" className="flex justify-center"></div>
 
                   <Button
                     type="submit"
                     disabled={
-                      isLoading || !ocrCompleted || !isFormComplete || !passwordValidation.isValid || !passwordsMatch
+                      isLoading || !ocrCompleted || !isFormComplete || !passwordValidation.isValid || !passwordsMatch || !captchaValue
                     }
                     className={`w-full shadow-md hover:shadow-lg transition-all duration-300 h-10 md:h-12 text-sm md:text-base ${
-                      isFormComplete && passwordValidation.isValid && passwordsMatch
+                      isFormComplete && passwordValidation.isValid && passwordsMatch && captchaValue
                         ? "bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800"
                         : "bg-gray-400 text-gray-200 cursor-not-allowed"
                     }`}
@@ -1355,6 +1375,11 @@ export default function RegistroPage() {
                       <>
                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                         Registrando...
+                      </>
+                    ) : !captchaValue ? (
+                      <>
+                        <AlertCircle className="mr-2 h-5 w-5" />
+                        Completa el CAPTCHA para continuar
                       </>
                     ) : !isFormComplete || !passwordValidation.isValid || !passwordsMatch ? (
                       <>
