@@ -125,7 +125,7 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`border-b border-gray-200 shadow-sm fixed top-0 left-0 right-0 z-50 bg-white backdrop-blur-md transition-all duration-300 ${
+        className={`border-b border-blue-100 shadow-md fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md transition-all duration-300 ${
           isVisible ? "translate-y-0" : "-translate-y-full"
         }`}
       >
@@ -218,14 +218,16 @@ export default function Navbar() {
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-3">
-              {/* IIC Button */}
+              {/* I2C Button */}
               <Button 
                 className="hidden lg:flex bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all px-4 h-10" 
                 asChild
               >
                 <a href="https://i2c.com.mx/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                   <div className="flex items-baseline">
-                    <span className="text-lg font-bold tracking-tight">IIC</span>
+                    <span className="text-lg font-bold tracking-tight">I</span>
+                    <span className="text-xs font-bold relative top-[-4px]">2</span>
+                    <span className="text-lg font-bold tracking-tight">C</span>
                   </div>
                 </a>
               </Button>
@@ -371,11 +373,13 @@ export default function Navbar() {
                       </Button>
                     </div>
 
-                    {/* IIC Button móvil */}
+                    {/* I2C Button móvil */}
                     <Button className="w-full mt-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800" asChild>
                       <a href="https://i2c.com.mx/" target="_blank" rel="noopener noreferrer">
                         <div className="flex items-baseline">
-                          <span className="text-lg font-bold tracking-tight">IIC</span>
+                          <span className="text-lg font-bold tracking-tight">I</span>
+                          <span className="text-xs font-bold relative top-[-4px]">2</span>
+                          <span className="text-lg font-bold tracking-tight">C</span>
                         </div>
                       </a>
                     </Button>

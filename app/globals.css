@@ -64,12 +64,39 @@
     padding: 0;
     min-height: 100vh;
     overflow-x: hidden;
+    position: relative;
   }
   
   /* Prevenir scroll horizontal */
   main {
     overflow-x: hidden;
     width: 100%;
+    position: relative;
+  }
+}
+
+/* Animaciones suaves para transiciones */
+@layer utilities {
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient 15s ease infinite;
+  }
+  
+  @keyframes gradient {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+  
+  .glass-effect {
+    @apply bg-white/80 backdrop-blur-sm border border-blue-100/50 shadow-lg;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
   }
 }
 

@@ -141,7 +141,7 @@ export default function ProyectosPage() {
         </div>
 
         {/* Filtros y búsqueda */}
-        <Card className="bg-white border-blue-100">
+        <Card className="glass-effect">
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <div className="lg:col-span-2">
@@ -216,7 +216,7 @@ export default function ProyectosPage() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[...Array(4)].map((_, i) => (
-                <Card key={i} className="bg-white border-blue-100">
+                <Card key={i} className="glass-effect">
                   <CardHeader>
                     <div className="animate-pulse">
                       <div className="h-4 bg-blue-100 rounded w-1/4 mb-2"></div>
@@ -236,7 +236,7 @@ export default function ProyectosPage() {
           ) : filteredProyectos.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {filteredProyectos.map((proyecto, index) => (
-                <AnimatedCard key={proyecto.id} className="bg-white border-blue-100" delay={index * 100}>
+                <AnimatedCard key={proyecto.id} className="glass-effect card-hover" delay={index * 100}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
@@ -276,9 +276,9 @@ export default function ProyectosPage() {
                       )}
                     </div>
                   </CardContent>
-                  <CardFooter className="border-t border-blue-100 flex justify-between">
-                    <div className="flex gap-2">
-                      <Avatar className="h-6 w-6">
+                  <CardFooter className="border-t border-blue-100 flex items-center justify-between py-4">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-8 w-8 ring-2 ring-blue-100">
                         <AvatarImage src="/placeholder.svg" alt={proyecto.autor.nombre} />
                         <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
                           {proyecto.autor.nombre
@@ -288,7 +288,7 @@ export default function ProyectosPage() {
                         </AvatarFallback>
                       </Avatar>
                       {proyecto.colaboradores?.slice(0, 2).map((colaborador: any, colabIndex: number) => (
-                        <Avatar key={colabIndex} className="h-6 w-6">
+                        <Avatar key={colabIndex} className="h-8 w-8 ring-2 ring-blue-100 -ml-2">
                           <AvatarImage src="/placeholder.svg" alt={colaborador.nombre} />
                           <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
                             {colaborador.nombre
@@ -298,9 +298,15 @@ export default function ProyectosPage() {
                           </AvatarFallback>
                         </Avatar>
                       ))}
+                      {proyecto.colaboradores && proyecto.colaboradores.length > 2 && (
+                        <div className="h-8 w-8 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-medium ring-2 ring-blue-100 -ml-2">
+                          +{proyecto.colaboradores.length - 2}
+                        </div>
+                      )}
                     </div>
                     <AnimatedButton
                       variant="outline"
+                      size="sm"
                       className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
                       asChild
                     >
@@ -314,7 +320,7 @@ export default function ProyectosPage() {
               ))}
             </div>
           ) : (
-            <AnimatedCard className="bg-white border-blue-100" delay={500}>
+            <AnimatedCard className="glass-effect" delay={500}>
               <CardContent className="pt-6 text-center py-12">
                 <FileText className="h-12 w-12 mx-auto text-blue-300 mb-4 animate-float" />
                 <h3 className="text-lg font-semibold mb-2 text-blue-900">No se encontraron proyectos</h3>
