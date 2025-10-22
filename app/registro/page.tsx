@@ -1350,7 +1350,7 @@ export default function RegistroPage() {
                   <div className="flex justify-center my-6">
                     <ReCAPTCHA
                       ref={recaptchaRef}
-                      sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}
+                      sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}
                       onChange={(value) => setCaptchaValue(value)}
                       onExpired={() => setCaptchaValue(null)}
                       theme="light"

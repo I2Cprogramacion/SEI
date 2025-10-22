@@ -39,8 +39,8 @@ Edita tu archivo `.env.local`:
 
 ```bash
 # Google reCAPTCHA v2
-NEXT_PUBLIC_RECAPTCHA_SITE_KEY=tu_site_key_aqui
-RECAPTCHA_SECRET_KEY=tu_secret_key_aqui
+NEXT_PUBLIC_RECAPTCHA_SITE=tu_site_key_aqui
+RECAPTCHA_SECRET=tu_secret_key_aqui
 ```
 
 ### 6️⃣ **Configurar en Vercel (Producción)**
@@ -48,8 +48,8 @@ RECAPTCHA_SECRET_KEY=tu_secret_key_aqui
 1. Ve a tu proyecto en Vercel Dashboard
 2. Settings → Environment Variables
 3. Agrega:
-   - `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` = `tu_site_key`
-   - `RECAPTCHA_SECRET_KEY` = `tu_secret_key`
+   - `NEXT_PUBLIC_RECAPTCHA_SITE` = `tu_site_key`
+   - `RECAPTCHA_SECRET` = `tu_secret_key`
 4. Selecciona **Production, Preview, Development**
 5. Save
 
@@ -72,8 +72,8 @@ Para desarrollo local, puedes usar las claves de prueba de Google:
 
 ```bash
 # Estas claves SIEMPRE pasan el CAPTCHA (solo para testing)
-NEXT_PUBLIC_RECAPTCHA_SITE_KEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
-RECAPTCHA_SECRET_KEY=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
+NEXT_PUBLIC_RECAPTCHA_SITE=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
+RECAPTCHA_SECRET=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
 ```
 
 ⚠️ **IMPORTANTE:** NO uses estas claves en producción.
@@ -97,7 +97,7 @@ El CAPTCHA tiene varias opciones de personalización:
 ```tsx
 <ReCAPTCHA
   ref={recaptchaRef}
-  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE}
   onChange={(value) => setCaptchaValue(value)}
   onExpired={() => setCaptchaValue(null)}
   theme="light"        // "light" o "dark"
@@ -134,7 +134,7 @@ https://www.google.com/recaptcha/admin
 ## 🐛 Troubleshooting
 
 ### El CAPTCHA no aparece
-- Verifica que `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` esté configurada
+- Verifica que `NEXT_PUBLIC_RECAPTCHA_SITE` esté configurada
 - Asegúrate de que el dominio esté en la lista de dominios permitidos
 - Revisa la consola del navegador para errores
 
