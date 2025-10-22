@@ -1351,11 +1351,25 @@ export default function RegistroPage() {
                     <ReCAPTCHA
                       ref={recaptchaRef}
                       sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}
-                      onChange={(value) => setCaptchaValue(value)}
-                      onExpired={() => setCaptchaValue(null)}
+                      onChange={(value) => {
+                        console.log("CAPTCHA value:", value)
+                        setCaptchaValue(value)
+                        setError(null) // Limpiar error cuando se completa el CAPTCHA
+                      }}
+                      onExpired={() => {
+                        console.log("CAPTCHA expired")
+                        setCaptchaValue(null)
+                      }}
                       theme="light"
                     />
                   </div>
+
+                  {/* Mostrar estado del CAPTCHA para debug */}
+                  {captchaValue && (
+                    <div className="text-center text-sm text-green-600 mb-2">
+                      ✅ CAPTCHA verificado correctamente
+                    </div>
+                  )}
 
                   {/* Clerk CAPTCHA Container */}
                   <div id="clerk-captcha" className="flex justify-center"></div>
