@@ -129,6 +129,7 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         entidad_federativa VARCHAR(100),
         cv_ligado_orcid TEXT,
         orcid_verificado BOOLEAN DEFAULT FALSE,
+        clerk_user_id VARCHAR(255),
         fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `
@@ -136,6 +137,17 @@ export class PostgreSQLDatabase implements DatabaseInterface {
     try {
       await this.client.query(createTableQuery)
       console.log('Tabla investigadores creada o ya existente en PostgreSQL')
+      
+      // Agregar clerk_user_id si no existe (migración)
+      try {
+        await this.client.query(`
+          ALTER TABLE investigadores 
+          ADD COLUMN IF NOT EXISTS clerk_user_id VARCHAR(255)
+        `)
+        console.log('Columna clerk_user_id agregada o ya existente')
+      } catch (alterError) {
+        console.warn('No se pudo agregar clerk_user_id (posiblemente ya existe):', alterError)
+      }
     } catch (error) {
       console.error('Error al crear tabla en PostgreSQL:', error)
       throw error

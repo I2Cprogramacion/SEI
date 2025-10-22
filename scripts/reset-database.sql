@@ -146,6 +146,7 @@ CREATE TABLE investigadores (
   
   -- Control
   password TEXT,
+  clerk_user_id VARCHAR(255),
   fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   activo BOOLEAN DEFAULT TRUE,
