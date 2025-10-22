@@ -1,6 +1,15 @@
 # Configuración de Google reCAPTCHA v2
 
-## 📋 Pasos para obtener tus claves de reCAPTCHA
+## � Protección contra bots con verificación de doble capa
+
+Este sistema implementa **verificación de CAPTCHA en frontend Y backend** para máxima seguridad:
+
+1. ✅ **Frontend**: Valida que el usuario haya marcado el checkbox
+2. ✅ **Backend**: Verifica el token con Google antes de procesar el registro
+
+---
+
+## �📋 Pasos para obtener tus claves de reCAPTCHA
 
 ### 1️⃣ **Acceder a Google reCAPTCHA Admin**
 Ve a: https://www.google.com/recaptcha/admin/create
@@ -82,11 +91,28 @@ RECAPTCHA_SECRET=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
 
 ## ✅ Verificar que funciona
 
+### Frontend (Visual)
 1. Ve a tu página de registro
 2. Llena el formulario
 3. Verás el checkbox "I'm not a robot" antes del botón de registro
 4. Marca el checkbox
-5. El botón se activará
+5. Deberías ver el mensaje "✅ CAPTCHA verificado correctamente"
+6. El botón de registro se activará
+
+### Backend (Logs del servidor)
+1. Abre las herramientas de desarrollo (F12) → pestaña **Network**
+2. Envía el formulario
+3. En la petición POST a `/api/registro`, revisa los logs:
+   - `🔍 Verificando CAPTCHA con Google...`
+   - `✅ CAPTCHA verificado exitosamente`
+4. Ve a tu panel de Google reCAPTCHA: https://www.google.com/recaptcha/admin
+5. Deberías ver el contador de "verificaciones totales" incrementar
+
+### ⚠️ Si el contador sigue en 0
+Significa que el backend NO está haciendo la llamada a Google. Verifica:
+- ✅ Variable `RECAPTCHA_SECRET` configurada en Vercel
+- ✅ El token se está enviando desde el frontend como `captchaToken`
+- ✅ La función `verificarCaptcha()` se está ejecutando en `/api/registro/route.ts`
 
 ---
 
@@ -115,6 +141,29 @@ El CAPTCHA protege contra:
 - ✅ Registro masivo de cuentas falsas
 - ✅ Ataques de fuerza bruta
 - ✅ Spam
+
+### Arquitectura de seguridad de doble capa:
+
+```
+Usuario completa CAPTCHA
+         ↓
+Frontend valida visualmente (previene submit accidental)
+         ↓
+Token enviado al backend como { captchaToken: "..." }
+         ↓
+Backend hace POST a https://www.google.com/recaptcha/api/siteverify
+         ↓
+Google valida el token y responde { success: true/false }
+         ↓
+Si success=true → Procesar registro
+Si success=false → Rechazar con error 400
+```
+
+**Ventajas de esta arquitectura:**
+- 🚫 Imposible saltarse la validación modificando el código del navegador
+- 📊 Google registra todas las verificaciones (visible en el panel)
+- 🔐 La clave secreta nunca se expone al cliente
+- ⚡ Validación en tiempo real sin afectar UX
 
 ---
 

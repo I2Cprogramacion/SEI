@@ -741,27 +741,40 @@ export default function RegistroPage() {
 
           const { confirm_password, ...dataToSendWithoutConfirm } = dataToSend
 
-          // Guardar en PostgreSQL
+          // Guardar en PostgreSQL (incluir token de CAPTCHA)
           try {
             const response = await fetch("/api/registro", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify(dataToSendWithoutConfirm),
+              body: JSON.stringify({
+                ...dataToSendWithoutConfirm,
+                captchaToken: captchaValue, // 🔒 Enviar token del CAPTCHA al backend
+              }),
             })
 
             const responseData = await response.json()
 
             if (!response.ok) {
               console.error("Error al guardar en PostgreSQL:", responseData)
+              
+              // Si el error es de CAPTCHA, mostrar mensaje específico
+              if (responseData.error?.includes("CAPTCHA")) {
+                throw new Error(responseData.message || "Error al verificar el CAPTCHA")
+              }
+              
               // Si falla PostgreSQL, aún permitir continuar ya que Clerk tiene el usuario
             } else {
               console.log("✅ Datos guardados en PostgreSQL:", responseData)
             }
           } catch (dbError) {
             console.error("Error de conexión con PostgreSQL:", dbError)
-            // Continuar de todos modos
+            // Si es un error de CAPTCHA, propagar el error
+            if (dbError instanceof Error && dbError.message.includes("CAPTCHA")) {
+              throw dbError
+            }
+            // Para otros errores de DB, continuar de todos modos
           }
 
           // PASO 3: Verificar el estado del registro y redirigir

@@ -3,6 +3,52 @@ import type { NextRequest } from "next/server"
 import { guardarInvestigador } from "@/lib/db"
 import { verifyJWT } from "@/lib/auth/verify-jwt"
 
+/**
+ * Verifica el token de reCAPTCHA con Google
+ */
+async function verificarCaptcha(token: string): Promise<boolean> {
+  const secretKey = process.env.RECAPTCHA_SECRET
+  
+  if (!secretKey) {
+    console.error("❌ RECAPTCHA_SECRET no está configurada en las variables de entorno")
+    return false
+  }
+
+  try {
+    console.log("🔍 Verificando CAPTCHA con Google...")
+    
+    const response = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: `secret=${secretKey}&response=${token}`,
+    })
+
+    const data = await response.json()
+    
+    console.log("📊 Respuesta de Google reCAPTCHA:", {
+      success: data.success,
+      challenge_ts: data.challenge_ts,
+      hostname: data.hostname,
+      score: data.score,
+      action: data.action,
+      error_codes: data["error-codes"],
+    })
+
+    if (!data.success) {
+      console.error("❌ CAPTCHA inválido. Error codes:", data["error-codes"])
+      return false
+    }
+
+    console.log("✅ CAPTCHA verificado exitosamente")
+    return true
+  } catch (error) {
+    console.error("❌ Error al verificar CAPTCHA con Google:", error)
+    return false
+  }
+}
+
 export async function POST(request: NextRequest) {
   // Permitir registro abierto, pero si se envía token, verificarlo
   const authHeader = request.headers.get("authorization")
@@ -17,6 +63,35 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
     console.log("Datos recibidos para registro:", data)
+
+    // 🔒 VERIFICAR CAPTCHA PRIMERO
+    const captchaToken = data.captchaToken || data.recaptcha
+    
+    if (!captchaToken) {
+      console.error("❌ No se recibió token de CAPTCHA")
+      return NextResponse.json(
+        { 
+          error: "Token de CAPTCHA no proporcionado",
+          message: "Por favor, completa el CAPTCHA para continuar"
+        },
+        { status: 400 }
+      )
+    }
+
+    const captchaValido = await verificarCaptcha(captchaToken)
+    
+    if (!captchaValido) {
+      console.error("❌ CAPTCHA inválido o expirado")
+      return NextResponse.json(
+        {
+          error: "CAPTCHA inválido o expirado",
+          message: "Por favor, marca el CAPTCHA nuevamente e intenta de nuevo"
+        },
+        { status: 400 }
+      )
+    }
+
+    console.log("✅ CAPTCHA verificado correctamente, continuando con el registro...")
     // Validar datos obligatorios
     if (!data.nombre_completo) {
       console.error("Falta el nombre completo")
