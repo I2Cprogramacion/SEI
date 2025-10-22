@@ -722,7 +722,7 @@ export default function RegistroPage() {
 
         if (!response.ok) {
           if (response.status === 409 && responseData.duplicado) {
-            setError(`${responseData.message} ID: ${responseData.id}`)
+            setError(responseData.message)
             return
           }
           throw new Error(responseData.error || "Error al guardar los datos")

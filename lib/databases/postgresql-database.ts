@@ -178,8 +178,7 @@ export class PostgreSQLDatabase implements DatabaseInterface {
           console.log(`CURP duplicado encontrado: ${curp}`)
           return {
             success: false,
-            message: `❌ El CURP ${curp} ya está registrado.`,
-            id: existenteCurp.rows[0].id,
+            message: `❌ El CURP ${curp} ya está registrado. Por favor, inicia sesión o usa datos diferentes.`,
           }
         }
       }
@@ -194,8 +193,7 @@ export class PostgreSQLDatabase implements DatabaseInterface {
           console.log(`Correo duplicado encontrado: ${correo}`)
           return {
             success: false,
-            message: `❌ El correo electrónico ${correo} ya está registrado.`,
-            id: existenteCorreo.rows[0].id,
+            message: `❌ El correo electrónico ${correo} ya está registrado. Por favor, inicia sesión o usa otro correo.`,
           }
         }
       }
@@ -210,8 +208,7 @@ export class PostgreSQLDatabase implements DatabaseInterface {
           console.log(`Nombre duplicado encontrado: ${nombre}`)
           return {
             success: false,
-            message: `⚠️ El nombre ${nombre} ya está registrado. Verifica si es un duplicado.`,
-            id: existenteNombre.rows[0].id,
+            message: `⚠️ El nombre ${nombre} ya está registrado. Verifica si es un duplicado o inicia sesión.`,
           }
         }
       }

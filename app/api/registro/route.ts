@@ -46,19 +46,12 @@ export async function POST(request: NextRequest) {
           id: resultado.id,
         })
       } else {
-        // Si no fue exitoso pero tenemos un ID, es porque es un duplicado
-        if (resultado.id) {
-          return NextResponse.json({
-            success: false,
-            message: resultado.message,
-            id: resultado.id,
-            duplicado: true,
-          }, { status: 409 }) // 409 Conflict para duplicados
-        } else {
-          return NextResponse.json({
-            error: resultado.message,
-          }, { status: 400 })
-        }
+        // Error de duplicado o validación
+        return NextResponse.json({
+          success: false,
+          message: resultado.message,
+          duplicado: !resultado.success,
+        }, { status: 409 }) // 409 Conflict para duplicados
       }
     } catch (dbError) {
       console.error("Error al guardar en la base de datos:", dbError)
