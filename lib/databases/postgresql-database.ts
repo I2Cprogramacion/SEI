@@ -168,7 +168,8 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       const nombre = datos.nombre_completo?.trim() || ""
       const correo = datos.correo?.trim() || ""
 
-      // Verificar duplicados por CURP si está disponible
+      // NOTA: Las verificaciones de duplicados ahora se manejan en Clerk
+      // Solo verificamos CURP para evitar duplicados de documentos oficiales
       if (curp && curp !== "") {
         const existenteCurp = await this.client.query(
           'SELECT * FROM investigadores WHERE curp = $1',
@@ -178,37 +179,7 @@ export class PostgreSQLDatabase implements DatabaseInterface {
           console.log(`CURP duplicado encontrado: ${curp}`)
           return {
             success: false,
-            message: `❌ El CURP ${curp} ya está registrado. Por favor, inicia sesión o usa datos diferentes.`,
-          }
-        }
-      }
-
-      // Verificar duplicados por correo electrónico
-      if (correo && correo !== "") {
-        const existenteCorreo = await this.client.query(
-          'SELECT * FROM investigadores WHERE correo = $1',
-          [correo]
-        )
-        if (existenteCorreo.rows.length > 0) {
-          console.log(`Correo duplicado encontrado: ${correo}`)
-          return {
-            success: false,
-            message: `❌ El correo electrónico ${correo} ya está registrado. Por favor, inicia sesión o usa otro correo.`,
-          }
-        }
-      }
-
-      // Verificar duplicados por nombre si no hay CURP
-      if (!curp || curp === "") {
-        const existenteNombre = await this.client.query(
-          'SELECT * FROM investigadores WHERE nombre_completo = $1',
-          [nombre]
-        )
-        if (existenteNombre.rows.length > 0) {
-          console.log(`Nombre duplicado encontrado: ${nombre}`)
-          return {
-            success: false,
-            message: `⚠️ El nombre ${nombre} ya está registrado. Verifica si es un duplicado o inicia sesión.`,
+            message: `⚠️ El CURP ${curp} ya existe en el sistema. Si ya tienes cuenta, inicia sesión.`,
           }
         }
       }

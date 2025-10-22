@@ -701,40 +701,13 @@ export default function RegistroPage() {
           throw new Error("El correo electrónico debe tener un formato válido")
         }
 
-        const dataToSend = {
-          ...formData,
-          fecha_registro: new Date().toISOString(),
-          origen: "ocr",
-          archivo_procesado: selectedFile?.name || "",
-        }
-
-        const { confirm_password, ...dataToSendWithoutConfirm } = dataToSend
-
-        const response = await fetch("/api/registro", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(dataToSendWithoutConfirm),
-        })
-
-        const responseData = await response.json()
-
-        if (!response.ok) {
-          if (response.status === 409 && responseData.duplicado) {
-            setError(responseData.message)
-            return
-          }
-          throw new Error(responseData.error || "Error al guardar los datos")
-        }
-
-        // Clerk logic - Verificar que signUp esté cargado y disponible
+        // PRIMERO: Verificar que signUp esté cargado y disponible
         if (!isLoaded || !signUp) {
           throw new Error("El sistema de registro no está listo. Intenta de nuevo.")
         }
 
         try {
-          // Crear el usuario en Clerk
+          // PASO 1: Crear el usuario en Clerk primero (valida duplicados automáticamente)
           const signUpAttempt = await signUp.create({
             emailAddress: formData.correo,
             password: formData.password,
@@ -745,7 +718,30 @@ export default function RegistroPage() {
             strategy: "email_code",
           })
 
-          // Verificar el estado del registro
+          // PASO 2: Si Clerk tuvo éxito, guardar en PostgreSQL
+          const dataToSend = {
+            ...formData,
+            fecha_registro: new Date().toISOString(),
+            origen: "ocr",
+            archivo_procesado: selectedFile?.name || "",
+          }
+
+          const { confirm_password, ...dataToSendWithoutConfirm } = dataToSend
+
+          // Guardar en PostgreSQL (ahora sin verificación previa de duplicados)
+          const response = await fetch("/api/registro", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dataToSendWithoutConfirm),
+          })
+
+          if (!response.ok) {
+            console.warn("Advertencia: No se pudo guardar en PostgreSQL, pero el usuario fue creado en Clerk")
+          }
+
+          // PASO 3: Verificar el estado del registro y redirigir
           if (signUpAttempt.status === "complete") {
             // Si el registro está completo, iniciar sesión automáticamente
             await clerk.setActive({ session: signUpAttempt.createdSessionId })
@@ -763,7 +759,7 @@ export default function RegistroPage() {
           // Manejar error de email duplicado específicamente
           const errorMessage = clerkError.errors?.[0]?.message || ""
           if (errorMessage.toLowerCase().includes("email address is taken")) {
-            throw new Error("Este correo electrónico ya está registrado. Por favor, usa otro correo o inicia sesión.")
+            throw new Error("Este correo electrónico ya está registrado en el sistema. Por favor, inicia sesión.")
           }
           
           throw new Error(errorMessage || "Error al crear la cuenta")
