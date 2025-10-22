@@ -755,12 +755,16 @@ export default function RegistroPage() {
             const responseData = await response.json()
 
             if (!response.ok) {
-              console.error("Error al guardar en PostgreSQL:", responseData)
+              console.error("❌ ERROR AL GUARDAR EN POSTGRESQL:", responseData)
+              console.error("❌ Status:", response.status)
+              console.error("❌ Response completa:", JSON.stringify(responseData, null, 2))
               
-              // CAPTCHA DESHABILITADO
-              // if (responseData.error?.includes("CAPTCHA")) {
-              //   throw new Error(responseData.message || "Error al verificar el CAPTCHA")
-              // }
+              // Si falla PostgreSQL con error de columna, mostrar error claro
+              if (responseData.error?.includes("column") || responseData.error?.includes("does not exist")) {
+                console.error("🚨 ERROR: Falta ejecutar migración SQL en Neon")
+                console.error("🚨 Ejecuta: scripts/add-clerk-user-id.sql en Neon Console")
+                // Aunque falle, continuar (Clerk ya tiene el usuario)
+              }
               
               // Si falla PostgreSQL, aún permitir continuar ya que Clerk tiene el usuario
             } else {

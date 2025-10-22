@@ -132,7 +132,22 @@ Desktop.ini
 /lib/generated/prisma
 
 # ========================================
+# BACKUPS & DUPLICATES
+# ========================================
+*.backup
+*.bak
+*.old
+*.tmp
+*-copy.*
+*-backup.*
+*-old.*
+*-test.*
+*-draft.*
+
+# ========================================
 # MISC
 # ========================================
 *.pem
 .npmrc.local
+.railway/
+railway/
