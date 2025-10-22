@@ -90,7 +90,7 @@ export default function CamposPage() {
       if (orden !== 'investigadores') params.append('orden', orden)
       if (direccion !== 'desc') params.append('direccion', direccion)
       
-      const response = await fetch(`/api/campos/test?${params.toString()}`)
+      const response = await fetch(`/api/campos/real?${params.toString()}`)
       
       if (!response.ok) {
         throw new Error('Error al cargar los campos de investigación')
