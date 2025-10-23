@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
       SELECT 
         id,
         nombre_completo,
+        nombres,
+        apellidos,
         correo,
         curp,
         rfc,
@@ -39,40 +41,50 @@ export async function GET(request: NextRequest) {
         estado_nacimiento,
         municipio,
         entidad_federativa,
-        slug
+        slug,
+        clerk_user_id
       FROM investigadores 
-      WHERE 1=1
+      WHERE nombre_completo IS NOT NULL
     `
     
     const params: any[] = []
     let paramIndex = 1
 
-    // Agregar filtros (usando ? para SQLite)
+    // Agregar filtros (PostgreSQL usa $1, $2, etc)
     if (search) {
-      query += ` AND (
-        LOWER(nombre_completo) LIKE ? OR 
-        LOWER(correo) LIKE ? OR 
-        LOWER(institucion) LIKE ? OR 
-        LOWER(area) LIKE ? OR
-        LOWER(nivel) LIKE ?
-      )`
       const searchParam = `%${search.toLowerCase()}%`
-      params.push(searchParam, searchParam, searchParam, searchParam, searchParam)
+      query += ` AND (
+        LOWER(nombre_completo) LIKE $${paramIndex} OR 
+        LOWER(nombres) LIKE $${paramIndex + 1} OR
+        LOWER(apellidos) LIKE $${paramIndex + 2} OR
+        LOWER(correo) LIKE $${paramIndex + 3} OR 
+        LOWER(institucion) LIKE $${paramIndex + 4} OR
+        LOWER(empleo_actual) LIKE $${paramIndex + 5} OR 
+        LOWER(area) LIKE $${paramIndex + 6} OR
+        LOWER(area_investigacion) LIKE $${paramIndex + 7} OR
+        LOWER(linea_investigacion) LIKE $${paramIndex + 8} OR
+        LOWER(nivel) LIKE $${paramIndex + 9}
+      )`
+      params.push(searchParam, searchParam, searchParam, searchParam, searchParam, searchParam, searchParam, searchParam, searchParam, searchParam)
+      paramIndex += 10
     }
 
     if (area !== 'all') {
-      query += ` AND area = ?`
+      query += ` AND (area = $${paramIndex} OR area_investigacion = $${paramIndex})`
       params.push(area)
+      paramIndex += 1
     }
 
     if (institucion !== 'all') {
-      query += ` AND institucion = ?`
+      query += ` AND (institucion = $${paramIndex} OR empleo_actual = $${paramIndex})`
       params.push(institucion)
+      paramIndex += 1
     }
 
     if (ubicacion !== 'all') {
-      query += ` AND (estado_nacimiento = ? OR entidad_federativa = ?)`
-      params.push(ubicacion, ubicacion)
+      query += ` AND (estado_nacimiento = $${paramIndex} OR entidad_federativa = $${paramIndex})`
+      params.push(ubicacion)
+      paramIndex += 1
     }
 
     query += ` ORDER BY nombre_completo ASC`
@@ -116,16 +128,18 @@ export async function GET(request: NextRequest) {
 
     // Obtener opciones únicas para filtros
     const areas = await db.query(`
-      SELECT DISTINCT area 
+      SELECT DISTINCT COALESCE(area, area_investigacion) as area
       FROM investigadores 
-      WHERE area IS NOT NULL AND area != ''
+      WHERE (area IS NOT NULL AND area != '') 
+         OR (area_investigacion IS NOT NULL AND area_investigacion != '')
       ORDER BY area
     `)
 
     const instituciones = await db.query(`
-      SELECT DISTINCT institucion 
+      SELECT DISTINCT COALESCE(institucion, empleo_actual) as institucion
       FROM investigadores 
-      WHERE institucion IS NOT NULL AND institucion != ''
+      WHERE (institucion IS NOT NULL AND institucion != '')
+         OR (empleo_actual IS NOT NULL AND empleo_actual != '')
       ORDER BY institucion
     `)
 

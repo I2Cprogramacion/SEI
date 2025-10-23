@@ -369,14 +369,28 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       const terminoBusqueda = `%${termino.toLowerCase()}%`
       
       const query = `
-        SELECT id, nombre_completo as nombre, correo as email, institucion, area
+        SELECT 
+          id, 
+          nombre_completo as nombre, 
+          nombre_completo as nombreCompleto,
+          correo as email, 
+          COALESCE(institucion, empleo_actual) as institucion, 
+          COALESCE(area, area_investigacion) as area,
+          slug,
+          fotografia_url
         FROM investigadores 
         WHERE (
           LOWER(nombre_completo) LIKE $1 OR 
+          LOWER(nombres) LIKE $1 OR
+          LOWER(apellidos) LIKE $1 OR
           LOWER(correo) LIKE $1 OR 
           LOWER(institucion) LIKE $1 OR
-          LOWER(area) LIKE $1
+          LOWER(empleo_actual) LIKE $1 OR
+          LOWER(area) LIKE $1 OR
+          LOWER(area_investigacion) LIKE $1 OR
+          LOWER(linea_investigacion) LIKE $1
         )
+        AND nombre_completo IS NOT NULL
         ORDER BY nombre_completo ASC
         LIMIT $2
       `
