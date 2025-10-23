@@ -63,7 +63,6 @@ export async function POST(request: NextRequest) {
       }
     } catch (emailError) {
       // Si falla el email, solo logear pero no fallar la request
-      console.warn('⚠️ No se pudo enviar notificación por email:', emailError)
     }
 
     return NextResponse.json({
@@ -72,7 +71,6 @@ export async function POST(request: NextRequest) {
       mensajeId: result.rows[0].id,
     })
   } catch (error) {
-    console.error("Error al enviar mensaje:", error)
     return NextResponse.json(
       { error: "Error al enviar el mensaje" },
       { status: 500 }
@@ -125,7 +123,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(mensajes.rows)
   } catch (error) {
-    console.error("Error al obtener mensajes:", error)
     return NextResponse.json(
       { error: "Error al obtener mensajes" },
       { status: 500 }
@@ -162,7 +159,6 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Error al marcar mensaje como leído:", error)
     return NextResponse.json(
       { error: "Error al marcar mensaje como leído" },
       { status: 500 }

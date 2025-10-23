@@ -37,7 +37,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(featured)
   } catch (error) {
-    console.error("Error al obtener investigadores destacados:", error)
     return NextResponse.json(
       { error: "Error al cargar investigadores destacados" },
       { status: 500 }

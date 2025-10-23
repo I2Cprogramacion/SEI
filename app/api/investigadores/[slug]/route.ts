@@ -78,7 +78,6 @@ export async function GET(
     // El resultado ya tiene los campos con alias correctos (camelCase)
     return NextResponse.json(result[0])
   } catch (error) {
-    console.error("Error al obtener investigador:", error)
     return NextResponse.json(
       { error: "Error interno del servidor", details: error instanceof Error ? error.message : String(error) },
       { status: 500 }

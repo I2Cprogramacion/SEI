@@ -29,7 +29,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(investigadoresSerializables)
   } catch (error) {
-    console.error("Error al obtener investigadores incompletos:", error)
     return NextResponse.json({ error: "Error al obtener los investigadores incompletos" }, { status: 500 })
   }
 }

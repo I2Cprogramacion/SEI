@@ -56,7 +56,6 @@ export async function POST(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error("Error al actualizar CV del investigador:", error)
     return NextResponse.json({
       error: `Error al actualizar el CV: ${error instanceof Error ? error.message : "Error desconocido"}`,
     }, { status: 500 })

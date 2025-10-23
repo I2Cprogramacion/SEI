@@ -19,7 +19,6 @@ export async function PUT(request: NextRequest) {
     }
 
     const data = await request.json()
-    console.log("Datos recibidos para actualización:", data)
 
     // Validar que al menos un campo se esté actualizando
     if (!data || Object.keys(data).length === 0) {
@@ -63,8 +62,6 @@ export async function PUT(request: NextRequest) {
       RETURNING id, nombre_completo, correo, clerk_user_id
     `
 
-    console.log("Query SQL:", query)
-    console.log("Valores:", valores)
 
     const db = await getDatabase()
     const result = await db.query(query, valores)
@@ -86,7 +83,6 @@ export async function PUT(request: NextRequest) {
       data: actualizado
     })
   } catch (error) {
-    console.error("Error al actualizar perfil:", error)
     return NextResponse.json({
       error: `Error al actualizar el perfil: ${error instanceof Error ? error.message : "Error desconocido"}`,
     }, { status: 500 })

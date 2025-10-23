@@ -36,7 +36,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ count: parseInt(result.rows[0].count) || 0 })
   } catch (error) {
-    console.error("Error al obtener conexiones pendientes:", error)
     return NextResponse.json({ count: 0 })
   }
 }
