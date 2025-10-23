@@ -10,17 +10,18 @@ export async function GET(request: NextRequest) {
     const query = searchParams.get('q') || ''
     const limit = parseInt(searchParams.get('limit') || '10')
 
-    if (!query || query.length < 2) {
-      return NextResponse.json({ investigadores: [] })
-    }
-
     const db = await getDatabase()
-    
-    // Buscar investigadores por nombre, email o institución
-    const investigadores = await db.buscarInvestigadores({
-      termino: query,
-      limite: limit
-    })
+    let investigadores: any[] = [];
+    if (!query || query.length < 2) {
+      // Si no hay query, mostrar todos los investigadores
+      investigadores = await db.obtenerInvestigadores();
+    } else {
+      // Buscar investigadores por nombre, email o institución
+      investigadores = await db.buscarInvestigadores({
+        termino: query,
+        limite: limit
+      });
+    }
 
     // Formatear respuesta
   const resultados = investigadores.map((inv: any) => ({
