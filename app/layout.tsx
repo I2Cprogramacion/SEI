@@ -6,7 +6,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { ClerkProvider } from "@clerk/nextjs";
-import { ActividadUsuarioTracker } from "@/components/actividad-usuario-tracker";
 import { createMetadata } from "./metadata";
 
 const inter = Inter({ subsets: ["latin"] })
@@ -34,7 +33,6 @@ export default async function RootLayout({
     >
       <html lang="es">
         <body className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50/30">
-          <ActividadUsuarioTracker />
           <Navbar />
           <main className="pt-16 relative">
             <div className="absolute inset-0 bg-gradient-to-b from-blue-100/20 via-transparent to-white/50 pointer-events-none" />

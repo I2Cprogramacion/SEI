@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { Users, FileText, Building, GraduationCap, TrendingUp, Award, Globe } from "lucide-react"
-import { SearchBar } from "@/components/search-bar"
 
 // Interfaces para tipos de datos
 interface Estadisticas {
@@ -97,10 +96,6 @@ export default function ExplorarPage() {
           </p>
         </div>
 
-        {/* Barra de búsqueda */}
-        <div className="glass-effect rounded-xl px-6 py-8 shadow-lg">
-          <SearchBar />
-        </div>
 
         {/* Estadísticas generales */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">

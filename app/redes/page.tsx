@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge"
 import { Users, ExternalLink, Calendar, Globe, Building, Award } from "lucide-react"
 import Image from "next/image"
 import { JoinNetworkDialog } from "@/components/join-network-dialog"
-import { EventRegistrationDialog } from "@/components/event-registration-dialog"
 
 // Datos de ejemplo para redes de colaboración
 const redesNacionales = [
@@ -124,17 +123,6 @@ export default function RedesPage() {
     networkId: 0,
   })
 
-  const [eventRegistrationDialog, setEventRegistrationDialog] = useState<{
-    open: boolean
-    eventName: string
-    eventId: number
-    eventDate: string
-  }>({
-    open: false,
-    eventName: "",
-    eventId: 0,
-    eventDate: "",
-  })
 
   const handleJoinNetwork = (networkName: string, networkId: number) => {
     setJoinNetworkDialog({
@@ -144,14 +132,6 @@ export default function RedesPage() {
     })
   }
 
-  const handleRegisterEvent = (eventName: string, eventId: number, eventDate: string) => {
-    setEventRegistrationDialog({
-      open: true,
-      eventName,
-      eventId,
-      eventDate,
-    })
-  }
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -314,10 +294,10 @@ export default function RedesPage() {
                   <CardFooter className="border-t border-blue-100 pt-4">
                     <Button
                       className="w-full bg-blue-700 text-white hover:bg-blue-800"
-                      onClick={() => handleRegisterEvent(evento.nombre, evento.id, evento.fecha)}
+                      disabled
                     >
                       <Award className="mr-2 h-4 w-4" />
-                      Inscribirse
+                      Próximamente
                     </Button>
                   </CardFooter>
                 </Card>
@@ -335,13 +315,6 @@ export default function RedesPage() {
         onOpenChange={(open) => setJoinNetworkDialog((prev) => ({ ...prev, open }))}
       />
 
-      <EventRegistrationDialog
-        eventName={eventRegistrationDialog.eventName}
-        eventId={eventRegistrationDialog.eventId}
-        eventDate={eventRegistrationDialog.eventDate}
-        open={eventRegistrationDialog.open}
-        onOpenChange={(open) => setEventRegistrationDialog((prev) => ({ ...prev, open }))}
-      />
     </div>
   )
 }

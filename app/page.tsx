@@ -5,8 +5,6 @@ import Link from "next/link"
 import Image from "next/image"
 import { FeaturedResearchers } from "@/components/featured-researchers"
 import { RecentProjects } from "@/components/recent-projects"
-import { SearchBar } from "@/components/search-bar"
-import { OfficeLocations } from "@/components/office-locations"
 
 export default function Home() {
   return (
@@ -83,16 +81,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Search Section */}
-      <section className="py-8 sm:py-12 bg-gradient-to-br from-blue-100/50 via-blue-50/30 to-transparent rounded-lg sm:rounded-xl px-4 sm:px-6 my-8 sm:my-12 animate-fade-in-up delay-400 backdrop-blur-sm border border-blue-100/50 shadow-lg">
-        <div className="text-center mb-6 sm:mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-blue-900">Encuentra investigadores y proyectos en Chihuahua</h2>
-          <p className="text-blue-600 max-w-2xl mx-auto text-sm sm:text-base">
-            Busca por nombre, institución, campo de investigación o palabras clave
-          </p>
-        </div>
-        <SearchBar />
-      </section>
 
       {/* Featured Researchers */}
       <section className="py-6 sm:py-8">
@@ -116,10 +104,6 @@ export default function Home() {
         <RecentProjects />
       </section>
 
-      {/* Office Locations */}
-      <div className="animate-fade-in-up">
-        <OfficeLocations />
-      </div>
     </div>
   )
 }
