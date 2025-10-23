@@ -52,14 +52,15 @@ export async function PUT(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Agregar el email al final para el WHERE
+    // Agregar el clerk_user_id y email al final para el WHERE
+    valores.push(user.id)
     valores.push(email)
 
     const query = `
       UPDATE investigadores 
       SET ${camposActualizar.join(', ')}
-      WHERE correo = $${paramCount}
-      RETURNING id, nombre_completo, correo
+      WHERE clerk_user_id = $${paramCount} OR correo = $${paramCount + 1}
+      RETURNING id, nombre_completo, correo, clerk_user_id
     `
 
     console.log("Query SQL:", query)

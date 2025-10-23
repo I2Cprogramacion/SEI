@@ -11,10 +11,13 @@ export async function GET(request: NextRequest) {
     }
 
     const userEmail = user.emailAddresses[0]?.emailAddress
+    const clerkUserId = user.id
 
-    // Obtener el investigador actual
+    // Obtener el investigador actual (buscar por clerk_user_id primero, luego por correo)
     const investigadorResult = await querySafe<{ id: number }>`
-      SELECT id FROM investigadores WHERE correo = ${userEmail}
+      SELECT id FROM investigadores 
+      WHERE clerk_user_id = ${clerkUserId} OR correo = ${userEmail}
+      LIMIT 1
     `
 
     if (investigadorResult.rows.length === 0) {

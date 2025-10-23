@@ -9,16 +9,21 @@ export class PostgreSQLDatabase implements DatabaseInterface {
     this.config = config;
   }
 
-  async consultarInvestigadoresIncompletos() {
-    if (!this.client) {
-      await this.conectar();
+  async consultarInvestigadoresIncompletos(): Promise<any[]> {
+    try {
+      if (!this.client) {
+        await this.conectar();
+      }
+      const result = await this.client.query(`
+        SELECT id, no_cvu, curp, nombre_completo, rfc, correo, clerk_user_id, nacionalidad, fecha_nacimiento, institucion
+        FROM investigadores
+        WHERE curp = 'NO DETECTADO' OR curp = '' OR curp IS NULL
+      `);
+      return result.rows;
+    } catch (error) {
+      console.error('Error en consultarInvestigadoresIncompletos:', error);
+      return [];
     }
-    const result = await this.client.query(`
-      SELECT id, no_cvu, curp, nombre_completo, rfc, correo, nacionalidad, fecha_nacimiento, institucion
-      FROM investigadores
-      WHERE curp = 'NO DETECTADO' OR curp = '' OR curp IS NULL
-    `);
-    return result.rows;
   }
   // ...existing code...
 
@@ -174,24 +179,9 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         await this.conectar()
       }
 
-      console.log("==================================================")
-      console.log("💾 GUARDANDO EN POSTGRESQL")
-      console.log("==================================================")
-      console.log('Datos completos recibidos:', JSON.stringify(datos, null, 2))
-      console.log("==================================================")
-
-      const curp = datos.curp?.trim() || ""
-      const nombre = datos.nombre_completo?.trim() || ""
-      const correo = datos.correo?.trim() || ""
-
-      console.log("Valores extraídos:")
-      console.log("- CURP:", curp || "(vacío)")
-      console.log("- Nombre completo:", nombre || "(vacío)")
-      console.log("- Correo:", correo || "(vacío)")
-      console.log("- Clerk User ID:", datos.clerk_user_id || "(vacío)")
-
-      // NOTA: Las verificaciones de duplicados ahora se manejan en Clerk
-      // Solo verificamos CURP para evitar duplicados de documentos oficiales
+  const curp = datos.curp?.trim() || ""
+  const nombre = datos.nombre_completo?.trim() || ""
+  const correo = datos.correo?.trim() || ""
       if (curp && curp !== "") {
         const existenteCurp = await this.client.query(
           'SELECT * FROM investigadores WHERE curp = $1',
@@ -206,66 +196,28 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         }
       }
 
-      // NOTA: NO hashear password aquí - Clerk maneja la autenticación
-      // Solo guardamos datos de perfil en PostgreSQL
+  // Clerk maneja la autenticación, solo guardamos datos de perfil
       
       // Preparar los campos y valores para la inserción
       const campos = Object.keys(datos).filter((campo) => datos[campo] !== undefined)
       const placeholders = campos.map((_, index) => `$${index + 1}`).join(", ")
       const valores = campos.map((campo) => datos[campo])
 
-      console.log("==================================================")
-      console.log("🔧 CONSTRUYENDO QUERY SQL")
-      console.log("==================================================")
-      console.log('Campos a insertar:', campos)
-      console.log('Número de campos:', campos.length)
-      console.log('Placeholders:', placeholders)
-      console.log('Valores:', valores)
-      console.log("==================================================")
 
       // Construir la consulta SQL
-      const query = `
-        INSERT INTO investigadores (${campos.join(", ")})
-        VALUES (${placeholders})
-        RETURNING id
-      `
-
-      console.log("==================================================")
-      console.log('📝 QUERY SQL FINAL:')
-      console.log("==================================================")
-      console.log(query)
-      console.log("==================================================")
-
-      console.log("🚀 Ejecutando INSERT...")
+      const query = `INSERT INTO investigadores (${campos.join(", ")}) VALUES (${placeholders}) RETURNING id`;
 
       // Ejecutar la consulta
       const result = await this.client.query(query, valores)
-      
-      console.log("==================================================")
-      console.log("✅ INSERT EXITOSO!")
-      console.log("==================================================")
-      console.log('Resultado completo:', result)
-      console.log('ID generado:', result.rows[0]?.id)
-      console.log("==================================================")
-
       return {
         success: true,
-        message: `✅ Registro exitoso para ${nombre}`,
+        message: `Registro exitoso para ${nombre}`,
         id: result.rows[0].id,
       }
     } catch (error) {
-      console.error("==================================================")
-      console.error('❌ ERROR AL GUARDAR EN POSTGRESQL')
-      console.error("==================================================")
-      console.error('Tipo de error:', error instanceof Error ? error.constructor.name : typeof error)
-      console.error('Mensaje:', error instanceof Error ? error.message : String(error))
-      console.error('Stack:', error instanceof Error ? error.stack : 'No stack trace')
-      console.error('Error completo:', error)
-      console.error("==================================================")
-      
       return {
         success: false,
-        message: `❌ Error al guardar: ${error instanceof Error ? error.message : "Error desconocido"}`,
+        message: `Error al guardar: ${error instanceof Error ? error.message : "Error desconocido"}`,
         error,
       }
     }
@@ -307,8 +259,8 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       
       // Buscar usuario por email
       const result = await this.client.query(
-          'SELECT * FROM investigadores WHERE correo = $1',
-        [email]
+        'SELECT * FROM investigadores WHERE clerk_user_id = $1 OR correo = $2',
+        [email, email]
       )
       
       const usuario = result.rows[0]
@@ -368,32 +320,7 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       const { termino, limite = 10 } = params
       const terminoBusqueda = `%${termino.toLowerCase()}%`
       
-      const query = `
-        SELECT 
-          id, 
-          nombre_completo as nombre, 
-          nombre_completo as nombreCompleto,
-          correo as email, 
-          COALESCE(institucion, empleo_actual) as institucion, 
-          COALESCE(area, area_investigacion) as area,
-          slug,
-          fotografia_url
-        FROM investigadores 
-        WHERE (
-          LOWER(nombre_completo) LIKE $1 OR 
-          LOWER(nombres) LIKE $1 OR
-          LOWER(apellidos) LIKE $1 OR
-          LOWER(correo) LIKE $1 OR 
-          LOWER(institucion) LIKE $1 OR
-          LOWER(empleo_actual) LIKE $1 OR
-          LOWER(area) LIKE $1 OR
-          LOWER(area_investigacion) LIKE $1 OR
-          LOWER(linea_investigacion) LIKE $1
-        )
-        AND nombre_completo IS NOT NULL
-        ORDER BY nombre_completo ASC
-        LIMIT $2
-      `
+      const query = `SELECT id, nombre_completo as nombre, nombre_completo as nombreCompleto, correo as email, clerk_user_id, COALESCE(institucion, empleo_actual) as institucion, COALESCE(area, area_investigacion) as area, slug, fotografia_url, area_investigacion, linea_investigacion, empleo_actual, nombres, apellidos FROM investigadores WHERE (LOWER(nombre_completo) LIKE $1 OR LOWER(nombres) LIKE $1 OR LOWER(apellidos) LIKE $1 OR LOWER(correo) LIKE $1 OR LOWER(clerk_user_id) LIKE $1 OR LOWER(institucion) LIKE $1 OR LOWER(empleo_actual) LIKE $1 OR LOWER(area) LIKE $1 OR LOWER(area_investigacion) LIKE $1 OR LOWER(linea_investigacion) LIKE $1) AND nombre_completo IS NOT NULL ORDER BY nombre_completo ASC LIMIT $2`;
       
       const result = await this.client.query(query, [terminoBusqueda, limite])
       return result.rows
