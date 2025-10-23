@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
         slug,
         clerk_user_id
       FROM investigadores 
-      WHERE nombre_completo IS NOT NULL
+      WHERE TRIM(COALESCE(nombre_completo, '')) != ''
     `
     
     const params: any[] = []
@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
     // Formatear respuesta
     const investigadoresFormateados = investigadores.map((inv: any) => ({
       id: inv.id,
-      nombre: inv.nombre_completo,
+      nombre: cleanValue(inv.nombre_completo) || `${cleanValue(inv.nombres) || ''} ${cleanValue(inv.apellidos) || ''}`.trim(),
       email: inv.correo,
       curp: cleanValue(inv.curp),
       rfc: cleanValue(inv.rfc),
