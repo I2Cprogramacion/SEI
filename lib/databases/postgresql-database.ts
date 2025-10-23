@@ -9,24 +9,26 @@ export class PostgreSQLDatabase implements DatabaseInterface {
     this.config = config;
   }
 
-  async consultarInvestigadoresIncompletos() {
-    if (!this.client) {
-      await this.conectar();
+  async consultarInvestigadoresIncompletos(): Promise<any[]> {
+    try {
+      if (!this.client) {
+        await this.conectar();
+      }
+      const result = await this.client.query(`
+        SELECT id, no_cvu, curp, nombre_completo, rfc, correo, clerk_user_id, nacionalidad, fecha_nacimiento, institucion
+        FROM investigadores
+        WHERE curp = 'NO DETECTADO' OR curp = '' OR curp IS NULL
+      `);
+      return result.rows;
+    } catch (error) {
+      return [];
     }
-    const result = await this.client.query(`
-      SELECT id, no_cvu, curp, nombre_completo, rfc, correo, nacionalidad, fecha_nacimiento, institucion
-      FROM investigadores
-      WHERE curp = 'NO DETECTADO' OR curp = '' OR curp IS NULL
-    `);
-    return result.rows;
   }
   // ...existing code...
 
   async conectar(): Promise<void> {
     try {
-      // Importar pg solo cuando se necesite
       const { Client } = await import('pg')
-      
       this.client = new Client({
         host: this.config.host,
         port: this.config.port,
@@ -35,11 +37,8 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         password: this.config.password,
         ssl: this.config.ssl ? { rejectUnauthorized: false } : false
       })
-
       await this.client.connect()
-      console.log('Conectado a PostgreSQL')
     } catch (error) {
-      console.error('Error al conectar a PostgreSQL:', error)
       throw error
     }
   }
@@ -55,8 +54,6 @@ export class PostgreSQLDatabase implements DatabaseInterface {
     if (!this.client) {
       await this.conectar()
     }
-
-    // Crear tabla investigadores en PostgreSQL
     const createTableQuery = `
       CREATE TABLE IF NOT EXISTS investigadores (
         id SERIAL PRIMARY KEY,
@@ -136,20 +133,14 @@ export class PostgreSQLDatabase implements DatabaseInterface {
 
     try {
       await this.client.query(createTableQuery)
-      console.log('Tabla investigadores creada o ya existente en PostgreSQL')
-      
-      // Agregar clerk_user_id si no existe (migración)
       try {
         await this.client.query(`
           ALTER TABLE investigadores 
           ADD COLUMN IF NOT EXISTS clerk_user_id VARCHAR(255)
         `)
-        console.log('Columna clerk_user_id agregada o ya existente')
       } catch (alterError) {
-        console.warn('No se pudo agregar clerk_user_id (posiblemente ya existe):', alterError)
       }
     } catch (error) {
-      console.error('Error al crear tabla en PostgreSQL:', error)
       throw error
     }
   }
@@ -158,12 +149,9 @@ export class PostgreSQLDatabase implements DatabaseInterface {
     if (!this.client) {
       throw new Error('Base de datos no conectada')
     }
-    
     try {
       await this.client.query(sql)
-      console.log('Migración ejecutada exitosamente en PostgreSQL')
     } catch (error) {
-      console.error('Error al ejecutar migración en PostgreSQL:', error)
       throw error
     }
   }
@@ -174,31 +162,15 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         await this.conectar()
       }
 
-      console.log("==================================================")
-      console.log("💾 GUARDANDO EN POSTGRESQL")
-      console.log("==================================================")
-      console.log('Datos completos recibidos:', JSON.stringify(datos, null, 2))
-      console.log("==================================================")
-
-      const curp = datos.curp?.trim() || ""
-      const nombre = datos.nombre_completo?.trim() || ""
-      const correo = datos.correo?.trim() || ""
-
-      console.log("Valores extraídos:")
-      console.log("- CURP:", curp || "(vacío)")
-      console.log("- Nombre completo:", nombre || "(vacío)")
-      console.log("- Correo:", correo || "(vacío)")
-      console.log("- Clerk User ID:", datos.clerk_user_id || "(vacío)")
-
-      // NOTA: Las verificaciones de duplicados ahora se manejan en Clerk
-      // Solo verificamos CURP para evitar duplicados de documentos oficiales
+  const curp = datos.curp?.trim() || ""
+  const nombre = datos.nombre_completo?.trim() || ""
+  const correo = datos.correo?.trim() || ""
       if (curp && curp !== "") {
         const existenteCurp = await this.client.query(
           'SELECT * FROM investigadores WHERE curp = $1',
           [curp]
         )
         if (existenteCurp.rows.length > 0) {
-          console.log(`CURP duplicado encontrado: ${curp}`)
           return {
             success: false,
             message: `⚠️ El CURP ${curp} ya existe en el sistema. Si ya tienes cuenta, inicia sesión.`,
@@ -206,68 +178,28 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         }
       }
 
-      // Si hay contraseña, hashearla antes de guardar con bcryptjs
-      if (datos.contrasena) {
-        const salt = await bcrypt.genSalt(10);
-        datos.contrasena = await bcrypt.hash(datos.contrasena, salt);
-      }
+  // Clerk maneja la autenticación, solo guardamos datos de perfil
+      
       // Preparar los campos y valores para la inserción
       const campos = Object.keys(datos).filter((campo) => datos[campo] !== undefined)
       const placeholders = campos.map((_, index) => `$${index + 1}`).join(", ")
       const valores = campos.map((campo) => datos[campo])
 
-      console.log("==================================================")
-      console.log("🔧 CONSTRUYENDO QUERY SQL")
-      console.log("==================================================")
-      console.log('Campos a insertar:', campos)
-      console.log('Número de campos:', campos.length)
-      console.log('Placeholders:', placeholders)
-      console.log('Valores:', valores)
-      console.log("==================================================")
 
       // Construir la consulta SQL
-      const query = `
-        INSERT INTO investigadores (${campos.join(", ")})
-        VALUES (${placeholders})
-        RETURNING id
-      `
-
-      console.log("==================================================")
-      console.log('📝 QUERY SQL FINAL:')
-      console.log("==================================================")
-      console.log(query)
-      console.log("==================================================")
-
-      console.log("🚀 Ejecutando INSERT...")
+      const query = `INSERT INTO investigadores (${campos.join(", ")}) VALUES (${placeholders}) RETURNING id`;
 
       // Ejecutar la consulta
       const result = await this.client.query(query, valores)
-      
-      console.log("==================================================")
-      console.log("✅ INSERT EXITOSO!")
-      console.log("==================================================")
-      console.log('Resultado completo:', result)
-      console.log('ID generado:', result.rows[0]?.id)
-      console.log("==================================================")
-
       return {
         success: true,
-        message: `✅ Registro exitoso para ${nombre}`,
+        message: `Registro exitoso para ${nombre}`,
         id: result.rows[0].id,
       }
     } catch (error) {
-      console.error("==================================================")
-      console.error('❌ ERROR AL GUARDAR EN POSTGRESQL')
-      console.error("==================================================")
-      console.error('Tipo de error:', error instanceof Error ? error.constructor.name : typeof error)
-      console.error('Mensaje:', error instanceof Error ? error.message : String(error))
-      console.error('Stack:', error instanceof Error ? error.stack : 'No stack trace')
-      console.error('Error completo:', error)
-      console.error("==================================================")
-      
       return {
         success: false,
-        message: `❌ Error al guardar: ${error instanceof Error ? error.message : "Error desconocido"}`,
+        message: `Error al guardar: ${error instanceof Error ? error.message : "Error desconocido"}`,
         error,
       }
     }
@@ -278,11 +210,9 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       if (!this.client) {
         await this.conectar()
       }
-      
       const result = await this.client.query('SELECT * FROM investigadores ORDER BY id')
       return result.rows
     } catch (error) {
-      console.error('Error al obtener investigadores de PostgreSQL:', error)
       return []
     }
   }
@@ -292,11 +222,9 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       if (!this.client) {
         await this.conectar()
       }
-      
       const result = await this.client.query('SELECT * FROM investigadores WHERE id = $1', [id])
       return result.rows[0] || null
     } catch (error) {
-      console.error(`Error al obtener investigador con ID ${id} de PostgreSQL:`, error)
       return null
     }
   }
@@ -306,27 +234,19 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       if (!this.client) {
         await this.conectar()
       }
-      
-      // Buscar usuario por email
       const result = await this.client.query(
-          'SELECT * FROM investigadores WHERE correo = $1',
-        [email]
+        'SELECT * FROM investigadores WHERE clerk_user_id = $1 OR correo = $2',
+        [email, email]
       )
-      
       const usuario = result.rows[0]
-        
         if (!usuario) {
-          console.error('Usuario no encontrado:', email);
           return {
             success: false,
             message: "Usuario no encontrado"
           }
         }
-        
-        // Verificar hash de contraseña con bcryptjs
         const hash = usuario.password;
         if (!hash || typeof hash !== 'string') {
-          console.error('Hash de contraseña no encontrado o inválido para el usuario:', email);
           return {
             success: false,
             message: "Hash de contraseña no encontrado o inválido"
@@ -339,7 +259,6 @@ export class PostgreSQLDatabase implements DatabaseInterface {
             message: "Contraseña incorrecta"
           }
         }
-        // Login exitoso
         return {
           success: true,
           message: "Login exitoso",
@@ -352,9 +271,7 @@ export class PostgreSQLDatabase implements DatabaseInterface {
             institucion: usuario.institucion
           }
         }
-
     } catch (error) {
-      console.error('Error al verificar credenciales en PostgreSQL:', error)
       return {
         success: false,
         message: "Error interno del servidor"
@@ -369,24 +286,10 @@ export class PostgreSQLDatabase implements DatabaseInterface {
     try {
       const { termino, limite = 10 } = params
       const terminoBusqueda = `%${termino.toLowerCase()}%`
-      
-      const query = `
-        SELECT id, nombre_completo as nombre, correo as email, institucion, area
-        FROM investigadores 
-        WHERE (
-          LOWER(nombre_completo) LIKE $1 OR 
-          LOWER(correo) LIKE $1 OR 
-          LOWER(institucion) LIKE $1 OR
-          LOWER(area) LIKE $1
-        )
-        ORDER BY nombre_completo ASC
-        LIMIT $2
-      `
-      
+      const query = `SELECT id, nombre_completo as nombre, nombre_completo as nombreCompleto, correo as email, clerk_user_id, COALESCE(institucion, empleo_actual) as institucion, COALESCE(area, area_investigacion) as area, slug, fotografia_url, area_investigacion, linea_investigacion, empleo_actual, nombres, apellidos FROM investigadores WHERE (LOWER(nombre_completo) LIKE $1 OR LOWER(nombres) LIKE $1 OR LOWER(apellidos) LIKE $1 OR LOWER(correo) LIKE $1 OR LOWER(clerk_user_id) LIKE $1 OR LOWER(institucion) LIKE $1 OR LOWER(empleo_actual) LIKE $1 OR LOWER(area) LIKE $1 OR LOWER(area_investigacion) LIKE $1 OR LOWER(linea_investigacion) LIKE $1) AND nombre_completo IS NOT NULL ORDER BY nombre_completo ASC LIMIT $2`;
       const result = await this.client.query(query, [terminoBusqueda, limite])
       return result.rows
     } catch (error) {
-      console.error("Error al buscar investigadores:", error)
       return []
     }
   }
@@ -396,24 +299,17 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       if (!this.client) {
         await this.conectar()
       }
-      
       const result = await this.client.query(sql, params)
-      return result.rows // Retornar solo el array de filas
+      return result.rows
     } catch (error: any) {
-      // Solo loggear errores inesperados, no errores de tabla no existe
-      if (error?.code !== '42P01') {
-        console.error("Error al ejecutar query:", error)
-      }
       throw error
     }
   }
 
   async obtenerProyectos(): Promise<any[]> {
     try {
-      // Como no hay tabla de proyectos, devolver array vacío
       return []
     } catch (error) {
-      console.error("Error al obtener proyectos:", error)
       return []
     }
   }
@@ -423,7 +319,6 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       const result = await this.client.query("SELECT * FROM publicaciones ORDER BY fecha_creacion DESC")
       return result.rows
     } catch (error) {
-      console.error("Error al obtener publicaciones:", error)
       return []
     }
   }
@@ -438,22 +333,18 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       const campos = Object.keys(datos).filter((campo) => datos[campo] !== undefined)
       const placeholders = campos.map((_, index) => `$${index + 1}`).join(", ")
       const valores = campos.map((campo) => datos[campo])
-
       const query = `
         INSERT INTO publicaciones (${campos.join(", ")})
         VALUES (${placeholders})
         RETURNING id
       `
-
       const result = await this.client.query(query, valores)
-      
       return {
         success: true,
         message: "Publicación insertada exitosamente",
         id: result.rows[0]?.id
       }
     } catch (error) {
-      console.error("Error al insertar publicación:", error)
       return {
         success: false,
         message: `Error al insertar publicación: ${error instanceof Error ? error.message : "Error desconocido"}`,

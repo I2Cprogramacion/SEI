@@ -1,6 +1,10 @@
 import type { DatabaseConfig, DatabaseInterface } from '../database-interface';
 
 export class SQLiteDatabase implements DatabaseInterface {
+	async buscarInvestigadores(params: { termino: string; limite?: number }): Promise<any[]> {
+		// Implementación vacía para cumplir con la interfaz
+		return [];
+	}
 	private config: DatabaseConfig;
 
 	constructor(config: DatabaseConfig) {

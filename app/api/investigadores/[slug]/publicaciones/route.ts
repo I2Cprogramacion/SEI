@@ -78,7 +78,6 @@ export async function GET(
 
     return NextResponse.json(publicacionesFormateadas)
   } catch (error) {
-    console.error("Error al obtener publicaciones del investigador:", error)
     return NextResponse.json(
       { error: "Error al obtener publicaciones" },
       { status: 500 }

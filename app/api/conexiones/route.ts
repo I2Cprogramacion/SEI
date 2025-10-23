@@ -66,7 +66,6 @@ export async function POST(request: NextRequest) {
         await notifyNewConnectionRequest(recipientEmail, senderName, senderEmail)
       }
     } catch (emailError) {
-      console.warn('⚠️ No se pudo enviar notificación por email:', emailError)
     }
 
     return NextResponse.json({
@@ -75,7 +74,6 @@ export async function POST(request: NextRequest) {
       conexionId: result.rows[0].id,
     })
   } catch (error) {
-    console.error("Error al solicitar conexión:", error)
     return NextResponse.json(
       { error: "Error al solicitar conexión" },
       { status: 500 }
@@ -139,7 +137,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(conexiones.rows)
   } catch (error) {
-    console.error("Error al obtener conexiones:", error)
     return NextResponse.json(
       { error: "Error al obtener conexiones" },
       { status: 500 }
@@ -207,13 +204,11 @@ export async function PATCH(request: NextRequest) {
           await notifyConnectionAccepted(senderEmail, accepterName)
         }
       } catch (emailError) {
-        console.warn('⚠️ No se pudo enviar notificación por email:', emailError)
       }
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Error al actualizar conexión:", error)
     return NextResponse.json(
       { error: "Error al actualizar conexión" },
       { status: 500 }

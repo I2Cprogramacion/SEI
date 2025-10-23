@@ -737,21 +737,20 @@ export default function RegistroPage() {
             fecha_registro: new Date().toISOString(),
             origen: "ocr",
             archivo_procesado: selectedFile?.name || "",
+            // NO enviar password (ya está en Clerk)
           }
 
-          const { confirm_password, ...dataToSendWithoutConfirm } = dataToSend
+          // Eliminar password y confirm_password antes de enviar a PostgreSQL
+          const { password, confirm_password, ...dataToSendWithoutPasswords } = dataToSend
 
-          // Guardar en PostgreSQL (incluir token de CAPTCHA)
+          // Guardar en PostgreSQL (sin password, está en Clerk)
           try {
             const response = await fetch("/api/registro", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({
-                ...dataToSendWithoutConfirm,
-                // captchaToken: captchaValue, // CAPTCHA DESHABILITADO
-              }),
+              body: JSON.stringify(dataToSendWithoutPasswords),
             })
 
             const responseData = await response.json()

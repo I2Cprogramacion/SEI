@@ -71,7 +71,6 @@ export async function GET(
 
     return NextResponse.json(investigadoresRelacionados)
   } catch (error) {
-    console.error("Error al obtener investigadores relacionados:", error)
     return NextResponse.json(
       { error: "Error al obtener investigadores relacionados" },
       { status: 500 }
