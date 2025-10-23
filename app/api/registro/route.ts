@@ -126,12 +126,8 @@ export async function POST(request: NextRequest) {
     if (!data.fecha_registro) {
       data.fecha_registro = new Date().toISOString()
     }
-    // Si el campo es 'password', hashearla antes de guardar
-    if (data.password) {
-      const bcrypt = (await import('bcryptjs')).default;
-      const salt = await bcrypt.genSalt(10);
-      data.password = await bcrypt.hash(data.password, salt);
-    }
+    // NOTA: El hash de password se hace en postgresql-database.ts (guardarInvestigador)
+    // NO hashear aquí para evitar doble hash
     try {
       const resultado = await guardarInvestigador(data)
       console.log("Resultado del guardado:", resultado)

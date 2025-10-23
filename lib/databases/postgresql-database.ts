@@ -207,7 +207,11 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       }
 
       // Si hay contraseña, hashearla antes de guardar con bcryptjs
-      if (datos.contrasena) {
+      // El frontend envía 'password', pero algunos lugares usan 'contrasena'
+      if (datos.password) {
+        const salt = await bcrypt.genSalt(10);
+        datos.password = await bcrypt.hash(datos.password, salt);
+      } else if (datos.contrasena) {
         const salt = await bcrypt.genSalt(10);
         datos.contrasena = await bcrypt.hash(datos.contrasena, salt);
       }
