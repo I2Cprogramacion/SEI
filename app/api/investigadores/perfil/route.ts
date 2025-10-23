@@ -26,10 +26,33 @@ export async function GET(request: NextRequest) {
     // Buscar primero por clerk_user_id, luego por correo, y finalmente por id si existe
     let result = await db.query(`
       SELECT 
-        id, nombre_completo, curp, rfc, no_cvu, correo, telefono,
-        ultimo_grado_estudios, empleo_actual, linea_investigacion,
-        area_investigacion, nacionalidad, fecha_nacimiento, fotografia_url,
-        cv_url, fecha_registro, origen, clerk_user_id
+        id,
+        COALESCE(nombre_completo, '') AS nombre_completo,
+        COALESCE(nombres, '') AS nombres,
+        COALESCE(apellidos, '') AS apellidos,
+        COALESCE(correo, '') AS correo,
+        COALESCE(clerk_user_id, '') AS clerk_user_id,
+        COALESCE(area_investigacion, '') AS area_investigacion,
+        COALESCE(institucion, '') AS institucion,
+        COALESCE(fotografia_url, '') AS fotografia_url,
+        COALESCE(slug, '') AS slug,
+        COALESCE(curp, '') AS curp,
+        COALESCE(rfc, '') AS rfc,
+        COALESCE(no_cvu, '') AS no_cvu,
+        COALESCE(telefono, '') AS telefono,
+        COALESCE(nacionalidad, '') AS nacionalidad,
+        fecha_nacimiento,
+        COALESCE(cv_url, '') AS cv_url,
+        fecha_registro,
+        COALESCE(origen, '') AS origen,
+        COALESCE(es_admin, FALSE) AS es_admin,
+        COALESCE(estado_nacimiento, '') AS estado_nacimiento,
+        COALESCE(entidad_federativa, '') AS entidad_federativa,
+        COALESCE(orcid, '') AS orcid,
+        COALESCE(empleo_actual, '') AS empleo_actual,
+        COALESCE(nivel_actual, '') AS nivel_actual,
+        COALESCE(institucion_id, '') AS institucion_id,
+        COALESCE(activo, TRUE) AS activo
       FROM investigadores 
       WHERE clerk_user_id = $1 OR correo = $2
       LIMIT 1
