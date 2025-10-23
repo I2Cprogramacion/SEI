@@ -64,16 +64,35 @@ export async function POST(request: NextRequest) {
     const data = await request.json()
     console.log("==================================================")
     console.log("📥 DATOS RECIBIDOS PARA REGISTRO:")
-    console.log("==================================================")
     console.log(JSON.stringify(data, null, 2))
     console.log("==================================================")
-    console.log("Campos presentes:", Object.keys(data))
-    console.log("nombre_completo:", data.nombre_completo)
-    console.log("nombres:", data.nombres)
-    console.log("apellidos:", data.apellidos)
-    console.log("correo:", data.correo)
-    console.log("clerk_user_id:", data.clerk_user_id)
-    console.log("==================================================")
+    // Validar y normalizar nombres de variables
+    const camposTabla = [
+      "nombre_completo", "nombres", "apellidos", "correo", "clerk_user_id", "area_investigacion", "institucion", "fotografia_url", "slug", "curp", "rfc", "no_cvu", "telefono", "nacionalidad", "fecha_nacimiento", "cv_url", "fecha_registro", "origen", "es_admin", "estado_nacimiento", "entidad_federativa", "orcid", "empleo_actual", "nivel_actual", "institucion_id", "activo"
+    ];
+    // Eliminar campos no válidos y asegurar que todos los obligatorios estén presentes
+    const datosRegistro: any = {};
+    for (const campo of camposTabla) {
+      datosRegistro[campo] = data[campo] !== undefined ? data[campo] : null;
+    }
+    // Validar obligatorios
+    if (!datosRegistro.correo) {
+      console.error("Falta el correo electrónico")
+      return NextResponse.json({ error: "El correo electrónico es obligatorio" }, { status: 400 })
+    }
+    if (!datosRegistro.nombre_completo && datosRegistro.nombres && datosRegistro.apellidos) {
+      datosRegistro.nombre_completo = `${datosRegistro.nombres} ${datosRegistro.apellidos}`.trim()
+      console.log("✅ nombre_completo construido desde nombres + apellidos:", datosRegistro.nombre_completo)
+    }
+    if (!datosRegistro.nombre_completo) {
+      console.error("Falta el nombre completo (no se pudo construir)")
+      return NextResponse.json({ error: "El nombre completo es obligatorio" }, { status: 400 })
+    }
+    if (!datosRegistro.fecha_registro) {
+      datosRegistro.fecha_registro = new Date().toISOString()
+    }
+    // Mostrar los datos finales que se enviarán a la base
+    console.log("Datos normalizados para guardar en la base:", JSON.stringify(datosRegistro, null, 2))
 
     // 🔒 VERIFICACIÓN DE CAPTCHA DESHABILITADA TEMPORALMENTE
     // const captchaToken = data.captchaToken || data.recaptcha
@@ -129,7 +148,7 @@ export async function POST(request: NextRequest) {
     // NOTA: El hash de password se hace en postgresql-database.ts (guardarInvestigador)
     // NO hashear aquí para evitar doble hash
     try {
-      const resultado = await guardarInvestigador(data)
+      const resultado = await guardarInvestigador(datosRegistro)
       console.log("Resultado del guardado:", resultado)
       if (resultado.success) {
         return NextResponse.json({
