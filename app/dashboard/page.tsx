@@ -44,8 +44,9 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link"
-import { CvViewerEnhanced } from "@/components/cv-viewer-enhanced"
+import { CvViewer } from "@/components/cv-viewer"
 import { UploadCv } from "@/components/upload-cv"
+import { GestionarCvDialog } from "@/components/gestionar-cv-dialog"
 
 interface InvestigadorData {
   id: number
@@ -101,6 +102,7 @@ export default function DashboardPage() {
   const [isLoadingSugerencias, setIsLoadingSugerencias] = useState(true)
   const [isLoadingEstadisticas, setIsLoadingEstadisticas] = useState(true)
   const [isDeletingAccount, setIsDeletingAccount] = useState(false)
+  const [gestionarCvDialogOpen, setGestionarCvDialogOpen] = useState(false)
 
   // Cargar datos del investigador
   useEffect(() => {
@@ -346,23 +348,36 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Curriculum Vitae */}
+        {/* Perfil del Investigador */}
         <Card className="mb-8 bg-white border-blue-100">
           <CardHeader>
-            <CardTitle className="text-blue-900 flex items-center">
-              <FileText className="mr-2 h-5 w-5" />
-              Mi Curriculum Vitae
-            </CardTitle>
-            <CardDescription className="text-blue-600">
-              {investigadorData?.cv_url ? "Tu CV es visible en tu perfil público" : "Sube tu CV para que sea visible en tu perfil público"}
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-blue-900 flex items-center">
+                  <FileText className="mr-2 h-5 w-5" />
+                  Perfil del Investigador
+                </CardTitle>
+                <CardDescription className="text-blue-600">
+                  {investigadorData?.cv_url ? "Tu perfil es visible públicamente" : "Sube tu CV para completar tu perfil público"}
+                </CardDescription>
+              </div>
+              {investigadorData?.cv_url && (
+                <Button
+                  onClick={() => setGestionarCvDialogOpen(true)}
+                  variant="outline"
+                  className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Gestionar CV
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {investigadorData?.cv_url ? (
-              <CvViewerEnhanced 
+              <CvViewer 
                 cvUrl={investigadorData.cv_url} 
                 investigadorNombre={investigadorData.nombre_completo}
-                showAsCard={true}
               />
             ) : (
               <div className="space-y-4">
@@ -370,7 +385,7 @@ export default function DashboardPage() {
                   <FileText className="h-12 w-12 text-blue-400 mx-auto mb-3" />
                   <p className="text-blue-700 font-medium mb-2">No has subido tu CV aún</p>
                   <p className="text-sm text-blue-600 mb-4">
-                    Sube tu curriculum vitae para que sea visible en tu perfil público
+                    Sube tu CV para completar tu perfil de investigador
                   </p>
                 </div>
                 <UploadCv
@@ -396,7 +411,9 @@ export default function DashboardPage() {
                       if (response.ok) {
                         console.log("✅ CV actualizado en la base de datos")
                         // Actualizar el estado local
-                        setInvestigadorData({ ...investigadorData, cv_url: url })
+                        if (investigadorData) {
+                          setInvestigadorData({ ...investigadorData, cv_url: url })
+                        }
                         alert("¡CV subido exitosamente! Recargando página...")
                         // Recargar la página para mostrar el CV
                         window.location.reload()
@@ -592,6 +609,18 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
+
+      {/* Dialog para gestionar CV */}
+      <GestionarCvDialog
+        open={gestionarCvDialogOpen}
+        onOpenChange={setGestionarCvDialogOpen}
+        cvUrlActual={investigadorData?.cv_url}
+        onCvUpdated={(newUrl) => {
+          if (investigadorData) {
+            setInvestigadorData({ ...investigadorData, cv_url: newUrl || undefined })
+          }
+        }}
+      />
     </div>
   )
 }

@@ -41,7 +41,7 @@ export default function Footer() {
   }
 
   return (
-    <footer className="border-t border-blue-100 py-8 bg-blue-50 relative">
+    <footer className="border-t border-blue-100 py-8 bg-gradient-to-b from-blue-50/50 to-white backdrop-blur-sm relative">
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center justify-center">
           <h4 className="font-semibold mb-4 text-blue-900">Términos Legales</h4>

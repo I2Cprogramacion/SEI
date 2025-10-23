@@ -48,10 +48,10 @@ export function FeaturedResearchers() {
   }, [])
 
   return (
-    <Card className="bg-white border-blue-100">
-      <CardContent>
+    <Card className="glass-effect card-hover">
+      <CardContent className="pt-4 pb-4">
         {loading ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="flex items-center space-x-4 animate-pulse">
                 <div className="h-10 w-10 bg-blue-100 rounded-full"></div>
@@ -63,9 +63,9 @@ export function FeaturedResearchers() {
             ))}
           </div>
         ) : researchers.length > 0 ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {researchers.map((researcher) => (
-              <div key={researcher.id} className="flex items-center justify-between">
+              <div key={researcher.id} className="flex items-center justify-between transition-colors hover:bg-blue-50/30 -mx-2 px-2 py-2 rounded">
                 <div className="flex items-center space-x-4">
                   <Avatar>
                     <AvatarImage src={researcher.avatar || "/placeholder.svg"} alt={researcher.name} />
@@ -95,7 +95,7 @@ export function FeaturedResearchers() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-8">
+          <div className="text-center py-6">
             <p className="text-blue-600">No hay investigadores aún.</p>
           </div>
         )}

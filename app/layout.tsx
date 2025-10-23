@@ -33,10 +33,13 @@ export default async function RootLayout({
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
     >
       <html lang="es">
-        <body className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+        <body className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50/30">
           <ActividadUsuarioTracker />
           <Navbar />
-          <main className="pt-16">{children}</main>
+          <main className="pt-16 relative">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-100/20 via-transparent to-white/50 pointer-events-none" />
+            <div className="relative z-10">{children}</div>
+          </main>
           <Footer />
         </body>
       </html>

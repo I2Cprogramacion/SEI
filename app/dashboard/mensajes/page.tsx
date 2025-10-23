@@ -268,19 +268,19 @@ export default function MensajesPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <p className="font-semibold text-blue-900">{mensaje.otro_usuario}</p>
+                            <p className="font-semibold text-gray-900">{mensaje.otro_usuario}</p>
                             {!mensaje.leido && (
                               <Badge className="bg-orange-500 text-xs">Nuevo</Badge>
                             )}
                           </div>
-                          <p className="text-sm text-blue-600 mb-2">{mensaje.otro_email}</p>
-                          <p className="font-medium text-blue-900 mb-1">{mensaje.asunto}</p>
-                          <p className="text-sm text-muted-foreground line-clamp-2">
+                          <p className="text-sm text-gray-600 mb-2">{mensaje.otro_email}</p>
+                          <p className="font-medium text-gray-900 mb-1">{mensaje.asunto}</p>
+                          <p className="text-sm text-gray-600 line-clamp-2">
                             {mensaje.mensaje}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
                         <Clock className="h-4 w-4" />
                         {formatDistanceToNow(new Date(mensaje.fecha_envio), {
                           addSuffix: true,
@@ -322,17 +322,17 @@ export default function MensajesPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <p className="text-sm text-muted-foreground">Para:</p>
-                            <p className="font-semibold text-blue-900">{mensaje.otro_usuario}</p>
+                            <p className="text-sm text-gray-500">Para:</p>
+                            <p className="font-semibold text-gray-900">{mensaje.otro_usuario}</p>
                           </div>
-                          <p className="text-sm text-blue-600 mb-2">{mensaje.otro_email}</p>
-                          <p className="font-medium text-blue-900 mb-1">{mensaje.asunto}</p>
-                          <p className="text-sm text-muted-foreground line-clamp-2">
+                          <p className="text-sm text-gray-600 mb-2">{mensaje.otro_email}</p>
+                          <p className="font-medium text-gray-900 mb-1">{mensaje.asunto}</p>
+                          <p className="text-sm text-gray-600 line-clamp-2">
                             {mensaje.mensaje}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
                         <Clock className="h-4 w-4" />
                         {formatDistanceToNow(new Date(mensaje.fecha_envio), {
                           addSuffix: true,
@@ -372,7 +372,7 @@ export default function MensajesPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4">
-            <div className="whitespace-pre-wrap text-blue-900 p-4 bg-gray-50 rounded-lg">
+            <div className="whitespace-pre-wrap text-gray-900 p-4 bg-gray-50 rounded-lg border border-gray-200">
               {selectedMensaje?.mensaje}
             </div>
           </div>

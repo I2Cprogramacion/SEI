@@ -1,384 +1,765 @@
-# 🔬 SEI - Sistema Estatal de Investigadores# SEI - Sistema Estatal de Investigadores
+# 🔬 SEI - Sistema Estatal de Investigadores# 🔬 SEI - Sistema Estatal de Investigadores# SEI - Sistema Estatal de Investigadores
 
 
 
-<div align="center">Plataforma web integral para la gestión de perfiles académicos, registro de publicaciones y proyectos, colaboración entre investigadores y asignación de niveles. El SEI facilita la administración y seguimiento de la actividad científica en el estado, proporcionando herramientas modernas para investigadores, instituciones y administradores del sistema.
-
-La plataforma SEI está organizada siguiendo las mejores prácticas de Next.js 14 con App Router:
+<div align="center">
 
 
-![Next.js](https://img.shields.io/badge/Next.js-15.5.4-black?style=for-the-badge&logo=next.js)##  Características Principales
+
+![Next.js](https://img.shields.io/badge/Next.js-15.5.4-black?style=for-the-badge&logo=next.js)<div align="center">Plataforma web integral para la gestión de perfiles académicos, registro de publicaciones y proyectos, colaboración entre investigadores y asignación de niveles. El SEI facilita la administración y seguimiento de la actividad científica en el estado, proporcionando herramientas modernas para investigadores, instituciones y administradores del sistema.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=for-the-badge&logo=typescript)
 
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-316192?style=for-the-badge&logo=postgresql)###  Gestión de Investigadores
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-316192?style=for-the-badge&logo=postgresql)La plataforma SEI está organizada siguiendo las mejores prácticas de Next.js 14 con App Router:
 
-![Clerk](https://img.shields.io/badge/Clerk-Auth-6C47FF?style=for-the-badge)- **Perfiles Completos**: Sistema robusto para el registro y gestión de perfiles académicos con información detallada sobre formación, experiencia, publicaciones y proyectos
+![Clerk](https://img.shields.io/badge/Clerk-Auth-6C47FF?style=for-the-badge)
 
-![TailwindCSS](https://img.shields.io/badge/Tailwind-3.x-38B2AC?style=for-the-badge&logo=tailwind-css)- **Validación de Datos**: Verificación automática de información académica y profesional
 
-- **Niveles de Investigador**: Asignación y seguimiento de niveles según criterios establecidos
 
-**Plataforma integral para la gestión de investigadores, publicaciones científicas y proyectos de investigación**- **Perfiles Incompletos**: Gestión especializada para investigadores con información pendiente
+**Plataforma integral para la gestión de investigadores, publicaciones científicas y proyectos de investigación**![Next.js](https://img.shields.io/badge/Next.js-15.5.4-black?style=for-the-badge&logo=next.js)##  Características Principales
 
-### Descripción de directorios principales:
 
 
-[Características](#-características-principales) · [Instalación](#-instalación) · [Documentación](#-documentación)###  Publicaciones Científicas
+[Características](#-características) · [Instalación](#-instalación) · [Documentación](#-documentación) · [API](#-api)![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=for-the-badge&logo=typescript)
 
-- **DOI Automático**: Generación y gestión automática de DOI para publicaciones
 
-</div>- **Gestión de Archivos**: Subida y almacenamiento seguro de archivos PDF y ZIP
 
-- **Búsqueda Avanzada**: Búsqueda por título, autores, DOI, palabras clave y categorías
+</div>![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-316192?style=for-the-badge&logo=postgresql)###  Gestión de Investigadores
 
----
 
-###  Proyectos de Investigación
 
-## 📋 Tabla de Contenidos- **Seguimiento Completo**: Gestión integral de proyectos desde su concepción hasta su finalización
+---![Clerk](https://img.shields.io/badge/Clerk-Auth-6C47FF?style=for-the-badge)- **Perfiles Completos**: Sistema robusto para el registro y gestión de perfiles académicos con información detallada sobre formación, experiencia, publicaciones y proyectos
 
-- **Colaboración**: Sistema de colaboración entre investigadores e instituciones
 
-- [Acerca del Proyecto](#-acerca-del-proyecto)- **Estados y Categorías**: Clasificación y seguimiento del estado de los proyectos
 
-- [Características Principales](#-características-principales)- **Documentación**: Almacenamiento y gestión de documentación relacionada
+## 📋 Descripción![TailwindCSS](https://img.shields.io/badge/Tailwind-3.x-38B2AC?style=for-the-badge&logo=tailwind-css)- **Validación de Datos**: Verificación automática de información académica y profesional
 
-- [Stack Tecnológico](#-stack-tecnológico)
 
-- [Arquitectura](#-arquitectura)###  Búsqueda Avanzada
 
-- [Instalación](#-instalación)- **Búsqueda Global**: Búsqueda unificada en investigadores, proyectos y publicaciones
+El **Sistema Estatal de Investigadores (SEI)** es una plataforma web moderna diseñada para facilitar la gestión integral de perfiles académicos, publicaciones científicas y proyectos de investigación. Proporciona herramientas avanzadas para investigadores, instituciones y administradores del sistema.- **Niveles de Investigador**: Asignación y seguimiento de niveles según criterios establecidos
 
-- [Configuración](#-configuración)- **Filtros Inteligentes**: Filtrado por tipo de contenido, área, institución, fecha y más
 
-- [Uso](#-uso)- **Resultados Organizados**: Presentación clara y organizada de resultados de búsqueda
 
-- [Estructura del Proyecto](#-estructura-del-proyecto)- **Búsqueda en Tiempo Real**: Autocompletado y sugerencias mientras se escribe
+### ✨ Características Principales**Plataforma integral para la gestión de investigadores, publicaciones científicas y proyectos de investigación**- **Perfiles Incompletos**: Gestión especializada para investigadores con información pendiente
 
-- [Documentación](#-documentación)
 
-- [Scripts Disponibles](#-scripts-disponibles)###  Panel Administrativo
 
-- **Gestión Completa**: Herramientas administrativas para la gestión integral del sistema
+- 👥 **Gestión de Investigadores**: Perfiles completos con información académica, profesional y de contacto### Descripción de directorios principales:
 
----- **Estadísticas**: Dashboard con métricas y estadísticas del sistema
+- 📚 **Publicaciones Científicas**: Sistema completo para gestionar publicaciones con generación automática de DOI
 
-- **Usuarios**: Gestión de usuarios, roles y permisos
+- 🔬 **Proyectos de Investigación**: Seguimiento y administración de proyectos colaborativos
 
-## 🎯 Acerca del Proyecto- **Configuración**: Configuración avanzada del sistema y sus módulos
+- 🔍 **Búsqueda Avanzada**: Sistema de búsqueda global con filtros inteligentes[Características](#-características-principales) · [Instalación](#-instalación) · [Documentación](#-documentación)###  Publicaciones Científicas
 
+- 📄 **OCR Automatizado**: Extracción automática de datos desde archivos PDF
 
+- 🔐 **Autenticación Segura**: Sistema robusto con Clerk, JWT y verificación de email- **DOI Automático**: Generación y gestión automática de DOI para publicaciones
 
-El **Sistema Estatal de Investigadores (SEI)** es una plataforma web moderna diseñada para facilitar la gestión integral de la actividad científica y académica. Proporciona herramientas para investigadores, instituciones y administradores, permitiendo:###  OCR Automatizado
+- 📊 **Panel Administrativo**: Dashboard completo con estadísticas y gestión del sistema
 
-- **Extracción Inteligente**: Procesamiento automático de PDFs para extraer información relevante
+- 🌓 **Tema Oscuro/Claro**: Interfaz moderna con soporte para ambos temas</div>- **Gestión de Archivos**: Subida y almacenamiento seguro de archivos PDF y ZIP
 
-- **Registro y gestión** de perfiles académicos completos- **Microservicio Dedicado**: Servicio especializado desplegado en Railway para procesamiento OCR
 
-- **Publicación y seguimiento** de investigaciones científicas- **Integración Seamless**: Integración transparente con el sistema principal
 
-- **Administración** de proyectos de investigación- **Validación de Datos**: Verificación y validación de datos extraídos
+---- **Búsqueda Avanzada**: Búsqueda por título, autores, DOI, palabras clave y categorías
 
-- **Búsqueda avanzada** con filtros inteligentes
 
-- **Procesamiento OCR** automático de documentos PDF###  Autenticación Segura
 
-- **Autenticación segura** con verificación de email- **Sistema de Login**: Autenticación robusta con JWT y verificación 2FA
+## 🛠️ Stack Tecnológico---
 
-- **Roles y Permisos**: Sistema granular de roles y permisos
 
-### 🎓 Casos de Uso- **Seguridad**: Implementación de mejores prácticas de seguridad
 
-- **Recuperación**: Sistema de recuperación de contraseñas y cuentas
+### Frontend###  Proyectos de Investigación
 
-- Universidades e instituciones académicas
+- **Next.js 15.5.4** - Framework React con App Router
 
-- Centros de investigación##  Arquitectura
-
-- Sistemas estatales de ciencia y tecnología
-
-- Conacyt y organismos similaresLa plataforma SEI está construida con una arquitectura moderna y escalable que separa claramente las responsabilidades:
-
-- Plataformas de colaboración científica
-
-### Frontend y API
-
----- **Next.js 14**: Framework React con App Router para renderizado del lado del servidor y cliente
-
-- **TypeScript**: Tipado estático para mayor robustez y mantenibilidad del código
-
-## ✨ Características Principales- **Despliegue**: Vercel para hosting automático y escalado global
-
-- **API Routes**: Endpoints RESTful integrados en la aplicación Next.js
-
-### 👥 Gestión de Investigadores
-
-- ✅ Perfiles completos con información académica y profesional### Microservicio OCR
-
-- ✅ Validación automática de datos- **Node.js**: Servicio especializado para procesamiento de documentos
-
-- ✅ Sistema de niveles (SNI, similar)- **Railway**: Plataforma de despliegue para el microservicio OCR
-
-- ✅ Detección de perfiles incompletos- **Comunicación**: API REST para comunicación con el sistema principal
-
-- ✅ Perfiles públicos accesibles sin autenticación- **Procesamiento**: Extracción automática de datos desde archivos PDF
-
-
-
-### 📚 Publicaciones Científicas### Base de Datos
-
-- ✅ Gestión completa de publicaciones- **PostgreSQL**: Base de datos relacional para producción
-
-- ✅ Generación automática de DOI- **SQLite**: Base de datos local para desarrollo
-
-- ✅ Subida de archivos PDF y ZIP- **Proveedores**: Neon, Railway, Vercel Postgres para hosting
-
-- ✅ Búsqueda por título, autores, DOI, palabras clave- **Migraciones**: Sistema de migraciones para versionado de esquemas
-
-- ✅ Categorización y etiquetado
-
-###  Interfaz de Usuario
-
-### 🔬 Proyectos de Investigación- **TailwindCSS**: Framework CSS utilitario para estilos consistentes
-
-- ✅ Seguimiento de proyectos desde inicio hasta finalización- **shadcn/ui**: Biblioteca de componentes UI modernos y accesibles
-
-- ✅ Colaboración entre investigadores e instituciones- **Responsive Design**: Diseño adaptativo para todos los dispositivos
-
-- ✅ Estados y clasificación de proyectos- **Temas**: Soporte para tema claro y oscuro
-
-- ✅ Gestión de documentación relacionada
-
-##  Módulos Principales
-
-### 🔍 Búsqueda Avanzada
-
-- ✅ Búsqueda global en investigadores, proyectos y publicacionesLa plataforma SEI está organizada en módulos especializados que cubren todas las necesidades del sistema de investigación:
-
-- ✅ Filtros por tipo, área, institución, fecha
-
-- ✅ Autocompletado en tiempo real###  Módulo de Investigadores
-
-- ✅ Resultados organizados y paginadosEl módulo de investigadores es el núcleo del sistema, proporcionando herramientas completas para la gestión de perfiles académicos:
-
-
-
-### 📄 OCR Automatizado- **Listado y Perfiles**: Visualización de investigadores con información detallada sobre formación, experiencia y logros
-
-- ✅ Extracción automática de datos desde PDFs- **Búsqueda Avanzada**: Búsqueda por área de especialización, institución, nivel académico y palabras clave
-
-- ✅ Microservicio dedicado en Railway- **Gestión de Perfiles**: Herramientas para completar y actualizar información de investigadores
-
-- ✅ Integración transparente con el sistema principal- **Perfiles Incompletos**: Sistema especializado para identificar y gestionar investigadores con información pendiente
-
-- ✅ Validación de datos extraídos- **Registro de Nuevos**: Formularios intuitivos para el registro de nuevos investigadores al sistema
-
-- **Validación de Datos**: Verificación automática de información académica y profesional
-
-### 🔐 Autenticación Segura
-
-- ✅ Integración con Clerk para autenticación###  Módulo de Publicaciones
-
-- ✅ Verificación de email con código de 6 dígitosSistema integral para la gestión de publicaciones científicas con funcionalidades avanzadas:
-
-- ✅ Sesiones de 12 horas con renovación automática
-
-- ✅ Rutas públicas y protegidas- **Catálogo Completo**: Base de datos de publicaciones científicas con información detallada
-
-- ✅ Gestión de permisos y roles- **DOI Automático**: Generación y gestión automática de DOI para nuevas publicaciones
-
-- **Gestión de Archivos**: Subida segura de archivos PDF y ZIP con validación de formato
-
-### 📊 Panel Administrativo- **Búsqueda Especializada**: Búsqueda por título, autores, DOI, palabras clave y categorías
-
-- ✅ Dashboard con estadísticas del sistema- **Metadatos**: Almacenamiento de información completa sobre cada publicación
-
-- ✅ Gestión de usuarios y permisos- **Integración OCR**: Extracción automática de datos desde archivos PDF
-
-- ✅ Configuración del sistema
-
-- ✅ Monitoreo de actividad###  Módulo de Proyectos
-
-Herramientas para el seguimiento y gestión de proyectos de investigación:
-
----
-
-- **Listado Completo**: Visualización de todos los proyectos con información relevante
-
-## 🛠️ Stack Tecnológico- **Detalles y Seguimiento**: Seguimiento detallado del progreso y estado de cada proyecto
-
-- **Filtrado Avanzado**: Filtros por categoría, estado, área de investigación y fechas
-
-### Frontend- **Colaboración**: Sistema de colaboración entre investigadores e instituciones
-
-- **Next.js 15.5.4** - Framework React con App Router- **Documentación**: Gestión de documentación relacionada con cada proyecto
-
-- **TypeScript** - Tipado estático- **Estados y Fases**: Seguimiento del ciclo de vida completo de los proyectos
+- **TypeScript** - Tipado estático## 📋 Tabla de Contenidos- **Seguimiento Completo**: Gestión integral de proyectos desde su concepción hasta su finalización
 
 - **TailwindCSS** - Estilos utility-first
 
-- **shadcn/ui** - Componentes UI modernos###  Módulo de Instituciones
+- **shadcn/ui** - Componentes UI modernos- **Colaboración**: Sistema de colaboración entre investigadores e instituciones
 
-- **Lucide React** - IconosDirectorio completo de instituciones de investigación y educación:
+- **React Hook Form** - Gestión de formularios
 
+- [Acerca del Proyecto](#-acerca-del-proyecto)- **Estados y Categorías**: Clasificación y seguimiento del estado de los proyectos
 
+### Backend & Database
 
-### Backend & API- **Directorio Completo**: Base de datos de instituciones con información detallada
+- **Next.js API Routes** - Endpoints RESTful- [Características Principales](#-características-principales)- **Documentación**: Almacenamiento y gestión de documentación relacionada
 
-- **Next.js API Routes** - Endpoints RESTful- **Información Institucional**: Datos sobre programas, investigadores y proyectos
+- **PostgreSQL** - Base de datos (Neon)
 
-- **Clerk** - Autenticación y gestión de usuarios- **Registro de Nuevas**: Formularios para el registro de nuevas instituciones
+- **Prisma** - ORM para TypeScript- [Stack Tecnológico](#-stack-tecnológico)
 
-- **Node.js** - Microservicio OCR- **Validación**: Verificación de información institucional
+- **Clerk** - Autenticación y gestión de usuarios
 
-- **Relaciones**: Gestión de relaciones entre instituciones e investigadores
-
-### Base de Datos
-
-- **PostgreSQL** - Base de datos principal (Neon)###  Módulo de Búsqueda Global
-
-- **Prisma** - ORM para TypeScriptSistema de búsqueda unificado que permite encontrar información en toda la plataforma:
+- **Node.js** - Microservicio OCR- [Arquitectura](#-arquitectura)###  Búsqueda Avanzada
 
 
 
-### Deployment- **Búsqueda Unificada**: Búsqueda simultánea en investigadores, proyectos y publicaciones
+### Deployment- [Instalación](#-instalación)- **Búsqueda Global**: Búsqueda unificada en investigadores, proyectos y publicaciones
 
-- **Vercel** - Aplicación principal- **Filtros Inteligentes**: Filtros por tipo de contenido, área, institución, fecha y más
+- **Vercel** - Hosting de aplicación principal
 
-- **Railway** - Microservicio OCR- **Resultados Organizados**: Presentación clara y organizada de resultados por categorías
+- **Railway** - Microservicio OCR- [Configuración](#-configuración)- **Filtros Inteligentes**: Filtrado por tipo de contenido, área, institución, fecha y más
 
-- **Neon** - Base de datos PostgreSQL- **Búsqueda en Tiempo Real**: Autocompletado y sugerencias mientras se escribe
+- **Neon** - Base de datos PostgreSQL
 
-- **Historial**: Guardado de búsquedas recientes para facilitar el acceso
-
----- **Exportación**: Opciones para exportar resultados de búsqueda
-
-
-
-## 🏗️ Arquitectura###  Módulo de Administración
-
-Panel de control completo para administradores del sistema:
-
-```
-
-┌─────────────────────────────────────────────────────────────┐- **Dashboard Principal**: Vista general del sistema con métricas y estadísticas
-
-│                        FRONTEND (Next.js)                    │- **Gestión de Usuarios**: Herramientas para gestionar usuarios, roles y permisos
-
-│  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐       │- **Gestión de Investigadores**: Administración completa de perfiles de investigadores
-
-│  │   Pages     │  │  Components  │  │    Hooks     │       │- **Estadísticas del Sistema**: Métricas detalladas sobre el uso y actividad del sistema
-
-│  │  (App Dir)  │  │   (shadcn)   │  │  (Custom)    │       │- **Configuración Avanzada**: Configuración de parámetros del sistema y módulos
-
-│  └─────────────┘  └──────────────┘  └──────────────┘       │- **Logs y Auditoría**: Registro de actividades y cambios en el sistema
-
-│                           │                                  │
-
-│  ┌────────────────────────┴──────────────────────┐          │##  Tecnologías
-
-│  │              API Routes (Next.js)             │          │
-
-│  └────────────────────────┬──────────────────────┘          │La plataforma SEI utiliza un stack tecnológico moderno y robusto que garantiza escalabilidad, mantenibilidad y rendimiento:
-
-└────────────────────────────┼──────────────────────────────┘
-
-                             │###  Frontend y Desarrollo
-
-          ┌──────────────────┼──────────────────┐- **Next.js 14**: Framework React de última generación con App Router, Server Components y optimizaciones automáticas
-
-          │                  │                  │- **TypeScript**: Tipado estático para mayor robustez, mejor experiencia de desarrollo y detección temprana de errores
-
-┌─────────▼─────────┐  ┌────▼─────┐  ┌────────▼────────┐- **TailwindCSS**: Framework CSS utilitario que permite crear interfaces modernas y consistentes
-
-│   PostgreSQL      │  │  Clerk   │  │  OCR Service    │- **shadcn/ui**: Biblioteca de componentes UI accesibles y personalizables basada en Radix UI
-
-│   (Neon)          │  │  Auth    │  │   (Railway)     │- **React Hook Form**: Gestión eficiente de formularios con validación integrada
-
-│                   │  │          │  │                 │- **Zod**: Validación de esquemas para TypeScript con excelente integración
-
-│  • Investigadores │  │ • Users  │  │ • PDF Extract   │
-
-│  • Publicaciones  │  │ • Auth   │  │ • Tesseract     │###  Base de Datos y Almacenamiento
-
-│  • Proyectos      │  │ • 2FA    │  │ • Validation    │- **PostgreSQL**: Base de datos relacional robusta para producción con soporte completo para consultas complejas
-
-└───────────────────┘  └──────────┘  └─────────────────┘- **SQLite**: Base de datos local para desarrollo y testing
-
-```- **Prisma**: ORM moderno para TypeScript con migraciones automáticas y type-safety
-
-- **Neon/Railway/Vercel Postgres**: Proveedores de hosting para PostgreSQL en la nube
+- [Uso](#-uso)- **Resultados Organizados**: Presentación clara y organizada de resultados de búsqueda
 
 ---
 
-###  Autenticación y Seguridad
+- [Estructura del Proyecto](#-estructura-del-proyecto)- **Búsqueda en Tiempo Real**: Autocompletado y sugerencias mientras se escribe
 
-## 🚀 Instalación- **JWT (JSON Web Tokens)**: Autenticación stateless segura y escalable
+## 🚀 Instalación
 
-- **2FA (Two-Factor Authentication)**: Autenticación de dos factores para mayor seguridad
+- [Documentación](#-documentación)
 
-### Prerrequisitos- **bcrypt**: Hashing seguro de contraseñas
+### Prerrequisitos
 
-- **NextAuth.js**: Framework de autenticación para Next.js
+- [Scripts Disponibles](#-scripts-disponibles)###  Panel Administrativo
 
-- **Node.js** 18.x o superior- **Middleware**: Protección de rutas y validación de permisos
+- Node.js 18.x o superior
 
-- **pnpm** 8.x o superior (o npm/yarn)
+- pnpm 8.x o superior- **Gestión Completa**: Herramientas administrativas para la gestión integral del sistema
 
-- **PostgreSQL** (o cuenta en Neon)###  Microservicios y APIs
+- PostgreSQL (o cuenta en Neon)
 
-- **Cuenta Clerk** para autenticación- **Node.js**: Runtime de JavaScript para el microservicio OCR
+- Cuenta Clerk para autenticación---- **Estadísticas**: Dashboard con métricas y estadísticas del sistema
 
-- **Express.js**: Framework web para APIs REST
 
-### Pasos- **Railway**: Plataforma de despliegue para microservicios
 
-- **REST APIs**: Arquitectura de APIs RESTful para comunicación entre servicios
+### Pasos de Instalación- **Usuarios**: Gestión de usuarios, roles y permisos
 
-1. **Clonar el repositorio**
 
-```bash###  Despliegue y DevOps
 
-git clone https://github.com/I2Cprogramacion/SEI.git- **Vercel**: Plataforma de despliegue para aplicaciones Next.js con CI/CD automático
+1. **Clonar el repositorio**## 🎯 Acerca del Proyecto- **Configuración**: Configuración avanzada del sistema y sus módulos
 
-cd SEI- **Railway**: Hosting para microservicios con escalado automático
+```bash
 
-```- **GitHub Actions**: Automatización de CI/CD y despliegues
+git clone https://github.com/I2Cprogramacion/SEI.git
 
-- **Environment Variables**: Gestión segura de configuraciones y secretos
+cd SEI
 
-2. **Instalar dependencias**
+```El **Sistema Estatal de Investigadores (SEI)** es una plataforma web moderna diseñada para facilitar la gestión integral de la actividad científica y académica. Proporciona herramientas para investigadores, instituciones y administradores, permitiendo:###  OCR Automatizado
 
-```bash###  Monitoreo y Analytics
 
-pnpm install- **Vercel Analytics**: Métricas de rendimiento y uso de la aplicación
 
-```- **Error Tracking**: Monitoreo de errores en tiempo real
+2. **Instalar dependencias**- **Extracción Inteligente**: Procesamiento automático de PDFs para extraer información relevante
 
-- **Performance Monitoring**: Seguimiento del rendimiento de la aplicación
+```bash
+
+pnpm install- **Registro y gestión** de perfiles académicos completos- **Microservicio Dedicado**: Servicio especializado desplegado en Railway para procesamiento OCR
+
+```
+
+- **Publicación y seguimiento** de investigaciones científicas- **Integración Seamless**: Integración transparente con el sistema principal
 
 3. **Configurar variables de entorno**
 
-```bash##  Instalación y Despliegue
+```bash- **Administración** de proyectos de investigación- **Validación de Datos**: Verificación y validación de datos extraídos
 
 # Copiar el archivo de ejemplo
 
-cp env.local.example .env.local### Requisitos previos
+cp env.local.example .env.local- **Búsqueda avanzada** con filtros inteligentes
 
-Antes de comenzar, asegúrate de tener instalado:
 
-# Editar .env.local con tus credenciales
 
-```- **Node.js >= 18**: Runtime de JavaScript necesario para ejecutar la aplicación
+# Editar .env.local con tus credenciales- **Procesamiento OCR** automático de documentos PDF###  Autenticación Segura
 
-- **pnpm**: Gestor de paquetes rápido y eficiente (alternativa a npm/yarn)
+# Ver sección de Configuración abajo
 
-4. **Configurar la base de datos**- **PostgreSQL**: Base de datos relacional para producción
+```- **Autenticación segura** con verificación de email- **Sistema de Login**: Autenticación robusta con JWT y verificación 2FA
 
-```bash- **Git**: Sistema de control de versiones para clonar el repositorio
 
-# Generar cliente de Prisma
+
+4. **Configurar la base de datos**- **Roles y Permisos**: Sistema granular de roles y permisos
+
+```bash
+
+# Generar cliente de Prisma### 🎓 Casos de Uso- **Seguridad**: Implementación de mejores prácticas de seguridad
+
+pnpm prisma generate
+
+- **Recuperación**: Sistema de recuperación de contraseñas y cuentas
+
+# Ejecutar migraciones
+
+pnpm prisma migrate dev- Universidades e instituciones académicas
+
+```
+
+- Centros de investigación##  Arquitectura
+
+5. **Iniciar servidor de desarrollo**
+
+```bash- Sistemas estatales de ciencia y tecnología
+
+pnpm dev
+
+```- Conacyt y organismos similaresLa plataforma SEI está construida con una arquitectura moderna y escalable que separa claramente las responsabilidades:
+
+
+
+La aplicación estará disponible en `http://localhost:3000`- Plataformas de colaboración científica
+
+
+
+---### Frontend y API
+
+
+
+## ⚙️ Configuración---- **Next.js 14**: Framework React con App Router para renderizado del lado del servidor y cliente
+
+
+
+### Variables de Entorno- **TypeScript**: Tipado estático para mayor robustez y mantenibilidad del código
+
+
+
+Crea un archivo `.env.local` con las siguientes variables:## ✨ Características Principales- **Despliegue**: Vercel para hosting automático y escalado global
+
+
+
+```env- **API Routes**: Endpoints RESTful integrados en la aplicación Next.js
+
+# ========================================
+
+# CLERK AUTHENTICATION### 👥 Gestión de Investigadores
+
+# ========================================
+
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_xxxxx- ✅ Perfiles completos con información académica y profesional### Microservicio OCR
+
+CLERK_SECRET_KEY=sk_test_xxxxx
+
+- ✅ Validación automática de datos- **Node.js**: Servicio especializado para procesamiento de documentos
+
+# URLs de redirección
+
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/iniciar-sesion- ✅ Sistema de niveles (SNI, similar)- **Railway**: Plataforma de despliegue para el microservicio OCR
+
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/registro
+
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard- ✅ Detección de perfiles incompletos- **Comunicación**: API REST para comunicación con el sistema principal
+
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
+
+- ✅ Perfiles públicos accesibles sin autenticación- **Procesamiento**: Extracción automática de datos desde archivos PDF
+
+# ========================================
+
+# DATABASE - POSTGRESQL
+
+# ========================================
+
+DATABASE_URL=postgresql://usuario:password@host.neon.tech/dbname?sslmode=require### 📚 Publicaciones Científicas### Base de Datos
+
+DATABASE_TYPE=postgresql
+
+- ✅ Gestión completa de publicaciones- **PostgreSQL**: Base de datos relacional para producción
+
+# ========================================
+
+# OCR SERVICE (Opcional)- ✅ Generación automática de DOI- **SQLite**: Base de datos local para desarrollo
+
+# ========================================
+
+PDF_PROCESSOR_URL=http://localhost:8001- ✅ Subida de archivos PDF y ZIP- **Proveedores**: Neon, Railway, Vercel Postgres para hosting
+
+# PDF_PROCESSOR_URL=https://tu-servidor-ocr.railway.app
+
+- ✅ Búsqueda por título, autores, DOI, palabras clave- **Migraciones**: Sistema de migraciones para versionado de esquemas
+
+# ========================================
+
+# CLOUDINARY (Almacenamiento)- ✅ Categorización y etiquetado
+
+# ========================================
+
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=tu_cloud_name###  Interfaz de Usuario
+
+CLOUDINARY_API_KEY=tu_api_key
+
+CLOUDINARY_API_SECRET=tu_api_secret### 🔬 Proyectos de Investigación- **TailwindCSS**: Framework CSS utilitario para estilos consistentes
+
+```
+
+- ✅ Seguimiento de proyectos desde inicio hasta finalización- **shadcn/ui**: Biblioteca de componentes UI modernos y accesibles
+
+### Configuración de Clerk
+
+- ✅ Colaboración entre investigadores e instituciones- **Responsive Design**: Diseño adaptativo para todos los dispositivos
+
+1. Ve a [Clerk Dashboard](https://dashboard.clerk.com/)
+
+2. Crea una nueva aplicación- ✅ Estados y clasificación de proyectos- **Temas**: Soporte para tema claro y oscuro
+
+3. En **Configure → Sessions**:
+
+   - Session token lifetime: `43200` segundos (12 horas)- ✅ Gestión de documentación relacionada
+
+   - Automatically renew: ✓ Habilitado
+
+4. Copia las claves a tu `.env.local`##  Módulos Principales
+
+
+
+Ver [docs/GOOGLE_SIGNIN_SETUP.md](./docs/GOOGLE_SIGNIN_SETUP.md) para configuración completa.### 🔍 Búsqueda Avanzada
+
+
+
+### Base de Datos- ✅ Búsqueda global en investigadores, proyectos y publicacionesLa plataforma SEI está organizada en módulos especializados que cubren todas las necesidades del sistema de investigación:
+
+
+
+#### Opción 1: Neon PostgreSQL (Recomendado)- ✅ Filtros por tipo, área, institución, fecha
+
+1. Crea una cuenta en [Neon](https://neon.tech/)
+
+2. Crea un nuevo proyecto- ✅ Autocompletado en tiempo real###  Módulo de Investigadores
+
+3. Copia la cadena de conexión
+
+4. Pégala en `DATABASE_URL` en `.env.local`- ✅ Resultados organizados y paginadosEl módulo de investigadores es el núcleo del sistema, proporcionando herramientas completas para la gestión de perfiles académicos:
+
+
+
+#### Opción 2: PostgreSQL Local
+
+```bash
+
+# Instalar PostgreSQL localmente### 📄 OCR Automatizado- **Listado y Perfiles**: Visualización de investigadores con información detallada sobre formación, experiencia y logros
+
+# Crear base de datos
+
+createdb sei_database- ✅ Extracción automática de datos desde PDFs- **Búsqueda Avanzada**: Búsqueda por área de especialización, institución, nivel académico y palabras clave
+
+
+
+# Actualizar DATABASE_URL- ✅ Microservicio dedicado en Railway- **Gestión de Perfiles**: Herramientas para completar y actualizar información de investigadores
+
+DATABASE_URL=postgresql://usuario:password@localhost:5432/sei_database
+
+```- ✅ Integración transparente con el sistema principal- **Perfiles Incompletos**: Sistema especializado para identificar y gestionar investigadores con información pendiente
+
+
+
+---- ✅ Validación de datos extraídos- **Registro de Nuevos**: Formularios intuitivos para el registro de nuevos investigadores al sistema
+
+
+
+## 📁 Estructura del Proyecto- **Validación de Datos**: Verificación automática de información académica y profesional
+
+
+
+```### 🔐 Autenticación Segura
+
+SEI/
+
+├── app/                          # Next.js App Router- ✅ Integración con Clerk para autenticación###  Módulo de Publicaciones
+
+│   ├── admin/                    # Panel administrativo
+
+│   ├── api/                      # API Routes- ✅ Verificación de email con código de 6 dígitosSistema integral para la gestión de publicaciones científicas con funcionalidades avanzadas:
+
+│   │   ├── investigadores/       # Endpoints de investigadores
+
+│   │   ├── proyectos/            # Endpoints de proyectos- ✅ Sesiones de 12 horas con renovación automática
+
+│   │   ├── publicaciones/        # Endpoints de publicaciones
+
+│   │   └── registro/             # Endpoint de registro- ✅ Rutas públicas y protegidas- **Catálogo Completo**: Base de datos de publicaciones científicas con información detallada
+
+│   ├── buscar/                   # Búsqueda global
+
+│   ├── investigadores/           # Listado y perfiles- ✅ Gestión de permisos y roles- **DOI Automático**: Generación y gestión automática de DOI para nuevas publicaciones
+
+│   ├── proyectos/                # Gestión de proyectos
+
+│   ├── publicaciones/            # Gestión de publicaciones- **Gestión de Archivos**: Subida segura de archivos PDF y ZIP con validación de formato
+
+│   ├── registro/                 # Registro de usuarios
+
+│   └── layout.tsx                # Layout principal### 📊 Panel Administrativo- **Búsqueda Especializada**: Búsqueda por título, autores, DOI, palabras clave y categorías
+
+├── components/                   # Componentes React
+
+│   ├── ui/                       # shadcn/ui components- ✅ Dashboard con estadísticas del sistema- **Metadatos**: Almacenamiento de información completa sobre cada publicación
+
+│   ├── admin/                    # Componentes admin
+
+│   ├── navbar.tsx                # Barra de navegación- ✅ Gestión de usuarios y permisos- **Integración OCR**: Extracción automática de datos desde archivos PDF
+
+│   └── footer.tsx                # Pie de página
+
+├── lib/                          # Utilidades y configuración- ✅ Configuración del sistema
+
+│   ├── auth/                     # Utilidades de autenticación
+
+│   ├── databases/                # Configuración de base de datos- ✅ Monitoreo de actividad###  Módulo de Proyectos
+
+│   ├── db.ts                     # Cliente de base de datos
+
+│   └── utils.ts                  # Funciones auxiliaresHerramientas para el seguimiento y gestión de proyectos de investigación:
+
+├── hooks/                        # Custom React hooks
+
+├── prisma/                       # Prisma ORM---
+
+│   ├── schema.prisma             # Esquema de base de datos
+
+│   └── migrations/               # Migraciones- **Listado Completo**: Visualización de todos los proyectos con información relevante
+
+├── docs/                         # Documentación técnica
+
+├── scripts/                      # Scripts de utilidad## 🛠️ Stack Tecnológico- **Detalles y Seguimiento**: Seguimiento detallado del progreso y estado de cada proyecto
+
+│   ├── add-clerk-user-id.sql     # Migración crítica
+
+│   └── reset-database.sql        # Reset de BD- **Filtrado Avanzado**: Filtros por categoría, estado, área de investigación y fechas
+
+├── public/                       # Archivos estáticos
+
+├── middleware.ts                 # Clerk middleware### Frontend- **Colaboración**: Sistema de colaboración entre investigadores e instituciones
+
+└── package.json                  # Dependencias
+
+```- **Next.js 15.5.4** - Framework React con App Router- **Documentación**: Gestión de documentación relacionada con cada proyecto
+
+
+
+---- **TypeScript** - Tipado estático- **Estados y Fases**: Seguimiento del ciclo de vida completo de los proyectos
+
+
+
+## 🔌 API- **TailwindCSS** - Estilos utility-first
+
+
+
+La plataforma expone una API REST completa. Principales endpoints:- **shadcn/ui** - Componentes UI modernos###  Módulo de Instituciones
+
+
+
+### Investigadores- **Lucide React** - IconosDirectorio completo de instituciones de investigación y educación:
+
+```
+
+GET    /api/investigadores          # Listar investigadores
+
+GET    /api/investigadores/[id]     # Obtener investigador
+
+POST   /api/investigadores          # Crear investigador### Backend & API- **Directorio Completo**: Base de datos de instituciones con información detallada
+
+PUT    /api/investigadores/[id]     # Actualizar investigador
+
+GET    /api/investigadores/search   # Búsqueda avanzada- **Next.js API Routes** - Endpoints RESTful- **Información Institucional**: Datos sobre programas, investigadores y proyectos
+
+```
+
+- **Clerk** - Autenticación y gestión de usuarios- **Registro de Nuevas**: Formularios para el registro de nuevas instituciones
+
+### Proyectos
+
+```- **Node.js** - Microservicio OCR- **Validación**: Verificación de información institucional
+
+GET    /api/proyectos               # Listar proyectos
+
+GET    /api/proyectos/[id]          # Obtener proyecto- **Relaciones**: Gestión de relaciones entre instituciones e investigadores
+
+POST   /api/proyectos               # Crear proyecto
+
+PUT    /api/proyectos/[id]          # Actualizar proyecto### Base de Datos
+
+```
+
+- **PostgreSQL** - Base de datos principal (Neon)###  Módulo de Búsqueda Global
+
+### Publicaciones
+
+```- **Prisma** - ORM para TypeScriptSistema de búsqueda unificado que permite encontrar información en toda la plataforma:
+
+GET    /api/publicaciones           # Listar publicaciones
+
+GET    /api/publicaciones/[id]      # Obtener publicación
+
+POST   /api/publicaciones           # Crear publicación
+
+PUT    /api/publicaciones/[id]      # Actualizar publicación### Deployment- **Búsqueda Unificada**: Búsqueda simultánea en investigadores, proyectos y publicaciones
+
+```
+
+- **Vercel** - Aplicación principal- **Filtros Inteligentes**: Filtros por tipo de contenido, área, institución, fecha y más
+
+### Autenticación
+
+```- **Railway** - Microservicio OCR- **Resultados Organizados**: Presentación clara y organizada de resultados por categorías
+
+POST   /api/registro                # Registro de usuario
+
+POST   /api/auth/verify-token       # Verificar token JWT- **Neon** - Base de datos PostgreSQL- **Búsqueda en Tiempo Real**: Autocompletado y sugerencias mientras se escribe
+
+```
+
+- **Historial**: Guardado de búsquedas recientes para facilitar el acceso
+
+Ver [docs/EJEMPLOS_APIS.md](./docs/EJEMPLOS_APIS.md) para ejemplos completos.
+
+---- **Exportación**: Opciones para exportar resultados de búsqueda
+
+---
+
+
+
+## 📖 Uso
+
+## 🏗️ Arquitectura###  Módulo de Administración
+
+### Registro de Usuario
+
+Panel de control completo para administradores del sistema:
+
+1. Ve a `/registro`
+
+2. Llena el formulario completo```
+
+3. (Opcional) Sube un PDF con tu CV para extracción automática
+
+4. Haz clic en "Completar Registro"┌─────────────────────────────────────────────────────────────┐- **Dashboard Principal**: Vista general del sistema con métricas y estadísticas
+
+5. Revisa tu email para verificación
+
+6. Serás redirigido al dashboard│                        FRONTEND (Next.js)                    │- **Gestión de Usuarios**: Herramientas para gestionar usuarios, roles y permisos
+
+
+
+### Panel Administrativo│  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐       │- **Gestión de Investigadores**: Administración completa de perfiles de investigadores
+
+
+
+Accede a `/admin` para:│  │   Pages     │  │  Components  │  │    Hooks     │       │- **Estadísticas del Sistema**: Métricas detalladas sobre el uso y actividad del sistema
+
+- Ver estadísticas del sistema
+
+- Gestionar investigadores│  │  (App Dir)  │  │   (shadcn)   │  │  (Custom)    │       │- **Configuración Avanzada**: Configuración de parámetros del sistema y módulos
+
+- Administrar proyectos y publicaciones
+
+- Configurar el sistema│  └─────────────┘  └──────────────┘  └──────────────┘       │- **Logs y Auditoría**: Registro de actividades y cambios en el sistema
+
+
+
+### Búsqueda│                           │                                  │
+
+
+
+Usa la barra de búsqueda global en la navbar para encontrar investigadores, proyectos y publicaciones.│  ┌────────────────────────┴──────────────────────┐          │##  Tecnologías
+
+
+
+---│  │              API Routes (Next.js)             │          │
+
+
+
+## 📝 Scripts Disponibles│  └────────────────────────┬──────────────────────┘          │La plataforma SEI utiliza un stack tecnológico moderno y robusto que garantiza escalabilidad, mantenibilidad y rendimiento:
+
+
+
+```bash└────────────────────────────┼──────────────────────────────┘
+
+pnpm dev              # Servidor de desarrollo
+
+pnpm build            # Build de producción                             │###  Frontend y Desarrollo
+
+pnpm start            # Servidor de producción
+
+pnpm lint             # Ejecutar linter          ┌──────────────────┼──────────────────┐- **Next.js 14**: Framework React de última generación con App Router, Server Components y optimizaciones automáticas
+
+pnpm prisma:generate  # Generar cliente Prisma
+
+pnpm prisma:migrate   # Ejecutar migraciones          │                  │                  │- **TypeScript**: Tipado estático para mayor robustez, mejor experiencia de desarrollo y detección temprana de errores
+
+pnpm prisma:studio    # Abrir Prisma Studio
+
+```┌─────────▼─────────┐  ┌────▼─────┐  ┌────────▼────────┐- **TailwindCSS**: Framework CSS utilitario que permite crear interfaces modernas y consistentes
+
+
+
+---│   PostgreSQL      │  │  Clerk   │  │  OCR Service    │- **shadcn/ui**: Biblioteca de componentes UI accesibles y personalizables basada en Radix UI
+
+
+
+## 📚 Documentación│   (Neon)          │  │  Auth    │  │   (Railway)     │- **React Hook Form**: Gestión eficiente de formularios con validación integrada
+
+
+
+Documentación adicional disponible en [`docs/`](./docs/):│                   │  │          │  │                 │- **Zod**: Validación de esquemas para TypeScript con excelente integración
+
+
+
+- **[TROUBLESHOOTING_REGISTRO.md](./docs/TROUBLESHOOTING_REGISTRO.md)** - Solución de problemas de registro│  • Investigadores │  │ • Users  │  │ • PDF Extract   │
+
+- **[GOOGLE_SIGNIN_SETUP.md](./docs/GOOGLE_SIGNIN_SETUP.md)** - Configuración de Google Sign-In
+
+- **[EJEMPLOS_APIS.md](./docs/EJEMPLOS_APIS.md)** - Ejemplos de uso de APIs│  • Publicaciones  │  │ • Auth   │  │ • Tesseract     │###  Base de Datos y Almacenamiento
+
+- **[OCR_SETUP.md](./docs/OCR_SETUP.md)** - Configuración del servicio OCR
+
+- **[CLOUDINARY-SETUP.md](./docs/CLOUDINARY-SETUP.md)** - Configuración de Cloudinary│  • Proyectos      │  │ • 2FA    │  │ • Validation    │- **PostgreSQL**: Base de datos relacional robusta para producción con soporte completo para consultas complejas
+
+- **[RAILWAY_OPTIMIZATION.md](./docs/RAILWAY_OPTIMIZATION.md)** - Optimización de Railway
+
+- **[EMAIL_NOTIFICATIONS_SYSTEM.md](./docs/EMAIL_NOTIFICATIONS_SYSTEM.md)** - Sistema de notificaciones└───────────────────┘  └──────────┘  └─────────────────┘- **SQLite**: Base de datos local para desarrollo y testing
+
+
+
+---```- **Prisma**: ORM moderno para TypeScript con migraciones automáticas y type-safety
+
+
+
+## 🐛 Solución de Problemas- **Neon/Railway/Vercel Postgres**: Proveedores de hosting para PostgreSQL en la nube
+
+
+
+### Error: "Cannot find module '@prisma/client'"---
+
+```bash
+
+pnpm prisma generate###  Autenticación y Seguridad
+
+```
+
+## 🚀 Instalación- **JWT (JSON Web Tokens)**: Autenticación stateless segura y escalable
+
+### Error: "Clerk is not configured"
+
+Verifica las variables `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` y `CLERK_SECRET_KEY` en `.env.local`- **2FA (Two-Factor Authentication)**: Autenticación de dos factores para mayor seguridad
+
+
+
+### Error: Usuario registrado en Clerk pero no en PostgreSQL### Prerrequisitos- **bcrypt**: Hashing seguro de contraseñas
+
+Ver [docs/TROUBLESHOOTING_REGISTRO.md](./docs/TROUBLESHOOTING_REGISTRO.md) para ejecutar la migración necesaria.
+
+- **NextAuth.js**: Framework de autenticación para Next.js
+
+### Error de base de datos
+
+```bash- **Node.js** 18.x o superior- **Middleware**: Protección de rutas y validación de permisos
+
+pnpm prisma migrate reset
+
+pnpm prisma migrate dev- **pnpm** 8.x o superior (o npm/yarn)
+
+```
+
+- **PostgreSQL** (o cuenta en Neon)###  Microservicios y APIs
+
+---
+
+- **Cuenta Clerk** para autenticación- **Node.js**: Runtime de JavaScript para el microservicio OCR
+
+## 🚢 Despliegue
+
+- **Express.js**: Framework web para APIs REST
+
+### Vercel (Aplicación Principal)
+
+### Pasos- **Railway**: Plataforma de despliegue para microservicios
+
+1. Conecta tu repositorio de GitHub a Vercel
+
+2. Configura las variables de entorno- **REST APIs**: Arquitectura de APIs RESTful para comunicación entre servicios
+
+3. Despliega automáticamente
+
+1. **Clonar el repositorio**
+
+### Railway (Microservicio OCR)
+
+```bash###  Despliegue y DevOps
+
+1. Crea un nuevo proyecto en Railway
+
+2. Conecta el directorio `ocr-server/`git clone https://github.com/I2Cprogramacion/SEI.git- **Vercel**: Plataforma de despliegue para aplicaciones Next.js con CI/CD automático
+
+3. Configura las variables de entorno
+
+4. Actualiza `PDF_PROCESSOR_URL` en Vercelcd SEI- **Railway**: Hosting para microservicios con escalado automático
+
+
+
+### Base de Datos```- **GitHub Actions**: Automatización de CI/CD y despliegues
+
+
+
+Usa Neon PostgreSQL para una configuración sin servidor y escalable.- **Environment Variables**: Gestión segura de configuraciones y secretos
+
+
+
+---2. **Instalar dependencias**
+
+
+
+## 👥 Equipo```bash###  Monitoreo y Analytics
+
+
+
+Desarrollado por **[I2Cprogramacion](https://github.com/I2Cprogramacion)**pnpm install- **Vercel Analytics**: Métricas de rendimiento y uso de la aplicación
+
+
+
+---```- **Error Tracking**: Monitoreo de errores en tiempo real
+
+
+
+## 📄 Licencia- **Performance Monitoring**: Seguimiento del rendimiento de la aplicación
+
+
+
+Este proyecto está bajo licencia privada. Todos los derechos reservados.3. **Configurar variables de entorno**
+
+
+
+---```bash##  Instalación y Despliegue
+
+
+
+## 🙏 Agradecimientos# Copiar el archivo de ejemplo
+
+
+
+- [Next.js](https://nextjs.org/) - Framework Reactcp env.local.example .env.local### Requisitos previos
+
+- [Clerk](https://clerk.com/) - Autenticación
+
+- [shadcn/ui](https://ui.shadcn.com/) - Componentes UIAntes de comenzar, asegúrate de tener instalado:
+
+- [Neon](https://neon.tech/) - Base de datos PostgreSQL
+
+- [Vercel](https://vercel.com/) - Hosting y deployment# Editar .env.local con tus credenciales
+
+
+
+---```- **Node.js >= 18**: Runtime de JavaScript necesario para ejecutar la aplicación
+
+
+
+<div align="center">- **pnpm**: Gestor de paquetes rápido y eficiente (alternativa a npm/yarn)
+
+
+
+**⭐ Si este proyecto te fue útil, considera darle una estrella en GitHub ⭐**4. **Configurar la base de datos**- **PostgreSQL**: Base de datos relacional para producción
+
+
+
+[⬆ Volver arriba](#-sei---sistema-estatal-de-investigadores)```bash- **Git**: Sistema de control de versiones para clonar el repositorio
+
+
+
+</div># Generar cliente de Prisma
+
 
 pnpm prisma generate### Descripción de directorios principales:
 

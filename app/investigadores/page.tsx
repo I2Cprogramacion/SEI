@@ -137,10 +137,10 @@ export default function InvestigadoresPage() {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <AnimatedCard className="bg-white border-blue-100 mb-8" delay={100}>
+        <AnimatedCard className="glass-effect card-hover mb-8" delay={100}>
           <CardContent className="pt-6">
             <div className="text-center">
               <h1 className="text-4xl font-bold text-blue-900 mb-4">
@@ -221,7 +221,7 @@ export default function InvestigadoresPage() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
-                <Card key={i} className="h-full bg-white border-blue-100">
+                <Card key={i} className="h-full glass-effect">
                   <CardContent className="pt-6">
                     <div className="flex flex-col items-center text-center animate-pulse">
                       <div className="h-24 w-24 bg-blue-100 rounded-full mb-4"></div>
@@ -237,7 +237,7 @@ export default function InvestigadoresPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredInvestigadores.map((investigador, index) => (
                 <Link href={`/investigadores/${investigador.slug}`} key={investigador.id}>
-                  <AnimatedCard className="h-full bg-white border-blue-100 cursor-pointer hover:shadow-lg transition-shadow" delay={index * 100}>
+                  <AnimatedCard className="h-full glass-effect card-hover cursor-pointer" delay={index * 100}>
                     <CardContent className="pt-6">
                       <div className="flex flex-col items-center text-center">
                         <Avatar className="h-24 w-24 mb-4">
@@ -311,7 +311,7 @@ export default function InvestigadoresPage() {
               ))}
             </div>
           ) : (
-            <AnimatedCard className="bg-white border-blue-100" delay={500}>
+            <AnimatedCard className="glass-effect" delay={500}>
               <CardContent className="pt-6 text-center py-12">
                 <Search className="h-12 w-12 mx-auto text-blue-300 mb-4 animate-float" />
                 <h3 className="text-lg font-semibold mb-2 text-blue-900">No se encontraron investigadores</h3>

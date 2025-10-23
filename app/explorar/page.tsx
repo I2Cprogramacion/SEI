@@ -98,48 +98,48 @@ export default function ExplorarPage() {
         </div>
 
         {/* Barra de búsqueda */}
-        <div className="bg-blue-50 rounded-xl px-6 py-8">
+        <div className="glass-effect rounded-xl px-6 py-8 shadow-lg">
           <SearchBar />
         </div>
 
         {/* Estadísticas generales */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <Card className="bg-white border-blue-100 text-center">
+          <Card className="glass-effect card-hover text-center">
             <CardContent className="pt-6">
               <Users className="h-8 w-8 mx-auto text-blue-600 mb-2" />
               <div className="text-2xl font-bold text-blue-900">{loading ? "..." : estadisticas.investigadores}</div>
               <p className="text-sm text-blue-600">Investigadores</p>
             </CardContent>
           </Card>
-          <Card className="bg-white border-blue-100 text-center">
+          <Card className="glass-effect card-hover text-center">
             <CardContent className="pt-6">
               <FileText className="h-8 w-8 mx-auto text-blue-600 mb-2" />
               <div className="text-2xl font-bold text-blue-900">{loading ? "..." : estadisticas.proyectos}</div>
               <p className="text-sm text-blue-600">Proyectos</p>
             </CardContent>
           </Card>
-          <Card className="bg-white border-blue-100 text-center">
+          <Card className="glass-effect card-hover text-center">
             <CardContent className="pt-6">
               <Award className="h-8 w-8 mx-auto text-blue-600 mb-2" />
               <div className="text-2xl font-bold text-blue-900">{loading ? "..." : estadisticas.publicaciones}</div>
               <p className="text-sm text-blue-600">Publicaciones</p>
             </CardContent>
           </Card>
-          <Card className="bg-white border-blue-100 text-center">
+          <Card className="glass-effect card-hover text-center">
             <CardContent className="pt-6">
               <Building className="h-8 w-8 mx-auto text-blue-600 mb-2" />
               <div className="text-2xl font-bold text-blue-900">{loading ? "..." : estadisticas.instituciones}</div>
               <p className="text-sm text-blue-600">Instituciones</p>
             </CardContent>
           </Card>
-          <Card className="bg-white border-blue-100 text-center">
+          <Card className="glass-effect card-hover text-center">
             <CardContent className="pt-6">
               <Globe className="h-8 w-8 mx-auto text-blue-600 mb-2" />
               <div className="text-2xl font-bold text-blue-900">{loading ? "..." : estadisticas.colaboraciones}</div>
               <p className="text-sm text-blue-600">Colaboraciones</p>
             </CardContent>
           </Card>
-          <Card className="bg-white border-blue-100 text-center">
+          <Card className="glass-effect card-hover text-center">
             <CardContent className="pt-6">
               <GraduationCap className="h-8 w-8 mx-auto text-blue-600 mb-2" />
               <div className="text-2xl font-bold text-blue-900">{loading ? "..." : estadisticas.areas}</div>
@@ -151,7 +151,7 @@ export default function ExplorarPage() {
         {/* Navegación rápida */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Link href="/investigadores">
-            <Card className="bg-white border-blue-100 hover:shadow-md transition-shadow cursor-pointer">
+            <Card className="glass-effect card-hover cursor-pointer">
               <CardHeader className="text-center">
                 <Users className="h-12 w-12 mx-auto text-blue-600 mb-2" />
                 <CardTitle className="text-blue-900">Investigadores</CardTitle>
@@ -162,7 +162,7 @@ export default function ExplorarPage() {
             </Card>
           </Link>
           <Link href="/proyectos">
-            <Card className="bg-white border-blue-100 hover:shadow-md transition-shadow cursor-pointer">
+            <Card className="glass-effect card-hover cursor-pointer">
               <CardHeader className="text-center">
                 <FileText className="h-12 w-12 mx-auto text-blue-600 mb-2" />
                 <CardTitle className="text-blue-900">Proyectos</CardTitle>
@@ -173,7 +173,7 @@ export default function ExplorarPage() {
             </Card>
           </Link>
           <Link href="/publicaciones">
-            <Card className="bg-white border-blue-100 hover:shadow-md transition-shadow cursor-pointer">
+            <Card className="glass-effect card-hover cursor-pointer">
               <CardHeader className="text-center">
                 <Award className="h-12 w-12 mx-auto text-blue-600 mb-2" />
                 <CardTitle className="text-blue-900">Publicaciones</CardTitle>
@@ -182,7 +182,7 @@ export default function ExplorarPage() {
             </Card>
           </Link>
           <Link href="/instituciones">
-            <Card className="bg-white border-blue-100 hover:shadow-md transition-shadow cursor-pointer">
+            <Card className="glass-effect card-hover cursor-pointer">
               <CardHeader className="text-center">
                 <Building className="h-12 w-12 mx-auto text-blue-600 mb-2" />
                 <CardTitle className="text-blue-900">Instituciones</CardTitle>
@@ -203,7 +203,7 @@ export default function ExplorarPage() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[...Array(6)].map((_, i) => (
-                <Card key={i} className="bg-white border-blue-100">
+                <Card key={i} className="glass-effect">
                   <CardContent className="pt-6">
                     <div className="animate-pulse">
                       <div className="h-4 bg-blue-100 rounded w-1/2 mb-3"></div>
@@ -218,7 +218,7 @@ export default function ExplorarPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {areasPopulares.map((area, index) => (
                 <Link key={index} href={`/campos/${area.nombre.toLowerCase().replace(/\s+/g, "-")}`}>
-                  <Card className="bg-white border-blue-100 hover:shadow-md transition-shadow cursor-pointer">
+                  <Card className="glass-effect card-hover cursor-pointer">
                     <CardContent className="pt-6">
                       <div className="flex justify-between items-start mb-3">
                         <Badge className={area.color}>{area.nombre}</Badge>
@@ -240,7 +240,7 @@ export default function ExplorarPage() {
               ))}
             </div>
           ) : (
-            <Card className="bg-white border-blue-100">
+            <Card className="glass-effect">
               <CardContent className="pt-6 text-center py-8">
                 <TrendingUp className="h-8 w-8 mx-auto text-blue-300 mb-2" />
                 <p className="text-blue-600">No hay áreas de investigación registradas aún.</p>
@@ -260,7 +260,7 @@ export default function ExplorarPage() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[...Array(4)].map((_, i) => (
-                <Card key={i} className="bg-white border-blue-100">
+                <Card key={i} className="glass-effect">
                   <CardHeader>
                     <div className="animate-pulse">
                       <div className="h-6 bg-blue-100 rounded w-3/4 mb-2"></div>
@@ -283,7 +283,7 @@ export default function ExplorarPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {institucionesDestacadas.map((institucion, index) => (
                 <Link key={index} href={`/instituciones/${institucion.nombre.toLowerCase().replace(/\s+/g, "-")}`}>
-                  <Card className="bg-white border-blue-100 hover:shadow-md transition-shadow cursor-pointer">
+                  <Card className="glass-effect card-hover cursor-pointer">
                     <CardHeader>
                       <CardTitle className="text-blue-900">{institucion.nombre}</CardTitle>
                       <CardDescription className="text-blue-600">
@@ -307,7 +307,7 @@ export default function ExplorarPage() {
               ))}
             </div>
           ) : (
-            <Card className="bg-white border-blue-100">
+            <Card className="glass-effect">
               <CardContent className="pt-6 text-center py-8">
                 <Building className="h-8 w-8 mx-auto text-blue-300 mb-2" />
                 <p className="text-blue-600">No hay instituciones registradas aún.</p>

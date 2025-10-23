@@ -129,6 +129,7 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         entidad_federativa VARCHAR(100),
         cv_ligado_orcid TEXT,
         orcid_verificado BOOLEAN DEFAULT FALSE,
+        clerk_user_id VARCHAR(255),
         fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `
@@ -136,6 +137,17 @@ export class PostgreSQLDatabase implements DatabaseInterface {
     try {
       await this.client.query(createTableQuery)
       console.log('Tabla investigadores creada o ya existente en PostgreSQL')
+      
+      // Agregar clerk_user_id si no existe (migración)
+      try {
+        await this.client.query(`
+          ALTER TABLE investigadores 
+          ADD COLUMN IF NOT EXISTS clerk_user_id VARCHAR(255)
+        `)
+        console.log('Columna clerk_user_id agregada o ya existente')
+      } catch (alterError) {
+        console.warn('No se pudo agregar clerk_user_id (posiblemente ya existe):', alterError)
+      }
     } catch (error) {
       console.error('Error al crear tabla en PostgreSQL:', error)
       throw error
@@ -162,13 +174,24 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         await this.conectar()
       }
 
-      console.log('Guardando investigador en PostgreSQL:', datos)
+      console.log("==================================================")
+      console.log("💾 GUARDANDO EN POSTGRESQL")
+      console.log("==================================================")
+      console.log('Datos completos recibidos:', JSON.stringify(datos, null, 2))
+      console.log("==================================================")
 
       const curp = datos.curp?.trim() || ""
       const nombre = datos.nombre_completo?.trim() || ""
       const correo = datos.correo?.trim() || ""
 
-      // Verificar duplicados por CURP si está disponible
+      console.log("Valores extraídos:")
+      console.log("- CURP:", curp || "(vacío)")
+      console.log("- Nombre completo:", nombre || "(vacío)")
+      console.log("- Correo:", correo || "(vacío)")
+      console.log("- Clerk User ID:", datos.clerk_user_id || "(vacío)")
+
+      // NOTA: Las verificaciones de duplicados ahora se manejan en Clerk
+      // Solo verificamos CURP para evitar duplicados de documentos oficiales
       if (curp && curp !== "") {
         const existenteCurp = await this.client.query(
           'SELECT * FROM investigadores WHERE curp = $1',
@@ -178,40 +201,7 @@ export class PostgreSQLDatabase implements DatabaseInterface {
           console.log(`CURP duplicado encontrado: ${curp}`)
           return {
             success: false,
-            message: `❌ El CURP ${curp} ya está registrado.`,
-            id: existenteCurp.rows[0].id,
-          }
-        }
-      }
-
-      // Verificar duplicados por correo electrónico
-      if (correo && correo !== "") {
-        const existenteCorreo = await this.client.query(
-          'SELECT * FROM investigadores WHERE correo = $1',
-          [correo]
-        )
-        if (existenteCorreo.rows.length > 0) {
-          console.log(`Correo duplicado encontrado: ${correo}`)
-          return {
-            success: false,
-            message: `❌ El correo electrónico ${correo} ya está registrado.`,
-            id: existenteCorreo.rows[0].id,
-          }
-        }
-      }
-
-      // Verificar duplicados por nombre si no hay CURP
-      if (!curp || curp === "") {
-        const existenteNombre = await this.client.query(
-          'SELECT * FROM investigadores WHERE nombre_completo = $1',
-          [nombre]
-        )
-        if (existenteNombre.rows.length > 0) {
-          console.log(`Nombre duplicado encontrado: ${nombre}`)
-          return {
-            success: false,
-            message: `⚠️ El nombre ${nombre} ya está registrado. Verifica si es un duplicado.`,
-            id: existenteNombre.rows[0].id,
+            message: `⚠️ El CURP ${curp} ya existe en el sistema. Si ya tienes cuenta, inicia sesión.`,
           }
         }
       }
@@ -226,6 +216,15 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       const placeholders = campos.map((_, index) => `$${index + 1}`).join(", ")
       const valores = campos.map((campo) => datos[campo])
 
+      console.log("==================================================")
+      console.log("🔧 CONSTRUYENDO QUERY SQL")
+      console.log("==================================================")
+      console.log('Campos a insertar:', campos)
+      console.log('Número de campos:', campos.length)
+      console.log('Placeholders:', placeholders)
+      console.log('Valores:', valores)
+      console.log("==================================================")
+
       // Construir la consulta SQL
       const query = `
         INSERT INTO investigadores (${campos.join(", ")})
@@ -233,12 +232,23 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         RETURNING id
       `
 
-      console.log('Query SQL:', query)
-      console.log('Valores:', valores)
+      console.log("==================================================")
+      console.log('📝 QUERY SQL FINAL:')
+      console.log("==================================================")
+      console.log(query)
+      console.log("==================================================")
+
+      console.log("🚀 Ejecutando INSERT...")
 
       // Ejecutar la consulta
       const result = await this.client.query(query, valores)
-      console.log('Resultado de la inserción:', result)
+      
+      console.log("==================================================")
+      console.log("✅ INSERT EXITOSO!")
+      console.log("==================================================")
+      console.log('Resultado completo:', result)
+      console.log('ID generado:', result.rows[0]?.id)
+      console.log("==================================================")
 
       return {
         success: true,
@@ -246,7 +256,15 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         id: result.rows[0].id,
       }
     } catch (error) {
-      console.error('Error al guardar investigador en PostgreSQL:', error)
+      console.error("==================================================")
+      console.error('❌ ERROR AL GUARDAR EN POSTGRESQL')
+      console.error("==================================================")
+      console.error('Tipo de error:', error instanceof Error ? error.constructor.name : typeof error)
+      console.error('Mensaje:', error instanceof Error ? error.message : String(error))
+      console.error('Stack:', error instanceof Error ? error.stack : 'No stack trace')
+      console.error('Error completo:', error)
+      console.error("==================================================")
+      
       return {
         success: false,
         message: `❌ Error al guardar: ${error instanceof Error ? error.message : "Error desconocido"}`,

@@ -47,10 +47,10 @@ export default function Home() {
       <section className="py-8 sm:py-12">
         <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12 text-blue-900 animate-fade-in-up">Cómo funciona</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          <AnimatedCard className="bg-white border-blue-100" delay={100}>
+          <AnimatedCard className="glass-effect card-hover" delay={100}>
             <CardContent className="pt-4 sm:pt-6 p-4 sm:p-6">
-              <div className="rounded-full bg-blue-50 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mb-3 sm:mb-4 mx-auto sm:mx-0 animate-gentle-pulse">
-                <span className="text-blue-900 font-bold text-lg sm:text-xl">1</span>
+              <div className="rounded-full bg-gradient-to-br from-blue-500 to-blue-600 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mb-3 sm:mb-4 mx-auto sm:mx-0 animate-gentle-pulse shadow-lg">
+                <span className="text-white font-bold text-lg sm:text-xl">1</span>
               </div>
               <h3 className="text-lg sm:text-xl font-bold mb-2 text-blue-900 text-center sm:text-left">Crea tu perfil</h3>
               <p className="text-blue-600 text-sm sm:text-base text-center sm:text-left">
@@ -58,10 +58,10 @@ export default function Home() {
               </p>
             </CardContent>
           </AnimatedCard>
-          <AnimatedCard className="bg-white border-blue-100" delay={200}>
+          <AnimatedCard className="glass-effect card-hover" delay={200}>
             <CardContent className="pt-4 sm:pt-6 p-4 sm:p-6">
-              <div className="rounded-full bg-blue-50 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mb-3 sm:mb-4 mx-auto sm:mx-0 animate-gentle-pulse">
-                <span className="text-blue-900 font-bold text-lg sm:text-xl">2</span>
+              <div className="rounded-full bg-gradient-to-br from-blue-500 to-blue-600 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mb-3 sm:mb-4 mx-auto sm:mx-0 animate-gentle-pulse shadow-lg">
+                <span className="text-white font-bold text-lg sm:text-xl">2</span>
               </div>
               <h3 className="text-lg sm:text-xl font-bold mb-2 text-blue-900 text-center sm:text-left">Comparte tus proyectos</h3>
               <p className="text-blue-600 text-sm sm:text-base text-center sm:text-left">
@@ -69,10 +69,10 @@ export default function Home() {
               </p>
             </CardContent>
           </AnimatedCard>
-          <AnimatedCard className="bg-white border-blue-100 sm:col-span-2 lg:col-span-1" delay={300}>
+          <AnimatedCard className="glass-effect card-hover sm:col-span-2 lg:col-span-1" delay={300}>
             <CardContent className="pt-4 sm:pt-6 p-4 sm:p-6">
-              <div className="rounded-full bg-blue-50 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mb-3 sm:mb-4 mx-auto sm:mx-0 animate-gentle-pulse">
-                <span className="text-blue-900 font-bold text-lg sm:text-xl">3</span>
+              <div className="rounded-full bg-gradient-to-br from-blue-500 to-blue-600 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mb-3 sm:mb-4 mx-auto sm:mx-0 animate-gentle-pulse shadow-lg">
+                <span className="text-white font-bold text-lg sm:text-xl">3</span>
               </div>
               <h3 className="text-lg sm:text-xl font-bold mb-2 text-blue-900 text-center sm:text-left">Conecta y colabora</h3>
               <p className="text-blue-600 text-sm sm:text-base text-center sm:text-left">
@@ -84,7 +84,7 @@ export default function Home() {
       </section>
 
       {/* Search Section */}
-      <section className="py-8 sm:py-12 bg-blue-50 rounded-lg sm:rounded-xl px-4 sm:px-6 my-8 sm:my-12 animate-fade-in-up delay-400">
+      <section className="py-8 sm:py-12 bg-gradient-to-br from-blue-100/50 via-blue-50/30 to-transparent rounded-lg sm:rounded-xl px-4 sm:px-6 my-8 sm:my-12 animate-fade-in-up delay-400 backdrop-blur-sm border border-blue-100/50 shadow-lg">
         <div className="text-center mb-6 sm:mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-blue-900">Encuentra investigadores y proyectos en Chihuahua</h2>
           <p className="text-blue-600 max-w-2xl mx-auto text-sm sm:text-base">
@@ -95,8 +95,8 @@ export default function Home() {
       </section>
 
       {/* Featured Researchers */}
-      <section className="py-8 sm:py-12">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4 animate-fade-in-up delay-500">
+      <section className="py-6 sm:py-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-5 gap-4 animate-fade-in-up delay-500">
           <h2 className="text-2xl sm:text-3xl font-bold text-blue-900">Algunos de nuestros investigadores</h2>
           <AnimatedButton variant="ghost" asChild className="text-blue-700 hover:bg-blue-50 w-full sm:w-auto">
             <Link href="/investigadores">Ver todos</Link>
@@ -106,8 +106,8 @@ export default function Home() {
       </section>
 
       {/* Recent Projects */}
-      <section className="py-8 sm:py-12">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4 animate-fade-in-up">
+      <section className="py-6 sm:py-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-5 gap-4 animate-fade-in-up">
           <h2 className="text-2xl sm:text-3xl font-bold text-blue-900">Proyectos recientes</h2>
           <AnimatedButton variant="ghost" asChild className="text-blue-700 hover:bg-blue-50 w-full sm:w-auto">
             <Link href="/proyectos">Ver todos</Link>

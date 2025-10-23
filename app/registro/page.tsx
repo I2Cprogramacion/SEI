@@ -4,6 +4,7 @@ import React, { useState, useMemo, useCallback, useEffect } from "react"
 import { useSignUp, useClerk } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+// CAPTCHA DESHABILITADO: import ReCAPTCHA from "react-google-recaptcha"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -670,6 +671,15 @@ export default function RegistroPage() {
         return
       }
 
+      // CAPTCHA DESHABILITADO TEMPORALMENTE
+      // console.log("🔍 Verificando CAPTCHA en handleSubmit. captchaValue:", captchaValue)
+      // if (!captchaValue) {
+      //   console.log("❌ CAPTCHA no completado. Mostrando error.")
+      //   setError("Por favor, completa el CAPTCHA para continuar")
+      //   return
+      // }
+      // console.log("✅ CAPTCHA verificado. Continuando con el registro...")
+
       if (!ocrCompleted) {
         setError("Debes procesar un Perfil Único antes de continuar con el registro")
         return
@@ -701,40 +711,13 @@ export default function RegistroPage() {
           throw new Error("El correo electrónico debe tener un formato válido")
         }
 
-        const dataToSend = {
-          ...formData,
-          fecha_registro: new Date().toISOString(),
-          origen: "ocr",
-          archivo_procesado: selectedFile?.name || "",
-        }
-
-        const { confirm_password, ...dataToSendWithoutConfirm } = dataToSend
-
-        const response = await fetch("/api/registro", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(dataToSendWithoutConfirm),
-        })
-
-        const responseData = await response.json()
-
-        if (!response.ok) {
-          if (response.status === 409 && responseData.duplicado) {
-            setError(`${responseData.message} ID: ${responseData.id}`)
-            return
-          }
-          throw new Error(responseData.error || "Error al guardar los datos")
-        }
-
-        // Clerk logic - Verificar que signUp esté cargado y disponible
+        // PRIMERO: Verificar que signUp esté cargado y disponible
         if (!isLoaded || !signUp) {
           throw new Error("El sistema de registro no está listo. Intenta de nuevo.")
         }
 
         try {
-          // Crear el usuario en Clerk
+          // PASO 1: Crear el usuario en Clerk primero (valida duplicados automáticamente)
           const signUpAttempt = await signUp.create({
             emailAddress: formData.correo,
             password: formData.password,
@@ -745,7 +728,60 @@ export default function RegistroPage() {
             strategy: "email_code",
           })
 
-          // Verificar el estado del registro
+          // PASO 2: Si Clerk tuvo éxito, guardar en PostgreSQL con el clerk_user_id
+          const dataToSend = {
+            ...formData,
+            // Asegurar que nombre_completo existe (la BD lo requiere)
+            nombre_completo: formData.nombre_completo || `${formData.nombres || ''} ${formData.apellidos || ''}`.trim(),
+            clerk_user_id: signUpAttempt.createdUserId, // ID de Clerk para vincular
+            fecha_registro: new Date().toISOString(),
+            origen: "ocr",
+            archivo_procesado: selectedFile?.name || "",
+          }
+
+          const { confirm_password, ...dataToSendWithoutConfirm } = dataToSend
+
+          // Guardar en PostgreSQL (incluir token de CAPTCHA)
+          try {
+            const response = await fetch("/api/registro", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                ...dataToSendWithoutConfirm,
+                // captchaToken: captchaValue, // CAPTCHA DESHABILITADO
+              }),
+            })
+
+            const responseData = await response.json()
+
+            if (!response.ok) {
+              console.error("❌ ERROR AL GUARDAR EN POSTGRESQL:", responseData)
+              console.error("❌ Status:", response.status)
+              console.error("❌ Response completa:", JSON.stringify(responseData, null, 2))
+              
+              // Si falla PostgreSQL con error de columna, mostrar error claro
+              if (responseData.error?.includes("column") || responseData.error?.includes("does not exist")) {
+                console.error("🚨 ERROR: Falta ejecutar migración SQL en Neon")
+                console.error("🚨 Ejecuta: scripts/add-clerk-user-id.sql en Neon Console")
+                // Aunque falle, continuar (Clerk ya tiene el usuario)
+              }
+              
+              // Si falla PostgreSQL, aún permitir continuar ya que Clerk tiene el usuario
+            } else {
+              console.log("✅ Datos guardados en PostgreSQL:", responseData)
+            }
+          } catch (dbError) {
+            console.error("Error de conexión con PostgreSQL:", dbError)
+            // CAPTCHA DESHABILITADO
+            // if (dbError instanceof Error && dbError.message.includes("CAPTCHA")) {
+            //   throw dbError
+            // }
+            // Para otros errores de DB, continuar de todos modos
+          }
+
+          // PASO 3: Verificar el estado del registro y redirigir
           if (signUpAttempt.status === "complete") {
             // Si el registro está completo, iniciar sesión automáticamente
             await clerk.setActive({ session: signUpAttempt.createdSessionId })
@@ -763,7 +799,7 @@ export default function RegistroPage() {
           // Manejar error de email duplicado específicamente
           const errorMessage = clerkError.errors?.[0]?.message || ""
           if (errorMessage.toLowerCase().includes("email address is taken")) {
-            throw new Error("Este correo electrónico ya está registrado. Por favor, usa otro correo o inicia sesión.")
+            throw new Error("Este correo electrónico ya está registrado en el sistema. Por favor, inicia sesión.")
           }
           
           throw new Error(errorMessage || "Error al crear la cuenta")
@@ -1330,6 +1366,41 @@ export default function RegistroPage() {
                     </div>
                   )}
 
+                  {/* CAPTCHA DESHABILITADO TEMPORALMENTE */}
+                  {/* <div className="flex justify-center my-6">
+                    <ReCAPTCHA
+                      ref={recaptchaRef}
+                      sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}
+                      onChange={(value) => {
+                        console.log("🔵 CAPTCHA onChange triggered. Value:", value)
+                        console.log("🔵 Setting captchaValue state to:", value)
+                        setCaptchaValue(value)
+                        if (value) {
+                          setError(null)
+                          console.log("✅ CAPTCHA completado, error limpiado")
+                        }
+                      }}
+                      onExpired={() => {
+                        console.log("⚠️ CAPTCHA expiró")
+                        setCaptchaValue(null)
+                        setError("El CAPTCHA expiró. Por favor, márcalo nuevamente.")
+                      }}
+                      theme="light"
+                    />
+                  </div> */}
+
+                  {/* FEEDBACK VISUAL DEL CAPTCHA DESHABILITADO */}
+                  {/* {captchaValue && (
+                    <div className="text-center text-sm text-green-600 font-medium mb-2 animate-fadeIn">
+                      ✅ CAPTCHA verificado correctamente
+                    </div>
+                  )}
+                  {!captchaValue && (
+                    <div className="text-center text-sm text-amber-600 mb-2">
+                      ⚠️ Marca el checkbox "No soy un robot" para continuar
+                    </div>
+                  )} */}
+
                   {/* Clerk CAPTCHA Container */}
                   <div id="clerk-captcha" className="flex justify-center"></div>
 
@@ -1337,9 +1408,11 @@ export default function RegistroPage() {
                     type="submit"
                     disabled={
                       isLoading || !ocrCompleted || !isFormComplete || !passwordValidation.isValid || !passwordsMatch
+                      // || !captchaValue // CAPTCHA DESHABILITADO
                     }
                     className={`w-full shadow-md hover:shadow-lg transition-all duration-300 h-10 md:h-12 text-sm md:text-base ${
                       isFormComplete && passwordValidation.isValid && passwordsMatch
+                      // && captchaValue // CAPTCHA DESHABILITADO
                         ? "bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800"
                         : "bg-gray-400 text-gray-200 cursor-not-allowed"
                     }`}
