@@ -43,8 +43,7 @@ export async function GET(request: NextRequest) {
         entidad_federativa,
         slug,
         clerk_user_id
-      FROM investigadores 
-      WHERE TRIM(COALESCE(nombre_completo, '')) != ''
+      FROM investigadores
     `
     
     const params: any[] = []
@@ -103,26 +102,26 @@ export async function GET(request: NextRequest) {
     // Formatear respuesta
     const investigadoresFormateados = investigadores.map((inv: any) => ({
       id: inv.id,
-      nombre: cleanValue(inv.nombre_completo) || `${cleanValue(inv.nombres) || ''} ${cleanValue(inv.apellidos) || ''}`.trim(),
-      email: inv.correo,
-      curp: cleanValue(inv.curp),
-      rfc: cleanValue(inv.rfc),
-      noCvu: cleanValue(inv.no_cvu),
-      telefono: cleanValue(inv.telefono),
-      institucion: cleanValue(inv.institucion),
-      area: cleanValue(inv.area) || cleanValue(inv.area_investigacion),
-      areaInvestigacion: cleanValue(inv.area_investigacion),
-      lineaInvestigacion: cleanValue(inv.linea_investigacion),
-      fotografiaUrl: cleanValue(inv.fotografia_url),
-      ultimoGradoEstudios: cleanValue(inv.ultimo_grado_estudios) || cleanValue(inv.grado_maximo_estudios),
-      empleoActual: cleanValue(inv.empleo_actual),
-      orcid: cleanValue(inv.orcid),
-      nivel: cleanValue(inv.nivel),
-      nacionalidad: cleanValue(inv.nacionalidad),
-      fechaNacimiento: cleanValue(inv.fecha_nacimiento),
-      estadoNacimiento: cleanValue(inv.estado_nacimiento),
-      municipio: cleanValue(inv.municipio),
-      entidadFederativa: cleanValue(inv.entidad_federativa),
+      nombre: cleanValue(inv.nombre_completo) || `${cleanValue(inv.nombres) || ''} ${cleanValue(inv.apellidos) || ''}`.trim() || 'Sin nombre',
+      email: cleanValue(inv.correo) || 'Sin correo',
+      curp: cleanValue(inv.curp) || 'Sin CURP',
+      rfc: cleanValue(inv.rfc) || 'Sin RFC',
+      noCvu: cleanValue(inv.no_cvu) || 'Sin CVU',
+      telefono: cleanValue(inv.telefono) || 'Sin teléfono',
+      institucion: cleanValue(inv.institucion) || 'Sin institución',
+      area: cleanValue(inv.area) || cleanValue(inv.area_investigacion) || 'Sin área',
+      areaInvestigacion: cleanValue(inv.area_investigacion) || 'Sin área de investigación',
+      lineaInvestigacion: cleanValue(inv.linea_investigacion) || 'Sin línea de investigación',
+      fotografiaUrl: cleanValue(inv.fotografia_url) || null,
+      ultimoGradoEstudios: cleanValue(inv.ultimo_grado_estudios) || cleanValue(inv.grado_maximo_estudios) || 'Sin grado',
+      empleoActual: cleanValue(inv.empleo_actual) || 'Sin empleo actual',
+      orcid: cleanValue(inv.orcid) || null,
+      nivel: cleanValue(inv.nivel) || 'Sin nivel',
+      nacionalidad: cleanValue(inv.nacionalidad) || 'Sin nacionalidad',
+      fechaNacimiento: cleanValue(inv.fecha_nacimiento) || null,
+      estadoNacimiento: cleanValue(inv.estado_nacimiento) || null,
+      municipio: cleanValue(inv.municipio) || null,
+      entidadFederativa: cleanValue(inv.entidad_federativa) || null,
       slug: cleanValue(inv.slug) || `investigador-${inv.id}`
     }))
 

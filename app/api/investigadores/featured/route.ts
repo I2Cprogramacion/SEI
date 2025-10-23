@@ -17,9 +17,7 @@ export async function GET(request: NextRequest) {
         fotografia_url as avatar,
         slug
       FROM investigadores
-      WHERE nombre_completo IS NOT NULL
-        AND correo NOT LIKE '%admin%'
-        AND slug IS NOT NULL
+      WHERE correo NOT LIKE '%admin%'
       ORDER BY RANDOM()
       LIMIT 5
     `
@@ -27,12 +25,12 @@ export async function GET(request: NextRequest) {
     // Transformar datos al formato esperado
     const featured = investigadores.map(inv => ({
       id: inv.id,
-      name: inv.name,
-      title: inv.title,
-      institution: inv.institution,
-      field: inv.field,
-      avatar: inv.avatar,
-      slug: inv.slug
+      name: inv.name || 'Sin nombre',
+      title: inv.title || 'Investigador',
+      institution: inv.institution || 'Sin institución',
+      field: inv.field || 'Sin área',
+      avatar: inv.avatar || null,
+      slug: inv.slug || `investigador-${inv.id}`
     }))
 
     return NextResponse.json(featured)

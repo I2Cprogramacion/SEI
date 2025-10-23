@@ -74,9 +74,51 @@ export async function GET(
         { status: 404 }
       )
     }
-
-    // El resultado ya tiene los campos con alias correctos (camelCase)
-    return NextResponse.json(result[0])
+    // Mapear valores por defecto si faltan datos
+    const inv = result[0]
+    const mapped = {
+      id: inv.id,
+      clerkUserId: inv.clerkUserId || '',
+      name: inv.name || 'Sin nombre',
+      email: inv.email || 'Sin correo',
+      curp: inv.curp || 'Sin CURP',
+      rfc: inv.rfc || 'Sin RFC',
+      noCvu: inv.noCvu || 'Sin CVU',
+      telefono: inv.telefono || 'Sin teléfono',
+      institution: inv.institution || 'Sin institución',
+      area: inv.area || inv.areaInvestigacion || 'Sin área',
+      areaInvestigacion: inv.areaInvestigacion || 'Sin área de investigación',
+      lineaInvestigacion: inv.lineaInvestigacion || 'Sin línea de investigación',
+      fotografiaUrl: inv.fotografiaUrl || null,
+      title: inv.title || 'Investigador',
+      empleoActual: inv.empleoActual || 'Sin empleo actual',
+      fechaNacimiento: inv.fechaNacimiento || null,
+      nacionalidad: inv.nacionalidad || 'Sin nacionalidad',
+      orcid: inv.orcid || null,
+      nivel: inv.nivel || 'Sin nivel',
+      domicilio: inv.domicilio || null,
+      cp: inv.cp || null,
+      gradoMaximoEstudios: inv.gradoMaximoEstudios || 'Sin grado',
+      disciplina: inv.disciplina || null,
+      especialidad: inv.especialidad || null,
+      sni: inv.sni || null,
+      anioSni: inv.anioSni || null,
+      experienciaDocente: inv.experienciaDocente || null,
+      experienciaLaboral: inv.experienciaLaboral || null,
+      proyectosInvestigacion: inv.proyectosInvestigacion || null,
+      proyectosVinculacion: inv.proyectosVinculacion || null,
+      libros: inv.libros || null,
+      capitulosLibros: inv.capitulosLibros || null,
+      articulos: inv.articulos || null,
+      premiosDistinciones: inv.premiosDistinciones || null,
+      idiomas: inv.idiomas || null,
+      colaboracionInternacional: inv.colaboracionInternacional || null,
+      colaboracionNacional: inv.colaboracionNacional || null,
+      cvUrl: inv.cvUrl || null,
+      slug: inv.slug || `investigador-${inv.id}`,
+      location: inv.location || null
+    }
+    return NextResponse.json(mapped)
   } catch (error) {
     return NextResponse.json(
       { error: "Error interno del servidor", details: error instanceof Error ? error.message : String(error) },

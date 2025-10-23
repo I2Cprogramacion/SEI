@@ -1,5 +1,6 @@
 // Interfaz abstracta para diferentes tipos de base de datos
 export interface DatabaseInterface {
+  buscarInvestigadores(params: { termino: string; limite?: number }): Promise<any[]>
   // Métodos de investigadores
   guardarInvestigador(datos: any): Promise<{
     success: boolean

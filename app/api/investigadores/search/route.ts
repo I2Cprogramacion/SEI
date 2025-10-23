@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Formatear respuesta
-    const resultados = investigadores.map(inv => ({
+  const resultados = investigadores.map((inv: any) => ({
       id: inv.id,
       nombre: inv.nombre || inv.nombreCompleto || 'Sin nombre',
       email: inv.email,
