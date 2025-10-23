@@ -174,10 +174,10 @@ export function GestionarCvDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-blue-600" />
-            Gestionar Curriculum Vitae
+            Perfil Único del Registro
           </DialogTitle>
           <DialogDescription>
-            Actualiza o elimina tu CV en formato PDF
+            Tu Perfil Único fue procesado automáticamente durante el registro. Aquí puedes verlo o actualizarlo.
           </DialogDescription>
         </DialogHeader>
 
@@ -189,7 +189,10 @@ export function GestionarCvDialog({
                 <div className="flex items-center gap-3">
                   <FileText className="h-8 w-8 text-blue-600" />
                   <div>
-                    <p className="font-medium text-blue-900">CV actual</p>
+                    <p className="font-medium text-blue-900">Perfil Único del registro</p>
+                    <p className="text-xs text-blue-600 mb-2">
+                      Documento procesado automáticamente durante tu registro
+                    </p>
                     <a
                       href={cvUrlActual}
                       target="_blank"

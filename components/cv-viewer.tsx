@@ -32,7 +32,7 @@ export function CvViewer({
     // Crear un elemento <a> temporal para forzar la descarga
     const link = document.createElement('a')
     link.href = cvUrl
-    link.download = `CV_${investigadorNombre?.replace(/\s+/g, '_') || 'documento'}.pdf`
+    link.download = `${investigadorNombre?.replace(/\s+/g, '_') || 'documento'}.pdf`
     link.target = '_blank'
     document.body.appendChild(link)
     link.click()
@@ -127,17 +127,17 @@ export function CvViewer({
       <DialogTrigger asChild>
         <Button variant={triggerVariant} className="gap-2">
           <FileText className="h-4 w-4" />
-          Ver Curriculum Vitae
+          Ver Perfil Único
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-5xl h-[90vh] p-0">
         <DialogHeader className="p-6 pb-4 border-b">
           <div className="flex items-center justify-between">
             <div>
-              <DialogTitle className="text-2xl">Curriculum Vitae</DialogTitle>
+              <DialogTitle className="text-2xl">Perfil Único del Registro</DialogTitle>
               {investigadorNombre && (
                 <DialogDescription className="mt-1">
-                  {investigadorNombre}
+                  {investigadorNombre} - Documento procesado automáticamente durante el registro
                 </DialogDescription>
               )}
             </div>
@@ -167,7 +167,7 @@ export function CvViewer({
           <iframe
             src={cvUrl}
             className="w-full h-full border-0"
-            title={`CV de ${investigadorNombre || "Investigador"}`}
+            title={`Perfil Único de ${investigadorNombre || "Investigador"}`}
             style={{ minHeight: '600px' }}
           />
         </div>

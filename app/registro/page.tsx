@@ -192,6 +192,9 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
           <Label htmlFor="pdf-upload" className="text-sm sm:text-base text-blue-900 font-medium">
             Archivo PDF del Perfil Único * (Máximo {FILE_CONSTRAINTS.MAX_SIZE_MB}MB)
           </Label>
+          <p className="text-xs text-blue-600">
+            Este documento se procesará automáticamente para extraer tu información y se guardará como tu Perfil Único en el perfil.
+          </p>
           <div className="relative">
             <Input
               id="pdf-upload"
@@ -598,6 +601,59 @@ export default function RegistroPage() {
     []
   )
 
+  const handleSavePDFAsCV = useCallback(async () => {
+    if (!selectedFile) return
+
+    try {
+      const formDataCV = new FormData()
+      formDataCV.append("file", selectedFile)
+
+      // Intentar subir a Cloudinary primero
+      let cvUrl = null
+      try {
+        const response = await fetch("/api/upload-cv", {
+          method: "POST",
+          body: formDataCV,
+        })
+
+        if (response.ok) {
+          const result = await response.json()
+          cvUrl = result.url
+          console.log("✅ Perfil Único subido a Cloudinary:", cvUrl)
+        }
+      } catch (cloudinaryError) {
+        console.log("⚠️ Error subiendo a Cloudinary, intentando local...")
+        
+        // Fallback a almacenamiento local
+        try {
+          const responseLocal = await fetch("/api/upload-cv-local", {
+            method: "POST",
+            body: formDataCV,
+          })
+
+          if (responseLocal.ok) {
+            const resultLocal = await responseLocal.json()
+            cvUrl = resultLocal.url
+            console.log("✅ Perfil Único subido localmente:", cvUrl)
+          }
+        } catch (localError) {
+          console.error("❌ Error subiendo CV localmente:", localError)
+        }
+      }
+
+      // Guardar la URL del CV en el estado del formulario
+      if (cvUrl) {
+        setFormData((prev) => ({
+          ...prev,
+          cv_url: cvUrl,
+        }))
+        console.log("✅ Perfil Único URL guardada en formulario:", cvUrl)
+      }
+    } catch (error) {
+      console.error("❌ Error guardando PDF como Perfil Único:", error)
+    }
+  }, [selectedFile])
+
   const handlePDFUpload = useCallback(async () => {
     if (!selectedFile) return
 
@@ -640,6 +696,9 @@ export default function RegistroPage() {
         setError(null)
         setIsProcessingPDF(false)
         console.log("PDF procesado exitosamente. Campos extraídos:", sanitizedData)
+        
+        // Guardar el PDF como Perfil Único automáticamente
+        await handleSavePDFAsCV()
         return
       } else {
         setError("No se pudieron extraer datos clave del PDF (CURP, RFC, CVU, Teléfono)")

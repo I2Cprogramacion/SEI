@@ -358,7 +358,7 @@ export default function DashboardPage() {
                   Perfil del Investigador
                 </CardTitle>
                 <CardDescription className="text-blue-600">
-                  {investigadorData?.cv_url ? "Tu perfil es visible públicamente" : "Sube tu CV para completar tu perfil público"}
+                  {investigadorData?.cv_url ? "Tu perfil es visible públicamente con Perfil Único del registro" : "Completa tu perfil público"}
                 </CardDescription>
               </div>
               {investigadorData?.cv_url && (
@@ -368,7 +368,7 @@ export default function DashboardPage() {
                   className="border-blue-300 text-blue-700 hover:bg-blue-50"
                 >
                   <Edit className="mr-2 h-4 w-4" />
-                  Gestionar CV
+                  Gestionar Perfil Único
                 </Button>
               )}
             </div>
@@ -383,15 +383,15 @@ export default function DashboardPage() {
               <div className="space-y-4">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
                   <FileText className="h-12 w-12 text-blue-400 mx-auto mb-3" />
-                  <p className="text-blue-700 font-medium mb-2">No has subido tu CV aún</p>
+                  <p className="text-blue-700 font-medium mb-2">Perfil Único del registro no disponible</p>
                   <p className="text-sm text-blue-600 mb-4">
-                    Sube tu CV para completar tu perfil de investigador
+                    Tu Perfil Único debería haberse guardado automáticamente durante el registro. Si no aparece, puedes subirlo manualmente.
                   </p>
                 </div>
                 <UploadCv
                   value={investigadorData?.cv_url || ""}
                   onChange={async (url) => {
-                    console.log("=== CV SUBIDO ===")
+                    console.log("=== PERFIL ÚNICO SUBIDO ===")
                     console.log("URL recibida:", url)
                     
                     // Actualizar el CV en la base de datos
@@ -409,12 +409,12 @@ export default function DashboardPage() {
                       console.log("Response data:", responseData)
                       
                       if (response.ok) {
-                        console.log("✅ CV actualizado en la base de datos")
+                        console.log("✅ Perfil Único actualizado en la base de datos")
                         // Actualizar el estado local
                         if (investigadorData) {
                           setInvestigadorData({ ...investigadorData, cv_url: url })
                         }
-                        alert("¡CV subido exitosamente! Recargando página...")
+                        alert("¡Perfil Único subido exitosamente! Recargando página...")
                         // Recargar la página para mostrar el CV
                         window.location.reload()
                       } else {
@@ -422,8 +422,8 @@ export default function DashboardPage() {
                         alert(`Error al actualizar: ${responseData.error || 'Error desconocido'}`)
                       }
                     } catch (error) {
-                      console.error('❌ Error al actualizar CV:', error)
-                      alert('Error al actualizar el CV. Por favor, intenta de nuevo.')
+                      console.error('❌ Error al actualizar Perfil Único:', error)
+                      alert('Error al actualizar el Perfil Único. Por favor, intenta de nuevo.')
                     }
                   }}
                   nombreCompleto={investigadorData?.nombre_completo || "Usuario"}
