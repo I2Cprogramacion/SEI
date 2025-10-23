@@ -206,15 +206,9 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         }
       }
 
-      // Si hay contraseña, hashearla antes de guardar con bcryptjs
-      // El frontend envía 'password', pero algunos lugares usan 'contrasena'
-      if (datos.password) {
-        const salt = await bcrypt.genSalt(10);
-        datos.password = await bcrypt.hash(datos.password, salt);
-      } else if (datos.contrasena) {
-        const salt = await bcrypt.genSalt(10);
-        datos.contrasena = await bcrypt.hash(datos.contrasena, salt);
-      }
+      // NOTA: NO hashear password aquí - Clerk maneja la autenticación
+      // Solo guardamos datos de perfil en PostgreSQL
+      
       // Preparar los campos y valores para la inserción
       const campos = Object.keys(datos).filter((campo) => datos[campo] !== undefined)
       const placeholders = campos.map((_, index) => `$${index + 1}`).join(", ")
