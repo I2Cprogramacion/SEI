@@ -75,6 +75,11 @@ export async function POST(request: NextRequest) {
     for (const campo of camposTabla) {
       datosRegistro[campo] = data[campo] !== undefined ? data[campo] : null;
     }
+    // Guardar el PDF subido para el OCR como cv_url si existe
+    if (data.fotografia_url && !datosRegistro.cv_url && data.archivo_procesado) {
+      // Si hay archivo procesado, usarlo como cv_url (simulación: guardar nombre)
+      datosRegistro.cv_url = data.archivo_procesado;
+    }
     // Validar obligatorios
     if (!datosRegistro.correo) {
       console.error("Falta el correo electrónico")
