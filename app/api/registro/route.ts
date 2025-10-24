@@ -77,8 +77,14 @@ export async function POST(request: NextRequest) {
     }
     // Guardar el PDF subido para el OCR como cv_url si existe
     if (data.fotografia_url && !datosRegistro.cv_url && data.archivo_procesado) {
-      // Si hay archivo procesado, usarlo como cv_url (simulación: guardar nombre)
       datosRegistro.cv_url = data.archivo_procesado;
+    }
+    // Asignar valores por defecto a activo y es_admin si no se reciben
+    if (datosRegistro.activo === null || datosRegistro.activo === undefined) {
+      datosRegistro.activo = true;
+    }
+    if (datosRegistro.es_admin === null || datosRegistro.es_admin === undefined) {
+      datosRegistro.es_admin = false;
     }
     // Validar obligatorios
     if (!datosRegistro.correo) {

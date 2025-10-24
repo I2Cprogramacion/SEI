@@ -91,6 +91,7 @@ export default function DashboardPage() {
   const { signOut } = useClerk()
   const router = useRouter()
   const [investigadorData, setInvestigadorData] = useState<InvestigadorData | null>(null)
+  const [isDesactivando, setIsDesactivando] = useState(false)
   const [sugerencias, setSugerencias] = useState<Sugerencia[]>([])
   const [estadisticas, setEstadisticas] = useState<Estadisticas>({
     publicaciones: 0,
@@ -434,6 +435,35 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
+        {/* Botón para desactivar perfil */}
+        {investigadorData?.activo !== false && (
+          <div className="my-6 flex justify-center">
+            <Button
+              variant="destructive"
+              disabled={isDesactivando}
+              onClick={async () => {
+                setIsDesactivando(true);
+                try {
+                  const response = await fetch("/api/investigadores/desactivar", { method: "POST" });
+                  const result = await response.json();
+                  if (response.ok && result.success) {
+                    alert("Tu perfil ha sido desactivado y ahora está oculto para los demás.");
+                    setInvestigadorData({ ...investigadorData, activo: false });
+                  } else {
+                    alert(result.error || "Error al desactivar el perfil.");
+                  }
+                } catch (err) {
+                  alert("Error de red al desactivar el perfil.");
+                } finally {
+                  setIsDesactivando(false);
+                }
+              }}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Desactivar perfil y ocultar
+            </Button>
+          </div>
+        )}
         {/* Acciones rápidas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="bg-white border-blue-100 hover:shadow-lg transition-shadow cursor-pointer">
