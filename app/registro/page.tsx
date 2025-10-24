@@ -1315,40 +1315,37 @@ export default function RegistroPage() {
                     )}
                   </div>
 
-                    {/* Área de Investigación como tags + input */}
+                    {/* Área de Investigación como textarea grande */}
                     <div className="space-y-2">
-                      <Label htmlFor="area_investigacion_input" className="text-blue-900 font-medium flex items-center gap-2">
+                      <Label htmlFor="area_investigacion" className="text-blue-900 font-medium flex items-center gap-2">
                         <Edit className="h-4 w-4" />
                         Áreas de Investigación *
-                        <span className="text-xs text-blue-600">(Separadas por coma)</span>
+                        <span className="text-xs text-blue-600">(Máximo 500 caracteres)</span>
                       </Label>
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        {formData.area_investigacion.map((area: string, idx: number) => (
-                          <span key={idx} className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">{area}</span>
-                        ))}
-                      </div>
-                      <input
-                        type="text"
-                        id="area_investigacion_input"
-                        placeholder="Agregar áreas separadas por coma"
-                        className={`border rounded px-2 py-1 w-full mb-2 ${formData.area_investigacion.length === 0 && ocrCompleted ? "border-red-300 bg-red-50" : ""}`}
-                        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                          if (e.key === 'Enter' || e.key === ',') {
-                            e.preventDefault();
-                            const value = (e.currentTarget as HTMLInputElement).value;
-                            if (value.trim()) {
-                              const nuevasAreas = value.split(',').map((a: string) => a.trim()).filter(Boolean);
-                              setFormData(prev => ({ ...prev, area_investigacion: [...prev.area_investigacion, ...nuevasAreas] }));
-                              (e.currentTarget as HTMLInputElement).value = '';
-                            }
+                      <Textarea
+                        id="area_investigacion"
+                        placeholder="Describe tus áreas de investigación, especialidades y campos de conocimiento..."
+                        value={formData.area_investigacion.join(', ')}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value.length <= 500) {
+                            const areas = value.split(',').map((area: string) => area.trim()).filter(Boolean);
+                            setFormData(prev => ({ ...prev, area_investigacion: areas }));
                           }
                         }}
+                        className={`min-h-[120px] resize-y ${formData.area_investigacion.length === 0 && ocrCompleted ? "border-red-300 bg-red-50" : ""}`}
+                        maxLength={500}
                       />
-                      {formData.area_investigacion.length === 0 && (
-                        <p className="text-sm text-red-600">
-                          Este campo es obligatorio y debe ser completado manualmente
-                        </p>
-                      )}
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-gray-500">
+                          {formData.area_investigacion.join(', ').length}/500 caracteres
+                        </span>
+                        {formData.area_investigacion.length === 0 && (
+                          <span className="text-red-600">
+                            Este campo es obligatorio
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Línea de Investigación */}

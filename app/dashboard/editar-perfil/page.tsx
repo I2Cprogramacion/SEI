@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { UploadFotografia } from "@/components/upload-fotografia"
+import { TagsInput } from "@/components/ui/tags-input"
 import {
   Loader2,
   CheckCircle,
@@ -38,8 +39,8 @@ interface InvestigadorData {
   telefono: string
   ultimo_grado_estudios: string
   empleo_actual: string
-  linea_investigacion: string
-  area_investigacion: string
+  linea_investigacion: string | string[]
+  area_investigacion: string | string[]
   nacionalidad: string
   fecha_nacimiento: string
   fotografia_url?: string
@@ -55,8 +56,8 @@ interface FormData {
   telefono: string
   ultimo_grado_estudios: string
   empleo_actual: string
-  linea_investigacion: string
-  area_investigacion: string
+  linea_investigacion: string[]
+  area_investigacion: string[]
   nacionalidad: string
   fecha_nacimiento: string
   fotografia_url?: string
@@ -80,8 +81,8 @@ export default function EditarPerfilPage() {
     telefono: "",
     ultimo_grado_estudios: "",
     empleo_actual: "",
-    linea_investigacion: "",
-    area_investigacion: "",
+    linea_investigacion: [],
+    area_investigacion: [],
     nacionalidad: "Mexicana",
     fecha_nacimiento: "",
     fotografia_url: "",
@@ -113,8 +114,12 @@ export default function EditarPerfilPage() {
             telefono: data.telefono || "",
             ultimo_grado_estudios: data.ultimo_grado_estudios || "",
             empleo_actual: data.empleo_actual || "",
-            linea_investigacion: data.linea_investigacion || "",
-            area_investigacion: data.area_investigacion || "",
+            linea_investigacion: typeof data.linea_investigacion === "string" 
+              ? data.linea_investigacion.split(",").map((l: string) => l.trim()).filter(Boolean)
+              : data.linea_investigacion || [],
+            area_investigacion: typeof data.area_investigacion === "string" 
+              ? data.area_investigacion.split(",").map((a: string) => a.trim()).filter(Boolean)
+              : data.area_investigacion || [],
             nacionalidad: data.nacionalidad || "Mexicana",
             fecha_nacimiento: data.fecha_nacimiento || "",
             fotografia_url: data.fotografia_url || "",
@@ -162,13 +167,20 @@ export default function EditarPerfilPage() {
         throw new Error("El teléfono es obligatorio")
       }
 
+      // Preparar datos para envío (convertir arrays a strings)
+      const dataToSend = {
+        ...formData,
+        linea_investigacion: formData.linea_investigacion.join(", "),
+        area_investigacion: formData.area_investigacion.join(", ")
+      }
+
       // Enviar actualización
       const response = await fetch("/api/investigadores/actualizar", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       })
 
       const result = await response.json()
@@ -433,18 +445,13 @@ export default function EditarPerfilPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="linea_investigacion" className="text-blue-900 font-medium flex items-center gap-2">
-                      <Edit className="h-4 w-4" />
-                      Línea de Investigación
-                      <span className="text-xs text-blue-600">(Describe tu área de investigación)</span>
-                    </Label>
-                    <Textarea
-                      id="linea_investigacion"
-                      name="linea_investigacion"
+                    <TagsInput
                       value={formData.linea_investigacion}
-                      onChange={handleChange}
-                      placeholder="Describe detalladamente tu línea de investigación principal, metodologías utilizadas, y objetivos..."
-                      className="bg-white border-blue-200 min-h-[100px]"
+                      onChange={(tags) => setFormData(prev => ({ ...prev, linea_investigacion: tags }))}
+                      label="Línea de Investigación Específica"
+                      placeholder="Agregar líneas de investigación específicas..."
+                      maxTags={10}
+                      className="bg-white border-blue-200"
                     />
                   </div>
 
