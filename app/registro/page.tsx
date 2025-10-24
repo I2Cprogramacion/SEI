@@ -969,8 +969,8 @@ export default function RegistroPage() {
                         <span className="text-xs md:text-sm text-amber-600 font-normal">(Verificar datos)</span>
                       )}
                     </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {/* Columna 1: Nombre(s) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Columna 1: Nombres */}
                       <div className="space-y-2">
                         <Label
                           htmlFor="nombres"
@@ -993,32 +993,7 @@ export default function RegistroPage() {
                         />
                       </div>
 
-                      {/* Columna 3: Teléfono */}
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="telefono"
-                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
-                        >
-                          <Phone className="h-4 w-4" />
-                          Teléfono *
-                        </Label>
-                        <Input
-                          id="telefono"
-                          name="telefono"
-                          value={formData.telefono}
-                          onChange={handleChange}
-                          placeholder="Teléfono"
-                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.telefono.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {/* Columna 1: Apellidos */}
+                      {/* Columna 2: Apellidos */}
                       <div className="space-y-2">
                         <Label
                           htmlFor="apellidos"
@@ -1040,9 +1015,59 @@ export default function RegistroPage() {
                           disabled={false}
                         />
                       </div>
+                    </div>
 
-                      {/* Columna 2-3: Correo Electrónico (ocupa 2 columnas) */}
-                      <div className="space-y-2 sm:col-span-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Columna 1: Teléfono */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="telefono"
+                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
+                        >
+                          <Phone className="h-4 w-4" />
+                          Teléfono *
+                        </Label>
+                        <Input
+                          id="telefono"
+                          name="telefono"
+                          value={formData.telefono}
+                          onChange={handleChange}
+                          placeholder="Teléfono"
+                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
+                            !formData.telefono.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                          }`}
+                          required
+                          disabled={false}
+                        />
+                      </div>
+
+                      {/* Columna 2: Fecha de Nacimiento */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="fecha_nacimiento"
+                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
+                        >
+                          <Calendar className="h-4 w-4" />
+                          Fecha de Nacimiento *
+                        </Label>
+                        <Input
+                          id="fecha_nacimiento"
+                          name="fecha_nacimiento"
+                          type="date"
+                          value={formData.fecha_nacimiento}
+                          onChange={handleChange}
+                          className={`bg-white border-blue-200 text-blue-900 ${
+                            !formData.fecha_nacimiento.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                          }`}
+                          required
+                          disabled={false}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Columna 1: Correo Electrónico */}
+                      <div className="space-y-2">
                         <Label
                           htmlFor="correo"
                           className="text-blue-900 text-sm font-medium flex items-center gap-2"
@@ -1064,27 +1089,28 @@ export default function RegistroPage() {
                           disabled={false}
                         />
                       </div>
-                    </div>
 
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="nacionalidad"
-                        className="text-blue-900 text-sm font-medium flex items-center gap-2"
-                      >
-                        <Flag className="h-4 w-4" />
-                        Nacionalidad *
-                      </Label>
-                      <Input
-                        id="nacionalidad"
-                        name="nacionalidad"
-                        value={formData.nacionalidad}
-                        onChange={handleChange}
-                        className={`bg-white border-blue-200 text-blue-900 ${
-                          !formData.nacionalidad.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                        }`}
-                        required
-                        disabled={false}
-                      />
+                      {/* Columna 2: Nacionalidad */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="nacionalidad"
+                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
+                        >
+                          <Flag className="h-4 w-4" />
+                          Nacionalidad *
+                        </Label>
+                        <Input
+                          id="nacionalidad"
+                          name="nacionalidad"
+                          value={formData.nacionalidad}
+                          onChange={handleChange}
+                          className={`bg-white border-blue-200 text-blue-900 ${
+                            !formData.nacionalidad.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                          }`}
+                          required
+                          disabled={false}
+                        />
+                      </div>
                     </div>
 
                     {/* Fotografía de Perfil */}

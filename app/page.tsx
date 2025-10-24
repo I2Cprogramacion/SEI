@@ -102,8 +102,128 @@ export default function Home() {
           </AnimatedButton>
         </div>
         <RecentProjects />
-      </section>
+        </section>
 
-    </div>
-  )
-}
+        {/* Office Locations */}
+        <section className="py-8 sm:py-12">
+          <div className="text-center mb-8 sm:mb-12 animate-fade-in-up">
+            <h2 className="text-2xl sm:text-3xl font-bold text-blue-900 mb-4">Nuestras Ubicaciones</h2>
+            <p className="text-blue-600 max-w-2xl mx-auto">
+              Visítanos en nuestras oficinas en Chihuahua y Ciudad Juárez para recibir atención personalizada
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+            {/* Oficina Chihuahua */}
+            <AnimatedCard className="glass-effect card-hover" delay={100}>
+              <CardContent className="p-0 overflow-hidden">
+                {/* Header con información */}
+                <div className="p-6 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-bold text-blue-900">Oficina Chihuahua</h3>
+                </div>
+                </div>
+                
+                {/* Mapa embebido */}
+                <div className="h-64 w-full border-t border-gray-100">
+                  <iframe
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent("Calle Cuauhtémoc #1800 int.3 Col. Cuauhtémoc C.P. 31020 Chihuahua, Chih.")}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                </div>
+                
+                {/* Información y botones debajo del mapa */}
+                <div className="p-4 border-t border-gray-100">
+                  <p className="text-blue-600 text-sm mb-3">
+                    Calle Cuauhtémoc #1800 int.3 Col. Cuauhtémoc C.P. 31020 Chihuahua, Chih.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <AnimatedButton 
+                      size="sm" 
+                      variant="outline" 
+                      asChild
+                      className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                    >
+                      <Link href="https://www.google.com/maps/search/?api=1&query=Calle+Cuauhtémoc+1800+Chihuahua" target="_blank">
+                        Ver en Maps
+                      </Link>
+                    </AnimatedButton>
+                    <AnimatedButton size="sm" variant="outline" asChild className="border-blue-200 text-blue-700 hover:bg-blue-50">
+                      <Link href="tel:+526144150986">
+                        (614) 415.09.86
+                      </Link>
+                    </AnimatedButton>
+                  </div>
+                </div>
+              </CardContent>
+            </AnimatedCard>
+
+            {/* Oficina Ciudad Juárez */}
+            <AnimatedCard className="glass-effect card-hover" delay={200}>
+              <CardContent className="p-0 overflow-hidden">
+                {/* Header con información */}
+                <div className="p-6 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-bold text-blue-900">Oficina Ciudad Juárez</h3>
+                </div>
+                </div>
+                
+                {/* Mapa embebido */}
+                <div className="h-64 w-full border-t border-gray-100">
+                  <iframe
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent("Av. Abraham Lincoln #1320, Edificio José Ma. Morelos Oficinas administrativas de Gobierno del Estado (Pueblito Mexicano) Fracc. Córdova Américas, C.P. 32310 Ciudad Juárez, Chih.")}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                </div>
+                
+                {/* Información y botones debajo del mapa */}
+                <div className="p-4 border-t border-gray-100">
+                  <p className="text-blue-600 text-sm mb-3">
+                    Av. Abraham Lincoln #1320, Edificio José Ma. Morelos Oficinas administrativas de Gobierno del Estado (Pueblito Mexicano) Fracc. Córdova Américas, C.P. 32310 Ciudad Juárez, Chih.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <AnimatedButton 
+                      size="sm" 
+                      variant="outline" 
+                      asChild
+                      className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                    >
+                      <Link href="https://www.google.com/maps/search/?api=1&query=Av+Abraham+Lincoln+1320+Ciudad+Juarez" target="_blank">
+                        Ver en Maps
+                      </Link>
+                    </AnimatedButton>
+                    <AnimatedButton size="sm" variant="outline" asChild className="border-blue-200 text-blue-700 hover:bg-blue-50">
+                      <Link href="tel:+526566293300">
+                        (656) 629 33 00
+                      </Link>
+                    </AnimatedButton>
+                  </div>
+                </div>
+              </CardContent>
+            </AnimatedCard>
+          </div>
+        </section>
+
+      </div>
+    )
+  }
