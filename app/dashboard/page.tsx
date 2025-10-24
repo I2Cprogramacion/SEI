@@ -506,7 +506,8 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Zona de peligro - Eliminar cuenta */}
+
+        {/* Zona de peligro - Ocultar perfil y Eliminar cuenta */}
         <div className="mt-8">
           <Card className="bg-white border-red-200">
             <CardHeader>
@@ -519,87 +520,84 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-start justify-between p-4 bg-red-50 rounded-lg border border-red-200">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-red-900">Eliminar Cuenta</h3>
-                  <p className="text-sm text-red-700 mt-1">
-                    Esta acción eliminará permanentemente tu cuenta, todos tus datos del sistema y tu usuario de Clerk. 
-                    <strong className="block mt-1">Esta acción no se puede deshacer.</strong>
-                  </p>
-                </div>
-                <Button
-                  variant="destructive"
-                  className="ml-4 bg-red-600 hover:bg-red-700"
-                  disabled={isDeletingAccount}
-                  onClick={async () => {
-                    setIsDeletingAccount(true);
-                    try {
-                      const response = await fetch("/api/investigadores/eliminar", { method: "POST" });
-                      const result = await response.json();
-                      if (response.ok && result.success) {
-                        alert("Tu usuario ha sido eliminado completamente de la base de datos.");
-                        router.push("/iniciar-sesion");
-                      } else {
-                        alert("Error al eliminar usuario: " + (result.error || "Error desconocido"));
+              <div className="flex flex-col gap-4 p-4 bg-red-50 rounded-lg border border-red-200">
+                {/* Ocultar perfil solo si activo === true */}
+                {investigadorData?.activo !== false && (
+                  <Button
+                    variant="outline"
+                    className="border border-red-400 text-red-700 hover:bg-red-100"
+                    disabled={isDesactivando}
+                    onClick={async () => {
+                      setIsDesactivando(true);
+                      try {
+                        const response = await fetch("/api/investigadores/desactivar", { method: "POST" });
+                        const result = await response.json();
+                        if (response.ok && result.success) {
+                          alert("Tu perfil ha sido ocultado y ahora está invisible para los demás.");
+                          if (investigadorData) {
+                            setInvestigadorData({ ...investigadorData, activo: false });
+                          }
+                        } else {
+                          alert("Error al ocultar perfil: " + (result.error || "Error desconocido"));
+                        }
+                      } catch (error) {
+                        alert("Error al ocultar perfil. Por favor, intenta de nuevo.");
+                      } finally {
+                        setIsDesactivando(false);
                       }
-                    } catch (error) {
-                      alert("Error al eliminar usuario. Por favor, intenta de nuevo.");
-                    } finally {
-                      setIsDeletingAccount(false);
-                    }
-                  }}
-                >
-                  {isDeletingAccount ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Eliminando...
-                    </>
-                  ) : (
-                    <>
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Eliminar Cuenta
-                    </>
-                  )}
-                </Button>
+                    }}
+                  >
+                    Ocultar perfil
+                  </Button>
+                )}
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-red-900">Eliminar Cuenta</h3>
+                    <p className="text-sm text-red-700 mt-1">
+                      Esta acción eliminará permanentemente tu cuenta, todos tus datos del sistema y tu usuario de Clerk. 
+                      <strong className="block mt-1">Esta acción no se puede deshacer.</strong>
+                    </p>
+                  </div>
+                  <Button
+                    variant="destructive"
+                    className="ml-4 bg-red-600 hover:bg-red-700 text-white border-none"
+                    disabled={isDeletingAccount}
+                    onClick={async () => {
+                      setIsDeletingAccount(true);
+                      try {
+                        const response = await fetch("/api/investigadores/eliminar", { method: "POST" });
+                        const result = await response.json();
+                        if (response.ok && result.success) {
+                          alert("Tu usuario ha sido eliminado completamente de la base de datos.");
+                          router.push("/iniciar-sesion");
+                        } else {
+                          alert("Error al eliminar usuario: " + (result.error || "Error desconocido"));
+                        }
+                      } catch (error) {
+                        alert("Error al eliminar usuario. Por favor, intenta de nuevo.");
+                      } finally {
+                        setIsDeletingAccount(false);
+                      }
+                    }}
+                  >
+                    {isDeletingAccount ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Eliminando...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Eliminar Cuenta
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
-        {/* Área de investigación como etiquetas */}
-        <div className="mt-6">
-          <label className="block text-sm font-medium text-blue-700 mb-2">Áreas de investigación</label>
-          <div className="flex flex-wrap gap-2 mb-2">
-            {investigadorData?.area_investigacion?.map((area: string, idx: number) => (
-              <Badge key={idx} variant="outline" className="bg-blue-100 text-blue-700">{area}</Badge>
-            ))}
-          </div>
-          <input
-            type="text"
-            className="border rounded px-2 py-1 w-full mb-2"
-            placeholder="Agregar áreas separadas por coma"
-            value={areasInput}
-            onChange={e => setAreasInput(e.target.value)}
-          />
-          <Button
-            variant="outline"
-            onClick={async () => {
-              if (!areasInput.trim() || !investigadorData) return;
-              const nuevasAreas = areasInput.split(",").map(a => a.trim()).filter(Boolean);
-              const response = await fetch('/api/investigadores/update-areas', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ areas: nuevasAreas })
-              });
-              if (response.ok) {
-                setInvestigadorData({ ...investigadorData, area_investigacion: nuevasAreas });
-                setAreasInput("");
-                alert("Áreas actualizadas correctamente");
-              } else {
-                alert("Error al actualizar áreas");
-              }
-            }}
-          >Agregar áreas</Button>
-        </div>
+
       </div>
 
       {/* Dialog para gestionar CV */}
