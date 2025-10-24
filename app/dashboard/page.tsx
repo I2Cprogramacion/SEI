@@ -7,18 +7,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { 
-  User as UserIcon, 
-  Building, 
-  Award, 
-  FileText, 
-  Phone, 
-  Mail, 
-  Briefcase, 
-  GraduationCap, 
-  MapPin, 
-  Edit, 
-  Loader2, 
+
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { CvViewer } from "@/components/cv-viewer";
+import { UploadCv } from "@/components/upload-cv";
+import { GestionarCvDialog } from "@/components/gestionar-cv-dialog";
+
+import {
+  User as UserIcon,
+  Building,
+  Award,
+  FileText,
+  Phone,
+  Mail,
+  Briefcase,
+  GraduationCap,
+  MapPin,
+  Edit,
+  Loader2,
   AlertCircle,
   Users,
   TrendingUp,
@@ -31,6 +37,7 @@ import {
   Sparkles,
   Trash2
 } from "lucide-react"
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,163 +46,125 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialogTitle
 } from "@/components/ui/alert-dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import Link from "next/link"
-import { CvViewer } from "@/components/cv-viewer"
-import { UploadCv } from "@/components/upload-cv"
-import { GestionarCvDialog } from "@/components/gestionar-cv-dialog"
 
-interface InvestigadorData {
-  id: number
-  nombre_completo: string
-  curp: string
-  rfc: string
-  no_cvu: string
-  correo: string
-  telefono: string
-  ultimo_grado_estudios: string
-  empleo_actual: string
-  linea_investigacion: string
-  area_investigacion: string
-  nacionalidad: string
-  fecha_nacimiento: string
-  fotografia_url?: string
-  cv_url?: string
-}
+// Define missing types
+type Estadisticas = {
+  publicaciones: number;
+  proyectos: number;
+  conexiones: number;
+  perfilCompleto: number;
+};
 
-interface Sugerencia {
-  id: number
-  name: string
-  email: string
-  institution?: string
-  area?: string
-  lineaInvestigacion?: string
-  fotografiaUrl?: string
-  title?: string
-  slug: string
-  razonSugerencia?: string
-}
-
-interface Estadisticas {
-  publicaciones: number
-  proyectos: number
-  conexiones: number
-  perfilCompleto: number
-}
-
+// Main dashboard component
 export default function DashboardPage() {
-  const { user, isLoaded } = useUser()
-  const { signOut } = useClerk()
-  const router = useRouter()
-  const [investigadorData, setInvestigadorData] = useState<InvestigadorData | null>(null)
-  const [sugerencias, setSugerencias] = useState<Sugerencia[]>([])
+  const { user, isLoaded } = useUser();
+  const router = useRouter();
+  const { signOut } = useClerk();
+
+  const [investigadorData, setInvestigadorData] = useState<any>(null);
   const [estadisticas, setEstadisticas] = useState<Estadisticas>({
     publicaciones: 0,
     proyectos: 0,
     conexiones: 0,
     perfilCompleto: 0
-  })
-  const [isLoadingData, setIsLoadingData] = useState(true)
-  const [isLoadingSugerencias, setIsLoadingSugerencias] = useState(true)
-  const [isLoadingEstadisticas, setIsLoadingEstadisticas] = useState(true)
-  const [isDeletingAccount, setIsDeletingAccount] = useState(false)
-  const [gestionarCvDialogOpen, setGestionarCvDialogOpen] = useState(false)
+  });
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [isLoadingSugerencias, setIsLoadingSugerencias] = useState(true);
+  const [isLoadingEstadisticas, setIsLoadingEstadisticas] = useState(true);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [gestionarCvDialogOpen, setGestionarCvDialogOpen] = useState(false);
+  const [sugerencias, setSugerencias] = useState<any>(null);
+  const [isDesactivando, setIsDesactivando] = useState(false);
+  const [areasInput, setAreasInput] = useState("");
 
   // Cargar datos del investigador
   useEffect(() => {
     const cargarDatos = async () => {
-      if (!isLoaded || !user) return
-
+      if (!isLoaded || !user) return;
       try {
-        const response = await fetch("/api/investigadores/perfil")
+        const response = await fetch("/api/investigadores/perfil");
         if (response.ok) {
-          const result = await response.json()
+          const result = await response.json();
           if (result.success && result.data) {
-            setInvestigadorData(result.data)
+            let data = result.data;
+            if (typeof data.area_investigacion === "string") {
+              data.area_investigacion = data.area_investigacion.split(",").map((a: string) => a.trim()).filter(Boolean);
+            }
+            setInvestigadorData(data);
           }
         } else {
-          console.warn("No se pudieron cargar los datos del perfil desde PostgreSQL")
+          console.warn("No se pudieron cargar los datos del perfil desde PostgreSQL");
         }
       } catch (error) {
-        console.error("Error al cargar datos del investigador:", error)
+        console.error("Error al cargar datos del investigador:", error);
       } finally {
-        setIsLoadingData(false)
+        setIsLoadingData(false);
       }
-    }
-
-    cargarDatos()
-  }, [isLoaded, user])
+    };
+    cargarDatos();
+  }, [isLoaded, user]);
 
   // Cargar sugerencias de colaboración
   useEffect(() => {
     const cargarSugerencias = async () => {
-      if (!isLoaded || !user) return
-
+      if (!isLoaded || !user) return;
       try {
-        const response = await fetch("/api/dashboard/sugerencias")
+        const response = await fetch("/api/dashboard/sugerencias");
         if (response.ok) {
-          const data = await response.json()
-          setSugerencias(data)
+          const data = await response.json();
+          setSugerencias(data);
         }
       } catch (error) {
-        console.error("Error al cargar sugerencias:", error)
+        console.error("Error al cargar sugerencias:", error);
       } finally {
-        setIsLoadingSugerencias(false)
+        setIsLoadingSugerencias(false);
       }
-    }
-
-    cargarSugerencias()
-  }, [isLoaded, user])
+    };
+    cargarSugerencias();
+  }, [isLoaded, user]);
 
   // Cargar estadísticas
   useEffect(() => {
     const cargarEstadisticas = async () => {
-      if (!isLoaded || !user) return
-
+      if (!isLoaded || !user) return;
       try {
-        const response = await fetch("/api/dashboard/estadisticas")
+        const response = await fetch("/api/dashboard/estadisticas");
         if (response.ok) {
-          const data = await response.json()
-          setEstadisticas(data)
+          const data = await response.json();
+          setEstadisticas(data);
         }
       } catch (error) {
-        console.error("Error al cargar estadísticas:", error)
+        console.error("Error al cargar estadísticas:", error);
       } finally {
-        setIsLoadingEstadisticas(false)
+        setIsLoadingEstadisticas(false);
       }
-    }
-
-    cargarEstadisticas()
-  }, [isLoaded, user])
+    };
+    cargarEstadisticas();
+  }, [isLoaded, user]);
 
   // Función para eliminar cuenta
   const handleEliminarCuenta = async () => {
-    setIsDeletingAccount(true)
-    
+    setIsDeletingAccount(true);
     try {
       const response = await fetch("/api/usuario/eliminar", {
         method: "DELETE",
-      })
-
-      const data = await response.json()
-
+      });
+      const data = await response.json();
       if (data.success) {
-        // Cerrar sesión de Clerk y redirigir
-        await signOut()
-        router.push("/")
+        await signOut();
+        router.push("/");
       } else {
-        alert(`Error al eliminar cuenta: ${data.error || data.warning}`)
+        alert(`Error al eliminar cuenta: ${data.error || data.warning}`);
       }
     } catch (error) {
-      console.error("Error al eliminar cuenta:", error)
-      alert("Error al eliminar la cuenta. Por favor, intenta de nuevo.")
+      console.error("Error al eliminar cuenta:", error);
+      alert("Error al eliminar la cuenta. Por favor, intenta de nuevo.");
     } finally {
-      setIsDeletingAccount(false)
+      setIsDeletingAccount(false);
     }
-  }
+  };
 
   if (!isLoaded || isLoadingData) {
     return (
@@ -205,11 +174,11 @@ export default function DashboardPage() {
           <p className="mt-4 text-blue-600">Cargando dashboard...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!user) {
-    return null
+    return null;
   }
 
   return (
@@ -434,44 +403,48 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Acciones rápidas */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="bg-white border-blue-100 hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader>
-              <CardTitle className="text-blue-900 flex items-center">
-                <Building className="mr-2 h-5 w-5" />
-                Mi Institución
-              </CardTitle>
-              <CardDescription className="text-blue-600">
-                Gestiona tu información institucional
-              </CardDescription>
-            </CardHeader>
-          </Card>
+        {/* Botón para desactivar perfil */}
+        {investigadorData?.activo !== false && (
+          <div className="my-6 flex justify-center">
+            <Button
+              variant="destructive"
+              disabled={isDesactivando}
+              onClick={async () => {
+                setIsDesactivando(true);
+                try {
+                  const response = await fetch("/api/investigadores/desactivar", { method: "POST" });
+                  const result = await response.json();
+                  if (response.ok && result.success) {
+                    alert("Tu perfil ha sido desactivado y ahora está oculto para los demás.");
+                    if (investigadorData) {
+                      setInvestigadorData({
+                        ...investigadorData,
+                        activo: false
+                      });
+                    }
+                  }
+                } finally {
+                  setIsDesactivando(false);
+                }
+              }}
+            >
+              Desactivar perfil
+            </Button>
+          </div>
+        )}
 
-          <Card className="bg-white border-blue-100 hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader>
-              <CardTitle className="text-blue-900 flex items-center">
-                <Award className="mr-2 h-5 w-5" />
-                Reconocimientos
-              </CardTitle>
-              <CardDescription className="text-blue-600">
-                Ver tus premios y distinciones
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="bg-white border-blue-100 hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader>
-              <CardTitle className="text-blue-900 flex items-center">
-                <FileText className="mr-2 h-5 w-5" />
-                Publicaciones
-              </CardTitle>
-              <CardDescription className="text-blue-600">
-                Gestiona tu producción científica
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
+        {/* Publicaciones */}
+        <Card className="bg-white border-blue-100 hover:shadow-lg transition-shadow cursor-pointer">
+          <CardHeader>
+            <CardTitle className="text-blue-900 flex items-center">
+              <FileText className="mr-2 h-5 w-5" />
+              Publicaciones
+            </CardTitle>
+            <CardDescription className="text-blue-600">
+              Gestiona tu producción científica
+            </CardDescription>
+          </CardHeader>
+        </Card>
 
         {/* Estadísticas */}
         <div className="mt-8">
@@ -554,59 +527,78 @@ export default function DashboardPage() {
                     <strong className="block mt-1">Esta acción no se puede deshacer.</strong>
                   </p>
                 </div>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      className="ml-4 bg-red-600 hover:bg-red-700"
-                      disabled={isDeletingAccount}
-                    >
-                      {isDeletingAccount ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Eliminando...
-                        </>
-                      ) : (
-                        <>
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Eliminar Cuenta
-                        </>
-                      )}
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="text-red-900">
-                        ¿Estás completamente seguro?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription className="text-red-700">
-                        Esta acción <strong>NO SE PUEDE DESHACER</strong>. Se eliminarán permanentemente:
-                        <ul className="list-disc list-inside mt-2 space-y-1">
-                          <li>Todos tus datos personales</li>
-                          <li>Tu perfil de investigador</li>
-                          <li>Tus publicaciones y proyectos</li>
-                          <li>Tus conexiones y mensajes</li>
-                          <li>Tu usuario de Clerk</li>
-                        </ul>
-                        <p className="mt-3 font-semibold">
-                          No podrás recuperar esta información después de eliminar tu cuenta.
-                        </p>
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleEliminarCuenta}
-                        className="bg-red-600 hover:bg-red-700"
-                      >
-                        Sí, eliminar mi cuenta permanentemente
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <Button
+                  variant="destructive"
+                  className="ml-4 bg-red-600 hover:bg-red-700"
+                  disabled={isDeletingAccount}
+                  onClick={async () => {
+                    setIsDeletingAccount(true);
+                    try {
+                      const response = await fetch("/api/investigadores/eliminar", { method: "POST" });
+                      const result = await response.json();
+                      if (response.ok && result.success) {
+                        alert("Tu usuario ha sido eliminado completamente de la base de datos.");
+                        router.push("/iniciar-sesion");
+                      } else {
+                        alert("Error al eliminar usuario: " + (result.error || "Error desconocido"));
+                      }
+                    } catch (error) {
+                      alert("Error al eliminar usuario. Por favor, intenta de nuevo.");
+                    } finally {
+                      setIsDeletingAccount(false);
+                    }
+                  }}
+                >
+                  {isDeletingAccount ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Eliminando...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Eliminar Cuenta
+                    </>
+                  )}
+                </Button>
               </div>
             </CardContent>
           </Card>
+        </div>
+        {/* Área de investigación como etiquetas */}
+        <div className="mt-6">
+          <label className="block text-sm font-medium text-blue-700 mb-2">Áreas de investigación</label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {investigadorData?.area_investigacion?.map((area: string, idx: number) => (
+              <Badge key={idx} variant="outline" className="bg-blue-100 text-blue-700">{area}</Badge>
+            ))}
+          </div>
+          <input
+            type="text"
+            className="border rounded px-2 py-1 w-full mb-2"
+            placeholder="Agregar áreas separadas por coma"
+            value={areasInput}
+            onChange={e => setAreasInput(e.target.value)}
+          />
+          <Button
+            variant="outline"
+            onClick={async () => {
+              if (!areasInput.trim() || !investigadorData) return;
+              const nuevasAreas = areasInput.split(",").map(a => a.trim()).filter(Boolean);
+              const response = await fetch('/api/investigadores/update-areas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ areas: nuevasAreas })
+              });
+              if (response.ok) {
+                setInvestigadorData({ ...investigadorData, area_investigacion: nuevasAreas });
+                setAreasInput("");
+                alert("Áreas actualizadas correctamente");
+              } else {
+                alert("Error al actualizar áreas");
+              }
+            }}
+          >Agregar áreas</Button>
         </div>
       </div>
 

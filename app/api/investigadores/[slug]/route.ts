@@ -20,8 +20,8 @@ export async function GET(
       )
     }
 
-    // Buscar investigador por slug en PostgreSQL
-    const result = await sql`
+    // Buscar por slug primero
+    let result = await sql`
       SELECT 
         id,
         COALESCE(clerk_user_id, '') as "clerkUserId",
@@ -66,8 +66,60 @@ export async function GET(
       FROM investigadores
       WHERE slug = ${slug}
       LIMIT 1
-    `
-
+    `;
+    // Si no se encontró por slug, intentar por id si el slug es tipo investigador-{id}
+    if (result.length === 0 && slug.startsWith('investigador-')) {
+      const idStr = slug.replace('investigador-', '');
+      const id = parseInt(idStr);
+      if (!isNaN(id)) {
+        result = await sql`
+          SELECT 
+            id,
+            COALESCE(clerk_user_id, '') as "clerkUserId",
+            nombre_completo as name,
+            correo as email,
+            curp,
+            rfc,
+            no_cvu as "noCvu",
+            telefono,
+            institucion as institution,
+            area,
+            area_investigacion as "areaInvestigacion",
+            linea_investigacion as "lineaInvestigacion",
+            fotografia_url as "fotografiaUrl",
+            ultimo_grado_estudios as title,
+            empleo_actual as "empleoActual",
+            fecha_nacimiento as "fechaNacimiento",
+            nacionalidad,
+            orcid,
+            nivel,
+            domicilio,
+            cp,
+            grado_maximo_estudios as "gradoMaximoEstudios",
+            disciplina,
+            especialidad,
+            sni,
+            anio_sni as "anioSni",
+            experiencia_docente as "experienciaDocente",
+            experiencia_laboral as "experienciaLaboral",
+            proyectos_investigacion as "proyectosInvestigacion",
+            proyectos_vinculacion as "proyectosVinculacion",
+            libros,
+            capitulos_libros as "capitulosLibros",
+            articulos,
+            premios_distinciones as "premiosDistinciones",
+            idiomas,
+            colaboracion_internacional as "colaboracionInternacional",
+            colaboracion_nacional as "colaboracionNacional",
+            cv_url as "cvUrl",
+            slug,
+            entidad_federativa as location
+          FROM investigadores
+          WHERE id = ${id}
+          LIMIT 1
+        `;
+      }
+    }
     if (result.length === 0) {
       return NextResponse.json(
         { error: "Investigador no encontrado" },
