@@ -64,6 +64,7 @@ interface InvestigadorData {
   fecha_nacimiento: string
   fotografia_url?: string
   cv_url?: string
+  activo: boolean
 }
 
 interface Sugerencia {
@@ -448,7 +449,27 @@ export default function DashboardPage() {
                   const result = await response.json();
                   if (response.ok && result.success) {
                     alert("Tu perfil ha sido desactivado y ahora está oculto para los demás.");
-                    setInvestigadorData({ ...investigadorData, activo: false });
+                    if (investigadorData) {
+                      setInvestigadorData({
+                        ...investigadorData,
+                        activo: false,
+                        id: investigadorData.id,
+                        nombre_completo: investigadorData.nombre_completo,
+                        curp: investigadorData.curp,
+                        rfc: investigadorData.rfc,
+                        no_cvu: investigadorData.no_cvu,
+                        correo: investigadorData.correo,
+                        telefono: investigadorData.telefono,
+                        ultimo_grado_estudios: investigadorData.ultimo_grado_estudios,
+                        empleo_actual: investigadorData.empleo_actual,
+                        linea_investigacion: investigadorData.linea_investigacion,
+                        area_investigacion: investigadorData.area_investigacion,
+                        nacionalidad: investigadorData.nacionalidad,
+                        fecha_nacimiento: investigadorData.fecha_nacimiento,
+                        fotografia_url: investigadorData.fotografia_url,
+                        cv_url: investigadorData.cv_url
+                      });
+                    }
                   } else {
                     alert(result.error || "Error al desactivar el perfil.");
                   }
