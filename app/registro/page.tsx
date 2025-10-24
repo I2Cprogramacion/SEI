@@ -41,38 +41,38 @@ import {
 const FILE_CONSTRAINTS = {
   MAX_SIZE_MB: 2,
   ACCEPTED_TYPE: "application/pdf",
-  MAX_SIZE_BYTES: 2 * 1024 * 1024,
-}
+  MAX_SIZE_BYTES: 2 * 1024 * 1024
+};
 
 const PASSWORD_REQUIREMENTS = {
   MIN_LENGTH: 8,
-  MIN_SCORE: 4,
-}
+  MIN_SCORE: 4
+};
 
 const RATE_LIMITS = {
   MAX_ATTEMPTS: 3,
-  LOCKOUT_DURATION_MS: 60000,
-}
+  LOCKOUT_DURATION_MS: 60000
+};
 
 // Types
 interface FormData {
-  nombres: string
-  apellidos: string
-  nombre_completo: string // Se generará automáticamente
-  curp: string
-  rfc: string
-  no_cvu: string
-  correo: string
-  telefono: string
-  ultimo_grado_estudios: string
-  empleo_actual: string
-  linea_investigacion: string[]
-  area_investigacion: string
-  nacionalidad: string
-  fecha_nacimiento: string
-  password: string
-  confirm_password: string
-  fotografia_url?: string
+  nombres: string;
+  apellidos: string;
+  nombre_completo: string; // Se generará automáticamente
+  curp: string;
+  rfc: string;
+  no_cvu: string;
+  correo: string;
+  telefono: string;
+  ultimo_grado_estudios: string;
+  empleo_actual: string;
+  linea_investigacion: string[];
+  area_investigacion: string[];
+  nacionalidad: string;
+  fecha_nacimiento: string;
+  password: string;
+  confirm_password: string;
+  fotografia_url?: string;
 }
 
 interface PasswordValidation {
@@ -376,7 +376,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
           {showPassword ? <EyeOff className="h-4 w-4 text-gray-500" /> : <Eye className="h-4 w-4 text-gray-500" />}
         </Button>
       </div>
-    </div>
+  </div>
   )
 }
 
@@ -473,20 +473,11 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
                 validation.score >= 4 ? "bg-green-500" : validation.score >= 3 ? "bg-yellow-500" : "bg-red-500"
               }`}
               style={{ width: `${(validation.score / 5) * 100}%` }}
-            ></div>
+            />
           </div>
         </div>
       </div>
-
-      {confirmPassword && (
-        <div className={`flex items-center gap-2 text-sm ${passwordsMatch ? "text-green-600" : "text-red-600"}`}>
-          {passwordsMatch ? <CheckCircle className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
-          {passwordsMatch ? "Las contraseñas coinciden" : "Las contraseñas no coinciden"}
-        </div>
-      )}
-    </div>
-  )
-}
+      </div>
 
 // Main Component
 export default function RegistroPage() {
@@ -519,36 +510,34 @@ export default function RegistroPage() {
 
   const passwordsMatch = formData.password === formData.confirm_password
 
-  const requiredFields = useMemo(
-    () => [
-      { field: "nombres", label: "Nombre(s)" },
-      { field: "apellidos", label: "Apellidos" },
-      { field: "correo", label: "Correo Electrónico" },
-      { field: "telefono", label: "Teléfono" },
-      { field: "ultimo_grado_estudios", label: "Último Grado de Estudios" },
-      { field: "empleo_actual", label: "Empleo Actual" },
-      { field: "linea_investigacion", label: "Línea de Investigación" },
-      { field: "area_investigacion", label: "Área de Investigación" },
-      { field: "nacionalidad", label: "Nacionalidad" },
-      { field: "fecha_nacimiento", label: "Fecha de Nacimiento" },
-      { field: "no_cvu", label: "CVU/PU" },
-      { field: "curp", label: "CURP" },
-      { field: "rfc", label: "RFC" },
-      { field: "password", label: "Contraseña" },
-      { field: "confirm_password", label: "Confirmar Contraseña" },
-    ],
-    []
-  )
+  const requiredFields = [
+    { field: "nombres", label: "Nombre(s)" },
+    { field: "apellidos", label: "Apellidos" },
+    { field: "correo", label: "Correo Electrónico" },
+    { field: "telefono", label: "Teléfono" },
+    { field: "ultimo_grado_estudios", label: "Último Grado de Estudios" },
+    { field: "empleo_actual", label: "Empleo Actual" },
+    { field: "linea_investigacion", label: "Línea de Investigación" },
+    { field: "area_investigacion", label: "Área de Investigación" },
+    { field: "nacionalidad", label: "Nacionalidad" },
+    { field: "fecha_nacimiento", label: "Fecha de Nacimiento" },
+    { field: "no_cvu", label: "CVU/PU" },
+    { field: "curp", label: "CURP" },
+    { field: "rfc", label: "RFC" },
+    { field: "password", label: "Contraseña" },
+    { field: "confirm_password", label: "Confirmar Contraseña" },
+  ];
 
-  const emptyFields = useMemo(() => {
-    return requiredFields.filter((field) => {
-      const value = formData[field.field as keyof FormData]
-      if (field.field === 'linea_investigacion') {
-        return !Array.isArray(value) || value.length === 0
-      }
-      return !value?.trim()
-    })
-  }, [formData, requiredFields])
+  const emptyFields = requiredFields.filter((field) => {
+    const value = formData[field.field as keyof FormData];
+    if (typeof value === 'string') {
+      return !value.trim();
+    }
+    if (Array.isArray(value)) {
+      return value.length === 0;
+    }
+    return !value;
+  });
 
   const isFormComplete = emptyFields.length === 0
 
@@ -958,18 +947,15 @@ export default function RegistroPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {(
-                  <Alert className="mb-4 md:mb-6 bg-gradient-to-r from-red-50 to-pink-50 border-red-200 shadow-sm">
-                    <AlertCircle className="h-5 w-5 text-red-600" />
-                    <AlertTitle className="text-red-800 font-semibold">
-                      🔍 Todos los campos son obligatorios
-                    </AlertTitle>
-                    <AlertDescription className="text-red-700">
-                      <strong>No puedes completar el registro si algún campo está vacío.</strong> Revisa cada campo
-                      cuidadosamente y asegúrate de que toda la información esté completa y correcta.
-                    </AlertDescription>
-                  </Alert>
-                )}
+                <Alert className="mb-4 md:mb-6 bg-gradient-to-r from-red-50 to-pink-50 border-red-200 shadow-sm">
+                  <AlertCircle className="h-5 w-5 text-red-600" />
+                  <AlertTitle className="text-red-800 font-semibold">
+                    🔍 Todos los campos son obligatorios
+                  </AlertTitle>
+                  <AlertDescription className="text-red-700">
+                    <strong>No puedes completar el registro si algún campo está vacío.</strong> Revisa cada campo cuidadosamente y asegúrate de que toda la información esté completa y correcta.
+                  </AlertDescription>
+                </Alert>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Información Personal */}
@@ -997,31 +983,8 @@ export default function RegistroPage() {
                           value={formData.nombres}
                           onChange={handleChange}
                           placeholder="Nombre(s)"
-                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.nombres.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
-                      </div>
-
-                      {/* Columna 2: Fecha de Nacimiento */}
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="fecha_nacimiento"
-                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
-                        >
-                          <Calendar className="h-4 w-4" />
-                          Fecha de Nacimiento *
-                        </Label>
-                        <Input
-                          id="fecha_nacimiento"
-                          name="fecha_nacimiento"
-                          type="date"
-                          value={formData.fecha_nacimiento}
-                          onChange={handleChange}
                           className={`bg-white border-blue-200 text-blue-900 ${
-                            !formData.fecha_nacimiento.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                            !formData.nombres.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
                           disabled={false}
@@ -1324,44 +1287,36 @@ export default function RegistroPage() {
                     )}
                   </div>
 
-                  {/* Área y Línea de Investigación */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
-                      <Edit className="h-5 w-5" />
-                      Área y Línea de Investigación
-                      <span className="text-sm text-blue-600 font-normal">(Captura manual requerida)</span>
-                    </h3>
-                    <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-sm">
-                      <Edit className="h-4 w-4 text-blue-600" />
-                      <AlertTitle className="text-blue-800 font-semibold">Captura manual requerida</AlertTitle>
-                      <AlertDescription className="text-blue-700">
-                        Estos campos requieren que describas manualmente tu área y línea de investigación.
-                      </AlertDescription>
-                    </Alert>
-                    
-                    {/* Área o Campo de Investigación */}
+                    {/* Área de Investigación como tags + input */}
                     <div className="space-y-2">
-                      <Label
-                        htmlFor="area_investigacion"
-                        className="text-blue-900 font-medium flex items-center gap-2"
-                      >
+                      <Label htmlFor="area_investigacion_input" className="text-blue-900 font-medium flex items-center gap-2">
                         <Edit className="h-4 w-4" />
-                        Área o Campo de Investigación *
-                        <span className="text-xs text-blue-600">(Escribir manualmente)</span>
+                        Áreas de Investigación *
+                        <span className="text-xs text-blue-600">(Separadas por coma)</span>
                       </Label>
-                      <Textarea
-                        id="area_investigacion"
-                        name="area_investigacion"
-                        value={formData.area_investigacion}
-                        onChange={handleChange}
-                        placeholder="Describe tu área o campo general de investigación (ej: Ciencias Exactas, Ingeniería, Ciencias de la Computación, Biotecnología, Ciencias Sociales, Humanidades, etc.)..."
-                        className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 min-h-[100px] ${
-                          !formData.area_investigacion.trim() ? "border-red-300 bg-red-50" : ""
-                        }`}
-                        required
-                        disabled={false}
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {formData.area_investigacion.map((area: string, idx: number) => (
+                          <span key={idx} className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">{area}</span>
+                        ))}
+                      </div>
+                      <input
+                        type="text"
+                        id="area_investigacion_input"
+                        placeholder="Agregar áreas separadas por coma"
+                        className={`border rounded px-2 py-1 w-full mb-2 ${formData.area_investigacion.length === 0 && ocrCompleted ? "border-red-300 bg-red-50" : ""}`}
+                        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                          if (e.key === 'Enter' || e.key === ',') {
+                            e.preventDefault();
+                            const value = (e.currentTarget as HTMLInputElement).value;
+                            if (value.trim()) {
+                              const nuevasAreas = value.split(',').map((a: string) => a.trim()).filter(Boolean);
+                              setFormData(prev => ({ ...prev, area_investigacion: [...prev.area_investigacion, ...nuevasAreas] }));
+                              (e.currentTarget as HTMLInputElement).value = '';
+                            }
+                          }
+                        }}
                       />
-                      {!formData.area_investigacion.trim() && (
+                      {formData.area_investigacion.length === 0 && (
                         <p className="text-sm text-red-600">
                           Este campo es obligatorio y debe ser completado manualmente
                         </p>
@@ -1372,7 +1327,7 @@ export default function RegistroPage() {
                     <div className="space-y-2">
                       <TagsInput
                         value={formData.linea_investigacion}
-                        onChange={(tags) => setFormData(prev => ({ ...prev, linea_investigacion: tags }))}
+                        onChange={(tags: string[]) => setFormData(prev => ({ ...prev, linea_investigacion: tags }))}
                         label="Línea de Investigación Específica"
                         placeholder="Escribe una línea de investigación y presiona Enter para agregarla"
                         maxTags={5}
@@ -1389,7 +1344,7 @@ export default function RegistroPage() {
                         <p>Ejemplos: "Inteligencia Artificial", "Biotecnología", "Energías Renovables", "Ciencias de Datos"</p>
                       </div>
                     </div>
-                  </div>
+                  {/* Fin de bloque principal del formulario */}
 
                   {error && (
                     <Alert variant="destructive" className="bg-red-50 border-red-200 text-red-700">
@@ -1400,33 +1355,31 @@ export default function RegistroPage() {
                   )}
 
                   {/* Indicador de completitud del formulario */}
-                  {(
-                    <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-4 border border-gray-200">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700">
-                          Progreso del formulario: {14 - emptyFields.length}/14 campos completos
+                  <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700">
+                        Progreso del formulario: {14 - emptyFields.length}/14 campos completos
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {isFormComplete && passwordValidation.isValid && passwordsMatch ? (
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                        ) : (
+                          <AlertCircle className="h-5 w-5 text-amber-600" />
+                        )}
+                        <span
+                          className={`text-sm font-medium ${
+                            isFormComplete && passwordValidation.isValid && passwordsMatch
+                              ? "text-green-600"
+                              : "text-amber-600"
+                          }`}
+                        >
+                          {isFormComplete && passwordValidation.isValid && passwordsMatch
+                            ? "Formulario completo"
+                            : "Campos faltantes o contraseña insegura"}
                         </span>
-                        <div className="flex items-center gap-2">
-                          {isFormComplete && passwordValidation.isValid && passwordsMatch ? (
-                            <CheckCircle className="h-5 w-5 text-green-600" />
-                          ) : (
-                            <AlertCircle className="h-5 w-5 text-amber-600" />
-                          )}
-                          <span
-                            className={`text-sm font-medium ${
-                              isFormComplete && passwordValidation.isValid && passwordsMatch
-                                ? "text-green-600"
-                                : "text-amber-600"
-                            }`}
-                          >
-                            {isFormComplete && passwordValidation.isValid && passwordsMatch
-                              ? "Formulario completo"
-                              : "Campos faltantes o contraseña insegura"}
-                          </span>
-                        </div>
                       </div>
                     </div>
-                  )}
+                  </div>
 
                   {/* CAPTCHA DESHABILITADO TEMPORALMENTE */}
                   {/* <div className="flex justify-center my-6">
@@ -1499,8 +1452,6 @@ export default function RegistroPage() {
                 </form>
               </CardContent>
             </Card>
-          </div>
-
           {/* Footer */}
           <div className="text-center text-sm text-blue-600 max-w-md mx-auto">
             <p>
@@ -1516,5 +1467,3 @@ export default function RegistroPage() {
         </div>
       </div>
     </div>
-  )
-}
