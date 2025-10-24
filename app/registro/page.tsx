@@ -99,7 +99,7 @@ const initialFormData: FormData = {
   ultimo_grado_estudios: "",
   empleo_actual: "",
   linea_investigacion: [],
-  area_investigacion: "",
+  area_investigacion: [],
   nacionalidad: "Mexicana",
   fecha_nacimiento: "",
   password: "",
@@ -477,7 +477,9 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
           </div>
         </div>
       </div>
-      </div>
+    </div>
+  )
+}
 
 // Main Component
 export default function RegistroPage() {
@@ -1452,6 +1454,7 @@ export default function RegistroPage() {
                 </form>
               </CardContent>
             </Card>
+          </div>
           {/* Footer */}
           <div className="text-center text-sm text-blue-600 max-w-md mx-auto">
             <p>
@@ -1467,3 +1470,5 @@ export default function RegistroPage() {
         </div>
       </div>
     </div>
+  )
+}
