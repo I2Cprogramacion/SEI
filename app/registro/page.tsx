@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { UploadFotografia } from "@/components/upload-fotografia"
+import { TagsInput } from "@/components/ui/tags-input"
 import {
   Info,
   AlertCircle,
@@ -65,7 +66,7 @@ interface FormData {
   telefono: string
   ultimo_grado_estudios: string
   empleo_actual: string
-  linea_investigacion: string
+  linea_investigacion: string[]
   area_investigacion: string
   nacionalidad: string
   fecha_nacimiento: string
@@ -97,7 +98,7 @@ const initialFormData: FormData = {
   telefono: "",
   ultimo_grado_estudios: "",
   empleo_actual: "",
-  linea_investigacion: "",
+  linea_investigacion: [],
   area_investigacion: "",
   nacionalidad: "Mexicana",
   fecha_nacimiento: "",
@@ -540,7 +541,13 @@ export default function RegistroPage() {
   )
 
   const emptyFields = useMemo(() => {
-    return requiredFields.filter((field) => !formData[field.field as keyof FormData]?.trim())
+    return requiredFields.filter((field) => {
+      const value = formData[field.field as keyof FormData]
+      if (field.field === 'linea_investigacion') {
+        return !Array.isArray(value) || value.length === 0
+      }
+      return !value?.trim()
+    })
   }, [formData, requiredFields])
 
   const isFormComplete = emptyFields.length === 0
@@ -790,6 +797,10 @@ export default function RegistroPage() {
           // PASO 2: Si Clerk tuvo éxito, guardar en PostgreSQL con el clerk_user_id
           const dataToSend = {
             ...formData,
+            // Convertir array de etiquetas a string separado por comas
+            linea_investigacion: Array.isArray(formData.linea_investigacion) 
+              ? formData.linea_investigacion.join(', ') 
+              : formData.linea_investigacion,
             // Asegurar que nombre_completo existe (la BD lo requiere)
             nombre_completo: formData.nombre_completo || `${formData.nombres || ''} ${formData.apellidos || ''}`.trim(),
             clerk_user_id: signUpAttempt.createdUserId, // ID de Clerk para vincular
@@ -1359,31 +1370,24 @@ export default function RegistroPage() {
 
                     {/* Línea de Investigación */}
                     <div className="space-y-2">
-                      <Label
-                        htmlFor="linea_investigacion"
-                        className="text-blue-900 font-medium flex items-center gap-2"
-                      >
-                        <Edit className="h-4 w-4" />
-                        Línea de Investigación Específica *
-                        <span className="text-xs text-blue-600">(Escribir manualmente)</span>
-                      </Label>
-                      <Textarea
-                        id="linea_investigacion"
-                        name="linea_investigacion"
+                      <TagsInput
                         value={formData.linea_investigacion}
-                        onChange={handleChange}
-                        placeholder="Describe detalladamente tu línea específica de investigación, metodologías utilizadas, y objetivos de tu trabajo académico..."
-                        className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 min-h-[120px] ${
-                          !formData.linea_investigacion.trim() ? "border-red-300 bg-red-50" : ""
-                        }`}
+                        onChange={(tags) => setFormData(prev => ({ ...prev, linea_investigacion: tags }))}
+                        label="Línea de Investigación Específica"
+                        placeholder="Escribe una línea de investigación y presiona Enter para agregarla"
+                        maxTags={5}
                         required
                         disabled={false}
+                        className={formData.linea_investigacion.length === 0 ? "border-red-300" : ""}
                       />
-                      {!formData.linea_investigacion.trim() && (
+                      {formData.linea_investigacion.length === 0 && (
                         <p className="text-sm text-red-600">
-                          Este campo es obligatorio y debe ser completado manualmente
+                          Este campo es obligatorio. Agrega al menos una línea de investigación.
                         </p>
                       )}
+                      <div className="text-xs text-blue-600">
+                        <p>Ejemplos: "Inteligencia Artificial", "Biotecnología", "Energías Renovables", "Ciencias de Datos"</p>
+                      </div>
                     </div>
                   </div>
 
