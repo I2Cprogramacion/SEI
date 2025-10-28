@@ -68,7 +68,12 @@ export async function POST(request: NextRequest) {
     console.log("==================================================")
     // Validar y normalizar nombres de variables
     const camposTabla = [
-      "nombre_completo", "nombres", "apellidos", "correo", "clerk_user_id", "area_investigacion", "institucion", "fotografia_url", "slug", "curp", "rfc", "no_cvu", "telefono", "nacionalidad", "fecha_nacimiento", "genero", "tipo_perfil", "nivel_investigador", "nivel_tecnologo", "municipio", "cv_url", "fecha_registro", "origen", "es_admin", "estado_nacimiento", "entidad_federativa", "orcid", "empleo_actual", "nivel_actual", "institucion_id", "activo"
+      "nombre_completo", "nombres", "apellidos", "correo", "clerk_user_id", 
+      "linea_investigacion", "area_investigacion", "institucion", "fotografia_url", 
+      "slug", "curp", "rfc", "no_cvu", "telefono", "nacionalidad", "fecha_nacimiento", 
+      "genero", "tipo_perfil", "nivel_investigador", "nivel_tecnologo", "municipio", 
+      "cv_url", "fecha_registro", "origen", "es_admin", "estado_nacimiento", 
+      "entidad_federativa", "orcid", "empleo_actual", "nivel_actual", "institucion_id", "activo"
     ];
     // Eliminar campos no válidos y asegurar que todos los obligatorios estén presentes
     const datosRegistro: any = {};
