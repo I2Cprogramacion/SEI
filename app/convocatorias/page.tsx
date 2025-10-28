@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CalendarDays, Clock, Download, ExternalLink } from "lucide-react"
+import { CrearConvocatoriaDialog } from "@/components/crear-convocatoria-dialog"
+import { ConvocatoriaPdfViewer } from "@/components/convocatoria-pdf-viewer"
 
 // Interfaces para tipos de datos
 interface Convocatoria {
-  id: number
+  id: string
   titulo: string
   organizacion: string
   descripcion: string
@@ -17,30 +19,27 @@ interface Convocatoria {
   montoMaximo: string
   categoria: string
   estado: string
+  pdfUrl?: string
 }
 
 export default function ConvocatoriasPage() {
   const [convocatorias, setConvocatorias] = useState<Convocatoria[]>([])
   const [loading, setLoading] = useState(true)
 
-  // TODO: Conectar con API real
-  useEffect(() => {
-    const fetchConvocatorias = async () => {
-      try {
-        setLoading(true)
-        // const response = await fetch('/api/convocatorias')
-        // const data = await response.json()
-        // setConvocatorias(data)
-
-        // Por ahora, datos vacíos
-        setConvocatorias([])
-      } catch (error) {
-        console.error("Error fetching convocatorias:", error)
-      } finally {
-        setLoading(false)
-      }
+  const fetchConvocatorias = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/convocatorias')
+      const data = await response.json()
+      setConvocatorias(data)
+    } catch (error) {
+      console.error("Error fetching convocatorias:", error)
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchConvocatorias()
   }, [])
 
@@ -71,11 +70,14 @@ export default function ConvocatoriasPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-blue-900">Convocatorias</h1>
-          <p className="text-blue-600">
-            Encuentra las convocatorias abiertas para financiamiento de proyectos de investigación en Chihuahua
-          </p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold text-blue-900">Convocatorias</h1>
+            <p className="text-blue-600">
+              Encuentra las convocatorias abiertas para financiamiento de proyectos de investigación en Chihuahua
+            </p>
+          </div>
+          <CrearConvocatoriaDialog onConvocatoriaCreada={fetchConvocatorias} />
         </div>
 
         {loading ? (
@@ -133,20 +135,26 @@ export default function ConvocatoriasPage() {
                           : "Convocatoria cerrada"}
                       </span>
                     </div>
-                    <div className="flex items-center text-sm font-medium text-blue-900">
-                      <span>Monto máximo: {convocatoria.montoMaximo}</span>
-                    </div>
                   </div>
                 </CardContent>
-                <CardFooter className="border-t border-blue-100 pt-4 flex justify-between">
-                  <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent">
-                    <Download className="mr-2 h-4 w-4" />
-                    Descargar bases
-                  </Button>
-                  <Button className="bg-blue-700 text-white hover:bg-blue-800">
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    Ver detalles
-                  </Button>
+                <CardFooter className="border-t border-blue-100 pt-4">
+                  {convocatoria.pdfUrl ? (
+                    <ConvocatoriaPdfViewer
+                      pdfUrl={convocatoria.pdfUrl}
+                      titulo={convocatoria.titulo}
+                      triggerText="Descargar bases"
+                      triggerVariant="outline"
+                    />
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
+                      disabled
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Sin bases disponibles
+                    </Button>
+                  )}
                 </CardFooter>
               </Card>
             ))}

@@ -140,6 +140,21 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         `)
       } catch (alterError) {
       }
+      
+      // Agregar nuevos campos
+      try {
+        await this.client.query(`
+          ALTER TABLE investigadores 
+          ADD COLUMN IF NOT EXISTS genero VARCHAR(50),
+          ADD COLUMN IF NOT EXISTS tipo_perfil VARCHAR(20) DEFAULT 'INVESTIGADOR',
+          ADD COLUMN IF NOT EXISTS nivel_investigador VARCHAR(100),
+          ADD COLUMN IF NOT EXISTS nivel_tecnologo VARCHAR(100),
+          ADD COLUMN IF NOT EXISTS municipio VARCHAR(100)
+        `)
+        console.log('✅ Columnas genero, tipo_perfil, nivel_investigador, nivel_tecnologo y municipio agregadas/verificadas')
+      } catch (alterError) {
+        console.log('⚠️ Error al agregar columnas nuevas (posiblemente ya existen):', alterError)
+      }
     } catch (error) {
       throw error
     }

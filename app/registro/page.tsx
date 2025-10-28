@@ -35,7 +35,17 @@ import {
   EyeOff,
   Lock,
   Shield,
+  MapPin,
+  Award,
+  Users2,
 } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 // Constants
 const FILE_CONSTRAINTS = {
@@ -70,6 +80,11 @@ interface FormData {
   area_investigacion: string[];
   nacionalidad: string;
   fecha_nacimiento: string;
+  genero: string;
+  tipo_perfil: string;
+  nivel_investigador: string;
+  nivel_tecnologo: string;
+  municipio: string;
   password: string;
   confirm_password: string;
   fotografia_url?: string;
@@ -87,6 +102,76 @@ interface PasswordValidation {
   isValid: boolean
 }
 
+const MUNICIPIOS_CHIHUAHUA = [
+  "Ahumada",
+  "Aldama",
+  "Allende",
+  "Aquiles Serdán",
+  "Ascensión",
+  "Bachíniva",
+  "Balleza",
+  "Batopilas de Manuel Gómez Morín",
+  "Bocoyna",
+  "Buenaventura",
+  "Camargo",
+  "Carichí",
+  "Casas Grandes",
+  "Coronado",
+  "Coyame del Sotol",
+  "La Cruz",
+  "Cuauhtémoc",
+  "Cusihuiriachi",
+  "Chihuahua",
+  "Chínipas",
+  "Delicias",
+  "Dr. Belisario Domínguez",
+  "Galeana",
+  "Santa Isabel",
+  "Gómez Farías",
+  "Gran Morelos",
+  "Guachochi",
+  "Guadalupe",
+  "Guadalupe y Calvo",
+  "Guazapares",
+  "Guerrero",
+  "Hidalgo del Parral",
+  "Huejotitán",
+  "Ignacio Zaragoza",
+  "Janos",
+  "Jiménez",
+  "Juárez",
+  "Julimes",
+  "López",
+  "Madera",
+  "Maguarichi",
+  "Manuel Benavides",
+  "Matachí",
+  "Matamoros",
+  "Meoqui",
+  "Morelos",
+  "Moris",
+  "Namiquipa",
+  "Nonoava",
+  "Nuevo Casas Grandes",
+  "Ocampo",
+  "Ojinaga",
+  "Praxedis G. Guerrero",
+  "Riva Palacio",
+  "Rosales",
+  "Rosario",
+  "San Francisco de Borja",
+  "San Francisco de Conchos",
+  "San Francisco del Oro",
+  "Santa Bárbara",
+  "Satevó",
+  "Saucillo",
+  "Temósachic",
+  "El Tule",
+  "Urique",
+  "Uruachi",
+  "Valle de Zaragoza",
+];
+
 const initialFormData: FormData = {
   nombres: "",
   apellidos: "",
@@ -102,6 +187,11 @@ const initialFormData: FormData = {
   area_investigacion: [],
   nacionalidad: "Mexicana",
   fecha_nacimiento: "",
+  genero: "",
+  tipo_perfil: "INVESTIGADOR",
+  nivel_investigador: "",
+  nivel_tecnologo: "",
+  municipio: "",
   password: "",
   confirm_password: "",
   fotografia_url: "",
@@ -512,6 +602,7 @@ export default function RegistroPage() {
 
   const passwordsMatch = formData.password === formData.confirm_password
 
+  // Campos requeridos dinámicos según tipo de perfil
   const requiredFields = [
     { field: "nombres", label: "Nombre(s)" },
     { field: "apellidos", label: "Apellidos" },
@@ -523,6 +614,13 @@ export default function RegistroPage() {
     { field: "area_investigacion", label: "Área de Investigación" },
     { field: "nacionalidad", label: "Nacionalidad" },
     { field: "fecha_nacimiento", label: "Fecha de Nacimiento" },
+    { field: "genero", label: "Género" },
+    { field: "tipo_perfil", label: "Tipo de Perfil" },
+    ...(formData.tipo_perfil === "INVESTIGADOR" 
+      ? [{ field: "nivel_investigador", label: "Nivel de Investigador" }]
+      : [{ field: "nivel_tecnologo", label: "Nivel de Tecnólogo" }]
+    ),
+    { field: "municipio", label: "Municipio" },
     { field: "no_cvu", label: "CVU/PU" },
     { field: "curp", label: "CURP" },
     { field: "rfc", label: "RFC" },
@@ -561,6 +659,13 @@ export default function RegistroPage() {
       
       return updated
     })
+  }, [])
+
+  const handleSelectChange = useCallback((name: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
   }, [])
 
   const handleFileChange = useCallback(
@@ -1110,6 +1215,180 @@ export default function RegistroPage() {
                           required
                           disabled={false}
                         />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Columna 1: Género */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="genero"
+                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
+                        >
+                          <Users2 className="h-4 w-4" />
+                          Género *
+                        </Label>
+                        <Select 
+                          value={formData.genero} 
+                          onValueChange={(value) => handleSelectChange("genero", value)}
+                        >
+                          <SelectTrigger 
+                            className={`bg-white border-blue-200 text-blue-900 ${
+                              !formData.genero && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                            }`}
+                          >
+                            <SelectValue placeholder="Selecciona género" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Masculino">Masculino</SelectItem>
+                            <SelectItem value="Femenino">Femenino</SelectItem>
+                            <SelectItem value="Prefiero no decirlo">Prefiero no decirlo</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Columna 2: Tipo de Perfil */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="tipo_perfil"
+                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
+                        >
+                          <Award className="h-4 w-4" />
+                          Tipo de Perfil *
+                        </Label>
+                        <Select 
+                          value={formData.tipo_perfil} 
+                          onValueChange={(value) => {
+                            handleSelectChange("tipo_perfil", value)
+                            // Limpiar el nivel cuando cambia el tipo
+                            if (value === "INVESTIGADOR") {
+                              handleSelectChange("nivel_tecnologo", "")
+                            } else {
+                              handleSelectChange("nivel_investigador", "")
+                            }
+                          }}
+                        >
+                          <SelectTrigger 
+                            className={`bg-white border-blue-200 text-blue-900 ${
+                              !formData.tipo_perfil && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                            }`}
+                          >
+                            <SelectValue placeholder="Selecciona tipo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="INVESTIGADOR">Investigador</SelectItem>
+                            <SelectItem value="TECNOLOGO">Tecnólogo</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Nivel dinámico según tipo de perfil */}
+                    <div className="grid grid-cols-1 gap-4">
+                      {formData.tipo_perfil === "INVESTIGADOR" ? (
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="nivel_investigador"
+                            className="text-blue-900 text-sm font-medium flex items-center gap-2"
+                          >
+                            <Award className="h-4 w-4" />
+                            Nivel de Investigador *
+                          </Label>
+                          <Select 
+                            value={formData.nivel_investigador} 
+                            onValueChange={(value) => handleSelectChange("nivel_investigador", value)}
+                          >
+                            <SelectTrigger 
+                              className={`bg-white border-blue-200 text-blue-900 ${
+                                !formData.nivel_investigador && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                              }`}
+                            >
+                              <SelectValue placeholder="Selecciona nivel" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Candidato a investigador estatal">Candidato a investigador estatal</SelectItem>
+                              <SelectItem value="Investigador estatal nivel I">Investigador estatal nivel I</SelectItem>
+                              <SelectItem value="Investigador estatal nivel II">Investigador estatal nivel II</SelectItem>
+                              <SelectItem value="Investigador estatal nivel III">Investigador estatal nivel III</SelectItem>
+                              <SelectItem value="Investigador excepcional">Investigador excepcional</SelectItem>
+                              <SelectItem value="Investigador insignia">Investigador insignia</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-blue-600 mt-1">
+                            Selecciona el nivel que corresponda a tu trayectoria científica
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="nivel_tecnologo"
+                            className="text-blue-900 text-sm font-medium flex items-center gap-2"
+                          >
+                            <Award className="h-4 w-4" />
+                            Nivel de Tecnólogo *
+                          </Label>
+                          <Select 
+                            value={formData.nivel_tecnologo} 
+                            onValueChange={(value) => handleSelectChange("nivel_tecnologo", value)}
+                          >
+                            <SelectTrigger 
+                              className={`bg-white border-blue-200 text-blue-900 ${
+                                !formData.nivel_tecnologo && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                              }`}
+                            >
+                              <SelectValue placeholder="Selecciona nivel" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Tecnólogo Nivel A">
+                                <div className="flex flex-col">
+                                  <span className="font-medium">Tecnólogo Nivel A</span>
+                                  <span className="text-xs text-gray-500">Estudiantes o egresados recientes</span>
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="Tecnólogo Nivel B">
+                                <div className="flex flex-col">
+                                  <span className="font-medium">Tecnólogo Nivel B</span>
+                                  <span className="text-xs text-gray-500">Profesionales con experiencia comprobable</span>
+                                </div>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-blue-600 mt-1">
+                            Nivel A: Proyectos iniciales | Nivel B: Experiencia comprobable
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4">
+                      {/* Municipio */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="municipio"
+                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
+                        >
+                          <MapPin className="h-4 w-4" />
+                          Municipio *
+                        </Label>
+                        <Select 
+                          value={formData.municipio} 
+                          onValueChange={(value) => handleSelectChange("municipio", value)}
+                        >
+                          <SelectTrigger 
+                            className={`bg-white border-blue-200 text-blue-900 ${
+                              !formData.municipio && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                            }`}
+                          >
+                            <SelectValue placeholder="Selecciona municipio" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            {MUNICIPIOS_CHIHUAHUA.map((municipio) => (
+                              <SelectItem key={municipio} value={municipio}>
+                                {municipio}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
 
