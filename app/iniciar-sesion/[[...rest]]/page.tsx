@@ -1,19 +1,50 @@
 "use client"
 
 import { SignIn } from "@clerk/nextjs"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, BookOpen } from "lucide-react"
 import Link from "next/link"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 export default function IniciarSesionPage() {
-  // Limpiar datos guardados de Clerk al cargar la página
+  const [key, setKey] = useState(0)
+  const [mounted, setMounted] = useState(false)
+  
+  // Limpiar COMPLETAMENTE y forzar remount
   useEffect(() => {
-    // Limpiar el localStorage de Clerk relacionado con identificadores
-    const keysToRemove = Object.keys(localStorage).filter(key => 
-      key.includes('clerk') || key.includes('identifier')
-    );
-    keysToRemove.forEach(key => localStorage.removeItem(key));
-  }, []);
+    // Limpiar TODO agresivamente
+    try {
+      // Limpiar localStorage
+      localStorage.clear()
+      sessionStorage.clear()
+      
+      // Limpiar cookies de Clerk
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`)
+      })
+    } catch (e) {
+      console.log('Error limpiando:', e)
+    }
+    
+    // Forzar remount completo del componente SignIn
+    setKey(Date.now())
+    
+    // Pequeño delay para asegurar limpieza
+    setTimeout(() => setMounted(true), 100)
+  }, [])
+  
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-blue-600 font-medium">Preparando inicio de sesión...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4">
       <div className="w-full max-w-md mx-auto">
@@ -27,24 +58,22 @@ export default function IniciarSesionPage() {
         </Link>
 
         {/* Logo y título */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
+        <div className="text-center mb-6">
+          <div className="flex justify-center mb-3">
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-600 via-blue-700 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl">
+              <BookOpen className="w-12 h-12 text-white" strokeWidth={2.5} />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-blue-900 mb-2">
+          <h1 className="text-4xl font-bold text-blue-900 mb-2">
             Bienvenido de vuelta
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 font-medium">
             Sistema Estatal de Investigadores de Chihuahua
           </p>
         </div>
 
-        {/* Formulario de inicio de sesión */}
-        <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+        {/* Formulario de inicio de sesión - CON KEY ÚNICA */}
+        <div key={key} className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
           <SignIn 
             appearance={{
               elements: {
@@ -72,10 +101,7 @@ export default function IniciarSesionPage() {
             path="/iniciar-sesion"
             signUpUrl="/registro"
             afterSignInUrl="/dashboard"
-            afterSignUpUrl="/registro/exito"
-            redirectUrl="/dashboard"
-            signUpFallbackRedirectUrl="/registro/exito"
-            signInFallbackRedirectUrl="/dashboard"
+            fallbackRedirectUrl="/dashboard"
           />
         </div>
 
