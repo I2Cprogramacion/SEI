@@ -177,15 +177,20 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         await this.conectar()
       }
 
-  const curp = datos.curp?.trim() || ""
-  const nombre = datos.nombre_completo?.trim() || ""
-  const correo = datos.correo?.trim() || ""
+      console.log("💾 ========== GUARDANDO INVESTIGADOR ==========")
+      console.log("Datos recibidos:", JSON.stringify(datos, null, 2))
+
+      const curp = datos.curp?.trim() || ""
+      const nombre = datos.nombre_completo?.trim() || ""
+      const correo = datos.correo?.trim() || ""
+      
       if (curp && curp !== "") {
         const existenteCurp = await this.client.query(
           'SELECT * FROM investigadores WHERE curp = $1',
           [curp]
         )
         if (existenteCurp.rows.length > 0) {
+          console.log("❌ CURP ya existe:", curp)
           return {
             success: false,
             message: `⚠️ El CURP ${curp} ya existe en el sistema. Si ya tienes cuenta, inicia sesión.`,
@@ -193,25 +198,40 @@ export class PostgreSQLDatabase implements DatabaseInterface {
         }
       }
 
-  // Clerk maneja la autenticación, solo guardamos datos de perfil
+      // Clerk maneja la autenticación, solo guardamos datos de perfil
       
       // Preparar los campos y valores para la inserción
-      const campos = Object.keys(datos).filter((campo) => datos[campo] !== undefined)
+      const campos = Object.keys(datos).filter((campo) => datos[campo] !== undefined && datos[campo] !== null)
       const placeholders = campos.map((_, index) => `$${index + 1}`).join(", ")
       const valores = campos.map((campo) => datos[campo])
 
+      console.log("📋 Campos a insertar:", campos)
+      console.log("📋 Valores:", valores)
 
       // Construir la consulta SQL
-      const query = `INSERT INTO investigadores (${campos.join(", ")}) VALUES (${placeholders}) RETURNING id`;
+      const query = `INSERT INTO investigadores (${campos.join(", ")}) VALUES (${placeholders}) RETURNING id, nombre_completo, correo, clerk_user_id`;
+      
+      console.log("🔧 Query SQL:", query)
 
       // Ejecutar la consulta
       const result = await this.client.query(query, valores)
+      
+      console.log("✅ REGISTRO EXITOSO:")
+      console.log("   - ID:", result.rows[0].id)
+      console.log("   - Nombre:", result.rows[0].nombre_completo)
+      console.log("   - Correo:", result.rows[0].correo)
+      console.log("   - Clerk User ID:", result.rows[0].clerk_user_id)
+      console.log("===============================================")
+      
       return {
         success: true,
         message: `Registro exitoso para ${nombre}`,
         id: result.rows[0].id,
       }
     } catch (error) {
+      console.error("❌ ========== ERROR AL GUARDAR ==========")
+      console.error("Error:", error)
+      console.error("========================================")
       return {
         success: false,
         message: `Error al guardar: ${error instanceof Error ? error.message : "Error desconocido"}`,
