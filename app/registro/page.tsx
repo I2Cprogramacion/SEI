@@ -885,6 +885,22 @@ export default function RegistroPage() {
             password: formData.password,
           })
 
+          console.log("🔍 SignUp Attempt:", {
+            createdUserId: signUpAttempt.createdUserId,
+            id: signUpAttempt.id,
+            status: signUpAttempt.status
+          })
+
+          // Obtener el clerk_user_id (puede estar en createdUserId o en id)
+          const clerkUserId = signUpAttempt.createdUserId || signUpAttempt.id
+
+          if (!clerkUserId) {
+            console.error("❌ No se pudo obtener clerk_user_id de Clerk:", signUpAttempt)
+            throw new Error("Error al crear usuario en Clerk: no se obtuvo ID")
+          }
+
+          console.log("✅ Clerk User ID obtenido:", clerkUserId)
+
           // Preparar verificación de email
           await signUp.prepareEmailAddressVerification({
             strategy: "email_code",
@@ -899,12 +915,14 @@ export default function RegistroPage() {
               : formData.linea_investigacion,
             // Asegurar que nombre_completo existe (la BD lo requiere)
             nombre_completo: formData.nombre_completo || `${formData.nombres || ''} ${formData.apellidos || ''}`.trim(),
-            clerk_user_id: signUpAttempt.createdUserId, // ID de Clerk para vincular
+            clerk_user_id: clerkUserId, // ID de Clerk para vincular (garantizado no-null)
             fecha_registro: new Date().toISOString(),
             origen: "ocr",
             archivo_procesado: selectedFile?.name || "",
             // NO enviar password (ya está en Clerk)
           }
+
+          console.log("📤 Enviando a PostgreSQL con clerk_user_id:", dataToSend.clerk_user_id)
 
           // Eliminar password y confirm_password antes de enviar a PostgreSQL
           const { password, confirm_password, ...dataToSendWithoutPasswords } = dataToSend
