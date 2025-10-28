@@ -283,6 +283,38 @@ BEGIN
     END IF;
 END $$;
 
+-- tipo_perfil: INVESTIGADOR o TECNOLOGO
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name='investigadores' AND column_name='tipo_perfil'
+    ) THEN
+        ALTER TABLE investigadores ADD COLUMN tipo_perfil VARCHAR(20) DEFAULT 'INVESTIGADOR';
+        RAISE NOTICE '✅ tipo_perfil agregada';
+    ELSE
+        RAISE NOTICE '⏭️  tipo_perfil ya existe';
+    END IF;
+END $$;
+
+-- nivel_tecnologo_id: Relación con niveles_tecnologo
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name='investigadores' AND column_name='nivel_tecnologo_id'
+    ) THEN
+        ALTER TABLE investigadores ADD COLUMN nivel_tecnologo_id VARCHAR(100);
+        RAISE NOTICE '✅ nivel_tecnologo_id agregada';
+    ELSE
+        RAISE NOTICE '⏭️  nivel_tecnologo_id ya existe';
+    END IF;
+END $$;
+    ELSE
+        RAISE NOTICE '⏭️  archivo_procesado ya existe';
+    END IF;
+END $$;
+
 -- ================================================================
 -- PARTE 6: GENERAR SLUGS PARA REGISTROS EXISTENTES
 -- ================================================================
