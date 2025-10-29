@@ -253,20 +253,28 @@ export default function DashboardPage() {
             {/* Foto y datos básicos */}
             <div className="flex items-start gap-6">
               <Avatar className="h-24 w-24">
-                <AvatarImage src={investigadorData?.fotografia_url || ""} alt={investigadorData?.nombre_completo || "Usuario"} />
+                {investigadorData?.fotografia_url && investigadorData.fotografia_url.trim() !== "" ? (
+                  <AvatarImage src={investigadorData.fotografia_url} alt={investigadorData?.nombre_completo || "Usuario"} />
+                ) : null}
                 <AvatarFallback className="bg-blue-100 text-blue-700 text-2xl">
-                  {(investigadorData?.nombre_completo || user.fullName || "U").charAt(0).toUpperCase()}
+                  {(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== ""
+                    ? investigadorData.nombre_completo
+                    : user.fullName || "U").charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-blue-900">
-                  {investigadorData?.nombre_completo || user.fullName || user.firstName || "Usuario"}
+                  {(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== "")
+                    ? investigadorData.nombre_completo
+                    : user.fullName || user.firstName || "Usuario"}
                 </h2>
                 <p className="text-blue-600 flex items-center gap-2 mt-1">
                   <Mail className="h-4 w-4" />
-                  {investigadorData?.correo || user.primaryEmailAddress?.emailAddress || "No disponible"}
+                  {(investigadorData?.correo && investigadorData.correo.trim() !== "")
+                    ? investigadorData.correo
+                    : user.primaryEmailAddress?.emailAddress || "No disponible"}
                 </p>
-                {investigadorData?.telefono && (
+                {investigadorData?.telefono && investigadorData.telefono.trim() !== "" && (
                   <p className="text-blue-600 flex items-center gap-2 mt-1">
                     <Phone className="h-4 w-4" />
                     {investigadorData.telefono}
@@ -278,7 +286,7 @@ export default function DashboardPage() {
             {/* Información detallada */}
             {investigadorData && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-blue-100">
-                {investigadorData.empleo_actual && (
+                {investigadorData.empleo_actual && investigadorData.empleo_actual.trim() !== "" && (
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
                       <Briefcase className="h-4 w-4" />
@@ -288,7 +296,7 @@ export default function DashboardPage() {
                   </div>
                 )}
                 
-                {investigadorData.ultimo_grado_estudios && (
+                {investigadorData.ultimo_grado_estudios && investigadorData.ultimo_grado_estudios.trim() !== "" && (
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
                       <GraduationCap className="h-4 w-4" />
@@ -298,44 +306,34 @@ export default function DashboardPage() {
                   </div>
                 )}
 
-                {investigadorData.area_investigacion && investigadorData.area_investigacion.length > 0 && (
+                {Array.isArray(investigadorData.area_investigacion) && investigadorData.area_investigacion.length > 0 && (
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
                       <Award className="h-4 w-4" />
                       Área de Investigación
                     </label>
-                    <p className="text-blue-900">
-                      {Array.isArray(investigadorData.area_investigacion) 
-                        ? investigadorData.area_investigacion.join(', ')
-                        : investigadorData.area_investigacion
-                      }
-                    </p>
+                    <p className="text-blue-900">{investigadorData.area_investigacion.join(', ')}</p>
                   </div>
                 )}
 
-                {investigadorData.linea_investigacion && investigadorData.linea_investigacion.length > 0 && (
+                {Array.isArray(investigadorData.linea_investigacion) && investigadorData.linea_investigacion.length > 0 && (
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
                       <FileText className="h-4 w-4" />
                       Línea de Investigación
                     </label>
-                    <p className="text-blue-900">
-                      {Array.isArray(investigadorData.linea_investigacion) 
-                        ? investigadorData.linea_investigacion.join(', ')
-                        : investigadorData.linea_investigacion
-                      }
-                    </p>
+                    <p className="text-blue-900">{investigadorData.linea_investigacion.join(', ')}</p>
                   </div>
                 )}
 
-                {investigadorData.no_cvu && (
+                {investigadorData.no_cvu && investigadorData.no_cvu.trim() !== "" && (
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-blue-700">CVU/PU</label>
                     <p className="text-blue-900">{investigadorData.no_cvu}</p>
                   </div>
                 )}
 
-                {investigadorData.nacionalidad && (
+                {investigadorData.nacionalidad && investigadorData.nacionalidad.trim() !== "" && (
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
                       <MapPin className="h-4 w-4" />
