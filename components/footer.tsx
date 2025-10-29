@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { ChevronUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
@@ -43,25 +44,54 @@ export default function Footer() {
   return (
     <footer className="border-t border-blue-100 py-8 bg-gradient-to-b from-blue-50/50 to-white backdrop-blur-sm relative">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col items-center justify-center">
-          <h4 className="font-semibold mb-4 text-blue-900">Términos Legales</h4>
-          <ul className="flex flex-wrap gap-6 justify-center mb-6">
-            <li>
-              <Link href="/terminos" className="text-blue-600 hover:text-blue-900 transition-colors">
-                Términos de servicio
-              </Link>
-            </li>
-            <li>
-              <Link href="/privacidad" className="text-blue-600 hover:text-blue-900 transition-colors">
-                Política de privacidad
-              </Link>
-            </li>
-            <li>
-              <Link href="/cookies" className="text-blue-600 hover:text-blue-900 transition-colors">
-                Política de cookies
-              </Link>
-            </li>
-          </ul>
+        <div className="flex flex-col items-center justify-center space-y-6">
+          {/* Logos Institucionales */}
+          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+            <div className="flex justify-center">
+              <Image
+                src="/images/cuenta-conmigo-logo.png"
+                alt="Cuenta Conmigo"
+                width={200}
+                height={80}
+                className="object-contain transition-transform duration-300 hover:scale-105"
+                priority={false}
+              />
+            </div>
+            <div className="flex justify-center">
+              <Image
+                src="/images/image-removebg-preview (2).png"
+                alt="Gobierno del Estado de Chihuahua - Instituto de Innovación y Competitividad"
+                width={400}
+                height={120}
+                className="object-contain transition-transform duration-300 hover:scale-105"
+                priority={false}
+              />
+            </div>
+          </div>
+
+          {/* Términos Legales */}
+          <div className="flex flex-col items-center">
+            <h4 className="font-semibold mb-4 text-blue-900">Términos Legales</h4>
+            <ul className="flex flex-wrap gap-6 justify-center mb-6">
+              <li>
+                <Link href="/terminos" className="text-blue-600 hover:text-blue-900 transition-colors">
+                  Términos de servicio
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacidad" className="text-blue-600 hover:text-blue-900 transition-colors">
+                  Política de privacidad
+                </Link>
+              </li>
+              <li>
+                <Link href="/cookies" className="text-blue-600 hover:text-blue-900 transition-colors">
+                  Política de cookies
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Copyright */}
           <div className="text-center text-blue-600">
             <p>
               © {new Date().getFullYear()} SECCTI - Sistema Estatal de Ciencia, Tecnología e Innovación de Chihuahua.

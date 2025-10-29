@@ -394,16 +394,6 @@ export default function PublicacionesPage() {
                 </Link>
               </AnimatedButton>
               <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogTrigger asChild>
-                  <Button 
-                    onClick={openNewModal}
-                    className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 w-full sm:w-auto hidden"
-                    size="sm"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    <span className="text-sm sm:text-base">Subir publicación (old)</span>
-                  </Button>
-                </DialogTrigger>
                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
                   <DialogHeader>
                     <DialogTitle>

@@ -416,36 +416,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Botón para desactivar perfil */}
-        {investigadorData?.activo !== false && (
-          <div className="my-6 flex justify-center">
-            <Button
-              variant="destructive"
-              disabled={isDesactivando}
-              onClick={async () => {
-                setIsDesactivando(true);
-                try {
-                  const response = await fetch("/api/investigadores/desactivar", { method: "POST" });
-                  const result = await response.json();
-                  if (response.ok && result.success) {
-                    alert("Tu perfil ha sido desactivado y ahora está oculto para los demás.");
-                    if (investigadorData) {
-                      setInvestigadorData({
-                        ...investigadorData,
-                        activo: false
-                      });
-                    }
-                  }
-                } finally {
-                  setIsDesactivando(false);
-                }
-              }}
-            >
-              Desactivar perfil
-            </Button>
-          </div>
-        )}
-
         {/* Publicaciones */}
         <Card className="bg-white border-blue-100 hover:shadow-lg transition-shadow cursor-pointer">
           <CardHeader>

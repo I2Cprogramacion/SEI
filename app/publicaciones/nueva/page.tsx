@@ -227,8 +227,8 @@ export default function NuevaPublicacionPage() {
 
   // Remover palabra clave
   const handleRemovePalabraClave = (palabra: string) => {
-      setFormData(prev => ({
-        ...prev,
+    setFormData(prev => ({
+      ...prev,
       palabrasClave: prev.palabrasClave.filter(p => p !== palabra)
     }))
   }
@@ -338,7 +338,7 @@ export default function NuevaPublicacionPage() {
     if (!url) return true // URL es opcional
     try {
       new URL(url)
-    return true
+      return true
     } catch {
       return false
     }
