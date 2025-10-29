@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { currentUser } from "@clerk/nextjs/server"
-import { getDatabase } from "@/lib/database-config"
+import { getDatabase, getCurrentConfigString } from "@/lib/database-config"
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,7 +22,6 @@ export async function GET(request: NextRequest) {
 
   // Obtener datos del investigador desde PostgreSQL
   // Imprimir la cadena de conexión activa para debug de entorno
-  const { getCurrentConfigString } = await import('@/lib/database-config');
   console.log('🌐 DB Connection:', getCurrentConfigString());
   const db = await getDatabase()
 
