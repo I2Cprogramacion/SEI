@@ -68,26 +68,65 @@ const RATE_LIMITS = {
 interface FormData {
   nombres: string;
   apellidos: string;
-  nombre_completo: string; // Se generará automáticamente
+  nombre_completo: string;
   curp: string;
   rfc: string;
   no_cvu: string;
   correo: string;
   telefono: string;
-  ultimo_grado_estudios: string;
-  empleo_actual: string;
-  linea_investigacion: string[];
-  area_investigacion: string[];
+  fotografia_url?: string;
   nacionalidad: string;
   fecha_nacimiento: string;
   genero: string;
-  tipo_perfil: string;
-  nivel_investigador: string;
-  nivel_tecnologo: string;
   municipio: string;
+  estado_nacimiento?: string;
+  entidad_federativa?: string;
+  institucion_id?: string | null;
+  institucion?: string;
+  departamento?: string;
+  ubicacion?: string;
+  sitio_web?: string;
+  ultimo_grado_estudios: string;
+  grado_maximo_estudios?: string;
+  empleo_actual: string;
+  linea_investigacion: string[];
+  area_investigacion: string[];
+  disciplina?: string;
+  area_investigacionRaw?: string;
+  especialidad?: string;
+  orcid?: string;
+  nivel?: string;
+  nivel_investigador: string;
+  nivel_actual_id?: string | null;
+  fecha_asignacion_nivel?: string | null;
+  puntaje_total?: number;
+  estado_evaluacion?: string;
+  articulos?: string;
+  libros?: string;
+  capitulos_libros?: string;
+  proyectos_investigacion?: string;
+  proyectos_vinculacion?: string;
+  experiencia_docente?: string;
+  experiencia_laboral?: string;
+  premios_distinciones?: string;
+  idiomas?: string;
+  colaboracion_internacional?: string;
+  colaboracion_nacional?: string;
+  sni?: string;
+  anio_sni?: string | null;
+  cv_url?: string;
+  tipo_perfil: string;
+  nivel_tecnologo_id?: string | null;
+  nivel_tecnologo?: string;
+  archivo_procesado?: string;
+  fecha_registro?: string;
+  origen?: string;
+  slug?: string;
+  clerk_user_id?: string;
+  activo?: boolean;
+  es_admin?: boolean;
   password: string;
   confirm_password: string;
-  fotografia_url?: string;
 }
 
 interface PasswordValidation {
@@ -603,6 +642,7 @@ export default function RegistroPage() {
   const passwordsMatch = formData.password === formData.confirm_password
 
   // Campos requeridos dinámicos según tipo de perfil
+  // Definir exactamente 17 campos requeridos, contando solo linea_investigacion y area_investigacion como un campo cada uno
   const requiredFields = [
     { field: "nombres", label: "Nombre(s)" },
     { field: "apellidos", label: "Apellidos" },
@@ -630,11 +670,12 @@ export default function RegistroPage() {
 
   const emptyFields = requiredFields.filter((field) => {
     const value = formData[field.field as keyof FormData];
+    if (Array.isArray(value)) {
+      // Solo requiere al menos un elemento
+      return value.length === 0;
+    }
     if (typeof value === 'string') {
       return !value.trim();
-    }
-    if (Array.isArray(value)) {
-      return value.length === 0;
     }
     return !value;
   });
@@ -885,48 +926,87 @@ export default function RegistroPage() {
             password: formData.password,
           })
 
-          console.log("🔍 SignUp Attempt:", {
-            createdUserId: signUpAttempt.createdUserId,
-            id: signUpAttempt.id,
-            status: signUpAttempt.status
-          })
-
           // Obtener el clerk_user_id (puede estar en createdUserId o en id)
           const clerkUserId = signUpAttempt.createdUserId || signUpAttempt.id
 
           if (!clerkUserId) {
-            console.error("❌ No se pudo obtener clerk_user_id de Clerk:", signUpAttempt)
             throw new Error("Error al crear usuario en Clerk: no se obtuvo ID")
           }
 
-          console.log("✅ Clerk User ID obtenido:", clerkUserId)
-
-          // Preparar verificación de email
           await signUp.prepareEmailAddressVerification({
             strategy: "email_code",
           })
 
-          // PASO 2: Si Clerk tuvo éxito, guardar en PostgreSQL con el clerk_user_id
+          // PASO 2: Mapear y enviar todos los campos requeridos a PostgreSQL
           const dataToSend = {
-            ...formData,
-            // Convertir array de etiquetas a string separado por comas
-            linea_investigacion: Array.isArray(formData.linea_investigacion) 
-              ? formData.linea_investigacion.join(', ') 
-              : formData.linea_investigacion,
-            // Asegurar que nombre_completo existe (la BD lo requiere)
+            // Datos personales
             nombre_completo: formData.nombre_completo || `${formData.nombres || ''} ${formData.apellidos || ''}`.trim(),
-            clerk_user_id: clerkUserId, // ID de Clerk para vincular (garantizado no-null)
+            nombres: formData.nombres,
+            apellidos: formData.apellidos,
+            correo: formData.correo,
+            curp: formData.curp,
+            rfc: formData.rfc,
+            no_cvu: formData.no_cvu,
+            telefono: formData.telefono,
+            fotografia_url: formData.fotografia_url || "",
+            nacionalidad: formData.nacionalidad,
+            fecha_nacimiento: formData.fecha_nacimiento,
+            genero: formData.genero,
+            municipio: formData.municipio,
+            estado_nacimiento: formData.estado_nacimiento || "",
+            entidad_federativa: formData.entidad_federativa || "",
+
+            // Datos académicos/profesionales
+            institucion_id: formData.institucion_id || null,
+            institucion: formData.institucion || "",
+            departamento: formData.departamento || "",
+            ubicacion: formData.ubicacion || "",
+            sitio_web: formData.sitio_web || "",
+            ultimo_grado_estudios: formData.ultimo_grado_estudios,
+            grado_maximo_estudios: formData.grado_maximo_estudios || "",
+            empleo_actual: formData.empleo_actual,
+            linea_investigacion: Array.isArray(formData.linea_investigacion) ? formData.linea_investigacion.join(', ') : formData.linea_investigacion,
+            area_investigacion: Array.isArray(formData.area_investigacion) ? formData.area_investigacion.join(', ') : formData.area_investigacion,
+            disciplina: formData.disciplina || "",
+            especialidad: formData.especialidad || "",
+            orcid: formData.orcid || "",
+            nivel: formData.nivel || "",
+            nivel_investigador: formData.nivel_investigador || "",
+            nivel_actual_id: formData.nivel_actual_id || null,
+            fecha_asignacion_nivel: formData.fecha_asignacion_nivel || null,
+            puntaje_total: formData.puntaje_total || 0,
+            estado_evaluacion: formData.estado_evaluacion || "PENDIENTE",
+
+            // Producción y experiencia
+            articulos: formData.articulos || "",
+            libros: formData.libros || "",
+            capitulos_libros: formData.capitulos_libros || "",
+            proyectos_investigacion: formData.proyectos_investigacion || "",
+            proyectos_vinculacion: formData.proyectos_vinculacion || "",
+            experiencia_docente: formData.experiencia_docente || "",
+            experiencia_laboral: formData.experiencia_laboral || "",
+            premios_distinciones: formData.premios_distinciones || "",
+            idiomas: formData.idiomas || "",
+            colaboracion_internacional: formData.colaboracion_internacional || "",
+            colaboracion_nacional: formData.colaboracion_nacional || "",
+            sni: formData.sni || "",
+            anio_sni: formData.anio_sni || null,
+            cv_url: formData.cv_url || "",
+
+            // Control y sistema
+            tipo_perfil: formData.tipo_perfil,
+            nivel_tecnologo_id: formData.nivel_tecnologo_id || null,
+            nivel_tecnologo: formData.nivel_tecnologo || "",
+            archivo_procesado: selectedFile?.name || "",
             fecha_registro: new Date().toISOString(),
             origen: "ocr",
-            archivo_procesado: selectedFile?.name || "",
-            // NO enviar password (ya está en Clerk)
-          }
-
-          console.log("📤 Enviando a PostgreSQL con clerk_user_id:", dataToSend.clerk_user_id)
+            slug: formData.slug || "",
+            clerk_user_id: clerkUserId,
+            activo: true,
+            es_admin: false
+          };
 
           // Eliminar password y confirm_password antes de enviar a PostgreSQL
-          const { password, confirm_password, ...dataToSendWithoutPasswords } = dataToSend
-
           // Guardar en PostgreSQL (sin password, está en Clerk)
           try {
             const response = await fetch("/api/registro", {
@@ -934,61 +1014,37 @@ export default function RegistroPage() {
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify(dataToSendWithoutPasswords),
-            })
+              body: JSON.stringify(dataToSend),
+            });
 
-            const responseData = await response.json()
+            const responseData = await response.json();
 
             if (!response.ok) {
-              console.error("❌ ERROR AL GUARDAR EN POSTGRESQL:", responseData)
-              console.error("❌ Status:", response.status)
-              console.error("❌ Response completa:", JSON.stringify(responseData, null, 2))
-              
-              // Si falla PostgreSQL con error de columna, mostrar error claro
-              if (responseData.error?.includes("column") || responseData.error?.includes("does not exist")) {
-                console.error("🚨 ERROR: Falta ejecutar migración SQL en Neon")
-                console.error("🚨 Ejecuta: scripts/add-clerk-user-id.sql en Neon Console")
-                // Aunque falle, continuar (Clerk ya tiene el usuario)
-              }
-              
-              // Si falla PostgreSQL, aún permitir continuar ya que Clerk tiene el usuario
+              console.error("❌ ERROR AL GUARDAR EN POSTGRESQL:", responseData);
             } else {
-              console.log("✅ Datos guardados en PostgreSQL:", responseData)
+              console.log("✅ Datos guardados en PostgreSQL:", responseData);
             }
           } catch (dbError) {
-            console.error("Error de conexión con PostgreSQL:", dbError)
-            // CAPTCHA DESHABILITADO
-            // if (dbError instanceof Error && dbError.message.includes("CAPTCHA")) {
-            //   throw dbError
-            // }
-            // Para otros errores de DB, continuar de todos modos
+            console.error("Error de conexión con PostgreSQL:", dbError);
           }
 
           // PASO 3: Verificar el estado del registro y redirigir
           if (signUpAttempt.status === "complete") {
-            // Si el registro está completo, iniciar sesión automáticamente
-            await clerk.setActive({ session: signUpAttempt.createdSessionId })
-            router.push("/admin")
+            await clerk.setActive({ session: signUpAttempt.createdSessionId });
+            router.push("/admin");
           } else if (signUpAttempt.status === "missing_requirements") {
-            // Si falta verificación de email, redirigir a la página de verificación
-            router.push("/verificar-email")
+            router.push("/verificar-email");
           } else {
-            // Para cualquier otro estado, redirigir a verificación
-            router.push("/verificar-email")
+            router.push("/verificar-email");
           }
         } catch (clerkError: any) {
-          console.error("Error de Clerk:", clerkError)
-          
-          // Manejar error de email duplicado específicamente
           const errorMessage = clerkError.errors?.[0]?.message || ""
           if (errorMessage.toLowerCase().includes("email address is taken")) {
             throw new Error("Este correo electrónico ya está registrado en el sistema. Por favor, inicia sesión.")
           }
-          
           throw new Error(errorMessage || "Error al crear la cuenta")
         }
       } catch (error) {
-        console.error("Error al registrar:", error)
         setError(`Error al registrar: ${error instanceof Error ? error.message : "Error desconocido"}`)
       } finally {
         setIsLoading(false)
@@ -1622,12 +1678,16 @@ export default function RegistroPage() {
                       <Textarea
                         id="area_investigacion"
                         placeholder="Describe tus áreas de investigación, especialidades y campos de conocimiento..."
-                        value={formData.area_investigacion.join(', ')}
+                        value={formData.area_investigacionRaw ?? formData.area_investigacion.join(', ')}
                         onChange={(e) => {
                           const value = e.target.value;
                           if (value.length <= 500) {
-                            const areas = value.split(',').map((area: string) => area.trim()).filter(Boolean);
-                            setFormData(prev => ({ ...prev, area_investigacion: areas }));
+                            // Guardar el valor crudo para que el usuario pueda escribir espacios
+                            setFormData(prev => ({
+                              ...prev,
+                              area_investigacionRaw: value,
+                              area_investigacion: value.split(',').map((area: string) => area.trim()).filter(Boolean)
+                            }));
                           }
                         }}
                         className={`min-h-[120px] resize-y ${formData.area_investigacion.length === 0 && ocrCompleted ? "border-red-300 bg-red-50" : ""}`}
@@ -1635,7 +1695,7 @@ export default function RegistroPage() {
                       />
                       <div className="flex justify-between items-center text-xs">
                         <span className="text-gray-500">
-                          {formData.area_investigacion.join(', ').length}/500 caracteres
+                          {(formData.area_investigacionRaw ?? formData.area_investigacion.join(', ')).length}/500 caracteres
                         </span>
                         {formData.area_investigacion.length === 0 && (
                           <span className="text-red-600">
@@ -1680,7 +1740,7 @@ export default function RegistroPage() {
                   <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-4 border border-gray-200">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-gray-700">
-                        Progreso del formulario: {14 - emptyFields.length}/14 campos completos
+                        Progreso del formulario: {requiredFields.length - emptyFields.length}/{requiredFields.length} campos completos
                       </span>
                       <div className="flex items-center gap-2">
                         {isFormComplete && passwordValidation.isValid && passwordsMatch ? (
