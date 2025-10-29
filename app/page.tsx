@@ -116,7 +116,32 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
             {/* Oficina Chihuahua */}
             <AnimatedCard className="glass-effect card-hover" delay={100}>
-              <CardContent className="p-0 overflow-hidden relative">
+              <CardContent className="p-0 overflow-hidden">
+                {/* Encabezado de la oficina */}
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center shadow-md">
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-blue-900">Oficina Chihuahua</h3>
+                  </div>
+                  <p className="text-gray-700 text-sm mb-2">
+                    Centro Empresarial de Chihuahua, Av. Cuauhtémoc 1800, Cuauhtémoc, 31020 Chihuahua, Chih.
+                  </p>
+                  <p className="text-gray-600 text-sm font-medium mb-2">
+                    📅 Lunes a Viernes: 8:00 AM - 4:00 PM
+                  </p>
+                  <Link 
+                    href="https://www.google.com/maps/search/?api=1&query=Calle+Cuauhtémoc+1800+Chihuahua" 
+                    target="_blank"
+                    className="text-blue-600 text-sm hover:text-blue-800 underline font-medium inline-flex items-center gap-1"
+                  >
+                    📍 Ampliar el mapa
+                  </Link>
+                </div>
+                
                 {/* Mapa embebido */}
                 <div className="h-80 w-full">
                   <iframe
@@ -129,41 +154,37 @@ export default function Home() {
                     referrerPolicy="no-referrer-when-downgrade"
                   />
                 </div>
-                
-                {/* Overlay blanco sobre el mapa */}
-                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-bold text-blue-900">Oficina Chihuahua</h3>
-                  </div>
-                  <Link 
-                    href="https://www.google.com/maps/search/?api=1&query=Calle+Cuauhtémoc+1800+Chihuahua" 
-                    target="_blank"
-                    className="text-blue-600 text-sm hover:text-blue-800 underline"
-                  >
-                    Ampliar el mapa
-                  </Link>
-                </div>
-                
-                {/* Información debajo del mapa */}
-                <div className="p-4 bg-white">
-                  <p className="text-gray-700 text-sm mb-2">
-                    Centro Empresarial de Chihuahua, Av. Cuauhtémoc 1800, Cuauhtémoc, 31020 Chihuahua, Chih., México
-                  </p>
-                  <p className="text-gray-600 text-sm">
-                    Lunes a Viernes: 8:00 AM - 4:00 PM
-                  </p>
-                </div>
               </CardContent>
             </AnimatedCard>
 
             {/* Oficina Ciudad Juárez */}
             <AnimatedCard className="glass-effect card-hover" delay={200}>
-              <CardContent className="p-0 overflow-hidden relative">
+              <CardContent className="p-0 overflow-hidden">
+                {/* Encabezado de la oficina */}
+                <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 border-b border-green-200">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="flex-shrink-0 w-10 h-10 bg-green-600 rounded-full flex items-center justify-center shadow-md">
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-blue-900">Oficina Ciudad Juárez</h3>
+                  </div>
+                  <p className="text-gray-700 text-sm mb-2">
+                    Av. Abraham Lincoln 1290, 32000 Juárez, Chih.
+                  </p>
+                  <p className="text-gray-600 text-sm font-medium mb-2">
+                    📅 Lunes a Viernes: 8:00 AM - 4:00 PM
+                  </p>
+                  <Link 
+                    href="https://www.google.com/maps/search/?api=1&query=Av+Abraham+Lincoln+1320+Ciudad+Juarez" 
+                    target="_blank"
+                    className="text-blue-600 text-sm hover:text-blue-800 underline font-medium inline-flex items-center gap-1"
+                  >
+                    📍 Ampliar el mapa
+                  </Link>
+                </div>
+                
                 {/* Mapa embebido */}
                 <div className="h-80 w-full">
                   <iframe
@@ -175,35 +196,6 @@ export default function Home() {
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                   />
-                </div>
-                
-                {/* Overlay blanco sobre el mapa */}
-                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-bold text-blue-900">Oficina Ciudad Juárez</h3>
-                  </div>
-                  <Link 
-                    href="https://www.google.com/maps/search/?api=1&query=Av+Abraham+Lincoln+1320+Ciudad+Juarez" 
-                    target="_blank"
-                    className="text-blue-600 text-sm hover:text-blue-800 underline"
-                  >
-                    Ampliar el mapa
-                  </Link>
-                </div>
-                
-                {/* Información debajo del mapa */}
-                <div className="p-4 bg-white">
-                  <p className="text-gray-700 text-sm mb-2">
-                    Av. Abraham Lincoln 1290, 32000 Juárez, Chih., México
-                  </p>
-                  <p className="text-gray-600 text-sm">
-                    Lunes a Viernes: 8:00 AM - 4:00 PM
-                  </p>
                 </div>
               </CardContent>
             </AnimatedCard>
