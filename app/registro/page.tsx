@@ -887,8 +887,8 @@ export default function RegistroPage() {
       // console.log("✅ CAPTCHA verificado. Continuando con el registro...")
 
       if (!ocrCompleted) {
-        setError("Debes procesar un Perfil Único antes de continuar con el registro")
-        return
+  setError("El procesamiento automático de perfil (OCR) no está disponible temporalmente. Por favor, captura tus datos manualmente. Puedes continuar con el registro.")
+  // Permitir continuar aunque el OCR no esté disponible
       }
 
       if (emptyFields.length > 0) {
@@ -1004,7 +1004,8 @@ export default function RegistroPage() {
             colaboracion_nacional: formData.colaboracion_nacional || "",
             sni: formData.sni || "",
             anio_sni: formData.anio_sni || null,
-            cv_url: formData.cv_url || "",
+            // Si se subió un archivo PDF, usarlo como CV principal
+            cv_url: formData.cv_url || (selectedFile ? `/uploads/${selectedFile.name}` : ""),
 
             // Control y sistema
             tipo_perfil: formData.tipo_perfil,
@@ -1022,6 +1023,7 @@ export default function RegistroPage() {
           // Eliminar password y confirm_password antes de enviar a PostgreSQL
           // Guardar en PostgreSQL (sin password, está en Clerk)
           try {
+            console.log("🚩 Enviando datos a backend /api/registro:", dataToSend);
             const response = await fetch("/api/registro", {
               method: "POST",
               headers: {

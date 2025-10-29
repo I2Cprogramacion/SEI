@@ -96,26 +96,21 @@ export async function POST(request: NextRequest) {
     if (datosRegistro.es_admin === null || datosRegistro.es_admin === undefined) {
       datosRegistro.es_admin = false;
     }
-    // Validar obligatorios
-    if (!datosRegistro.correo) {
-      console.error("Falta el correo electrónico")
-      return NextResponse.json({ error: "El correo electrónico es obligatorio" }, { status: 400 })
-    }
-    if (!datosRegistro.ultimo_grado_estudios || (typeof datosRegistro.ultimo_grado_estudios === 'string' && datosRegistro.ultimo_grado_estudios.trim() === '')) {
-      console.error("Falta el último grado de estudios")
-      return NextResponse.json({ error: "El último grado de estudios es obligatorio" }, { status: 400 })
+    // LOG DETALLADO DE CAMPOS REQUERIDOS
+    const camposCriticos = ["correo", "ultimo_grado_estudios", "nombre_completo"];
+    for (const campo of camposCriticos) {
+      if (!datosRegistro[campo] || (typeof datosRegistro[campo] === 'string' && datosRegistro[campo].trim() === '')) {
+        console.warn(`⚠️ Campo crítico vacío o faltante: ${campo}`);
+      }
     }
     if (!datosRegistro.nombre_completo && datosRegistro.nombres && datosRegistro.apellidos) {
-      datosRegistro.nombre_completo = `${datosRegistro.nombres} ${datosRegistro.apellidos}`.trim()
-      console.log("✅ nombre_completo construido desde nombres + apellidos:", datosRegistro.nombre_completo)
-    }
-    if (!datosRegistro.nombre_completo) {
-      console.error("Falta el nombre completo (no se pudo construir)")
-      return NextResponse.json({ error: "El nombre completo es obligatorio" }, { status: 400 })
+      datosRegistro.nombre_completo = `${datosRegistro.nombres} ${datosRegistro.apellidos}`.trim();
+      console.log("✅ nombre_completo construido desde nombres + apellidos:", datosRegistro.nombre_completo);
     }
     if (!datosRegistro.fecha_registro) {
-      datosRegistro.fecha_registro = new Date().toISOString()
+      datosRegistro.fecha_registro = new Date().toISOString();
     }
+    // Permitir guardar aunque falte algún campo, solo loguear advertencia
     // Mostrar los datos finales que se enviarán a la base
     console.log("Datos normalizados para guardar en la base:", JSON.stringify(datosRegistro, null, 2))
 
