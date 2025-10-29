@@ -22,11 +22,13 @@ export async function GET(request: NextRequest) {
 
     // Obtener datos del investigador desde PostgreSQL
     const db = await getDatabase()
-    
-    // Buscar primero por clerk_user_id, luego por correo, y finalmente por id si existe
-  console.log(`🔍 Buscando perfil para clerk_user_id: '${clerkUserId}' o correo: '${email}'`)
-    
-  let result = await db.query(`
+
+    // Log detallado para comparar clerk_user_id
+    console.log(`🔍 Buscando perfil para clerk_user_id: '${clerkUserId}' (len=${clerkUserId.length}) o correo: '${email}'`)
+    // Mostrar bytes del clerk_user_id recibido
+    console.log('clerkUserId bytes:', Array.from(Buffer.from(clerkUserId)).join(','));
+
+    let result = await db.query(`
       SELECT 
         id,
         COALESCE(nombre_completo, '') AS nombre_completo,
@@ -72,6 +74,11 @@ export async function GET(request: NextRequest) {
     if (rows.length > 0) {
       console.log(`✅ Perfil encontrado:`);
       console.log(JSON.stringify(rows[0], null, 2));
+      // Log detallado del clerk_user_id en la base de datos
+      if (rows[0]?.clerk_user_id) {
+        console.log('DB clerk_user_id:', rows[0].clerk_user_id, `(len=${rows[0].clerk_user_id.length})`);
+        console.log('DB clerk_user_id bytes:', Array.from(Buffer.from(rows[0].clerk_user_id)).join(','));
+      }
     } else {
       console.warn(`❌ No se encontró perfil con clerk_user_id='${clerkUserId}' o correo='${email}'.`);
     }
