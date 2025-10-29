@@ -926,16 +926,26 @@ export default function RegistroPage() {
             password: formData.password,
           })
 
-          // Obtener el clerk_user_id (puede estar en createdUserId o en id)
-          const clerkUserId = signUpAttempt.createdUserId || signUpAttempt.id
+          await signUp.prepareEmailAddressVerification({
+            strategy: "email_code",
+          })
+
+          // Esperar a que el usuario esté disponible en Clerk y obtener el user real
+          let realClerkUserId = null;
+          try {
+            // Esperar a que Clerk cree el usuario y lo devuelva en el frontend
+            const userResp = await fetch('/api/auth/me'); // Debes tener un endpoint que devuelva el user.id real
+            if (userResp.ok) {
+              const userData = await userResp.json();
+              realClerkUserId = userData.id;
+            }
+          } catch {}
+          // Fallback: usar el id de signUp si no se pudo obtener el real
+          const clerkUserId = realClerkUserId || signUpAttempt.createdUserId || signUpAttempt.id;
 
           if (!clerkUserId) {
             throw new Error("Error al crear usuario en Clerk: no se obtuvo ID")
           }
-
-          await signUp.prepareEmailAddressVerification({
-            strategy: "email_code",
-          })
 
           // PASO 2: Mapear y enviar todos los campos requeridos a PostgreSQL
           const dataToSend = {
