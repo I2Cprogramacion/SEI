@@ -24,9 +24,9 @@ export async function GET(request: NextRequest) {
     const db = await getDatabase()
     
     // Buscar primero por clerk_user_id, luego por correo, y finalmente por id si existe
-    console.log(`🔍 Buscando perfil para clerk_user_id: ${clerkUserId} o correo: ${email}`)
+  console.log(`🔍 Buscando perfil para clerk_user_id: '${clerkUserId}' o correo: '${email}'`)
     
-    let result = await db.query(`
+  let result = await db.query(`
       SELECT 
         id,
         COALESCE(nombre_completo, '') AS nombre_completo,
@@ -70,17 +70,15 @@ export async function GET(request: NextRequest) {
     
     console.log(`📊 Resultados encontrados: ${rows.length}`)
     if (rows.length > 0) {
-      console.log(`✅ Perfil encontrado:`, {
-        id: rows[0].id,
-        nombre_completo: rows[0].nombre_completo,
-        correo: rows[0].correo,
-        clerk_user_id: rows[0].clerk_user_id
-      })
+      console.log(`✅ Perfil encontrado:`);
+      console.log(JSON.stringify(rows[0], null, 2));
+    } else {
+      console.warn(`❌ No se encontró perfil con clerk_user_id='${clerkUserId}' o correo='${email}'.`);
     }
     
     if (rows.length === 0 && user?.id) {
       // Intentar buscar por id si no se encontró por los anteriores
-      console.log(`🔄 Buscando por ID de usuario: ${user.id}`)
+  console.log(`🔄 Buscando por ID de usuario: '${user.id}'`)
       result = await db.query(`
         SELECT 
           id, nombre_completo, nombres, apellidos, curp, rfc, no_cvu, correo, telefono,
@@ -95,7 +93,7 @@ export async function GET(request: NextRequest) {
       rows = Array.isArray(result) ? result : (result.rows || [])
     }
     if (rows.length === 0) {
-      console.error(`❌ No se encontró perfil para usuario:`, { clerkUserId, email })
+  console.error(`❌ No se encontró perfil para usuario. clerk_user_id='${clerkUserId}', email='${email}', id='${user?.id}'`)
       return NextResponse.json({ 
         error: "Perfil no encontrado",
         message: "No se encontró un perfil de investigador asociado a este usuario"
