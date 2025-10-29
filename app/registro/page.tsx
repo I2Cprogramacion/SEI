@@ -670,8 +670,11 @@ export default function RegistroPage() {
 
   const emptyFields = requiredFields.filter((field) => {
     const value = formData[field.field as keyof FormData];
+    if (field.field === "ultimo_grado_estudios") {
+      // Validar explícitamente que no esté vacío ni sea solo espacios
+      return !value || (typeof value === 'string' && value.trim() === '');
+    }
     if (Array.isArray(value)) {
-      // Solo requiere al menos un elemento
       return value.length === 0;
     }
     if (typeof value === 'string') {

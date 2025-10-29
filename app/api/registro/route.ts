@@ -101,6 +101,10 @@ export async function POST(request: NextRequest) {
       console.error("Falta el correo electrónico")
       return NextResponse.json({ error: "El correo electrónico es obligatorio" }, { status: 400 })
     }
+    if (!datosRegistro.ultimo_grado_estudios || (typeof datosRegistro.ultimo_grado_estudios === 'string' && datosRegistro.ultimo_grado_estudios.trim() === '')) {
+      console.error("Falta el último grado de estudios")
+      return NextResponse.json({ error: "El último grado de estudios es obligatorio" }, { status: 400 })
+    }
     if (!datosRegistro.nombre_completo && datosRegistro.nombres && datosRegistro.apellidos) {
       datosRegistro.nombre_completo = `${datosRegistro.nombres} ${datosRegistro.apellidos}`.trim()
       console.log("✅ nombre_completo construido desde nombres + apellidos:", datosRegistro.nombre_completo)
