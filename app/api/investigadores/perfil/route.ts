@@ -20,8 +20,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No se pudo obtener el email del usuario" }, { status: 400 })
     }
 
-    // Obtener datos del investigador desde PostgreSQL
-    const db = await getDatabase()
+  // Obtener datos del investigador desde PostgreSQL
+  // Imprimir la cadena de conexión activa para debug de entorno
+  const { getCurrentConfigString } = await import('@/lib/database-config');
+  console.log('🌐 DB Connection:', getCurrentConfigString());
+  const db = await getDatabase()
 
     // Log detallado para comparar clerk_user_id
     console.log(`🔍 Buscando perfil para clerk_user_id: '${clerkUserId}' (len=${clerkUserId.length}) o correo: '${email}'`)
