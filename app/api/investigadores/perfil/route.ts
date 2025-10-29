@@ -101,11 +101,22 @@ export async function GET(request: NextRequest) {
         message: "No se encontró un perfil de investigador asociado a este usuario"
       }, { status: 404 })
     }
-    
-    console.log(`✅ Retornando perfil exitosamente`)
+
+    // Lógica de perfil completo: solo si los campos clave están llenos
+    const perfil = rows[0];
+    const camposClave = [
+      'nombre_completo', 'correo', 'empleo_actual', 'cv_url',
+      'area_investigacion', 'linea_investigacion', 'telefono',
+      'nacionalidad', 'genero', 'municipio'
+    ];
+    const perfilCompleto = camposClave.every(
+      (campo) => perfil[campo] && typeof perfil[campo] === 'string' && perfil[campo].trim() !== ''
+    );
+
+    console.log(`✅ Retornando perfil exitosamente. Perfil completo:`, perfilCompleto);
     return NextResponse.json({
       success: true,
-      data: rows[0]
+      data: { ...perfil, perfil_completo: perfilCompleto }
     })
   } catch (error) {
     return NextResponse.json({

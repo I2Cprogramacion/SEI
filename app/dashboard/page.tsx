@@ -184,6 +184,9 @@ export default function DashboardPage() {
     return null;
   }
 
+  // Determinar si el perfil está completo
+  const perfilCompleto = investigadorData?.perfil_completo === true;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       <div className="container mx-auto py-6 px-4">
@@ -193,8 +196,8 @@ export default function DashboardPage() {
           <p className="text-blue-600">Tu red de colaboración científica</p>
         </div>
 
-        {/* Mensaje informativo si no hay datos de PostgreSQL */}
-        {!investigadorData && (
+        {/* Mensaje informativo si el perfil está incompleto */}
+        {investigadorData && !perfilCompleto && (
           <Card className="mb-6 bg-amber-50 border-amber-200">
             <CardContent className="pt-6">
               <div className="flex items-start gap-3">
@@ -202,7 +205,23 @@ export default function DashboardPage() {
                 <div>
                   <h3 className="font-semibold text-amber-900">Perfil incompleto</h3>
                   <p className="text-sm text-amber-700 mt-1">
-                    No se encontraron datos adicionales en tu perfil. Haz clic en "Editar Perfil" para completar tu información.
+                    Faltan datos clave en tu perfil. Haz clic en "Editar Perfil" para completarlo y aprovechar todas las funcionalidades.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        {/* Si no hay datos, mostrar mensaje */}
+        {!investigadorData && (
+          <Card className="mb-6 bg-amber-50 border-amber-200">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-amber-900">Perfil no encontrado</h3>
+                  <p className="text-sm text-amber-700 mt-1">
+                    No se encontraron datos de tu perfil. Por favor, regístrate o contacta soporte.
                   </p>
                 </div>
               </div>
