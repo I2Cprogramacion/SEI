@@ -935,16 +935,54 @@ export default function RegistroPage() {
           console.log("📊 [REGISTRO] SignUp status:", signUpAttempt.status)
           console.log("📊 [REGISTRO] SignUp object keys:", Object.keys(signUpAttempt))
 
-          // Obtener el clerk_user_id directamente del objeto creado
-          // En Clerk, el ID del usuario está en createdUserId cuando se crea
-          const clerkUserId = signUpAttempt.createdUserId
+          // Obtener el clerk_user_id - puede estar en diferentes lugares según el estado
+          // Intentar en orden: createdUserId, id del usuario, o id del signUp
+          let clerkUserId: string | null = null
+          const signUpObj = signUpAttempt as any // Cast para acceder a propiedades dinámicas
+          
+          // Opción 1: createdUserId (cuando está completo)
+          if (signUpAttempt.createdUserId) {
+            clerkUserId = signUpAttempt.createdUserId
+            console.log("🔑 [REGISTRO] Usando createdUserId:", clerkUserId)
+          }
+          // Opción 2: verificar si tiene propiedad user con id
+          else if (signUpObj.user?.id) {
+            clerkUserId = signUpObj.user.id
+            console.log("🔑 [REGISTRO] Usando user.id:", clerkUserId)
+          }
+          // Opción 3: usar el id del signUp mismo
+          else if (signUpAttempt.id) {
+            clerkUserId = signUpAttempt.id
+            console.log("🔑 [REGISTRO] Usando signUpAttempt.id:", clerkUserId)
+          }
+          // Opción 4: buscar en el objeto cualquier campo que parezca un user ID
+          else {
+            console.error("❌ [REGISTRO] No se encontró clerk_user_id en ningún campo esperado")
+            console.log("📋 [REGISTRO] Explorando objeto signUpAttempt...")
+            
+            // Intentar encontrar cualquier campo que contenga "user" y "id"
+            for (const key of Object.keys(signUpObj)) {
+              const value = signUpObj[key]
+              if (typeof value === 'string' && value.startsWith('user_')) {
+                clerkUserId = value
+                console.log(`🔑 [REGISTRO] Encontrado ID en campo "${key}":`, clerkUserId)
+                break
+              }
+            }
+          }
 
-          console.log("🔑 [REGISTRO] Clerk User ID obtenido:", clerkUserId)
+          console.log("🔑 [REGISTRO] Clerk User ID final obtenido:", clerkUserId)
 
           if (!clerkUserId) {
-            console.error("❌ [REGISTRO] No se pudo obtener clerk_user_id")
-            console.error("SignUpAttempt completo:", JSON.stringify(signUpAttempt, null, 2))
-            throw new Error("Error al crear usuario en Clerk: no se obtuvo ID. Por favor, intenta de nuevo.")
+            console.error("❌ [REGISTRO] No se pudo obtener clerk_user_id después de todos los intentos")
+            console.error("📋 [REGISTRO] Claves disponibles:", Object.keys(signUpObj))
+            console.error("📋 [REGISTRO] Algunos valores:", {
+              id: signUpObj.id,
+              createdUserId: signUpObj.createdUserId,
+              status: signUpObj.status,
+              hasUser: !!signUpObj.user
+            })
+            throw new Error("Error al crear usuario en Clerk: no se obtuvo ID del usuario. Por favor, intenta de nuevo.")
           }
 
           console.log("🔵 [REGISTRO] Paso 2: Preparando verificación de email...")
