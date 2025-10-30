@@ -204,11 +204,11 @@ export default function EditarPerfilPage() {
             grado_maximo_estudios: data.grado_maximo_estudios || "",
             empleo_actual: data.empleo_actual || "",
             linea_investigacion: typeof data.linea_investigacion === "string" 
-              ? data.linea_investigacion.split(",").map((l: string) => l.trim()).filter(Boolean)
-              : data.linea_investigacion || [],
+              ? (data.linea_investigacion.trim() === "" ? [] : data.linea_investigacion.split(",").map((l: string) => l.trim()).filter(Boolean))
+              : Array.isArray(data.linea_investigacion) ? data.linea_investigacion : [],
             area_investigacion: typeof data.area_investigacion === "string" 
-              ? data.area_investigacion.split(",").map((a: string) => a.trim()).filter(Boolean)
-              : data.area_investigacion || [],
+              ? (data.area_investigacion.trim() === "" ? [] : data.area_investigacion.split(",").map((a: string) => a.trim()).filter(Boolean))
+              : Array.isArray(data.area_investigacion) ? data.area_investigacion : [],
             disciplina: data.disciplina || "",
             area_investigacionRaw: data.area_investigacionRaw || "",
             especialidad: data.especialidad || "",
@@ -567,7 +567,7 @@ export default function EditarPerfilPage() {
 
                   <div className="space-y-2">
                     <TagsInput
-                      value={formData.linea_investigacion}
+                      value={Array.isArray(formData.linea_investigacion) ? formData.linea_investigacion : []}
                       onChange={(tags) => setFormData(prev => ({ ...prev, linea_investigacion: tags }))}
                       label="Línea de Investigación Específica"
                       placeholder="Agregar líneas de investigación específicas..."
@@ -578,7 +578,7 @@ export default function EditarPerfilPage() {
 
                   <div className="space-y-2">
                     <TagsInput
-                      value={formData.area_investigacion}
+                      value={Array.isArray(formData.area_investigacion) ? formData.area_investigacion : []}
                       onChange={(tags) => setFormData(prev => ({ ...prev, area_investigacion: tags }))}
                       label="Área de Investigación"
                       placeholder="Agregar áreas de investigación..."
