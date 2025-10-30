@@ -184,6 +184,9 @@ export default function DashboardPage() {
     return null;
   }
 
+  // Determinar si el perfil está completo
+  const perfilCompleto = investigadorData?.perfil_completo === true;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       <div className="container mx-auto py-6 px-4">
@@ -193,8 +196,8 @@ export default function DashboardPage() {
           <p className="text-blue-600">Tu red de colaboración científica</p>
         </div>
 
-        {/* Mensaje informativo si no hay datos de PostgreSQL */}
-        {!investigadorData && (
+        {/* Mensaje informativo si el perfil está incompleto */}
+        {investigadorData && !perfilCompleto && (
           <Card className="mb-6 bg-amber-50 border-amber-200">
             <CardContent className="pt-6">
               <div className="flex items-start gap-3">
@@ -202,7 +205,23 @@ export default function DashboardPage() {
                 <div>
                   <h3 className="font-semibold text-amber-900">Perfil incompleto</h3>
                   <p className="text-sm text-amber-700 mt-1">
-                    No se encontraron datos adicionales en tu perfil. Haz clic en "Editar Perfil" para completar tu información.
+                    Faltan datos clave en tu perfil. Haz clic en "Editar Perfil" para completarlo y aprovechar todas las funcionalidades.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        {/* Si no hay datos, mostrar mensaje */}
+        {!investigadorData && (
+          <Card className="mb-6 bg-amber-50 border-amber-200">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-amber-900">Perfil no encontrado</h3>
+                  <p className="text-sm text-amber-700 mt-1">
+                    No se encontraron datos de tu perfil. Por favor, regístrate o contacta soporte.
                   </p>
                 </div>
               </div>
@@ -234,20 +253,28 @@ export default function DashboardPage() {
             {/* Foto y datos básicos */}
             <div className="flex items-start gap-6">
               <Avatar className="h-24 w-24">
-                <AvatarImage src={investigadorData?.fotografia_url || ""} alt={investigadorData?.nombre_completo || "Usuario"} />
+                {investigadorData?.fotografia_url && investigadorData.fotografia_url.trim() !== "" ? (
+                  <AvatarImage src={investigadorData.fotografia_url} alt={investigadorData?.nombre_completo || "Usuario"} />
+                ) : null}
                 <AvatarFallback className="bg-blue-100 text-blue-700 text-2xl">
-                  {(investigadorData?.nombre_completo || user.fullName || "U").charAt(0).toUpperCase()}
+                  {(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== ""
+                    ? investigadorData.nombre_completo
+                    : user.fullName || "U").charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-blue-900">
-                  {investigadorData?.nombre_completo || user.fullName || user.firstName || "Usuario"}
+                  {(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== "")
+                    ? investigadorData.nombre_completo
+                    : user.fullName || user.firstName || "Usuario"}
                 </h2>
                 <p className="text-blue-600 flex items-center gap-2 mt-1">
                   <Mail className="h-4 w-4" />
-                  {investigadorData?.correo || user.primaryEmailAddress?.emailAddress || "No disponible"}
+                  {(investigadorData?.correo && investigadorData.correo.trim() !== "")
+                    ? investigadorData.correo
+                    : user.primaryEmailAddress?.emailAddress || "No disponible"}
                 </p>
-                {investigadorData?.telefono && (
+                {investigadorData?.telefono && investigadorData.telefono.trim() !== "" && (
                   <p className="text-blue-600 flex items-center gap-2 mt-1">
                     <Phone className="h-4 w-4" />
                     {investigadorData.telefono}
@@ -259,7 +286,7 @@ export default function DashboardPage() {
             {/* Información detallada */}
             {investigadorData && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-blue-100">
-                {investigadorData.empleo_actual && (
+                {investigadorData.empleo_actual && investigadorData.empleo_actual.trim() !== "" && (
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
                       <Briefcase className="h-4 w-4" />
@@ -269,7 +296,7 @@ export default function DashboardPage() {
                   </div>
                 )}
                 
-                {investigadorData.ultimo_grado_estudios && (
+                {investigadorData.ultimo_grado_estudios && investigadorData.ultimo_grado_estudios.trim() !== "" && (
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
                       <GraduationCap className="h-4 w-4" />
@@ -279,44 +306,34 @@ export default function DashboardPage() {
                   </div>
                 )}
 
-                {investigadorData.area_investigacion && investigadorData.area_investigacion.length > 0 && (
+                {Array.isArray(investigadorData.area_investigacion) && investigadorData.area_investigacion.length > 0 && (
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
                       <Award className="h-4 w-4" />
                       Área de Investigación
                     </label>
-                    <p className="text-blue-900">
-                      {Array.isArray(investigadorData.area_investigacion) 
-                        ? investigadorData.area_investigacion.join(', ')
-                        : investigadorData.area_investigacion
-                      }
-                    </p>
+                    <p className="text-blue-900">{investigadorData.area_investigacion.join(', ')}</p>
                   </div>
                 )}
 
-                {investigadorData.linea_investigacion && investigadorData.linea_investigacion.length > 0 && (
+                {Array.isArray(investigadorData.linea_investigacion) && investigadorData.linea_investigacion.length > 0 && (
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
                       <FileText className="h-4 w-4" />
                       Línea de Investigación
                     </label>
-                    <p className="text-blue-900">
-                      {Array.isArray(investigadorData.linea_investigacion) 
-                        ? investigadorData.linea_investigacion.join(', ')
-                        : investigadorData.linea_investigacion
-                      }
-                    </p>
+                    <p className="text-blue-900">{investigadorData.linea_investigacion.join(', ')}</p>
                   </div>
                 )}
 
-                {investigadorData.no_cvu && (
+                {investigadorData.no_cvu && investigadorData.no_cvu.trim() !== "" && (
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-blue-700">CVU/PU</label>
                     <p className="text-blue-900">{investigadorData.no_cvu}</p>
                   </div>
                 )}
 
-                {investigadorData.nacionalidad && (
+                {investigadorData.nacionalidad && investigadorData.nacionalidad.trim() !== "" && (
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
                       <MapPin className="h-4 w-4" />

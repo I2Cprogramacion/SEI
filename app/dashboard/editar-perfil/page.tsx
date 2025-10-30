@@ -32,35 +32,75 @@ import {
 interface InvestigadorData {
   id: number
   nombre_completo: string
+  nombres: string
+  apellidos: string
   curp: string
   rfc: string
   no_cvu: string
   correo: string
   telefono: string
+  fotografia_url?: string
+  nacionalidad: string
+  fecha_nacimiento: string
+  genero: string
+  municipio: string
+  estado_nacimiento?: string
+  entidad_federativa?: string
+  institucion_id?: string | null
+  institucion?: string
+  departamento?: string
+  ubicacion?: string
+  sitio_web?: string
   ultimo_grado_estudios: string
+  grado_maximo_estudios?: string
   empleo_actual: string
   linea_investigacion: string | string[]
   area_investigacion: string | string[]
-  nacionalidad: string
-  fecha_nacimiento: string
-  fotografia_url?: string
+  disciplina?: string
+  area_investigacionRaw?: string
+  especialidad?: string
+  orcid?: string
+  nivel?: string
+  nivel_investigador: string
+  nivel_actual_id?: string | null
+  fecha_asignacion_nivel?: string | null
   fecha_registro: string
   origen: string
 }
 
 interface FormData {
+  nombres: string
+  apellidos: string
   nombre_completo: string
   curp: string
   rfc: string
   no_cvu: string
   telefono: string
+  fotografia_url?: string
+  nacionalidad: string
+  fecha_nacimiento: string
+  genero: string
+  municipio: string
+  estado_nacimiento?: string
+  entidad_federativa?: string
+  institucion_id?: string | null
+  institucion?: string
+  departamento?: string
+  ubicacion?: string
+  sitio_web?: string
   ultimo_grado_estudios: string
+  grado_maximo_estudios?: string
   empleo_actual: string
   linea_investigacion: string[]
   area_investigacion: string[]
-  nacionalidad: string
-  fecha_nacimiento: string
-  fotografia_url?: string
+  disciplina?: string
+  area_investigacionRaw?: string
+  especialidad?: string
+  orcid?: string
+  nivel?: string
+  nivel_investigador: string
+  nivel_actual_id?: string | null
+  fecha_asignacion_nivel?: string | null
 }
 
 export default function EditarPerfilPage() {
@@ -74,18 +114,38 @@ export default function EditarPerfilPage() {
   const [investigadorId, setInvestigadorId] = useState<number | null>(null)
   
   const [formData, setFormData] = useState<FormData>({
+    nombres: "",
+    apellidos: "",
     nombre_completo: "",
     curp: "",
     rfc: "",
     no_cvu: "",
     telefono: "",
+    fotografia_url: "",
+    nacionalidad: "Mexicana",
+    fecha_nacimiento: "",
+    genero: "",
+    municipio: "",
+    estado_nacimiento: "",
+    entidad_federativa: "",
+    institucion_id: "",
+    institucion: "",
+    departamento: "",
+    ubicacion: "",
+    sitio_web: "",
     ultimo_grado_estudios: "",
+    grado_maximo_estudios: "",
     empleo_actual: "",
     linea_investigacion: [],
     area_investigacion: [],
-    nacionalidad: "Mexicana",
-    fecha_nacimiento: "",
-    fotografia_url: "",
+    disciplina: "",
+    area_investigacionRaw: "",
+    especialidad: "",
+    orcid: "",
+    nivel: "",
+    nivel_investigador: "",
+    nivel_actual_id: "",
+    fecha_asignacion_nivel: "",
   })
 
   // Cargar datos del investigador
@@ -106,13 +166,42 @@ export default function EditarPerfilPage() {
         if (result.success && result.data) {
           const data = result.data as InvestigadorData
           setInvestigadorId(data.id)
+          // Formatear fecha_nacimiento a YYYY-MM-DD si es necesario
+          let fechaNacimiento = data.fecha_nacimiento || "";
+          if (fechaNacimiento) {
+            // Si viene como Date o string con hora, recortar solo la fecha
+            if (typeof fechaNacimiento === "string" && fechaNacimiento.includes("T")) {
+              fechaNacimiento = fechaNacimiento.split("T")[0];
+            } else if (typeof fechaNacimiento === "string" && fechaNacimiento.includes("/")) {
+              // Si viene como dd/mm/yyyy, convertir a yyyy-mm-dd
+              const parts = fechaNacimiento.split("/");
+              if (parts.length === 3) {
+                fechaNacimiento = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+              }
+            }
+          }
           setFormData({
+            nombres: data.nombres || "",
+            apellidos: data.apellidos || "",
             nombre_completo: data.nombre_completo || "",
             curp: data.curp || "",
             rfc: data.rfc || "",
             no_cvu: data.no_cvu || "",
             telefono: data.telefono || "",
+            fotografia_url: data.fotografia_url || "",
+            nacionalidad: data.nacionalidad || "Mexicana",
+            fecha_nacimiento: fechaNacimiento,
+            genero: data.genero || "",
+            municipio: data.municipio || "",
+            estado_nacimiento: data.estado_nacimiento || "",
+            entidad_federativa: data.entidad_federativa || "",
+            institucion_id: data.institucion_id || "",
+            institucion: data.institucion || "",
+            departamento: data.departamento || "",
+            ubicacion: data.ubicacion || "",
+            sitio_web: data.sitio_web || "",
             ultimo_grado_estudios: data.ultimo_grado_estudios || "",
+            grado_maximo_estudios: data.grado_maximo_estudios || "",
             empleo_actual: data.empleo_actual || "",
             linea_investigacion: typeof data.linea_investigacion === "string" 
               ? data.linea_investigacion.split(",").map((l: string) => l.trim()).filter(Boolean)
@@ -120,9 +209,14 @@ export default function EditarPerfilPage() {
             area_investigacion: typeof data.area_investigacion === "string" 
               ? data.area_investigacion.split(",").map((a: string) => a.trim()).filter(Boolean)
               : data.area_investigacion || [],
-            nacionalidad: data.nacionalidad || "Mexicana",
-            fecha_nacimiento: data.fecha_nacimiento || "",
-            fotografia_url: data.fotografia_url || "",
+            disciplina: data.disciplina || "",
+            area_investigacionRaw: data.area_investigacionRaw || "",
+            especialidad: data.especialidad || "",
+            orcid: data.orcid || "",
+            nivel: data.nivel || "",
+            nivel_investigador: data.nivel_investigador || "",
+            nivel_actual_id: data.nivel_actual_id || "",
+            fecha_asignacion_nivel: data.fecha_asignacion_nivel || "",
           })
         }
       } catch (err) {
@@ -359,21 +453,35 @@ export default function EditarPerfilPage() {
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Campos oficiales y personales relevantes */}
                   <div className="space-y-2">
-                    <Label htmlFor="no_cvu" className="text-blue-900 font-medium flex items-center gap-2">
-                      <Hash className="h-4 w-4" />
-                      CVU/PU
+                    <Label htmlFor="nombres" className="text-blue-900 font-medium flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      Nombres
                     </Label>
                     <Input
-                      id="no_cvu"
-                      name="no_cvu"
-                      value={formData.no_cvu}
+                      id="nombres"
+                      name="nombres"
+                      value={formData.nombres}
                       onChange={handleChange}
-                      placeholder="CVU/PU"
+                      placeholder="Nombres"
                       className="bg-white border-blue-200"
                     />
                   </div>
-
+                  <div className="space-y-2">
+                    <Label htmlFor="apellidos" className="text-blue-900 font-medium flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      Apellidos
+                    </Label>
+                    <Input
+                      id="apellidos"
+                      name="apellidos"
+                      value={formData.apellidos}
+                      onChange={handleChange}
+                      placeholder="Apellidos"
+                      className="bg-white border-blue-200"
+                    />
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="curp" className="text-blue-900 font-medium flex items-center gap-2">
                       <CreditCard className="h-4 w-4" />
@@ -388,7 +496,6 @@ export default function EditarPerfilPage() {
                       className="bg-white border-blue-200"
                     />
                   </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="rfc" className="text-blue-900 font-medium flex items-center gap-2">
                       <CreditCard className="h-4 w-4" />
@@ -400,6 +507,20 @@ export default function EditarPerfilPage() {
                       value={formData.rfc}
                       onChange={handleChange}
                       placeholder="RFC"
+                      className="bg-white border-blue-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="no_cvu" className="text-blue-900 font-medium flex items-center gap-2">
+                      <Hash className="h-4 w-4" />
+                      CVU/PU
+                    </Label>
+                    <Input
+                      id="no_cvu"
+                      name="no_cvu"
+                      value={formData.no_cvu}
+                      onChange={handleChange}
+                      placeholder="CVU/PU"
                       className="bg-white border-blue-200"
                     />
                   </div>

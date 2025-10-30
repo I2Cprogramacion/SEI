@@ -68,12 +68,17 @@ export async function POST(request: NextRequest) {
     console.log("==================================================")
     // Validar y normalizar nombres de variables
     const camposTabla = [
-      "nombre_completo", "nombres", "apellidos", "correo", "clerk_user_id", 
-      "linea_investigacion", "area_investigacion", "institucion", "fotografia_url", 
-      "slug", "curp", "rfc", "no_cvu", "telefono", "nacionalidad", "fecha_nacimiento", 
-      "genero", "tipo_perfil", "nivel_investigador", "nivel_tecnologo", "municipio", 
-      "cv_url", "fecha_registro", "origen", "es_admin", "estado_nacimiento", 
-      "entidad_federativa", "orcid", "empleo_actual", "nivel_actual", "institucion_id", "activo"
+      "nombre_completo", "nombres", "apellidos", "correo", "clerk_user_id",
+      "linea_investigacion", "area_investigacion", "institucion", "fotografia_url",
+      "slug", "curp", "rfc", "no_cvu", "telefono", "nacionalidad", "fecha_nacimiento",
+      "genero", "tipo_perfil", "nivel_investigador", "nivel_tecnologo", "municipio",
+      "cv_url", "fecha_registro", "origen", "es_admin", "estado_nacimiento",
+      "entidad_federativa", "orcid", "empleo_actual", "nivel_actual", "institucion_id", "activo",
+      "departamento", "ubicacion", "sitio_web", "grado_maximo_estudios", "especialidad",
+      "disciplina", "nivel_actual_id", "fecha_asignacion_nivel", "puntaje_total", "estado_evaluacion",
+      "articulos", "libros", "capitulos_libros", "proyectos_investigacion", "proyectos_vinculacion",
+      "experiencia_docente", "experiencia_laboral", "premios_distinciones", "idiomas",
+      "colaboracion_internacional", "colaboracion_nacional", "sni", "anio_sni", "archivo_procesado"
     ];
     // Eliminar campos no válidos y asegurar que todos los obligatorios estén presentes
     const datosRegistro: any = {};
@@ -91,22 +96,21 @@ export async function POST(request: NextRequest) {
     if (datosRegistro.es_admin === null || datosRegistro.es_admin === undefined) {
       datosRegistro.es_admin = false;
     }
-    // Validar obligatorios
-    if (!datosRegistro.correo) {
-      console.error("Falta el correo electrónico")
-      return NextResponse.json({ error: "El correo electrónico es obligatorio" }, { status: 400 })
+    // LOG DETALLADO DE CAMPOS REQUERIDOS
+    const camposCriticos = ["correo", "ultimo_grado_estudios", "nombre_completo"];
+    for (const campo of camposCriticos) {
+      if (!datosRegistro[campo] || (typeof datosRegistro[campo] === 'string' && datosRegistro[campo].trim() === '')) {
+        console.warn(`⚠️ Campo crítico vacío o faltante: ${campo}`);
+      }
     }
     if (!datosRegistro.nombre_completo && datosRegistro.nombres && datosRegistro.apellidos) {
-      datosRegistro.nombre_completo = `${datosRegistro.nombres} ${datosRegistro.apellidos}`.trim()
-      console.log("✅ nombre_completo construido desde nombres + apellidos:", datosRegistro.nombre_completo)
-    }
-    if (!datosRegistro.nombre_completo) {
-      console.error("Falta el nombre completo (no se pudo construir)")
-      return NextResponse.json({ error: "El nombre completo es obligatorio" }, { status: 400 })
+      datosRegistro.nombre_completo = `${datosRegistro.nombres} ${datosRegistro.apellidos}`.trim();
+      console.log("✅ nombre_completo construido desde nombres + apellidos:", datosRegistro.nombre_completo);
     }
     if (!datosRegistro.fecha_registro) {
-      datosRegistro.fecha_registro = new Date().toISOString()
+      datosRegistro.fecha_registro = new Date().toISOString();
     }
+    // Permitir guardar aunque falte algún campo, solo loguear advertencia
     // Mostrar los datos finales que se enviarán a la base
     console.log("Datos normalizados para guardar en la base:", JSON.stringify(datosRegistro, null, 2))
 
