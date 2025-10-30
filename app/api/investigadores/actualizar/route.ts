@@ -27,9 +27,13 @@ export async function PUT(request: NextRequest) {
 
     // Campos permitidos para actualizar (no incluimos correo ni password aquí)
     const camposPermitidos = [
-      'nombre_completo', 'curp', 'rfc', 'no_cvu', 'telefono',
-      'ultimo_grado_estudios', 'empleo_actual', 'linea_investigacion',
-      'area_investigacion', 'nacionalidad', 'fecha_nacimiento', 'fotografia_url'
+      'nombre_completo', 'nombres', 'apellidos', 'curp', 'rfc', 'no_cvu', 'telefono',
+      'ultimo_grado_estudios', 'grado_maximo_estudios', 'empleo_actual', 
+      'linea_investigacion', 'area_investigacion', 'disciplina', 'especialidad',
+      'nacionalidad', 'fecha_nacimiento', 'genero', 'municipio', 
+      'estado_nacimiento', 'entidad_federativa', 'fotografia_url',
+      'institucion_id', 'institucion', 'departamento', 'ubicacion', 'sitio_web',
+      'orcid', 'nivel', 'nivel_investigador', 'nivel_actual_id', 'fecha_asignacion_nivel'
     ]
 
     // Construir query dinámicamente solo con los campos que se envían

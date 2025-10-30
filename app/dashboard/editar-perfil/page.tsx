@@ -577,16 +577,12 @@ export default function EditarPerfilPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="area_investigacion" className="text-blue-900 font-medium flex items-center gap-2">
-                      <Edit className="h-4 w-4" />
-                      Área de Investigación
-                    </Label>
-                    <Input
-                      id="area_investigacion"
-                      name="area_investigacion"
+                    <TagsInput
                       value={formData.area_investigacion}
-                      onChange={handleChange}
-                      placeholder="Ej: Ciencias Exactas, Ingeniería, etc."
+                      onChange={(tags) => setFormData(prev => ({ ...prev, area_investigacion: tags }))}
+                      label="Área de Investigación"
+                      placeholder="Agregar áreas de investigación..."
+                      maxTags={10}
                       className="bg-white border-blue-200"
                     />
                   </div>

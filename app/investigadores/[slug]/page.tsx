@@ -129,7 +129,7 @@ export default function InvestigadorPage() {
   useEffect(() => {
     if (!slug) return
 
-    const fetchInvestigador = async () => {
+      const fetchInvestigador = async () => {
       try {
         setIsLoading(true)
         const response = await fetch(`/api/investigadores/${slug}`)
@@ -141,7 +141,51 @@ export default function InvestigadorPage() {
           throw new Error("Error al cargar el investigador")
         }
 
-        const data = await response.json()
+        const rawData = await response.json()
+        
+        // Mapear datos de snake_case a camelCase
+        const data: InvestigadorData = {
+          id: rawData.id,
+          clerkUserId: rawData.clerk_user_id,
+          name: rawData.nombre_completo || rawData.nombres + ' ' + rawData.apellidos || 'Sin Nombre',
+          email: rawData.correo,
+          curp: rawData.curp,
+          rfc: rawData.rfc,
+          noCvu: rawData.no_cvu,
+          telefono: rawData.telefono,
+          institution: rawData.institucion,
+          area: rawData.area_investigacion,
+          areaInvestigacion: rawData.area_investigacion,
+          lineaInvestigacion: rawData.linea_investigacion,
+          fotografiaUrl: rawData.fotografia_url,
+          title: rawData.ultimo_grado_estudios,
+          empleoActual: rawData.empleo_actual,
+          fechaNacimiento: rawData.fecha_nacimiento,
+          nacionalidad: rawData.nacionalidad,
+          orcid: rawData.orcid,
+          nivel: rawData.nivel,
+          location: rawData.ubicacion,
+          domicilio: rawData.ubicacion,
+          gradoMaximoEstudios: rawData.grado_maximo_estudios,
+          disciplina: rawData.disciplina,
+          especialidad: rawData.especialidad,
+          sni: rawData.sni,
+          anioSni: rawData.anio_sni,
+          experienciaDocente: rawData.experiencia_docente,
+          experienciaLaboral: rawData.experiencia_laboral,
+          proyectosInvestigacion: rawData.proyectos_investigacion,
+          proyectosVinculacion: rawData.proyectos_vinculacion,
+          libros: rawData.libros,
+          capitulosLibros: rawData.capitulos_libros,
+          articulos: rawData.articulos,
+          premiosDistinciones: rawData.premios_distinciones,
+          idiomas: rawData.idiomas,
+          colaboracionInternacional: rawData.colaboracion_internacional,
+          colaboracionNacional: rawData.colaboracion_nacional,
+          cvUrl: rawData.cv_url,
+          slug: rawData.slug || slug,
+        }
+        
         setInvestigador(data)
 
         // Cargar investigadores relacionados
