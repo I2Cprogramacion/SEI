@@ -91,8 +91,8 @@ interface FormData {
   ultimo_grado_estudios: string
   grado_maximo_estudios?: string
   empleo_actual: string
-  linea_investigacion: string
-  area_investigacion: string[]
+  linea_investigacion: string[]
+  area_investigacion: string
   disciplina?: string
   area_investigacionRaw?: string
   especialidad?: string
@@ -136,8 +136,8 @@ export default function EditarPerfilPage() {
     ultimo_grado_estudios: "",
     grado_maximo_estudios: "",
     empleo_actual: "",
-    linea_investigacion: "",
-    area_investigacion: [],
+    linea_investigacion: [],
+    area_investigacion: "",
     disciplina: "",
     area_investigacionRaw: "",
     especialidad: "",
@@ -204,13 +204,13 @@ export default function EditarPerfilPage() {
             grado_maximo_estudios: data.grado_maximo_estudios || "",
             empleo_actual: data.empleo_actual || "",
             linea_investigacion: typeof data.linea_investigacion === "string" 
-              ? data.linea_investigacion 
-              : Array.isArray(data.linea_investigacion) 
-                ? data.linea_investigacion.join(", ") 
-                : "",
+              ? (data.linea_investigacion.trim() === "" ? [] : data.linea_investigacion.split(",").map((l: string) => l.trim()).filter(Boolean))
+              : Array.isArray(data.linea_investigacion) ? data.linea_investigacion : [],
             area_investigacion: typeof data.area_investigacion === "string" 
-              ? (data.area_investigacion.trim() === "" ? [] : data.area_investigacion.split(",").map((a: string) => a.trim()).filter(Boolean))
-              : Array.isArray(data.area_investigacion) ? data.area_investigacion : [],
+              ? data.area_investigacion 
+              : Array.isArray(data.area_investigacion) 
+                ? data.area_investigacion.join(", ") 
+                : "",
             disciplina: data.disciplina || "",
             area_investigacionRaw: data.area_investigacionRaw || "",
             especialidad: data.especialidad || "",
@@ -271,7 +271,7 @@ export default function EditarPerfilPage() {
       const dataToSend = {
         ...formData,
         nombre_completo: `${formData.nombres} ${formData.apellidos}`.trim(),
-        area_investigacion: formData.area_investigacion.join(", ")
+        linea_investigacion: formData.linea_investigacion.join(", ")
       }
 
       // Enviar actualización
@@ -559,28 +559,29 @@ export default function EditarPerfilPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="linea_investigacion" className="text-blue-900 font-medium flex items-center gap-2">
+                    <Label htmlFor="area_investigacion" className="text-blue-900 font-medium flex items-center gap-2">
                       <GraduationCap className="h-4 w-4" />
-                      Área de Investigación
+                      Áreas de Investigación
                     </Label>
                     <Textarea
-                      id="linea_investigacion"
-                      name="linea_investigacion"
-                      value={formData.linea_investigacion}
+                      id="area_investigacion"
+                      name="area_investigacion"
+                      value={formData.area_investigacion}
                       onChange={handleChange}
-                      placeholder="Describe tu área de investigación..."
+                      placeholder="Describe tus áreas de investigación, especialidades y campos de conocimiento..."
                       rows={4}
                       className="bg-white border-blue-200"
+                      maxLength={500}
                     />
                   </div>
 
                   <div className="space-y-2">
                     <TagsInput
-                      value={Array.isArray(formData.area_investigacion) ? formData.area_investigacion : []}
-                      onChange={(tags) => setFormData(prev => ({ ...prev, area_investigacion: tags }))}
-                      label="Campo de Investigación Específica"
-                      placeholder="Agregar campos de investigación específicos..."
-                      maxTags={10}
+                      value={Array.isArray(formData.linea_investigacion) ? formData.linea_investigacion : []}
+                      onChange={(tags) => setFormData(prev => ({ ...prev, linea_investigacion: tags }))}
+                      label="Línea de Investigación Específica"
+                      placeholder="Escribe una línea de investigación y presiona Enter para agregarla"
+                      maxTags={5}
                       className="bg-white border-blue-200"
                     />
                   </div>
