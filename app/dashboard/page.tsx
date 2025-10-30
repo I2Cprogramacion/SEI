@@ -89,12 +89,11 @@ export default function DashboardPage() {
           const result = await response.json();
           if (result.success && result.data) {
             let data = result.data;
+            // area_investigacion es el campo de etiquetas (TagsInput)
             if (typeof data.area_investigacion === "string") {
               data.area_investigacion = data.area_investigacion.split(",").map((a: string) => a.trim()).filter(Boolean);
             }
-            if (typeof data.linea_investigacion === "string") {
-              data.linea_investigacion = data.linea_investigacion.split(",").map((l: string) => l.trim()).filter(Boolean);
-            }
+            // linea_investigacion es texto libre (Textarea), NO convertir a array
             setInvestigadorData(data);
           }
         } else {
@@ -306,23 +305,23 @@ export default function DashboardPage() {
                   </div>
                 )}
 
-                {Array.isArray(investigadorData.area_investigacion) && investigadorData.area_investigacion.length > 0 && (
+                {investigadorData.linea_investigacion && investigadorData.linea_investigacion.trim() !== "" && (
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
                       <Award className="h-4 w-4" />
                       Área de Investigación
                     </label>
-                    <p className="text-blue-900">{investigadorData.area_investigacion.join(', ')}</p>
+                    <p className="text-blue-900">{investigadorData.linea_investigacion}</p>
                   </div>
                 )}
 
-                {Array.isArray(investigadorData.linea_investigacion) && investigadorData.linea_investigacion.length > 0 && (
+                {Array.isArray(investigadorData.area_investigacion) && investigadorData.area_investigacion.length > 0 && (
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
                       <FileText className="h-4 w-4" />
-                      Línea de Investigación
+                      Campo de Investigación Específica
                     </label>
-                    <p className="text-blue-900">{investigadorData.linea_investigacion.join(', ')}</p>
+                    <p className="text-blue-900">{investigadorData.area_investigacion.join(', ')}</p>
                   </div>
                 )}
 

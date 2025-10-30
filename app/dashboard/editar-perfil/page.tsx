@@ -561,14 +561,14 @@ export default function EditarPerfilPage() {
                   <div className="space-y-2">
                     <Label htmlFor="linea_investigacion" className="text-blue-900 font-medium flex items-center gap-2">
                       <GraduationCap className="h-4 w-4" />
-                      Campo de Investigación Específica
+                      Área de Investigación
                     </Label>
                     <Textarea
                       id="linea_investigacion"
                       name="linea_investigacion"
                       value={formData.linea_investigacion}
                       onChange={handleChange}
-                      placeholder="Describe tu campo de investigación específica..."
+                      placeholder="Describe tu área de investigación..."
                       rows={4}
                       className="bg-white border-blue-200"
                     />
@@ -578,8 +578,8 @@ export default function EditarPerfilPage() {
                     <TagsInput
                       value={Array.isArray(formData.area_investigacion) ? formData.area_investigacion : []}
                       onChange={(tags) => setFormData(prev => ({ ...prev, area_investigacion: tags }))}
-                      label="Área de Investigación"
-                      placeholder="Agregar áreas de investigación..."
+                      label="Campo de Investigación Específica"
+                      placeholder="Agregar campos de investigación específicos..."
                       maxTags={10}
                       className="bg-white border-blue-200"
                     />
