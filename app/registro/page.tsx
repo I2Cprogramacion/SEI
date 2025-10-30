@@ -923,32 +923,37 @@ export default function RegistroPage() {
         }
 
         try {
+          console.log("🔵 [REGISTRO] Paso 1: Creando usuario en Clerk...")
+          
           // PASO 1: Crear el usuario en Clerk primero (valida duplicados automáticamente)
           const signUpAttempt = await signUp.create({
             emailAddress: formData.correo,
             password: formData.password,
           })
 
+          console.log("✅ [REGISTRO] Usuario creado en Clerk")
+          console.log("📊 [REGISTRO] SignUp status:", signUpAttempt.status)
+          console.log("📊 [REGISTRO] SignUp object keys:", Object.keys(signUpAttempt))
+
+          // Obtener el clerk_user_id directamente del objeto creado
+          // En Clerk, el ID del usuario está en createdUserId cuando se crea
+          const clerkUserId = signUpAttempt.createdUserId
+
+          console.log("🔑 [REGISTRO] Clerk User ID obtenido:", clerkUserId)
+
+          if (!clerkUserId) {
+            console.error("❌ [REGISTRO] No se pudo obtener clerk_user_id")
+            console.error("SignUpAttempt completo:", JSON.stringify(signUpAttempt, null, 2))
+            throw new Error("Error al crear usuario en Clerk: no se obtuvo ID. Por favor, intenta de nuevo.")
+          }
+
+          console.log("🔵 [REGISTRO] Paso 2: Preparando verificación de email...")
+          
           await signUp.prepareEmailAddressVerification({
             strategy: "email_code",
           })
 
-          // Esperar a que el usuario esté disponible en Clerk y obtener el user real
-          let realClerkUserId = null;
-          try {
-            // Esperar a que Clerk cree el usuario y lo devuelva en el frontend
-            const userResp = await fetch('/api/auth/me'); // Debes tener un endpoint que devuelva el user.id real
-            if (userResp.ok) {
-              const userData = await userResp.json();
-              realClerkUserId = userData.id;
-            }
-          } catch {}
-          // Fallback: usar el id de signUp si no se pudo obtener el real
-          const clerkUserId = realClerkUserId || signUpAttempt.createdUserId || signUpAttempt.id;
-
-          if (!clerkUserId) {
-            throw new Error("Error al crear usuario en Clerk: no se obtuvo ID")
-          }
+          console.log("✅ [REGISTRO] Verificación de email preparada")
 
           // PASO 2: Mapear y enviar todos los campos requeridos a PostgreSQL
           const dataToSend = {
@@ -1020,36 +1025,51 @@ export default function RegistroPage() {
             es_admin: false
           };
 
-          // Eliminar password y confirm_password antes de enviar a PostgreSQL
-          // Guardar en PostgreSQL (sin password, está en Clerk)
-          try {
-            console.log("🚩 Enviando datos a backend /api/registro:", dataToSend);
-            const response = await fetch("/api/registro", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(dataToSend),
-            });
+          // PASO 3: Guardar en PostgreSQL (sin password, está en Clerk)
+          console.log("🔵 [REGISTRO] Paso 3: Guardando en PostgreSQL/Neon...")
+          console.log("📊 [REGISTRO] Total de campos a enviar:", Object.keys(dataToSend).length)
+          console.log("📋 [REGISTRO] Datos a enviar (primeros 5):", Object.keys(dataToSend).slice(0, 5))
+          
+          const response = await fetch("/api/registro", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dataToSend),
+          });
 
-            const responseData = await response.json();
+          console.log("📡 [REGISTRO] Respuesta del servidor:", response.status, response.statusText)
 
-            if (!response.ok) {
-              console.error("❌ ERROR AL GUARDAR EN POSTGRESQL:", responseData);
-            } else {
-              console.log("✅ Datos guardados en PostgreSQL:", responseData);
-            }
-          } catch (dbError) {
-            console.error("Error de conexión con PostgreSQL:", dbError);
+          const responseData = await response.json();
+
+          if (!response.ok) {
+            console.error("❌ [REGISTRO] ERROR AL GUARDAR EN POSTGRESQL")
+            console.error("   Status:", response.status)
+            console.error("   Mensaje:", responseData.error || responseData.message)
+            console.error("   Respuesta completa:", responseData)
+            
+            // ERROR CRÍTICO: No permitir continuar si no se guardó en la BD
+            throw new Error(`Error al guardar datos: ${responseData.error || responseData.message || 'Error desconocido'}`)
           }
 
-          // PASO 3: Verificar el estado del registro y redirigir
+          console.log("✅ [REGISTRO] Datos guardados exitosamente en PostgreSQL")
+          console.log("   ID asignado:", responseData.id)
+          console.log("   Mensaje:", responseData.message)
+
+          // PASO 4: Verificar el estado del registro y redirigir
+          console.log("🔵 [REGISTRO] Paso 4: Verificando estado y redirigiendo...")
+          console.log("   Status de signUp:", signUpAttempt.status)
+          
           if (signUpAttempt.status === "complete") {
+            console.log("✅ [REGISTRO] Registro completo, activando sesión...")
             await clerk.setActive({ session: signUpAttempt.createdSessionId });
+            console.log("🎉 [REGISTRO] Redirigiendo a /admin")
             router.push("/admin");
           } else if (signUpAttempt.status === "missing_requirements") {
+            console.log("⚠️  [REGISTRO] Faltan requisitos, redirigiendo a verificar email")
             router.push("/verificar-email");
           } else {
+            console.log("ℹ️  [REGISTRO] Estado no completo, redirigiendo a verificar email")
             router.push("/verificar-email");
           }
         } catch (clerkError: any) {

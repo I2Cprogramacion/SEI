@@ -180,61 +180,186 @@ export class PostgreSQLDatabase implements DatabaseInterface {
       console.log("💾 ========== GUARDANDO INVESTIGADOR ==========")
       console.log("Datos recibidos:", JSON.stringify(datos, null, 2))
 
-      const curp = datos.curp?.trim() || ""
-      const nombre = datos.nombre_completo?.trim() || ""
-      const correo = datos.correo?.trim() || ""
-      
-      if (curp && curp !== "") {
+      // Verificar duplicados por CURP (solo si tiene valor)
+      const curp = datos.curp?.trim() || null
+      if (curp) {
         const existenteCurp = await this.client.query(
-          'SELECT * FROM investigadores WHERE curp = $1',
+          'SELECT id FROM investigadores WHERE curp = $1',
           [curp]
         )
         if (existenteCurp.rows.length > 0) {
           console.log("❌ CURP ya existe:", curp)
           return {
             success: false,
-            message: `⚠️ El CURP ${curp} ya existe en el sistema. Si ya tienes cuenta, inicia sesión.`,
+            message: `⚠️ El CURP ${curp} ya existe en el sistema.`,
           }
         }
       }
 
-      // Clerk maneja la autenticación, solo guardamos datos de perfil
+      // MAPEO COMPLETO: datos recibidos → columnas de BD
+      // Solo incluimos campos que existen en la tabla investigadores
+      const camposBD: Record<string, any> = {}
+
+      // Campos obligatorios
+      camposBD.nombre_completo = datos.nombre_completo?.trim() || 
+        `${datos.nombres || ''} ${datos.apellidos || ''}`.trim() || 
+        'Sin Nombre'
+
+      // Campos de identificación
+      if (datos.user_id) camposBD.user_id = datos.user_id
+      if (datos.clerk_user_id) camposBD.clerk_user_id = datos.clerk_user_id
+      if (datos.slug) camposBD.slug = datos.slug
+      if (datos.nombres) camposBD.nombres = datos.nombres
+      if (datos.apellidos) camposBD.apellidos = datos.apellidos
+      if (curp) camposBD.curp = curp
+      if (datos.rfc) camposBD.rfc = datos.rfc
+      if (datos.no_cvu) camposBD.no_cvu = datos.no_cvu
+      if (datos.correo) camposBD.correo = datos.correo
+      if (datos.telefono) camposBD.telefono = datos.telefono
+      if (datos.fotografia_url) camposBD.fotografia_url = datos.fotografia_url
       
-      // Preparar los campos y valores para la inserción
-      const campos = Object.keys(datos).filter((campo) => datos[campo] !== undefined && datos[campo] !== null)
-      const placeholders = campos.map((_, index) => `$${index + 1}`).join(", ")
-      const valores = campos.map((campo) => datos[campo])
+      // Campos demográficos
+      camposBD.nacionalidad = datos.nacionalidad || 'Mexicana'
+      if (datos.fecha_nacimiento) camposBD.fecha_nacimiento = datos.fecha_nacimiento
+      if (datos.genero) camposBD.genero = datos.genero
+      if (datos.municipio) camposBD.municipio = datos.municipio
+      if (datos.estado_nacimiento) camposBD.estado_nacimiento = datos.estado_nacimiento
+      if (datos.entidad_federativa) camposBD.entidad_federativa = datos.entidad_federativa
+      
+      // Institución
+      if (datos.institucion_id) camposBD.institucion_id = datos.institucion_id
+      if (datos.institucion) camposBD.institucion = datos.institucion
+      if (datos.departamento) camposBD.departamento = datos.departamento
+      if (datos.ubicacion) camposBD.ubicacion = datos.ubicacion
+      if (datos.sitio_web) camposBD.sitio_web = datos.sitio_web
+      
+      // Sistema
+      if (datos.origen) camposBD.origen = datos.origen
+      if (datos.archivo_procesado) camposBD.archivo_procesado = datos.archivo_procesado
+      if (datos.fecha_registro) camposBD.fecha_registro = datos.fecha_registro
+      camposBD.es_admin = datos.es_admin !== undefined ? datos.es_admin : false
+      camposBD.activo = datos.activo !== undefined ? datos.activo : true
+      
+      // Académico y profesional
+      if (datos.ultimo_grado_estudios) camposBD.ultimo_grado_estudios = datos.ultimo_grado_estudios
+      if (datos.grado_maximo_estudios) camposBD.grado_maximo_estudios = datos.grado_maximo_estudios
+      if (datos.empleo_actual) camposBD.empleo_actual = datos.empleo_actual
+      if (datos.linea_investigacion) camposBD.linea_investigacion = datos.linea_investigacion
+      if (datos.area_investigacion) camposBD.area_investigacion = datos.area_investigacion
+      if (datos.disciplina) camposBD.disciplina = datos.disciplina
+      if (datos.especialidad) camposBD.especialidad = datos.especialidad
+      if (datos.orcid) camposBD.orcid = datos.orcid
+      if (datos.nivel) camposBD.nivel = datos.nivel
+      if (datos.nivel_investigador) camposBD.nivel_investigador = datos.nivel_investigador
+      if (datos.nivel_actual_id) camposBD.nivel_actual_id = datos.nivel_actual_id
+      if (datos.fecha_asignacion_nivel) camposBD.fecha_asignacion_nivel = datos.fecha_asignacion_nivel
+      if (datos.puntaje_total !== undefined) camposBD.puntaje_total = datos.puntaje_total
+      if (datos.estado_evaluacion) camposBD.estado_evaluacion = datos.estado_evaluacion
+      
+      // Producción académica
+      if (datos.articulos) camposBD.articulos = datos.articulos
+      if (datos.libros) camposBD.libros = datos.libros
+      if (datos.capitulos_libros) camposBD.capitulos_libros = datos.capitulos_libros
+      if (datos.proyectos_investigacion) camposBD.proyectos_investigacion = datos.proyectos_investigacion
+      if (datos.proyectos_vinculacion) camposBD.proyectos_vinculacion = datos.proyectos_vinculacion
+      if (datos.experiencia_docente) camposBD.experiencia_docente = datos.experiencia_docente
+      if (datos.experiencia_laboral) camposBD.experiencia_laboral = datos.experiencia_laboral
+      if (datos.premios_distinciones) camposBD.premios_distinciones = datos.premios_distinciones
+      if (datos.idiomas) camposBD.idiomas = datos.idiomas
+      if (datos.colaboracion_internacional) camposBD.colaboracion_internacional = datos.colaboracion_internacional
+      if (datos.colaboracion_nacional) camposBD.colaboracion_nacional = datos.colaboracion_nacional
+      if (datos.sni) camposBD.sni = datos.sni
+      if (datos.anio_sni) camposBD.anio_sni = datos.anio_sni
+      if (datos.cv_url) camposBD.cv_url = datos.cv_url
+      
+      // Tipo de perfil y nivel tecnólogo
+      camposBD.tipo_perfil = datos.tipo_perfil || 'INVESTIGADOR'
+      if (datos.nivel_tecnologo_id) camposBD.nivel_tecnologo_id = datos.nivel_tecnologo_id
+      if (datos.nivel_tecnologo) camposBD.nivel_tecnologo = datos.nivel_tecnologo
+
+      // Construir arrays de campos y valores (SIN el ID, se genera automáticamente)
+      const campos: string[] = []
+      const valores: any[] = []
+      
+      for (const [campo, valor] of Object.entries(camposBD)) {
+        if (valor !== null && valor !== undefined) {
+          campos.push(campo)
+          valores.push(valor)
+        }
+      }
 
       console.log("📋 Campos a insertar:", campos)
-      console.log("📋 Valores:", valores)
+      console.log("📋 Total de campos:", campos.length)
 
-      // Construir la consulta SQL
-      const query = `INSERT INTO investigadores (${campos.join(", ")}) VALUES (${placeholders}) RETURNING id, nombre_completo, correo, clerk_user_id`;
-      
-      console.log("🔧 Query SQL:", query)
+      // Generar placeholders ($1, $2, $3, ...)
+      const placeholders = campos.map((_, index) => `$${index + 1}`).join(", ")
+
+      // Construir la consulta SQL (el ID se genera automáticamente)
+      const query = `
+        INSERT INTO investigadores (${campos.join(", ")}) 
+        VALUES (${placeholders}) 
+        RETURNING id, nombre_completo, correo, clerk_user_id
+      `
+
+      console.log("🔧 Ejecutando INSERT...")
 
       // Ejecutar la consulta
       const result = await this.client.query(query, valores)
-      
+
       console.log("✅ REGISTRO EXITOSO:")
       console.log("   - ID:", result.rows[0].id)
       console.log("   - Nombre:", result.rows[0].nombre_completo)
       console.log("   - Correo:", result.rows[0].correo)
       console.log("   - Clerk User ID:", result.rows[0].clerk_user_id)
       console.log("===============================================")
-      
+
       return {
         success: true,
-        message: `Registro exitoso para ${nombre}`,
+        message: `Registro exitoso para ${result.rows[0].nombre_completo}`,
         id: result.rows[0].id,
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("❌ ========== ERROR AL GUARDAR ==========")
-      console.error("Error:", error)
+      console.error("Error completo:", error)
+      console.error("Código de error:", error.code)
+      console.error("Detalle:", error.detail)
+      console.error("Constraint:", error.constraint)
       console.error("========================================")
+
+      // Manejo de errores específicos de PostgreSQL
+      if (error.code === '23505') {
+        // Unique violation
+        const constraint = error.constraint || 'desconocido'
+        let campo = 'dato'
+        if (constraint.includes('curp')) campo = 'CURP'
+        else if (constraint.includes('correo')) campo = 'correo'
+        else if (constraint.includes('clerk')) campo = 'usuario'
+        
+        return {
+          success: false,
+          message: `Ya existe un registro con ese ${campo}.`,
+        }
+      }
+      
+      if (error.code === '23502') {
+        // Not null violation
+        return {
+          success: false,
+          message: `Falta un campo obligatorio: ${error.column || 'desconocido'}`,
+        }
+      }
+
+      if (error.code === '42703') {
+        // Undefined column
+        return {
+          success: false,
+          message: `Error de configuración: columna no existe - ${error.message}`,
+        }
+      }
+
       return {
         success: false,
-        message: `Error al guardar: ${error instanceof Error ? error.message : "Error desconocido"}`,
+        message: `Error al guardar: ${error.message}`,
         error,
       }
     }
