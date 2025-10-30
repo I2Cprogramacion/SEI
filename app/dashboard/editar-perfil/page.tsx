@@ -91,7 +91,7 @@ interface FormData {
   ultimo_grado_estudios: string
   grado_maximo_estudios?: string
   empleo_actual: string
-  linea_investigacion: string[]
+  linea_investigacion: string
   area_investigacion: string[]
   disciplina?: string
   area_investigacionRaw?: string
@@ -136,7 +136,7 @@ export default function EditarPerfilPage() {
     ultimo_grado_estudios: "",
     grado_maximo_estudios: "",
     empleo_actual: "",
-    linea_investigacion: [],
+    linea_investigacion: "",
     area_investigacion: [],
     disciplina: "",
     area_investigacionRaw: "",
@@ -204,8 +204,10 @@ export default function EditarPerfilPage() {
             grado_maximo_estudios: data.grado_maximo_estudios || "",
             empleo_actual: data.empleo_actual || "",
             linea_investigacion: typeof data.linea_investigacion === "string" 
-              ? (data.linea_investigacion.trim() === "" ? [] : data.linea_investigacion.split(",").map((l: string) => l.trim()).filter(Boolean))
-              : Array.isArray(data.linea_investigacion) ? data.linea_investigacion : [],
+              ? data.linea_investigacion 
+              : Array.isArray(data.linea_investigacion) 
+                ? data.linea_investigacion.join(", ") 
+                : "",
             area_investigacion: typeof data.area_investigacion === "string" 
               ? (data.area_investigacion.trim() === "" ? [] : data.area_investigacion.split(",").map((a: string) => a.trim()).filter(Boolean))
               : Array.isArray(data.area_investigacion) ? data.area_investigacion : [],
@@ -253,18 +255,22 @@ export default function EditarPerfilPage() {
 
     try {
       // Validaciones básicas
-      if (!formData.nombre_completo.trim()) {
-        throw new Error("El nombre completo es obligatorio")
+      if (!formData.nombres.trim()) {
+        throw new Error("El nombre es obligatorio")
+      }
+
+      if (!formData.apellidos.trim()) {
+        throw new Error("Los apellidos son obligatorios")
       }
 
       if (!formData.telefono.trim()) {
         throw new Error("El teléfono es obligatorio")
       }
 
-      // Preparar datos para envío (convertir arrays a strings)
+      // Preparar datos para envío
       const dataToSend = {
         ...formData,
-        linea_investigacion: formData.linea_investigacion.join(", "),
+        nombre_completo: `${formData.nombres} ${formData.apellidos}`.trim(),
         area_investigacion: formData.area_investigacion.join(", ")
       }
 
@@ -382,16 +388,32 @@ export default function EditarPerfilPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="nombre_completo" className="text-blue-900 font-medium flex items-center gap-2">
+                    <Label htmlFor="nombres" className="text-blue-900 font-medium flex items-center gap-2">
                       <User className="h-4 w-4" />
-                      Nombre Completo *
+                      Nombres *
                     </Label>
                     <Input
-                      id="nombre_completo"
-                      name="nombre_completo"
-                      value={formData.nombre_completo}
+                      id="nombres"
+                      name="nombres"
+                      value={formData.nombres}
                       onChange={handleChange}
-                      placeholder="Nombre completo"
+                      placeholder="Ej: Juan Carlos"
+                      className="bg-white border-blue-200"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="apellidos" className="text-blue-900 font-medium flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      Apellidos *
+                    </Label>
+                    <Input
+                      id="apellidos"
+                      name="apellidos"
+                      value={formData.apellidos}
+                      onChange={handleChange}
+                      placeholder="Ej: García López"
                       className="bg-white border-blue-200"
                       required
                     />
@@ -452,36 +474,7 @@ export default function EditarPerfilPage() {
                   Identificación Oficial
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Campos oficiales y personales relevantes */}
-                  <div className="space-y-2">
-                    <Label htmlFor="nombres" className="text-blue-900 font-medium flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Nombres
-                    </Label>
-                    <Input
-                      id="nombres"
-                      name="nombres"
-                      value={formData.nombres}
-                      onChange={handleChange}
-                      placeholder="Nombres"
-                      className="bg-white border-blue-200"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="apellidos" className="text-blue-900 font-medium flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Apellidos
-                    </Label>
-                    <Input
-                      id="apellidos"
-                      name="apellidos"
-                      value={formData.apellidos}
-                      onChange={handleChange}
-                      placeholder="Apellidos"
-                      className="bg-white border-blue-200"
-                    />
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="curp" className="text-blue-900 font-medium flex items-center gap-2">
                       <CreditCard className="h-4 w-4" />
@@ -566,12 +559,17 @@ export default function EditarPerfilPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <TagsInput
-                      value={Array.isArray(formData.linea_investigacion) ? formData.linea_investigacion : []}
-                      onChange={(tags) => setFormData(prev => ({ ...prev, linea_investigacion: tags }))}
-                      label="Línea de Investigación Específica"
-                      placeholder="Agregar líneas de investigación específicas..."
-                      maxTags={10}
+                    <Label htmlFor="linea_investigacion" className="text-blue-900 font-medium flex items-center gap-2">
+                      <GraduationCap className="h-4 w-4" />
+                      Campo de Investigación Específica
+                    </Label>
+                    <Textarea
+                      id="linea_investigacion"
+                      name="linea_investigacion"
+                      value={formData.linea_investigacion}
+                      onChange={handleChange}
+                      placeholder="Describe tu campo de investigación específica..."
+                      rows={4}
                       className="bg-white border-blue-200"
                     />
                   </div>
