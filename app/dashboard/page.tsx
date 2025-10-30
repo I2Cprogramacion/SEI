@@ -332,6 +332,13 @@ export default function DashboardPage() {
                   </div>
                 )}
 
+
+
+
+
+
+
+
                 {investigadorData.nacionalidad && investigadorData.nacionalidad.trim() !== "" && (
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
