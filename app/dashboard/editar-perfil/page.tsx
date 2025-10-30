@@ -268,11 +268,21 @@ export default function EditarPerfilPage() {
       }
 
       // Preparar datos para envío
-      const dataToSend = {
+      const dataToSend: any = {
         ...formData,
         nombre_completo: `${formData.nombres} ${formData.apellidos}`.trim(),
         linea_investigacion: formData.linea_investigacion.join(", ")
       }
+      
+      // Limpiar campos vacíos o null antes de enviar
+      Object.keys(dataToSend).forEach(key => {
+        if (dataToSend[key] === "" || dataToSend[key] === null) {
+          // Mantener campos obligatorios aunque estén vacíos
+          if (!['nombres', 'apellidos', 'nombre_completo', 'telefono'].includes(key)) {
+            delete dataToSend[key]
+          }
+        }
+      })
 
       // Enviar actualización
       const response = await fetch("/api/investigadores/actualizar", {

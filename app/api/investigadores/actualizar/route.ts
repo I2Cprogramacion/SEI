@@ -43,8 +43,21 @@ export async function PUT(request: NextRequest) {
 
     Object.keys(data).forEach(key => {
       if (camposPermitidos.includes(key) && data[key] !== undefined) {
+        // Convertir strings vacíos a null para campos de fecha y otros opcionales
+        let valor = data[key]
+        
+        // Si es un string vacío y es un campo de fecha o ID, convertir a null
+        if (valor === "" && (
+          key.includes('fecha') || 
+          key.includes('_id') || 
+          key === 'orcid' || 
+          key === 'nivel'
+        )) {
+          valor = null
+        }
+        
         camposActualizar.push(`${key} = $${paramCount}`)
-        valores.push(data[key])
+        valores.push(valor)
         paramCount++
       }
     })
