@@ -181,112 +181,129 @@ export function GestionarCvDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-6 py-4">
           {/* CV Actual */}
           {cvUrlActual && (
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <FileText className="h-8 w-8 text-blue-600" />
-                  <div>
-                    <p className="font-medium text-blue-900">Perfil Único del registro</p>
-                    <p className="text-xs text-blue-600 mb-2">
+            <div className="space-y-3">
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <FileText className="h-10 w-10 text-blue-600 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-blue-900 mb-1">Perfil Único del registro</p>
+                    <p className="text-sm text-blue-700">
                       Documento procesado automáticamente durante tu registro
                     </p>
-                    <Button
-                      variant="link"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        window.open(cvUrlActual, "_blank", "noopener,noreferrer")
-                      }}
-                      className="text-sm text-blue-600 hover:underline p-0 h-auto"
-                    >
-                      Ver documento
-                    </Button>
                   </div>
                 </div>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-red-300 text-red-700 hover:bg-red-50"
-                      disabled={isDeleting}
-                    >
-                      {isDeleting ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>¿Eliminar CV?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Esta acción no se puede deshacer. El CV será eliminado permanentemente.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleDelete}
-                        className="bg-red-700 hover:bg-red-800"
+                
+                {/* Botones de acción */}
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      window.open(cvUrlActual, "_blank", "noopener,noreferrer")
+                    }}
+                    className="flex-1 border-blue-300 text-blue-700 hover:bg-blue-100"
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    Ver documento
+                  </Button>
+                  
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-red-300 text-red-700 hover:bg-red-50"
+                        disabled={isDeleting}
                       >
-                        Eliminar
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                        {isDeleting ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>¿Eliminar CV?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Esta acción no se puede deshacer. El CV será eliminado permanentemente.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDelete}
+                          className="bg-red-700 hover:bg-red-800"
+                        >
+                          Eliminar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </div>
             </div>
           )}
 
           {/* Subir nuevo CV */}
           <div className="space-y-3">
-            <h3 className="font-medium text-sm text-gray-900">
+            <h3 className="font-semibold text-base text-gray-900 flex items-center gap-2">
+              <Upload className="h-4 w-4" />
               {cvUrlActual ? "Reemplazar CV" : "Subir CV"}
             </h3>
-            <div className="flex flex-col gap-3">
-              <input
-                type="file"
-                accept=".pdf,application/pdf"
-                onChange={handleFileSelect}
-                className="block w-full text-sm text-gray-500
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-md file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-blue-50 file:text-blue-700
-                  hover:file:bg-blue-100
-                  cursor-pointer"
-                disabled={isUploading}
-              />
+            
+            <div className="space-y-3">
+              <label className="block">
+                <input
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  onChange={handleFileSelect}
+                  className="block w-full text-sm text-gray-600
+                    file:mr-4 file:py-2.5 file:px-4
+                    file:rounded-lg file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-gradient-to-r file:from-blue-600 file:to-blue-700
+                    file:text-white
+                    hover:file:from-blue-700 hover:file:to-blue-800
+                    file:cursor-pointer
+                    cursor-pointer
+                    border border-gray-300 rounded-lg p-2"
+                  disabled={isUploading}
+                />
+              </label>
+              
               {selectedFile && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <FileText className="h-4 w-4" />
-                  <span>{selectedFile.name}</span>
-                  <span className="text-gray-400">
-                    ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
-                  </span>
+                <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <FileText className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-green-900 truncate">{selectedFile.name}</p>
+                    <p className="text-xs text-green-600">
+                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
-            <div className="flex items-start gap-2 text-xs text-gray-500 bg-gray-50 p-3 rounded">
-              <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+            
+            <div className="flex items-start gap-2 text-xs text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-200">
+              <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-gray-500" />
               <div>
-                <p className="font-medium">Requisitos:</p>
-                <ul className="list-disc list-inside mt-1 space-y-0.5">
+                <p className="font-semibold text-gray-700 mb-1">Requisitos:</p>
+                <ul className="list-disc list-inside space-y-0.5">
                   <li>Formato PDF únicamente</li>
                   <li>Tamaño máximo: 10MB</li>
-                  <li>El CV anterior será reemplazado</li>
+                  {cvUrlActual && <li>El CV anterior será reemplazado</li>}
                 </ul>
               </div>
             </div>
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <Button
             variant="outline"
             onClick={() => {
@@ -294,13 +311,14 @@ export function GestionarCvDialog({
               setSelectedFile(null)
             }}
             disabled={isUploading}
+            className="flex-1 sm:flex-none"
           >
             Cancelar
           </Button>
           <Button
             onClick={handleUpload}
             disabled={!selectedFile || isUploading}
-            className="bg-blue-700 hover:bg-blue-800"
+            className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
           >
             {isUploading ? (
               <>
@@ -310,7 +328,7 @@ export function GestionarCvDialog({
             ) : (
               <>
                 <Upload className="mr-2 h-4 w-4" />
-                {cvUrlActual ? "Reemplazar CV" : "Subir CV"}
+                {selectedFile ? (cvUrlActual ? "Reemplazar CV" : "Subir CV") : "Selecciona un archivo"}
               </>
             )}
           </Button>
