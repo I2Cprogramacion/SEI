@@ -35,7 +35,9 @@ import {
   BarChart3,
   Eye,
   Sparkles,
-  Trash2
+  Trash2,
+  Download,
+  ExternalLink
 } from "lucide-react"
 
 import {
@@ -301,133 +303,134 @@ export default function DashboardPage() {
           </Card>
         )}
 
-        {/* Información del usuario */}
-        <Card className="mb-8 bg-white border-blue-100">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <div>
-              <CardTitle className="text-blue-900 flex items-center">
-                <UserIcon className="mr-2 h-5 w-5" />
-                Perfil del Investigador
-              </CardTitle>
-              <CardDescription className="text-blue-600">
-                Información completa de tu cuenta
-              </CardDescription>
-            </div>
-            <Button
-              onClick={() => router.push("/dashboard/editar-perfil")}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
-            >
-              <Edit className="mr-2 h-4 w-4" />
-              Editar Perfil
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Foto y datos básicos */}
-            <div className="flex items-start gap-6">
-              <Avatar className="h-24 w-24">
-                {investigadorData?.fotografia_url && investigadorData.fotografia_url.trim() !== "" ? (
-                  <AvatarImage src={investigadorData.fotografia_url} alt={investigadorData?.nombre_completo || "Usuario"} />
-                ) : null}
-                <AvatarFallback className="bg-blue-100 text-blue-700 text-2xl">
-                  {(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== ""
-                    ? investigadorData.nombre_completo
-                    : user.fullName || "U").charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold text-blue-900">
-                  {(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== "")
-                    ? investigadorData.nombre_completo
-                    : user.fullName || user.firstName || "Usuario"}
-                </h2>
-                <p className="text-blue-600 flex items-center gap-2 mt-1">
-                  <Mail className="h-4 w-4" />
-                  {(investigadorData?.correo && investigadorData.correo.trim() !== "")
-                    ? investigadorData.correo
-                    : user.primaryEmailAddress?.emailAddress || "No disponible"}
-                </p>
-                {investigadorData?.telefono && investigadorData.telefono.trim() !== "" && (
-                  <p className="text-blue-600 flex items-center gap-2 mt-1">
-                    <Phone className="h-4 w-4" />
-                    {investigadorData.telefono}
+        {/* Layout de dos columnas: Perfil + Vista previa del CV */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Columna izquierda: Información del investigador */}
+          <Card className="bg-white border-blue-100 h-fit">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <div>
+                <CardTitle className="text-blue-900 flex items-center">
+                  <UserIcon className="mr-2 h-5 w-5" />
+                  Perfil del Investigador
+                </CardTitle>
+                <CardDescription className="text-blue-600">
+                  Información completa de tu cuenta
+                </CardDescription>
+              </div>
+              <Button
+                onClick={() => router.push("/dashboard/editar-perfil")}
+                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
+                size="sm"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Editar Perfil
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Foto y datos básicos */}
+              <div className="flex items-start gap-4">
+                <Avatar className="h-20 w-20 flex-shrink-0">
+                  {investigadorData?.fotografia_url && investigadorData.fotografia_url.trim() !== "" ? (
+                    <AvatarImage src={investigadorData.fotografia_url} alt={investigadorData?.nombre_completo || "Usuario"} />
+                  ) : null}
+                  <AvatarFallback className="bg-blue-100 text-blue-700 text-xl">
+                    {(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== ""
+                      ? investigadorData.nombre_completo
+                      : user.fullName || "U").charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-xl font-bold text-blue-900 break-words">
+                    {(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== "")
+                      ? investigadorData.nombre_completo
+                      : user.fullName || user.firstName || "Usuario"}
+                  </h2>
+                  <p className="text-sm text-blue-600 flex items-center gap-2 mt-1">
+                    <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                    <span className="truncate">
+                      {(investigadorData?.correo && investigadorData.correo.trim() !== "")
+                        ? investigadorData.correo
+                        : user.primaryEmailAddress?.emailAddress || "No disponible"}
+                    </span>
                   </p>
-                )}
+                  {investigadorData?.telefono && investigadorData.telefono.trim() !== "" && (
+                    <p className="text-sm text-blue-600 flex items-center gap-2 mt-1">
+                      <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                      {investigadorData.telefono}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* Información detallada */}
-            {investigadorData && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-blue-100">
-                {investigadorData.empleo_actual && investigadorData.empleo_actual.trim() !== "" && (
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
-                      <Briefcase className="h-4 w-4" />
-                      Empleo Actual
-                    </label>
-                    <p className="text-blue-900">{investigadorData.empleo_actual}</p>
-                  </div>
-                )}
-                
-                {investigadorData.ultimo_grado_estudios && investigadorData.ultimo_grado_estudios.trim() !== "" && (
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
-                      <GraduationCap className="h-4 w-4" />
-                      Último Grado de Estudios
-                    </label>
-                    <p className="text-blue-900">{investigadorData.ultimo_grado_estudios}</p>
-                  </div>
-                )}
+              {/* Información detallada */}
+              {investigadorData && (
+                <div className="space-y-3 pt-3 border-t border-blue-100">
+                  {investigadorData.empleo_actual && investigadorData.empleo_actual.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <Briefcase className="h-3.5 w-3.5" />
+                        Empleo Actual
+                      </label>
+                      <p className="text-sm text-blue-900">{investigadorData.empleo_actual}</p>
+                    </div>
+                  )}
+                  
+                  {investigadorData.ultimo_grado_estudios && investigadorData.ultimo_grado_estudios.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <GraduationCap className="h-3.5 w-3.5" />
+                        Último Grado de Estudios
+                      </label>
+                      <p className="text-sm text-blue-900">{investigadorData.ultimo_grado_estudios}</p>
+                    </div>
+                  )}
 
-                {investigadorData.area_investigacion && investigadorData.area_investigacion.trim() !== "" && (
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
-                      <Award className="h-4 w-4" />
-                      Áreas de Investigación
-                    </label>
-                    <p className="text-blue-900">{investigadorData.area_investigacion}</p>
-                  </div>
-                )}
+                  {Array.isArray(investigadorData.linea_investigacion) && investigadorData.linea_investigacion.length > 0 && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <FileText className="h-3.5 w-3.5" />
+                        Línea de Investigación
+                      </label>
+                      <p className="text-sm text-blue-900">{investigadorData.linea_investigacion.join(', ')}</p>
+                    </div>
+                  )}
 
-                {Array.isArray(investigadorData.linea_investigacion) && investigadorData.linea_investigacion.length > 0 && (
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
-                      <FileText className="h-4 w-4" />
-                      Línea de Investigación Específica
-                    </label>
-                    <p className="text-blue-900">{investigadorData.linea_investigacion.join(', ')}</p>
-                  </div>
-                )}
+                  {investigadorData.area_investigacion && investigadorData.area_investigacion.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <Award className="h-3.5 w-3.5" />
+                        Área de Investigación
+                      </label>
+                      <p className="text-sm text-blue-900">{investigadorData.area_investigacion}</p>
+                    </div>
+                  )}
 
-                {investigadorData.no_cvu && investigadorData.no_cvu.trim() !== "" && (
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-blue-700">CVU/PU</label>
-                    <p className="text-blue-900">{investigadorData.no_cvu}</p>
-                  </div>
-                )}
-
+                  {investigadorData.no_cvu && investigadorData.no_cvu.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">CVU/PU</label>
+                      <p className="text-sm text-blue-900 font-mono">{investigadorData.no_cvu}</p>
+                    </div>
+                  )}
 
 
 
 
+                  {investigadorData.nacionalidad && investigadorData.nacionalidad.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <MapPin className="h-3.5 w-3.5" />
+                        Nacionalidad
+                      </label>
+                      <p className="text-sm text-blue-900">{investigadorData.nacionalidad}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-
-
-                {investigadorData.nacionalidad && investigadorData.nacionalidad.trim() !== "" && (
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-blue-700 flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      Nacionalidad
-                    </label>
-                    <p className="text-blue-900">{investigadorData.nacionalidad}</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Perfil del Investigador */}
-        <Card className="mb-8 bg-white border-blue-100">
+          {/* Columna derecha: Vista previa del CV/Perfil Único */}
+          <Card className="bg-white border-blue-100 h-fit">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -521,18 +524,51 @@ export default function DashboardPage() {
                   </div>
                 )}
                 
-                <CvViewer 
-                  cvUrl={validCvUrl} 
-                  investigadorNombre={investigadorData.nombre_completo}
-                />
+                {/* Vista previa del PDF embebido */}
+                <div className="relative w-full bg-gray-50 rounded-lg overflow-hidden" style={{ height: '700px' }}>
+                  <iframe
+                    src={validCvUrl}
+                    className="w-full h-full border-0"
+                    title="Perfil Único del Investigador"
+                  />
+                  
+                  {/* Botones flotantes */}
+                  <div className="absolute bottom-4 right-4 flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => window.open(validCvUrl, "_blank", "noopener,noreferrer")}
+                      className="bg-white/95 backdrop-blur-sm shadow-lg hover:bg-white"
+                    >
+                      <ExternalLink className="mr-2 h-3.5 w-3.5" />
+                      Nueva pestaña
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => {
+                        const link = document.createElement('a')
+                        link.href = validCvUrl
+                        link.download = `${investigadorData?.nombre_completo?.replace(/\s+/g, '_') || 'perfil'}.pdf`
+                        document.body.appendChild(link)
+                        link.click()
+                        document.body.removeChild(link)
+                      }}
+                      className="bg-white/95 backdrop-blur-sm shadow-lg hover:bg-white"
+                    >
+                      <Download className="mr-2 h-3.5 w-3.5" />
+                      Descargar
+                    </Button>
+                  </div>
+                </div>
               </>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-4 p-6">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
                   <FileText className="h-12 w-12 text-blue-400 mx-auto mb-3" />
-                  <p className="text-blue-700 font-medium mb-2">Perfil Único del registro no disponible</p>
+                  <p className="text-blue-700 font-medium mb-2">Perfil Único no disponible</p>
                   <p className="text-sm text-blue-600 mb-4">
-                    Tu Perfil Único debería haberse guardado automáticamente durante el registro. Si no aparece, puedes subirlo manualmente.
+                    Tu Perfil Único debería haberse guardado automáticamente durante el registro.
                   </p>
                 </div>
                 <UploadCv
@@ -580,6 +616,7 @@ export default function DashboardPage() {
             )}
           </CardContent>
         </Card>
+        </div> {/* Fin del grid de dos columnas */}
 
         {/* Publicaciones */}
         <Card className="bg-white border-blue-100 hover:shadow-lg transition-shadow cursor-pointer">
