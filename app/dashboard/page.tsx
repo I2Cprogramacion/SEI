@@ -365,6 +365,7 @@ export default function DashboardPage() {
               {/* Información detallada */}
               {investigadorData && (
                 <div className="space-y-3 pt-3 border-t border-blue-100">
+                  {/* 1. Empleo Actual */}
                   {investigadorData.empleo_actual && investigadorData.empleo_actual.trim() !== "" && (
                     <div className="space-y-1">
                       <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
@@ -374,27 +375,74 @@ export default function DashboardPage() {
                       <p className="text-sm text-blue-900">{investigadorData.empleo_actual}</p>
                     </div>
                   )}
-                  
-                  {investigadorData.ultimo_grado_estudios && investigadorData.ultimo_grado_estudios.trim() !== "" && (
+
+                  {/* 2. CVU/PU */}
+                  {investigadorData.no_cvu && investigadorData.no_cvu.trim() !== "" && (
                     <div className="space-y-1">
                       <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
-                        <GraduationCap className="h-3.5 w-3.5" />
-                        Último Grado de Estudios
+                        <Award className="h-3.5 w-3.5" />
+                        CVU/PU
                       </label>
-                      <p className="text-sm text-blue-900">{investigadorData.ultimo_grado_estudios}</p>
+                      <p className="text-sm text-blue-900 font-mono">{investigadorData.no_cvu}</p>
                     </div>
                   )}
 
-                  {Array.isArray(investigadorData.linea_investigacion) && investigadorData.linea_investigacion.length > 0 && (
+                  {/* 3. Nacionalidad */}
+                  {investigadorData.nacionalidad && investigadorData.nacionalidad.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <MapPin className="h-3.5 w-3.5" />
+                        Nacionalidad
+                      </label>
+                      <p className="text-sm text-blue-900">{investigadorData.nacionalidad}</p>
+                    </div>
+                  )}
+
+                  {/* 4. Municipio */}
+                  {investigadorData.municipio && investigadorData.municipio.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <MapPin className="h-3.5 w-3.5" />
+                        Municipio
+                      </label>
+                      <p className="text-sm text-blue-900">{investigadorData.municipio}</p>
+                    </div>
+                  )}
+
+                  {/* 5. CURP */}
+                  {investigadorData.curp && investigadorData.curp.trim() !== "" && (
                     <div className="space-y-1">
                       <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
                         <FileText className="h-3.5 w-3.5" />
+                        CURP
+                      </label>
+                      <p className="text-sm text-blue-900 font-mono">{investigadorData.curp}</p>
+                    </div>
+                  )}
+
+                  {/* 6. RFC */}
+                  {investigadorData.rfc && investigadorData.rfc.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <FileText className="h-3.5 w-3.5" />
+                        RFC
+                      </label>
+                      <p className="text-sm text-blue-900 font-mono">{investigadorData.rfc}</p>
+                    </div>
+                  )}
+
+                  {/* 7. Línea de Investigación */}
+                  {Array.isArray(investigadorData.linea_investigacion) && investigadorData.linea_investigacion.length > 0 && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <GraduationCap className="h-3.5 w-3.5" />
                         Línea de Investigación
                       </label>
                       <p className="text-sm text-blue-900">{investigadorData.linea_investigacion.join(', ')}</p>
                     </div>
                   )}
 
+                  {/* 8. Área de Investigación */}
                   {investigadorData.area_investigacion && investigadorData.area_investigacion.trim() !== "" && (
                     <div className="space-y-1">
                       <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
@@ -405,23 +453,33 @@ export default function DashboardPage() {
                     </div>
                   )}
 
-                  {investigadorData.no_cvu && investigadorData.no_cvu.trim() !== "" && (
+                  {/* Campos adicionales al final */}
+                  {investigadorData.ultimo_grado_estudios && investigadorData.ultimo_grado_estudios.trim() !== "" && (
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">CVU/PU</label>
-                      <p className="text-sm text-blue-900 font-mono">{investigadorData.no_cvu}</p>
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <GraduationCap className="h-3.5 w-3.5" />
+                        Último Grado de Estudios
+                      </label>
+                      <p className="text-sm text-blue-900">{investigadorData.ultimo_grado_estudios}</p>
                     </div>
                   )}
 
                   {investigadorData.orcid && investigadorData.orcid.trim() !== "" && (
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">ORCID</label>
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <Award className="h-3.5 w-3.5" />
+                        ORCID
+                      </label>
                       <p className="text-sm text-blue-900 font-mono">{investigadorData.orcid}</p>
                     </div>
                   )}
 
                   {investigadorData.sni && investigadorData.sni.trim() !== "" && (
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">SNI</label>
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <Award className="h-3.5 w-3.5" />
+                        SNI
+                      </label>
                       <p className="text-sm text-blue-900">
                         {investigadorData.sni}
                         {investigadorData.anio_sni && ` (${investigadorData.anio_sni})`}
@@ -441,14 +499,20 @@ export default function DashboardPage() {
 
                   {investigadorData.disciplina && investigadorData.disciplina.trim() !== "" && (
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Disciplina</label>
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <GraduationCap className="h-3.5 w-3.5" />
+                        Disciplina
+                      </label>
                       <p className="text-sm text-blue-900">{investigadorData.disciplina}</p>
                     </div>
                   )}
 
                   {investigadorData.especialidad && investigadorData.especialidad.trim() !== "" && (
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Especialidad</label>
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <GraduationCap className="h-3.5 w-3.5" />
+                        Especialidad
+                      </label>
                       <p className="text-sm text-blue-900">{investigadorData.especialidad}</p>
                     </div>
                   )}
@@ -465,18 +529,11 @@ export default function DashboardPage() {
 
                   {investigadorData.departamento && investigadorData.departamento.trim() !== "" && (
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Departamento</label>
-                      <p className="text-sm text-blue-900">{investigadorData.departamento}</p>
-                    </div>
-                  )}
-
-                  {investigadorData.municipio && investigadorData.municipio.trim() !== "" && (
-                    <div className="space-y-1">
                       <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
-                        <MapPin className="h-3.5 w-3.5" />
-                        Municipio
+                        <Briefcase className="h-3.5 w-3.5" />
+                        Departamento
                       </label>
-                      <p className="text-sm text-blue-900">{investigadorData.municipio}</p>
+                      <p className="text-sm text-blue-900">{investigadorData.departamento}</p>
                     </div>
                   )}
 
@@ -490,16 +547,12 @@ export default function DashboardPage() {
                     </div>
                   )}
 
-                  {investigadorData.nacionalidad && investigadorData.nacionalidad.trim() !== "" && (
-                    <div className="space-y-1">
-                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Nacionalidad</label>
-                      <p className="text-sm text-blue-900">{investigadorData.nacionalidad}</p>
-                    </div>
-                  )}
-
                   {investigadorData.sitio_web && investigadorData.sitio_web.trim() !== "" && (
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Sitio Web</label>
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <FileText className="h-3.5 w-3.5" />
+                        Sitio Web
+                      </label>
                       <a 
                         href={investigadorData.sitio_web} 
                         target="_blank" 
@@ -508,20 +561,6 @@ export default function DashboardPage() {
                       >
                         {investigadorData.sitio_web}
                       </a>
-                    </div>
-                  )}
-
-                  {investigadorData.curp && investigadorData.curp.trim() !== "" && (
-                    <div className="space-y-1">
-                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">CURP</label>
-                      <p className="text-sm text-blue-900 font-mono">{investigadorData.curp}</p>
-                    </div>
-                  )}
-
-                  {investigadorData.rfc && investigadorData.rfc.trim() !== "" && (
-                    <div className="space-y-1">
-                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">RFC</label>
-                      <p className="text-sm text-blue-900 font-mono">{investigadorData.rfc}</p>
                     </div>
                   )}
                 </div>
