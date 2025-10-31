@@ -82,7 +82,7 @@ export function GestionarCvDialog({
       formData.append('file', selectedFile)
 
       // Subir a Vercel Blob a través del API
-      const uploadResponse = await fetch('/api/upload-cv', {
+      const uploadResponse = await fetch('/api/upload-cv-vercel', {
         method: 'POST',
         body: formData,
       })

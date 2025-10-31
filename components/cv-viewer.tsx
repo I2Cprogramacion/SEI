@@ -42,12 +42,18 @@ export function CvViewer({
 
   // Función para obtener URL de visualización del PDF
   const getPdfViewerUrl = (url: string) => {
+    // Para Vercel Blob, usar directamente la URL
+    if (url.includes('blob.vercel-storage.com') || url.includes('public.blob.vercel-storage.com')) {
+      return url;
+    }
+    
     // Si es de Cloudinary, asegurar que sea la URL correcta
     if (url.includes('cloudinary.com')) {
       // Limpiar cualquier parámetro de firma que pueda causar problemas
       const cleanUrl = url.split('?')[0];
       return cleanUrl;
     }
+    
     return url;
   };
 
@@ -137,30 +143,23 @@ export function CvViewer({
             </DialogHeader>
             <div className="flex-1 overflow-hidden bg-gray-100">
               {viewerUrl ? (
-                <div className="w-full h-full">
+                <div className="w-full h-full relative">
                   {loadError && (
                     <Alert variant="destructive" className="m-4">
                       <AlertCircle className="h-4 w-4" />
                       <AlertDescription>
-                        Error al cargar el PDF en el visor. Usa los botones de arriba para abrirlo en una nueva pestaña o descargarlo.
+                        El PDF no se puede mostrar en el visor. Usa los botones de arriba para abrirlo en una nueva pestaña o descargarlo.
                         <div className="text-xs mt-2 font-mono break-all">URL: {viewerUrl}</div>
                       </AlertDescription>
                     </Alert>
                   )}
-                  <object
-                    data={viewerUrl}
-                    type="application/pdf"
-                    className="w-full h-full"
+                  <iframe
+                    src={viewerUrl}
+                    className="w-full h-full border-0"
+                    title={`CV de ${investigadorNombre || "Investigador"}`}
                     style={{ minHeight: '600px' }}
-                  >
-                    <iframe
-                      src={`https://docs.google.com/viewer?url=${encodeURIComponent(viewerUrl)}&embedded=true`}
-                      className="w-full h-full border-0"
-                      title={`CV de ${investigadorNombre || "Investigador"}`}
-                      style={{ minHeight: '600px' }}
-                      onError={() => setLoadError(true)}
-                    />
-                  </object>
+                    onError={() => setLoadError(true)}
+                  />
                 </div>
               ) : (
                 <div className="p-6">
@@ -223,30 +222,23 @@ export function CvViewer({
         </DialogHeader>
         <div className="flex-1 overflow-hidden bg-gray-100">
           {viewerUrl ? (
-            <div className="w-full h-full">
+            <div className="w-full h-full relative">
               {loadError && (
                 <Alert variant="destructive" className="m-4">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    Error al cargar el PDF en el visor. Usa los botones de arriba para abrirlo en una nueva pestaña o descargarlo.
+                    El PDF no se puede mostrar en el visor. Usa los botones de arriba para abrirlo en una nueva pestaña o descargarlo.
                     <div className="text-xs mt-2 font-mono break-all">URL: {viewerUrl}</div>
                   </AlertDescription>
                 </Alert>
               )}
-              <object
-                data={viewerUrl}
-                type="application/pdf"
-                className="w-full h-full"
+              <iframe
+                src={viewerUrl}
+                className="w-full h-full border-0"
+                title={`Perfil Único de ${investigadorNombre || "Investigador"}`}
                 style={{ minHeight: '600px' }}
-              >
-                <iframe
-                  src={`https://docs.google.com/viewer?url=${encodeURIComponent(viewerUrl)}&embedded=true`}
-                  className="w-full h-full border-0"
-                  title={`Perfil Único de ${investigadorNombre || "Investigador"}`}
-                  style={{ minHeight: '600px' }}
-                  onError={() => setLoadError(true)}
-                />
-              </object>
+                onError={() => setLoadError(true)}
+              />
             </div>
           ) : (
             <div className="p-6">

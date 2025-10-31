@@ -206,6 +206,18 @@ export default function DashboardPage() {
     return null;
   };
 
+  // Detectar si es una URL de Vercel Blob
+  const isVercelBlobUrl = (url: string | null | undefined): boolean => {
+    if (!url) return false;
+    return url.includes('blob.vercel-storage.com') || url.includes('public.blob.vercel-storage.com');
+  };
+
+  // Detectar si es una URL de Cloudinary
+  const isCloudinaryUrl = (url: string | null | undefined): boolean => {
+    if (!url) return false;
+    return url.includes('cloudinary.com');
+  };
+
   // Obtener URL válida del CV
   const validCvUrl = investigadorData?.cv_url ? getValidCvUrl(investigadorData.cv_url) : null;
 
@@ -469,8 +481,18 @@ export default function DashboardPage() {
                   </div>
                 )}
                 
-                {/* Si la URL tiene parámetros sospechosos, mostrar advertencia */}
-                {investigadorData?.cv_url && investigadorData.cv_url.includes('?') && investigadorData.cv_url.includes('cloudinary.com') && (
+                {/* Información sobre el almacenamiento */}
+                {investigadorData?.cv_url && process.env.NODE_ENV === 'development' && (
+                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs">
+                    <strong>📦 Almacenamiento:</strong>
+                    {isVercelBlobUrl(investigadorData.cv_url) && ' Vercel Blob Storage ✅'}
+                    {isCloudinaryUrl(investigadorData.cv_url) && ' Cloudinary Storage ✅'}
+                    {!isVercelBlobUrl(investigadorData.cv_url) && !isCloudinaryUrl(investigadorData.cv_url) && ' Local Storage 📁'}
+                  </div>
+                )}
+
+                {/* Si la URL tiene parámetros sospechosos de Cloudinary, mostrar advertencia */}
+                {investigadorData?.cv_url && investigadorData.cv_url.includes('?') && isCloudinaryUrl(investigadorData.cv_url) && (
                   <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded">
                     <div className="flex items-start gap-3">
                       <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
