@@ -412,16 +412,116 @@ export default function DashboardPage() {
                     </div>
                   )}
 
+                  {investigadorData.orcid && investigadorData.orcid.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">ORCID</label>
+                      <p className="text-sm text-blue-900 font-mono">{investigadorData.orcid}</p>
+                    </div>
+                  )}
 
+                  {investigadorData.sni && investigadorData.sni.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">SNI</label>
+                      <p className="text-sm text-blue-900">
+                        {investigadorData.sni}
+                        {investigadorData.anio_sni && ` (${investigadorData.anio_sni})`}
+                      </p>
+                    </div>
+                  )}
 
+                  {investigadorData.nivel_investigador && investigadorData.nivel_investigador.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <Award className="h-3.5 w-3.5" />
+                        Nivel Investigador
+                      </label>
+                      <p className="text-sm text-blue-900">{investigadorData.nivel_investigador}</p>
+                    </div>
+                  )}
 
-                  {investigadorData.nacionalidad && investigadorData.nacionalidad.trim() !== "" && (
+                  {investigadorData.disciplina && investigadorData.disciplina.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Disciplina</label>
+                      <p className="text-sm text-blue-900">{investigadorData.disciplina}</p>
+                    </div>
+                  )}
+
+                  {investigadorData.especialidad && investigadorData.especialidad.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Especialidad</label>
+                      <p className="text-sm text-blue-900">{investigadorData.especialidad}</p>
+                    </div>
+                  )}
+
+                  {investigadorData.institucion && investigadorData.institucion.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <Briefcase className="h-3.5 w-3.5" />
+                        Institución
+                      </label>
+                      <p className="text-sm text-blue-900">{investigadorData.institucion}</p>
+                    </div>
+                  )}
+
+                  {investigadorData.departamento && investigadorData.departamento.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Departamento</label>
+                      <p className="text-sm text-blue-900">{investigadorData.departamento}</p>
+                    </div>
+                  )}
+
+                  {investigadorData.municipio && investigadorData.municipio.trim() !== "" && (
                     <div className="space-y-1">
                       <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
                         <MapPin className="h-3.5 w-3.5" />
-                        Nacionalidad
+                        Municipio
                       </label>
+                      <p className="text-sm text-blue-900">{investigadorData.municipio}</p>
+                    </div>
+                  )}
+
+                  {investigadorData.entidad_federativa && investigadorData.entidad_federativa.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <MapPin className="h-3.5 w-3.5" />
+                        Entidad Federativa
+                      </label>
+                      <p className="text-sm text-blue-900">{investigadorData.entidad_federativa}</p>
+                    </div>
+                  )}
+
+                  {investigadorData.nacionalidad && investigadorData.nacionalidad.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Nacionalidad</label>
                       <p className="text-sm text-blue-900">{investigadorData.nacionalidad}</p>
+                    </div>
+                  )}
+
+                  {investigadorData.sitio_web && investigadorData.sitio_web.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Sitio Web</label>
+                      <a 
+                        href={investigadorData.sitio_web} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline break-all"
+                      >
+                        {investigadorData.sitio_web}
+                      </a>
+                    </div>
+                  )}
+
+                  {investigadorData.curp && investigadorData.curp.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">CURP</label>
+                      <p className="text-sm text-blue-900 font-mono">{investigadorData.curp}</p>
+                    </div>
+                  )}
+
+                  {investigadorData.rfc && investigadorData.rfc.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">RFC</label>
+                      <p className="text-sm text-blue-900 font-mono">{investigadorData.rfc}</p>
                     </div>
                   )}
                 </div>
