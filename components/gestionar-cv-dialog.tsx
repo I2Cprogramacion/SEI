@@ -43,6 +43,7 @@ export function GestionarCvDialog({
   const [isUploading, setIsUploading] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -150,16 +151,22 @@ export function GestionarCvDialog({
       }
 
       toast({
-        title: "CV eliminado",
+        title: "✅ CV eliminado",
         description: "Tu CV ha sido eliminado exitosamente",
       })
 
+      // Cerrar ambos diálogos
+      setShowDeleteDialog(false)
       onCvUpdated(null)
-      onOpenChange(false)
+      
+      // Esperar un momento antes de cerrar el diálogo principal
+      setTimeout(() => {
+        onOpenChange(false)
+      }, 500)
     } catch (error) {
       console.error("Error al eliminar CV:", error)
       toast({
-        title: "Error",
+        title: "❌ Error",
         description: "No se pudo eliminar el CV. Intenta de nuevo.",
         variant: "destructive",
       })
@@ -211,13 +218,14 @@ export function GestionarCvDialog({
                     Ver documento
                   </Button>
                   
-                  <AlertDialog>
+                  <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
                     <AlertDialogTrigger asChild>
                       <Button
                         variant="outline"
                         size="sm"
                         className="border-red-300 text-red-700 hover:bg-red-50"
                         disabled={isDeleting}
+                        onClick={() => setShowDeleteDialog(true)}
                       >
                         {isDeleting ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -226,21 +234,36 @@ export function GestionarCvDialog({
                         )}
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent>
+                    <AlertDialogContent className="sm:max-w-[425px]">
                       <AlertDialogHeader>
-                        <AlertDialogTitle>¿Eliminar CV?</AlertDialogTitle>
-                        <AlertDialogDescription>
+                        <AlertDialogTitle className="text-xl font-bold text-gray-900">
+                          ¿Eliminar CV?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-gray-600">
                           Esta acción no se puede deshacer. El CV será eliminado permanentemente.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={handleDelete}
-                          className="bg-red-700 hover:bg-red-800"
+                      <AlertDialogFooter className="gap-2 sm:gap-0">
+                        <AlertDialogCancel 
+                          className="mt-0"
+                          onClick={() => setShowDeleteDialog(false)}
                         >
-                          Eliminar
-                        </AlertDialogAction>
+                          Cancelar
+                        </AlertDialogCancel>
+                        <Button
+                          onClick={handleDelete}
+                          className="bg-red-600 hover:bg-red-700 text-white font-semibold"
+                          disabled={isDeleting}
+                        >
+                          {isDeleting ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Eliminando...
+                            </>
+                          ) : (
+                            "Eliminar"
+                          )}
+                        </Button>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
