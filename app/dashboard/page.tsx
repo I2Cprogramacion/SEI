@@ -262,12 +262,12 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       <div className="container mx-auto py-6 px-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-purple-900">Dashboard Social</h1>
-          <p className="text-purple-600">Tu red de colaboración científica</p>
+          <h1 className="text-3xl font-bold text-blue-900">Dashboard Social</h1>
+          <p className="text-blue-600">Tu red de colaboración científica</p>
         </div>
 
         {/* Mensaje informativo si el perfil está incompleto */}
@@ -306,20 +306,20 @@ export default function DashboardPage() {
         {/* Layout de dos columnas: Perfil + Vista previa del CV */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
           {/* Columna izquierda: Información del investigador (35% del ancho) */}
-          <Card className="bg-white border-purple-200 shadow-md h-fit lg:col-span-4">
+          <Card className="bg-white border-blue-100 shadow-md h-fit lg:col-span-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
               <div>
-                <CardTitle className="text-purple-900 flex items-center">
-                  <UserIcon className="mr-2 h-5 w-5 text-purple-600" />
+                <CardTitle className="text-blue-900 flex items-center">
+                  <UserIcon className="mr-2 h-5 w-5" />
                   Perfil del Investigador
                 </CardTitle>
-                <CardDescription className="text-purple-600">
+                <CardDescription className="text-blue-600">
                   Información completa de tu cuenta
                 </CardDescription>
               </div>
               <Button
                 onClick={() => router.push("/dashboard/editar-perfil")}
-                className="bg-purple-600 text-white hover:bg-purple-700"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
                 size="sm"
               >
                 <Edit className="mr-2 h-4 w-4" />
@@ -333,19 +333,19 @@ export default function DashboardPage() {
                   {investigadorData?.fotografia_url && investigadorData.fotografia_url.trim() !== "" ? (
                     <AvatarImage src={investigadorData.fotografia_url} alt={investigadorData?.nombre_completo || "Usuario"} />
                   ) : null}
-                  <AvatarFallback className="bg-purple-100 text-purple-700 text-xl">
+                  <AvatarFallback className="bg-blue-100 text-blue-700 text-xl">
                     {(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== ""
                       ? investigadorData.nombre_completo
                       : user.fullName || "U").charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-xl font-bold text-purple-900 break-words">
+                  <h2 className="text-xl font-bold text-blue-900 break-words">
                     {(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== "")
                       ? investigadorData.nombre_completo
                       : user.fullName || user.firstName || "Usuario"}
                   </h2>
-                  <p className="text-sm text-purple-600 flex items-center gap-2 mt-1">
+                  <p className="text-sm text-blue-600 flex items-center gap-2 mt-1">
                     <Mail className="h-3.5 w-3.5 flex-shrink-0" />
                     <span className="truncate">
                       {(investigadorData?.correo && investigadorData.correo.trim() !== "")
@@ -354,7 +354,7 @@ export default function DashboardPage() {
                     </span>
                   </p>
                   {investigadorData?.telefono && investigadorData.telefono.trim() !== "" && (
-                    <p className="text-sm text-purple-600 flex items-center gap-2 mt-1">
+                    <p className="text-sm text-blue-600 flex items-center gap-2 mt-1">
                       <Phone className="h-3.5 w-3.5 flex-shrink-0" />
                       {investigadorData.telefono}
                     </p>
@@ -364,51 +364,51 @@ export default function DashboardPage() {
 
               {/* Información detallada */}
               {investigadorData && (
-                <div className="space-y-3 pt-3 border-t border-purple-100">
+                <div className="space-y-3 pt-3 border-t border-blue-100">
                   {investigadorData.empleo_actual && investigadorData.empleo_actual.trim() !== "" && (
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-purple-700 flex items-center gap-2 uppercase tracking-wide">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
                         <Briefcase className="h-3.5 w-3.5" />
                         Empleo Actual
                       </label>
-                      <p className="text-sm text-gray-900">{investigadorData.empleo_actual}</p>
+                      <p className="text-sm text-blue-900">{investigadorData.empleo_actual}</p>
                     </div>
                   )}
                   
                   {investigadorData.ultimo_grado_estudios && investigadorData.ultimo_grado_estudios.trim() !== "" && (
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-purple-700 flex items-center gap-2 uppercase tracking-wide">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
                         <GraduationCap className="h-3.5 w-3.5" />
                         Último Grado de Estudios
                       </label>
-                      <p className="text-sm text-gray-900">{investigadorData.ultimo_grado_estudios}</p>
+                      <p className="text-sm text-blue-900">{investigadorData.ultimo_grado_estudios}</p>
                     </div>
                   )}
 
                   {Array.isArray(investigadorData.linea_investigacion) && investigadorData.linea_investigacion.length > 0 && (
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-purple-700 flex items-center gap-2 uppercase tracking-wide">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
                         <FileText className="h-3.5 w-3.5" />
                         Línea de Investigación
                       </label>
-                      <p className="text-sm text-gray-900">{investigadorData.linea_investigacion.join(', ')}</p>
+                      <p className="text-sm text-blue-900">{investigadorData.linea_investigacion.join(', ')}</p>
                     </div>
                   )}
 
                   {investigadorData.area_investigacion && investigadorData.area_investigacion.trim() !== "" && (
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-purple-700 flex items-center gap-2 uppercase tracking-wide">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
                         <Award className="h-3.5 w-3.5" />
                         Área de Investigación
                       </label>
-                      <p className="text-sm text-gray-900">{investigadorData.area_investigacion}</p>
+                      <p className="text-sm text-blue-900">{investigadorData.area_investigacion}</p>
                     </div>
                   )}
 
                   {investigadorData.no_cvu && investigadorData.no_cvu.trim() !== "" && (
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-purple-700 uppercase tracking-wide">CVU/PU</label>
-                      <p className="text-sm text-gray-900 font-mono">{investigadorData.no_cvu}</p>
+                      <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">CVU/PU</label>
+                      <p className="text-sm text-blue-900 font-mono">{investigadorData.no_cvu}</p>
                     </div>
                   )}
 
@@ -417,11 +417,11 @@ export default function DashboardPage() {
 
                   {investigadorData.nacionalidad && investigadorData.nacionalidad.trim() !== "" && (
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-purple-700 flex items-center gap-2 uppercase tracking-wide">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
                         <MapPin className="h-3.5 w-3.5" />
                         Nacionalidad
                       </label>
-                      <p className="text-sm text-gray-900">{investigadorData.nacionalidad}</p>
+                      <p className="text-sm text-blue-900">{investigadorData.nacionalidad}</p>
                     </div>
                   )}
                 </div>
@@ -430,15 +430,15 @@ export default function DashboardPage() {
           </Card>
 
           {/* Columna derecha: Vista previa del CV/Perfil Único (65% del ancho) */}
-          <Card className="bg-white border-purple-200 shadow-md lg:col-span-8">
+          <Card className="bg-white border-blue-100 shadow-md lg:col-span-8">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-purple-900 flex items-center">
-                  <FileText className="mr-2 h-5 w-5 text-purple-600" />
+                <CardTitle className="text-blue-900 flex items-center">
+                  <FileText className="mr-2 h-5 w-5" />
                   Perfil Único del Investigador
                 </CardTitle>
-                <CardDescription className="text-purple-600">
+                <CardDescription className="text-blue-600">
                   {validCvUrl ? "Documento procesado automáticamente durante el registro" : "Completa tu perfil público"}
                 </CardDescription>
               </div>
@@ -446,7 +446,7 @@ export default function DashboardPage() {
                 <Button
                   onClick={() => setGestionarCvDialogOpen(true)}
                   variant="outline"
-                  className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                  className="border-blue-300 text-blue-700 hover:bg-blue-50"
                   size="sm"
                 >
                   <Edit className="mr-2 h-4 w-4" />
@@ -525,66 +525,19 @@ export default function DashboardPage() {
                   </div>
                 )}
                 
-                {/* Vista previa del PDF embebido */}
-                <div className="relative w-full bg-gray-50 rounded-lg overflow-hidden border border-gray-200" style={{ height: '700px' }}>
-                  {/* Usar object para mejor compatibilidad */}
-                  <object
-                    data={validCvUrl}
-                    type="application/pdf"
-                    className="w-full h-full"
-                    aria-label="Vista previa del Perfil Único"
-                  >
-                    {/* Fallback si el navegador no puede mostrar el PDF */}
-                    <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-                      <FileText className="h-20 w-20 text-purple-400 mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        Vista previa no disponible
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-6 max-w-md">
-                        Tu navegador no puede mostrar el PDF directamente. 
-                        Usa los botones de abajo para verlo o descargarlo.
-                      </p>
-                      <div className="flex gap-3">
-                        <Button
-                          onClick={() => window.open(validCvUrl, "_blank", "noopener,noreferrer")}
-                          className="bg-purple-600 text-white hover:bg-purple-700"
-                        >
-                          <ExternalLink className="mr-2 h-4 w-4" />
-                          Abrir PDF
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            const link = document.createElement('a')
-                            link.href = validCvUrl
-                            link.download = `${investigadorData?.nombre_completo?.replace(/\s+/g, '_') || 'perfil'}.pdf`
-                            document.body.appendChild(link)
-                            link.click()
-                            document.body.removeChild(link)
-                          }}
-                          className="border-purple-300 text-purple-700 hover:bg-purple-50"
-                        >
-                          <Download className="mr-2 h-4 w-4" />
-                          Descargar
-                        </Button>
-                      </div>
-                    </div>
-                  </object>
-                  
-                  {/* Botones flotantes */}
-                  <div className="absolute bottom-4 right-4 flex gap-2">
+                {/* Vista previa del PDF - SOLUCIÓN SIMPLE */}
+                <div className="w-full space-y-4">
+                  {/* Botones de acción */}
+                  <div className="flex gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <Button
-                      size="sm"
-                      variant="secondary"
                       onClick={() => window.open(validCvUrl, "_blank", "noopener,noreferrer")}
-                      className="bg-white/95 backdrop-blur-sm shadow-lg hover:bg-white border border-purple-200"
+                      className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
                     >
-                      <ExternalLink className="mr-2 h-3.5 w-3.5" />
-                      Nueva pestaña
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Abrir PDF en Nueva Pestaña
                     </Button>
                     <Button
-                      size="sm"
-                      variant="secondary"
+                      variant="outline"
                       onClick={() => {
                         const link = document.createElement('a')
                         link.href = validCvUrl
@@ -593,11 +546,21 @@ export default function DashboardPage() {
                         link.click()
                         document.body.removeChild(link)
                       }}
-                      className="bg-white/95 backdrop-blur-sm shadow-lg hover:bg-white border border-purple-200"
+                      className="border-blue-300 text-blue-700 hover:bg-blue-50"
                     >
-                      <Download className="mr-2 h-3.5 w-3.5" />
-                      Descargar
+                      <Download className="mr-2 h-4 w-4" />
+                      Descargar PDF
                     </Button>
+                  </div>
+
+                  {/* Vista previa del PDF con iframe simple */}
+                  <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200" style={{ height: '650px' }}>
+                    <iframe
+                      src={validCvUrl}
+                      className="w-full h-full"
+                      title="Vista previa del Perfil Único"
+                      style={{ border: 'none' }}
+                    />
                   </div>
                 </div>
               </>
@@ -658,13 +621,13 @@ export default function DashboardPage() {
         </div> {/* Fin del grid de dos columnas */}
 
         {/* Publicaciones */}
-        <Card className="bg-white border-purple-200 shadow-md hover:shadow-lg transition-shadow cursor-pointer">
+        <Card className="bg-white border-blue-100 shadow-md hover:shadow-lg transition-shadow cursor-pointer">
           <CardHeader>
-            <CardTitle className="text-purple-900 flex items-center">
-              <FileText className="mr-2 h-5 w-5 text-purple-600" />
+            <CardTitle className="text-blue-900 flex items-center">
+              <FileText className="mr-2 h-5 w-5" />
               Publicaciones
             </CardTitle>
-            <CardDescription className="text-purple-600">
+            <CardDescription className="text-blue-600">
               Gestiona tu producción científica
             </CardDescription>
           </CardHeader>
@@ -672,16 +635,16 @@ export default function DashboardPage() {
 
         {/* Estadísticas */}
         <div className="mt-8">
-          <Card className="bg-white border-purple-200 shadow-md">
+          <Card className="bg-white border-blue-100 shadow-md">
             <CardHeader>
-              <CardTitle className="text-purple-900">Resumen de Actividad</CardTitle>
-              <CardDescription className="text-purple-600">
+              <CardTitle className="text-blue-900">Resumen de Actividad</CardTitle>
+              <CardDescription className="text-blue-600">
                 Estadísticas de tu perfil de investigador
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div className="p-4 bg-purple-500 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                   {isLoadingEstadisticas ? (
                     <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
                   ) : (
@@ -692,7 +655,7 @@ export default function DashboardPage() {
                     Publicaciones
                   </div>
                 </div>
-                <div className="p-4 bg-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <div className="p-4 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                   {isLoadingEstadisticas ? (
                     <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
                   ) : (
@@ -703,7 +666,7 @@ export default function DashboardPage() {
                     Proyectos
                   </div>
                 </div>
-                <div className="p-4 bg-purple-700 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <div className="p-4 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                   {isLoadingEstadisticas ? (
                     <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
                   ) : (
@@ -714,7 +677,7 @@ export default function DashboardPage() {
                     Conexiones
                   </div>
                 </div>
-                <div className="p-4 bg-pink-500 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <div className="p-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                   {isLoadingEstadisticas ? (
                     <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
                   ) : (
