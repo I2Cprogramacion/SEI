@@ -518,6 +518,7 @@ interface PasswordStrengthProps {
 
 const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirmPassword, password }) => {
   const passwordsMatch = password === confirmPassword
+  const showMatchIndicator = confirmPassword.length > 0
 
   return (
     <div className="space-y-3">
@@ -606,6 +607,35 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
           </div>
         </div>
       </div>
+
+      {/* Indicador de coincidencia de contraseñas */}
+      {showMatchIndicator && (
+        <div
+          className={`rounded-lg p-3 border ${
+            passwordsMatch
+              ? "bg-green-50 border-green-200"
+              : "bg-red-50 border-red-200"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {passwordsMatch ? (
+              <>
+                <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                <span className="text-sm font-medium text-green-700">
+                  ✓ Las contraseñas coinciden
+                </span>
+              </>
+            ) : (
+              <>
+                <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+                <span className="text-sm font-medium text-red-700">
+                  ✗ Las contraseñas no coinciden
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
