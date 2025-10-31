@@ -785,46 +785,34 @@ export default function RegistroPage() {
       const formDataCV = new FormData()
       formDataCV.append("file", selectedFile)
 
-      // Intentar subir a Cloudinary primero
-      let cvUrl = null
+      // Subir a Vercel Blob
+      let cvUrl: string | null = null
       try {
-        const response = await fetch("/api/upload-cv", {
+        console.log("📤 Subiendo Perfil Único a Vercel Blob...")
+        const response = await fetch("/api/upload-cv-vercel", {
           method: "POST",
           body: formDataCV,
         })
 
         if (response.ok) {
           const result = await response.json()
-          cvUrl = result.url
-          console.log("✅ Perfil Único subido a Cloudinary:", cvUrl)
+          cvUrl = result.url as string
+          console.log("✅ Perfil Único subido a Vercel Blob:", cvUrl)
+          
+          // Guardar la URL del CV en el estado del formulario
+          setFormData((prev) => ({
+            ...prev,
+            cv_url: cvUrl!,
+          }))
+          console.log("✅ Perfil Único URL guardada en formulario:", cvUrl)
+        } else {
+          const errorData = await response.json()
+          console.error("❌ Error en respuesta:", errorData)
+          throw new Error(errorData.error || "Error al subir el archivo")
         }
-      } catch (cloudinaryError) {
-        console.log("⚠️ Error subiendo a Cloudinary, intentando local...")
-        
-        // Fallback a almacenamiento local
-        try {
-          const responseLocal = await fetch("/api/upload-cv-local", {
-            method: "POST",
-            body: formDataCV,
-          })
-
-          if (responseLocal.ok) {
-            const resultLocal = await responseLocal.json()
-            cvUrl = resultLocal.url
-            console.log("✅ Perfil Único subido localmente:", cvUrl)
-          }
-        } catch (localError) {
-          console.error("❌ Error subiendo CV localmente:", localError)
-        }
-      }
-
-      // Guardar la URL del CV en el estado del formulario
-      if (cvUrl) {
-        setFormData((prev) => ({
-          ...prev,
-          cv_url: cvUrl,
-        }))
-        console.log("✅ Perfil Único URL guardada en formulario:", cvUrl)
+      } catch (error) {
+        console.error("❌ Error subiendo Perfil Único a Vercel Blob:", error)
+        setError(`Error al subir el Perfil Único: ${error instanceof Error ? error.message : "Error desconocido"}`)
       }
     } catch (error) {
       console.error("❌ Error guardando PDF como Perfil Único:", error)
