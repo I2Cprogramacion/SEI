@@ -262,11 +262,11 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+    <div className="min-h-screen bg-purple-50">
       <div className="container mx-auto py-6 px-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Dashboard Social</h1>
+          <h1 className="text-3xl font-bold text-purple-900">Dashboard Social</h1>
           <p className="text-purple-600">Tu red de colaboración científica</p>
         </div>
 
@@ -306,10 +306,10 @@ export default function DashboardPage() {
         {/* Layout de dos columnas: Perfil + Vista previa del CV */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
           {/* Columna izquierda: Información del investigador (35% del ancho) */}
-          <Card className="bg-white border-purple-100 shadow-lg shadow-purple-100/50 h-fit lg:col-span-4">
+          <Card className="bg-white border-purple-200 shadow-md h-fit lg:col-span-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
               <div>
-                <CardTitle className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center">
+                <CardTitle className="text-purple-900 flex items-center">
                   <UserIcon className="mr-2 h-5 w-5 text-purple-600" />
                   Perfil del Investigador
                 </CardTitle>
@@ -319,7 +319,7 @@ export default function DashboardPage() {
               </div>
               <Button
                 onClick={() => router.push("/dashboard/editar-perfil")}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-md"
+                className="bg-purple-600 text-white hover:bg-purple-700"
                 size="sm"
               >
                 <Edit className="mr-2 h-4 w-4" />
@@ -333,14 +333,14 @@ export default function DashboardPage() {
                   {investigadorData?.fotografia_url && investigadorData.fotografia_url.trim() !== "" ? (
                     <AvatarImage src={investigadorData.fotografia_url} alt={investigadorData?.nombre_completo || "Usuario"} />
                   ) : null}
-                  <AvatarFallback className="bg-gradient-to-br from-blue-100 to-purple-100 text-purple-700 text-xl">
+                  <AvatarFallback className="bg-purple-100 text-purple-700 text-xl">
                     {(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== ""
                       ? investigadorData.nombre_completo
                       : user.fullName || "U").charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-xl font-bold bg-gradient-to-r from-blue-900 to-purple-900 bg-clip-text text-transparent break-words">
+                  <h2 className="text-xl font-bold text-purple-900 break-words">
                     {(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== "")
                       ? investigadorData.nombre_completo
                       : user.fullName || user.firstName || "Usuario"}
@@ -430,11 +430,11 @@ export default function DashboardPage() {
           </Card>
 
           {/* Columna derecha: Vista previa del CV/Perfil Único (65% del ancho) */}
-          <Card className="bg-white border-purple-100 shadow-lg shadow-purple-100/50 lg:col-span-8">
+          <Card className="bg-white border-purple-200 shadow-md lg:col-span-8">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center">
+                <CardTitle className="text-purple-900 flex items-center">
                   <FileText className="mr-2 h-5 w-5 text-purple-600" />
                   Perfil Único del Investigador
                 </CardTitle>
@@ -526,7 +526,7 @@ export default function DashboardPage() {
                 )}
                 
                 {/* Vista previa del PDF embebido */}
-                <div className="relative w-full bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg overflow-hidden border border-gray-200" style={{ height: '700px' }}>
+                <div className="relative w-full bg-gray-50 rounded-lg overflow-hidden border border-gray-200" style={{ height: '700px' }}>
                   {/* Usar object para mejor compatibilidad */}
                   <object
                     data={validCvUrl}
@@ -547,7 +547,7 @@ export default function DashboardPage() {
                       <div className="flex gap-3">
                         <Button
                           onClick={() => window.open(validCvUrl, "_blank", "noopener,noreferrer")}
-                          className="bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800"
+                          className="bg-purple-600 text-white hover:bg-purple-700"
                         >
                           <ExternalLink className="mr-2 h-4 w-4" />
                           Abrir PDF
@@ -658,9 +658,9 @@ export default function DashboardPage() {
         </div> {/* Fin del grid de dos columnas */}
 
         {/* Publicaciones */}
-        <Card className="bg-white border-purple-100 shadow-md hover:shadow-xl transition-all cursor-pointer">
+        <Card className="bg-white border-purple-200 shadow-md hover:shadow-lg transition-shadow cursor-pointer">
           <CardHeader>
-            <CardTitle className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center">
+            <CardTitle className="text-purple-900 flex items-center">
               <FileText className="mr-2 h-5 w-5 text-purple-600" />
               Publicaciones
             </CardTitle>
@@ -672,16 +672,16 @@ export default function DashboardPage() {
 
         {/* Estadísticas */}
         <div className="mt-8">
-          <Card className="bg-white border-purple-100 shadow-lg shadow-purple-100/50">
+          <Card className="bg-white border-purple-200 shadow-md">
             <CardHeader>
-              <CardTitle className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Resumen de Actividad</CardTitle>
+              <CardTitle className="text-purple-900">Resumen de Actividad</CardTitle>
               <CardDescription className="text-purple-600">
                 Estadísticas de tu perfil de investigador
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div className="p-4 bg-gradient-to-br from-blue-500 to-purple-500 text-white rounded-lg shadow-md hover:shadow-xl transition-all">
+                <div className="p-4 bg-purple-500 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                   {isLoadingEstadisticas ? (
                     <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
                   ) : (
@@ -692,7 +692,7 @@ export default function DashboardPage() {
                     Publicaciones
                   </div>
                 </div>
-                <div className="p-4 bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-lg shadow-md hover:shadow-xl transition-all">
+                <div className="p-4 bg-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                   {isLoadingEstadisticas ? (
                     <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
                   ) : (
@@ -703,7 +703,7 @@ export default function DashboardPage() {
                     Proyectos
                   </div>
                 </div>
-                <div className="p-4 bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-lg shadow-md hover:shadow-xl transition-all">
+                <div className="p-4 bg-purple-700 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                   {isLoadingEstadisticas ? (
                     <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
                   ) : (
@@ -714,7 +714,7 @@ export default function DashboardPage() {
                     Conexiones
                   </div>
                 </div>
-                <div className="p-4 bg-gradient-to-br from-pink-500 to-purple-600 text-white rounded-lg shadow-md hover:shadow-xl transition-all">
+                <div className="p-4 bg-pink-500 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                   {isLoadingEstadisticas ? (
                     <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
                   ) : (
