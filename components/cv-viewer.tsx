@@ -40,7 +40,21 @@ export function CvViewer({
 
   const pdfUrl = isValidPdfUrl(cvUrl) ? cvUrl : null
 
+  // Función para obtener URL de visualización del PDF
+  const getPdfViewerUrl = (url: string) => {
+    // Si es de Cloudinary, asegurar que sea la URL correcta
+    if (url.includes('cloudinary.com')) {
+      // Limpiar cualquier parámetro de firma que pueda causar problemas
+      const cleanUrl = url.split('?')[0];
+      return cleanUrl;
+    }
+    return url;
+  };
+
+  const viewerUrl = pdfUrl ? getPdfViewerUrl(pdfUrl) : null;
+
   const handleDownload = () => {
+    if (!cvUrl) return;
     // Crear un elemento <a> temporal para forzar la descarga
     const link = document.createElement('a')
     link.href = cvUrl
@@ -52,7 +66,8 @@ export function CvViewer({
   }
 
   const handleOpenNewTab = () => {
-    window.open(cvUrl, "_blank")
+    if (!cvUrl) return;
+    window.open(cvUrl, "_blank", "noopener,noreferrer")
   }
 
   if (showAsCard) {
@@ -121,25 +136,32 @@ export function CvViewer({
               </div>
             </DialogHeader>
             <div className="flex-1 overflow-hidden bg-gray-100">
-              {pdfUrl ? (
-                <>
+              {viewerUrl ? (
+                <div className="w-full h-full">
                   {loadError && (
                     <Alert variant="destructive" className="m-4">
                       <AlertCircle className="h-4 w-4" />
                       <AlertDescription>
-                        Error al cargar el PDF. Intenta abrirlo en una nueva pestaña o descargarlo.
-                        <div className="text-xs mt-2 font-mono break-all">URL: {cvUrl}</div>
+                        Error al cargar el PDF en el visor. Usa los botones de arriba para abrirlo en una nueva pestaña o descargarlo.
+                        <div className="text-xs mt-2 font-mono break-all">URL: {viewerUrl}</div>
                       </AlertDescription>
                     </Alert>
                   )}
-                  <iframe
-                    src={pdfUrl}
-                    className="w-full h-full border-0"
-                    title={`CV de ${investigadorNombre || "Investigador"}`}
+                  <object
+                    data={viewerUrl}
+                    type="application/pdf"
+                    className="w-full h-full"
                     style={{ minHeight: '600px' }}
-                    onError={() => setLoadError(true)}
-                  />
-                </>
+                  >
+                    <iframe
+                      src={`https://docs.google.com/viewer?url=${encodeURIComponent(viewerUrl)}&embedded=true`}
+                      className="w-full h-full border-0"
+                      title={`CV de ${investigadorNombre || "Investigador"}`}
+                      style={{ minHeight: '600px' }}
+                      onError={() => setLoadError(true)}
+                    />
+                  </object>
+                </div>
               ) : (
                 <div className="p-6">
                   <Alert variant="destructive">
@@ -200,25 +222,32 @@ export function CvViewer({
           </div>
         </DialogHeader>
         <div className="flex-1 overflow-hidden bg-gray-100">
-          {pdfUrl ? (
-            <>
+          {viewerUrl ? (
+            <div className="w-full h-full">
               {loadError && (
                 <Alert variant="destructive" className="m-4">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    Error al cargar el PDF. Intenta abrirlo en una nueva pestaña o descargarlo.
-                    <div className="text-xs mt-2 font-mono break-all">URL: {cvUrl}</div>
+                    Error al cargar el PDF en el visor. Usa los botones de arriba para abrirlo en una nueva pestaña o descargarlo.
+                    <div className="text-xs mt-2 font-mono break-all">URL: {viewerUrl}</div>
                   </AlertDescription>
                 </Alert>
               )}
-              <iframe
-                src={pdfUrl}
-                className="w-full h-full border-0"
-                title={`Perfil Único de ${investigadorNombre || "Investigador"}`}
+              <object
+                data={viewerUrl}
+                type="application/pdf"
+                className="w-full h-full"
                 style={{ minHeight: '600px' }}
-                onError={() => setLoadError(true)}
-              />
-            </>
+              >
+                <iframe
+                  src={`https://docs.google.com/viewer?url=${encodeURIComponent(viewerUrl)}&embedded=true`}
+                  className="w-full h-full border-0"
+                  title={`Perfil Único de ${investigadorNombre || "Investigador"}`}
+                  style={{ minHeight: '600px' }}
+                  onError={() => setLoadError(true)}
+                />
+              </object>
+            </div>
           ) : (
             <div className="p-6">
               <Alert variant="destructive">

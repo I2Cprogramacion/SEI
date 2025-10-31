@@ -75,18 +75,16 @@ export async function POST(request: NextRequest) {
         .end(buffer)
     })
 
-    // Generar URL firmada que funciona sin restricciones de privacidad
-    const signedUrl = cloudinary.url(result.public_id, {
-      resource_type: 'raw',
-      type: 'upload',
-      sign_url: true,
-      secure: true,
-      expires_at: Math.floor(Date.now() / 1000) + (10 * 365 * 24 * 60 * 60) // 10 años
-    });
+    // Usar la URL pública directa de Cloudinary
+    // secure_url es la URL HTTPS pública del archivo
+    const pdfUrl = result.secure_url;
+    
+    console.log("✅ PDF subido exitosamente");
+    console.log("URL pública:", pdfUrl);
 
     return NextResponse.json({
       success: true,
-      url: signedUrl, // Usar URL firmada en lugar de secure_url
+      url: pdfUrl,
       publicId: result.public_id,
       fileName: file.name,
     })

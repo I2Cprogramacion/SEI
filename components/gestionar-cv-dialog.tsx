@@ -193,14 +193,17 @@ export function GestionarCvDialog({
                     <p className="text-xs text-blue-600 mb-2">
                       Documento procesado automáticamente durante tu registro
                     </p>
-                    <a
-                      href={cvUrlActual}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline"
+                    <Button
+                      variant="link"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        window.open(cvUrlActual, "_blank", "noopener,noreferrer")
+                      }}
+                      className="text-sm text-blue-600 hover:underline p-0 h-auto"
                     >
                       Ver documento
-                    </a>
+                    </Button>
                   </div>
                 </div>
                 <AlertDialog>

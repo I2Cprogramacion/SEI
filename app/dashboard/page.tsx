@@ -78,6 +78,7 @@ export default function DashboardPage() {
   const [sugerencias, setSugerencias] = useState<any>(null);
   const [isDesactivando, setIsDesactivando] = useState(false);
   const [areasInput, setAreasInput] = useState("");
+  const [isFixingCvUrl, setIsFixingCvUrl] = useState(false);
 
   // Cargar datos del investigador
   useEffect(() => {
@@ -207,6 +208,44 @@ export default function DashboardPage() {
 
   // Obtener URL válida del CV
   const validCvUrl = investigadorData?.cv_url ? getValidCvUrl(investigadorData.cv_url) : null;
+
+  // Función para reparar URL de CV problemática
+  const handleFixCvUrl = async () => {
+    if (!investigadorData?.cv_url) return;
+    
+    setIsFixingCvUrl(true);
+    try {
+      const response = await fetch('/api/investigadores/fix-cv-url', {
+        method: 'POST',
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        // Recargar los datos del investigador
+        const perfilResponse = await fetch("/api/investigadores/perfil");
+        if (perfilResponse.ok) {
+          const perfilResult = await perfilResponse.json();
+          if (perfilResult.success && perfilResult.data) {
+            let data = perfilResult.data;
+            if (typeof data.linea_investigacion === "string") {
+              data.linea_investigacion = data.linea_investigacion.split(",").map((l: string) => l.trim()).filter(Boolean);
+            }
+            setInvestigadorData(data);
+          }
+        }
+        alert("✅ URL del CV reparada exitosamente. Recargando página...");
+        window.location.reload();
+      } else {
+        alert("No se pudo reparar la URL: " + (result.error || "Error desconocido"));
+      }
+    } catch (error) {
+      console.error("Error al reparar URL:", error);
+      alert("Error al reparar la URL del CV. Por favor, intenta de nuevo.");
+    } finally {
+      setIsFixingCvUrl(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
@@ -404,16 +443,62 @@ export default function DashboardPage() {
             {validCvUrl ? (
               <>
                 {/* Debug: Mostrar URL del CV en desarrollo */}
-                {process.env.NODE_ENV === 'development' && (
+                {process.env.NODE_ENV === 'development' && investigadorData?.cv_url && (
                   <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs">
-                    <strong>🔍 Debug - URL del CV:</strong>
-                    <div className="font-mono mt-1 break-all">
-                      Original: {investigadorData.cv_url}
-                      <br />
-                      Validada: {validCvUrl}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <strong>🔍 Debug - URL del CV:</strong>
+                        <div className="font-mono mt-1 break-all">
+                          Original: {investigadorData.cv_url}
+                          <br />
+                          Validada: {validCvUrl || "❌ URL INVÁLIDA"}
+                        </div>
+                      </div>
+                      {investigadorData.cv_url.includes('?') && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleFixCvUrl}
+                          disabled={isFixingCvUrl}
+                          className="border-yellow-400 text-yellow-700 hover:bg-yellow-100"
+                        >
+                          {isFixingCvUrl ? "Reparando..." : "Reparar URL"}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 )}
+                
+                {/* Si la URL tiene parámetros sospechosos, mostrar advertencia */}
+                {investigadorData?.cv_url && investigadorData.cv_url.includes('?') && investigadorData.cv_url.includes('cloudinary.com') && (
+                  <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-amber-900">URL de CV puede tener problemas</h4>
+                        <p className="text-sm text-amber-700 mt-1">
+                          Tu URL de CV contiene parámetros que pueden impedir su visualización. Haz clic en "Reparar URL" para solucionarlo.
+                        </p>
+                        <Button
+                          size="sm"
+                          onClick={handleFixCvUrl}
+                          disabled={isFixingCvUrl}
+                          className="mt-3 bg-amber-600 hover:bg-amber-700 text-white"
+                        >
+                          {isFixingCvUrl ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Reparando...
+                            </>
+                          ) : (
+                            "Reparar URL del CV"
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
                 <CvViewer 
                   cvUrl={validCvUrl} 
                   investigadorNombre={investigadorData.nombre_completo}
