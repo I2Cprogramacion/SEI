@@ -186,6 +186,28 @@ export default function DashboardPage() {
   // Determinar si el perfil está completo
   const perfilCompleto = investigadorData?.perfil_completo === true;
 
+  // Función para validar y corregir URL del CV
+  const getValidCvUrl = (url: string | undefined | null): string | null => {
+    if (!url || url.trim() === '') return null;
+    
+    // Si es una URL completa válida (Cloudinary, Vercel Blob, etc.)
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    
+    // Si es una ruta local que empieza con /uploads/
+    if (url.startsWith('/uploads/')) {
+      return url;
+    }
+    
+    // Si no cumple ninguno de los criterios anteriores, es inválida
+    console.warn('⚠️ URL de CV inválida detectada:', url);
+    return null;
+  };
+
+  // Obtener URL válida del CV
+  const validCvUrl = investigadorData?.cv_url ? getValidCvUrl(investigadorData.cv_url) : null;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       <div className="container mx-auto py-6 px-4">
@@ -363,10 +385,10 @@ export default function DashboardPage() {
                   Perfil del Investigador
                 </CardTitle>
                 <CardDescription className="text-blue-600">
-                  {investigadorData?.cv_url ? "Tu perfil es visible públicamente con Perfil Único del registro" : "Completa tu perfil público"}
+                  {validCvUrl ? "Tu perfil es visible públicamente con Perfil Único del registro" : "Completa tu perfil público"}
                 </CardDescription>
               </div>
-              {investigadorData?.cv_url && (
+              {validCvUrl && (
                 <Button
                   onClick={() => setGestionarCvDialogOpen(true)}
                   variant="outline"
@@ -379,11 +401,24 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            {investigadorData?.cv_url ? (
-              <CvViewer 
-                cvUrl={investigadorData.cv_url} 
-                investigadorNombre={investigadorData.nombre_completo}
-              />
+            {validCvUrl ? (
+              <>
+                {/* Debug: Mostrar URL del CV en desarrollo */}
+                {process.env.NODE_ENV === 'development' && (
+                  <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                    <strong>🔍 Debug - URL del CV:</strong>
+                    <div className="font-mono mt-1 break-all">
+                      Original: {investigadorData.cv_url}
+                      <br />
+                      Validada: {validCvUrl}
+                    </div>
+                  </div>
+                )}
+                <CvViewer 
+                  cvUrl={validCvUrl} 
+                  investigadorNombre={investigadorData.nombre_completo}
+                />
+              </>
             ) : (
               <div className="space-y-4">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">

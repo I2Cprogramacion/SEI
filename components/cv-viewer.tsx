@@ -10,8 +10,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { FileText, Download, ExternalLink, X } from "lucide-react"
+import { FileText, Download, ExternalLink, X, AlertCircle } from "lucide-react"
 import { Card } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 interface CvViewerProps {
   cvUrl: string
@@ -27,6 +28,17 @@ export function CvViewer({
   showAsCard = false 
 }: CvViewerProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [loadError, setLoadError] = useState(false)
+
+  // Validar que la URL sea válida
+  const isValidPdfUrl = (url: string) => {
+    // Verificar que sea una URL válida o una ruta que empiece con /
+    if (!url) return false
+    // Permitir URLs completas (https://) o rutas absolutas que empiecen con /
+    return url.startsWith('http') || url.startsWith('/')
+  }
+
+  const pdfUrl = isValidPdfUrl(cvUrl) ? cvUrl : null
 
   const handleDownload = () => {
     // Crear un elemento <a> temporal para forzar la descarga
@@ -109,12 +121,36 @@ export function CvViewer({
               </div>
             </DialogHeader>
             <div className="flex-1 overflow-hidden bg-gray-100">
-              <iframe
-                src={cvUrl}
-                className="w-full h-full border-0"
-                title={`CV de ${investigadorNombre || "Investigador"}`}
-                style={{ minHeight: '600px' }}
-              />
+              {pdfUrl ? (
+                <>
+                  {loadError && (
+                    <Alert variant="destructive" className="m-4">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        Error al cargar el PDF. Intenta abrirlo en una nueva pestaña o descargarlo.
+                        <div className="text-xs mt-2 font-mono break-all">URL: {cvUrl}</div>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  <iframe
+                    src={pdfUrl}
+                    className="w-full h-full border-0"
+                    title={`CV de ${investigadorNombre || "Investigador"}`}
+                    style={{ minHeight: '600px' }}
+                    onError={() => setLoadError(true)}
+                  />
+                </>
+              ) : (
+                <div className="p-6">
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      La URL del PDF no es válida.
+                      <div className="text-xs mt-2 font-mono break-all">URL: {cvUrl}</div>
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>
@@ -164,12 +200,36 @@ export function CvViewer({
           </div>
         </DialogHeader>
         <div className="flex-1 overflow-hidden bg-gray-100">
-          <iframe
-            src={cvUrl}
-            className="w-full h-full border-0"
-            title={`Perfil Único de ${investigadorNombre || "Investigador"}`}
-            style={{ minHeight: '600px' }}
-          />
+          {pdfUrl ? (
+            <>
+              {loadError && (
+                <Alert variant="destructive" className="m-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Error al cargar el PDF. Intenta abrirlo en una nueva pestaña o descargarlo.
+                    <div className="text-xs mt-2 font-mono break-all">URL: {cvUrl}</div>
+                  </AlertDescription>
+                </Alert>
+              )}
+              <iframe
+                src={pdfUrl}
+                className="w-full h-full border-0"
+                title={`Perfil Único de ${investigadorNombre || "Investigador"}`}
+                style={{ minHeight: '600px' }}
+                onError={() => setLoadError(true)}
+              />
+            </>
+          ) : (
+            <div className="p-6">
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  La URL del PDF no es válida.
+                  <div className="text-xs mt-2 font-mono break-all">URL: {cvUrl}</div>
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
