@@ -304,9 +304,9 @@ export default function DashboardPage() {
         )}
 
         {/* Layout de dos columnas: Perfil + Vista previa del CV */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Columna izquierda: Información del investigador */}
-          <Card className="bg-white border-blue-100 h-fit">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+          {/* Columna izquierda: Información del investigador (35% del ancho) */}
+          <Card className="bg-white border-blue-100 h-fit lg:col-span-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
               <div>
                 <CardTitle className="text-blue-900 flex items-center">
@@ -429,8 +429,8 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Columna derecha: Vista previa del CV/Perfil Único */}
-          <Card className="bg-white border-blue-100 h-fit">
+          {/* Columna derecha: Vista previa del CV/Perfil Único (65% del ancho) */}
+          <Card className="bg-white border-blue-100 lg:col-span-8">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
