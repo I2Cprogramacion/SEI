@@ -387,7 +387,7 @@ export default function DashboardPage() {
                         <Briefcase className="h-3.5 w-3.5" />
                         Empleo Actual
                       </label>
-                      <p className="text-sm text-blue-900">{investigadorData.empleo_actual}</p>
+                      <p className="text-sm text-blue-900 break-words whitespace-pre-line overflow-x-auto">{investigadorData.empleo_actual}</p>
                     </div>
                   )}
 
@@ -398,7 +398,7 @@ export default function DashboardPage() {
                         <Award className="h-3.5 w-3.5" />
                         CVU/PU
                       </label>
-                      <p className="text-sm text-blue-900 font-mono">{investigadorData.no_cvu}</p>
+                      <p className="text-sm text-blue-900 font-mono break-words whitespace-pre-line overflow-x-auto">{investigadorData.no_cvu}</p>
                     </div>
                   )}
 
@@ -409,7 +409,7 @@ export default function DashboardPage() {
                         <MapPin className="h-3.5 w-3.5" />
                         Nacionalidad
                       </label>
-                      <p className="text-sm text-blue-900">{investigadorData.nacionalidad}</p>
+                      <p className="text-sm text-blue-900 break-words whitespace-pre-line overflow-x-auto">{investigadorData.nacionalidad}</p>
                     </div>
                   )}
 
@@ -420,7 +420,7 @@ export default function DashboardPage() {
                         <MapPin className="h-3.5 w-3.5" />
                         Municipio
                       </label>
-                      <p className="text-sm text-blue-900">{investigadorData.municipio}</p>
+                      <p className="text-sm text-blue-900 break-words whitespace-pre-line overflow-x-auto">{investigadorData.municipio}</p>
                     </div>
                   )}
 
@@ -431,7 +431,7 @@ export default function DashboardPage() {
                         <FileText className="h-3.5 w-3.5" />
                         CURP
                       </label>
-                      <p className="text-sm text-blue-900 font-mono">{investigadorData.curp}</p>
+                      <p className="text-sm text-blue-900 font-mono break-words whitespace-pre-line overflow-x-auto">{investigadorData.curp}</p>
                     </div>
                   )}
 
@@ -442,7 +442,7 @@ export default function DashboardPage() {
                         <FileText className="h-3.5 w-3.5" />
                         RFC
                       </label>
-                      <p className="text-sm text-blue-900 font-mono">{investigadorData.rfc}</p>
+                      <p className="text-sm text-blue-900 font-mono break-words whitespace-pre-line overflow-x-auto">{investigadorData.rfc}</p>
                     </div>
                   )}
 
@@ -453,7 +453,7 @@ export default function DashboardPage() {
                         <GraduationCap className="h-3.5 w-3.5" />
                         Línea de Investigación
                       </label>
-                      <p className="text-sm text-blue-900">{investigadorData.linea_investigacion.join(', ')}</p>
+                      <p className="text-sm text-blue-900 break-words whitespace-pre-line overflow-x-auto">{investigadorData.linea_investigacion.join(', ')}</p>
                     </div>
                   )}
 
@@ -464,7 +464,7 @@ export default function DashboardPage() {
                         <Award className="h-3.5 w-3.5" />
                         Área de Investigación
                       </label>
-                      <p className="text-sm text-blue-900">{investigadorData.area_investigacion}</p>
+                      <p className="text-sm text-blue-900 break-words whitespace-pre-line overflow-x-auto">{investigadorData.area_investigacion}</p>
                     </div>
                   )}
 
@@ -625,15 +625,17 @@ export default function DashboardPage() {
                   </DropdownMenuContent>
                 </DropdownMenu>
                 {((tipoDocumento === 'PU' && validCvUrl) || (tipoDocumento === 'Dictamen' && validDictamenUrl)) && (
-                  <Button
-                    onClick={() => setGestionarCvDialogOpen(true)}
-                    variant="outline"
-                    className="border-blue-300 text-blue-700 hover:bg-blue-50"
-                    size="sm"
-                  >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Gestionar
-                  </Button>
+                  <div className="min-w-0 w-full md:w-auto overflow-x-auto">
+                    <Button
+                      onClick={() => setGestionarCvDialogOpen(true)}
+                      variant="outline"
+                      className="border-blue-300 text-blue-700 hover:bg-blue-50 w-full md:w-auto min-w-0"
+                      size="sm"
+                    >
+                      <Edit className="mr-2 h-4 w-4" />
+                      Gestionar
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
@@ -714,28 +716,30 @@ export default function DashboardPage() {
                   <div className="w-full space-y-4">
                     {/* Botones de acción */}
                     <div className="flex gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <Button
-                        onClick={() => window.open(validCvUrl, "_blank", "noopener,noreferrer")}
-                        className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
-                      >
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        Abrir PDF en Nueva Pestaña
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          const link = document.createElement('a')
-                          link.href = validCvUrl
-                          link.download = `${investigadorData?.nombre_completo?.replace(/\s+/g, '_') || 'perfil'}.pdf`
-                          document.body.appendChild(link)
-                          link.click()
-                          document.body.removeChild(link)
-                        }}
-                        className="border-blue-300 text-blue-700 hover:bg-blue-50"
-                      >
-                        <Download className="mr-2 h-4 w-4" />
-                        Descargar PDF
-                      </Button>
+                      <div className="flex flex-col md:flex-row gap-3 w-full justify-center items-center">
+                        <Button
+                          onClick={() => window.open(validCvUrl, "_blank", "noopener,noreferrer")}
+                          className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
+                        >
+                          <ExternalLink className="mr-2 h-4 w-4" />
+                          Abrir PDF en Nueva Pestaña
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            const link = document.createElement('a')
+                            link.href = validCvUrl
+                            link.download = `${investigadorData?.nombre_completo?.replace(/\s+/g, '_') || 'perfil'}.pdf`
+                            document.body.appendChild(link)
+                            link.click()
+                            document.body.removeChild(link)
+                          }}
+                          className="w-full md:w-auto border-blue-300 text-blue-700 hover:bg-blue-50"
+                        >
+                          <Download className="mr-2 h-4 w-4" />
+                          Descargar PDF
+                        </Button>
+                      </div>
                     </div>
 
                     {/* Vista previa del PDF con iframe simple */}
@@ -1019,47 +1023,49 @@ export default function DashboardPage() {
                   </Button>
                 )}
                 <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-red-900">Eliminar Cuenta</h3>
-                    <p className="text-sm text-red-700 mt-1">
-                      Esta acción eliminará permanentemente tu cuenta, todos tus datos del sistema y tu usuario de Clerk. 
-                      <strong className="block mt-1">Esta acción no se puede deshacer.</strong>
-                    </p>
-                  </div>
-                  <Button
-                    variant="destructive"
-                    className="ml-4 bg-red-600 hover:bg-red-700 text-white border-none"
-                    disabled={isDeletingAccount}
-                    onClick={async () => {
-                      setIsDeletingAccount(true);
-                      try {
-                        const response = await fetch("/api/investigadores/eliminar", { method: "POST" });
-                        const result = await response.json();
-                        if (response.ok && result.success) {
-                          alert("Tu usuario ha sido eliminado completamente de la base de datos.");
-                          router.push("/iniciar-sesion");
-                        } else {
-                          alert("Error al eliminar usuario: " + (result.error || "Error desconocido"));
+                  <div className="flex flex-col md:flex-row w-full gap-3">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-red-900">Eliminar Cuenta</h3>
+                      <p className="text-sm text-red-700 mt-1">
+                        Esta acción eliminará permanentemente tu cuenta, todos tus datos del sistema y tu usuario de Clerk. 
+                        <strong className="block mt-1">Esta acción no se puede deshacer.</strong>
+                      </p>
+                    </div>
+                    <Button
+                      variant="destructive"
+                      className="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white border-none"
+                      disabled={isDeletingAccount}
+                      onClick={async () => {
+                        setIsDeletingAccount(true);
+                        try {
+                          const response = await fetch("/api/investigadores/eliminar", { method: "POST" });
+                          const result = await response.json();
+                          if (response.ok && result.success) {
+                            alert("Tu usuario ha sido eliminado completamente de la base de datos.");
+                            router.push("/iniciar-sesion");
+                          } else {
+                            alert("Error al eliminar usuario: " + (result.error || "Error desconocido"));
+                          }
+                        } catch (error) {
+                          alert("Error al eliminar usuario. Por favor, intenta de nuevo.");
+                        } finally {
+                          setIsDeletingAccount(false);
                         }
-                      } catch (error) {
-                        alert("Error al eliminar usuario. Por favor, intenta de nuevo.");
-                      } finally {
-                        setIsDeletingAccount(false);
-                      }
-                    }}
-                  >
-                    {isDeletingAccount ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Eliminando...
-                      </>
-                    ) : (
-                      <>
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Eliminar Cuenta
-                      </>
-                    )}
-                  </Button>
+                      }}
+                    >
+                      {isDeletingAccount ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Eliminando...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Eliminar Cuenta
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardContent>
