@@ -1,8 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { AnimatedCard } from "@/components/ui/animated-card"
 import { AnimatedButton } from "@/components/ui/animated-button"
+import { FadeCarousel } from "@/components/ui/fade-carousel"
 import Link from "next/link"
-import Image from "next/image"
 import { FeaturedResearchers } from "@/components/featured-researchers"
 import { RecentProjects } from "@/components/recent-projects"
 
@@ -29,13 +29,30 @@ export default function Home() {
             </div>
           </div>
           <div className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] rounded-lg overflow-hidden bg-white p-4 sm:p-6 flex items-center justify-center order-first lg:order-last animate-fade-in-right">
-            <Image
-              src="/images/cuenta-conmigo-logo.png"
-              alt="Cuenta Conmigo"
-              width={500}
-              height={300}
-              className="object-contain w-full h-full"
-              priority
+            <FadeCarousel
+              images={[
+                {
+                  src: "/images/cuenta-conmigo-logo.png",
+                  alt: "Cuenta Conmigo"
+                },
+                {
+                  src: "/images/sei-logo.png",
+                  alt: "Sistema Estatal de Investigadores"
+                },
+                {
+                  src: "/images/IIC_logo_letras-removebg-preview.png",
+                  alt: "IIC - Instituto de Innovación y Competitividad"
+                },
+                {
+                  src: "/images/sistema-estatal-investigadores.png",
+                  alt: "Sistema Estatal de Investigadores"
+                }
+              ]}
+              interval={5000}
+              transitionDuration={1000}
+              showIndicators={true}
+              autoPlay={true}
+              className="w-full h-full"
             />
           </div>
         </div>
