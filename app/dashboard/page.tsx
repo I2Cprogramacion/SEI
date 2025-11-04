@@ -809,11 +809,11 @@ export default function DashboardPage() {
                 <>
                   {/* Vista previa del PDF del Dictamen */}
                   <div className="w-full space-y-4">
-                    {/* Botones de acción */}
-                    <div className="flex gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    {/* Botones de acción mejorados */}
+                    <div className="flex flex-col md:flex-row flex-wrap gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200 min-w-0 max-w-full">
                       <Button
                         onClick={() => window.open(validDictamenUrl, "_blank", "noopener,noreferrer")}
-                        className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
+                        className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 min-w-0 max-w-full truncate"
                       >
                         <ExternalLink className="mr-2 h-4 w-4" />
                         Abrir PDF en Nueva Pestaña
@@ -828,7 +828,7 @@ export default function DashboardPage() {
                           link.click()
                           document.body.removeChild(link)
                         }}
-                        className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                        className="w-full md:w-auto border-blue-300 text-blue-700 hover:bg-blue-50 min-w-0 max-w-full truncate"
                       >
                         <Download className="mr-2 h-4 w-4" />
                         Descargar PDF
