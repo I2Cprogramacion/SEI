@@ -625,15 +625,17 @@ export default function DashboardPage() {
                   </DropdownMenuContent>
                 </DropdownMenu>
                 {validCvUrl && tipoDocumento === 'PU' && (
-                  <Button
-                    onClick={() => setGestionarCvDialogOpen(true)}
-                    variant="outline"
-                    className="border-blue-300 text-blue-700 hover:bg-blue-50"
-                    size="sm"
-                  >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Gestionar
-                  </Button>
+                  <div className="min-w-0 w-full md:w-auto overflow-x-auto">
+                    <Button
+                      onClick={() => setGestionarCvDialogOpen(true)}
+                      variant="outline"
+                      className="border-blue-300 text-blue-700 hover:bg-blue-50 w-full md:w-auto min-w-0"
+                      size="sm"
+                    >
+                      <Edit className="mr-2 h-4 w-4" />
+                      Gestionar
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
