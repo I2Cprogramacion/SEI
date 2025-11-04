@@ -28,7 +28,7 @@ export default function Home() {
               </AnimatedButton>
             </div>
           </div>
-          <div className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] rounded-lg overflow-hidden bg-white p-4 sm:p-6 flex items-center justify-center order-first lg:order-last animate-fade-in-right">
+          <div className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] pb-12 rounded-lg overflow-visible bg-transparent p-4 sm:p-6 flex items-center justify-center order-first lg:order-last animate-fade-in-right">
             <FadeCarousel
               images={[
                 {

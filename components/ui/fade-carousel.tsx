@@ -55,23 +55,6 @@ export function FadeCarousel({
     }, transitionDuration / 2)
   }
 
-  const goToPrevious = () => {
-    if (images.length <= 1) return
-    setIsTransitioning(true)
-    setTimeout(() => {
-      setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length)
-      setIsTransitioning(false)
-    }, transitionDuration / 2)
-  }
-
-  const goToNext = () => {
-    if (images.length <= 1) return
-    setIsTransitioning(true)
-    setTimeout(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length)
-      setIsTransitioning(false)
-    }, transitionDuration / 2)
-  }
 
   if (images.length === 0) {
     return null
@@ -105,9 +88,9 @@ export function FadeCarousel({
         ))}
       </div>
 
-      {/* Indicadores */}
+      {/* Indicadores - Posicionados fuera del contenedor de imágenes */}
       {showIndicators && images.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
+        <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
           {images.map((_, index) => (
             <button
               key={index}
@@ -122,50 +105,6 @@ export function FadeCarousel({
             />
           ))}
         </div>
-      )}
-
-      {/* Botones de navegación (opcionales, solo si hay más de 1 imagen) */}
-      {images.length > 1 && (
-        <>
-          <button
-            onClick={goToPrevious}
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 bg-white/80 hover:bg-white text-blue-600 rounded-full p-2 shadow-md transition-colors"
-            aria-label="Imagen anterior"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-          <button
-            onClick={goToNext}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 z-20 bg-white/80 hover:bg-white text-blue-600 rounded-full p-2 shadow-md transition-colors"
-            aria-label="Siguiente imagen"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
-        </>
       )}
     </div>
   )
