@@ -37,7 +37,8 @@ import {
   Sparkles,
   Trash2,
   Download,
-  ExternalLink
+  ExternalLink,
+  ChevronDown
 } from "lucide-react"
 
 import {
@@ -50,6 +51,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from "@/components/ui/alert-dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 // Define missing types
 type Estadisticas = {
@@ -81,6 +88,7 @@ export default function DashboardPage() {
   const [isDesactivando, setIsDesactivando] = useState(false);
   const [areasInput, setAreasInput] = useState("");
   const [isFixingCvUrl, setIsFixingCvUrl] = useState(false);
+  const [tipoDocumento, setTipoDocumento] = useState<'PU' | 'Dictamen'>('PU');
 
   // Cargar datos del investigador
   useEffect(() => {
@@ -222,6 +230,9 @@ export default function DashboardPage() {
 
   // Obtener URL válida del CV
   const validCvUrl = investigadorData?.cv_url ? getValidCvUrl(investigadorData.cv_url) : null;
+
+  // Obtener URL válida del Dictamen
+  const validDictamenUrl = investigadorData?.dictamen_url ? getValidCvUrl(investigadorData.dictamen_url) : null;
 
   // Función para reparar URL de CV problemática
   const handleFixCvUrl = async () => {
@@ -581,179 +592,265 @@ export default function DashboardPage() {
                   {validCvUrl ? "Documento procesado automáticamente durante el registro" : "Completa tu perfil público"}
                 </CardDescription>
               </div>
-              {validCvUrl && (
-                <Button
-                  onClick={() => setGestionarCvDialogOpen(true)}
-                  variant="outline"
-                  className="border-blue-300 text-blue-700 hover:bg-blue-50"
-                  size="sm"
-                >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Gestionar
-                </Button>
-              )}
+              <div className="flex items-center gap-2">
+                {/* Botón desplegable para cambiar entre PU y Dictamen */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                      size="sm"
+                    >
+                      {tipoDocumento === 'PU' ? 'PU' : 'Dictamen'}
+                      <ChevronDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() => setTipoDocumento('PU')}
+                      className="cursor-pointer"
+                    >
+                      Cambiar PU
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setTipoDocumento('Dictamen')}
+                      className="cursor-pointer"
+                    >
+                      Cambiar Dictamen
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                {validCvUrl && tipoDocumento === 'PU' && (
+                  <Button
+                    onClick={() => setGestionarCvDialogOpen(true)}
+                    variant="outline"
+                    className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                    size="sm"
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Gestionar
+                  </Button>
+                )}
+              </div>
             </div>
           </CardHeader>
           <CardContent>
-            {validCvUrl ? (
-              <>
-                {/* Debug: Mostrar URL del CV en desarrollo */}
-                {process.env.NODE_ENV === 'development' && investigadorData?.cv_url && (
-                  <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <strong>🔍 Debug - URL del CV:</strong>
-                        <div className="font-mono mt-1 break-all">
-                          Original: {investigadorData.cv_url}
-                          <br />
-                          Validada: {validCvUrl || "❌ URL INVÁLIDA"}
+            {tipoDocumento === 'PU' ? (
+              // Contenido del Perfil Único (PU)
+              validCvUrl ? (
+                <>
+                  {/* Debug: Mostrar URL del CV en desarrollo */}
+                  {process.env.NODE_ENV === 'development' && investigadorData?.cv_url && (
+                    <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <strong>🔍 Debug - URL del CV:</strong>
+                          <div className="font-mono mt-1 break-all">
+                            Original: {investigadorData.cv_url}
+                            <br />
+                            Validada: {validCvUrl || "❌ URL INVÁLIDA"}
+                          </div>
+                        </div>
+                        {investigadorData.cv_url.includes('?') && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={handleFixCvUrl}
+                            disabled={isFixingCvUrl}
+                            className="border-yellow-400 text-yellow-700 hover:bg-yellow-100"
+                          >
+                            {isFixingCvUrl ? "Reparando..." : "Reparar URL"}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Información sobre el almacenamiento */}
+                  {investigadorData?.cv_url && process.env.NODE_ENV === 'development' && (
+                    <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs">
+                      <strong>📦 Almacenamiento:</strong>
+                      {isVercelBlobUrl(investigadorData.cv_url) && ' Vercel Blob Storage ✅'}
+                      {isCloudinaryUrl(investigadorData.cv_url) && ' Cloudinary Storage ✅'}
+                      {!isVercelBlobUrl(investigadorData.cv_url) && !isCloudinaryUrl(investigadorData.cv_url) && ' Local Storage 📁'}
+                    </div>
+                  )}
+
+                  {/* Si la URL tiene parámetros sospechosos de Cloudinary, mostrar advertencia */}
+                  {investigadorData?.cv_url && investigadorData.cv_url.includes('?') && isCloudinaryUrl(investigadorData.cv_url) && (
+                    <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-amber-900">URL de CV puede tener problemas</h4>
+                          <p className="text-sm text-amber-700 mt-1">
+                            Tu URL de CV contiene parámetros que pueden impedir su visualización. Haz clic en "Reparar URL" para solucionarlo.
+                          </p>
+                          <Button
+                            size="sm"
+                            onClick={handleFixCvUrl}
+                            disabled={isFixingCvUrl}
+                            className="mt-3 bg-amber-600 hover:bg-amber-700 text-white"
+                          >
+                            {isFixingCvUrl ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Reparando...
+                              </>
+                            ) : (
+                              "Reparar URL del CV"
+                            )}
+                          </Button>
                         </div>
                       </div>
-                      {investigadorData.cv_url.includes('?') && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={handleFixCvUrl}
-                          disabled={isFixingCvUrl}
-                          className="border-yellow-400 text-yellow-700 hover:bg-yellow-100"
-                        >
-                          {isFixingCvUrl ? "Reparando..." : "Reparar URL"}
-                        </Button>
-                      )}
+                    </div>
+                  )}
+                  
+                  {/* Vista previa del PDF - SOLUCIÓN SIMPLE */}
+                  <div className="w-full space-y-4">
+                    {/* Botones de acción */}
+                    <div className="flex gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <Button
+                        onClick={() => window.open(validCvUrl, "_blank", "noopener,noreferrer")}
+                        className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
+                      >
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        Abrir PDF en Nueva Pestaña
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          const link = document.createElement('a')
+                          link.href = validCvUrl
+                          link.download = `${investigadorData?.nombre_completo?.replace(/\s+/g, '_') || 'perfil'}.pdf`
+                          document.body.appendChild(link)
+                          link.click()
+                          document.body.removeChild(link)
+                        }}
+                        className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        Descargar PDF
+                      </Button>
+                    </div>
+
+                    {/* Vista previa del PDF con iframe simple */}
+                    <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200" style={{ height: '650px' }}>
+                      <iframe
+                        src={validCvUrl}
+                        className="w-full h-full"
+                        title="Vista previa del Perfil Único"
+                        style={{ border: 'none' }}
+                      />
                     </div>
                   </div>
-                )}
-                
-                {/* Información sobre el almacenamiento */}
-                {investigadorData?.cv_url && process.env.NODE_ENV === 'development' && (
-                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs">
-                    <strong>📦 Almacenamiento:</strong>
-                    {isVercelBlobUrl(investigadorData.cv_url) && ' Vercel Blob Storage ✅'}
-                    {isCloudinaryUrl(investigadorData.cv_url) && ' Cloudinary Storage ✅'}
-                    {!isVercelBlobUrl(investigadorData.cv_url) && !isCloudinaryUrl(investigadorData.cv_url) && ' Local Storage 📁'}
+                </>
+              ) : (
+                <div className="space-y-4 p-6">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                    <FileText className="h-12 w-12 text-blue-400 mx-auto mb-3" />
+                    <p className="text-blue-700 font-medium mb-2">Perfil Único no disponible</p>
+                    <p className="text-sm text-blue-600 mb-4">
+                      Tu Perfil Único debería haberse guardado automáticamente durante el registro.
+                    </p>
                   </div>
-                )}
-
-                {/* Si la URL tiene parámetros sospechosos de Cloudinary, mostrar advertencia */}
-                {investigadorData?.cv_url && investigadorData.cv_url.includes('?') && isCloudinaryUrl(investigadorData.cv_url) && (
-                  <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded">
-                    <div className="flex items-start gap-3">
-                      <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-amber-900">URL de CV puede tener problemas</h4>
-                        <p className="text-sm text-amber-700 mt-1">
-                          Tu URL de CV contiene parámetros que pueden impedir su visualización. Haz clic en "Reparar URL" para solucionarlo.
-                        </p>
-                        <Button
-                          size="sm"
-                          onClick={handleFixCvUrl}
-                          disabled={isFixingCvUrl}
-                          className="mt-3 bg-amber-600 hover:bg-amber-700 text-white"
-                        >
-                          {isFixingCvUrl ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Reparando...
-                            </>
-                          ) : (
-                            "Reparar URL del CV"
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Vista previa del PDF - SOLUCIÓN SIMPLE */}
-                <div className="w-full space-y-4">
-                  {/* Botones de acción */}
-                  <div className="flex gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <Button
-                      onClick={() => window.open(validCvUrl, "_blank", "noopener,noreferrer")}
-                      className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
-                    >
-                      <ExternalLink className="mr-2 h-4 w-4" />
-                      Abrir PDF en Nueva Pestaña
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        const link = document.createElement('a')
-                        link.href = validCvUrl
-                        link.download = `${investigadorData?.nombre_completo?.replace(/\s+/g, '_') || 'perfil'}.pdf`
-                        document.body.appendChild(link)
-                        link.click()
-                        document.body.removeChild(link)
-                      }}
-                      className="border-blue-300 text-blue-700 hover:bg-blue-50"
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Descargar PDF
-                    </Button>
-                  </div>
-
-                  {/* Vista previa del PDF con iframe simple */}
-                  <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200" style={{ height: '650px' }}>
-                    <iframe
-                      src={validCvUrl}
-                      className="w-full h-full"
-                      title="Vista previa del Perfil Único"
-                      style={{ border: 'none' }}
-                    />
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="space-y-4 p-6">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                  <FileText className="h-12 w-12 text-blue-400 mx-auto mb-3" />
-                  <p className="text-blue-700 font-medium mb-2">Perfil Único no disponible</p>
-                  <p className="text-sm text-blue-600 mb-4">
-                    Tu Perfil Único debería haberse guardado automáticamente durante el registro.
-                  </p>
-                </div>
-                <UploadCv
-                  value={investigadorData?.cv_url || ""}
-                  onChange={async (url) => {
-                    console.log("=== PERFIL ÚNICO SUBIDO ===")
-                    console.log("URL recibida:", url)
-                    
-                    // Actualizar el CV en la base de datos
-                    try {
-                      const response = await fetch('/api/investigadores/update-cv', {
-                        method: 'POST',
-                        headers: { 
-                          'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ cv_url: url })
-                      })
+                  <UploadCv
+                    value={investigadorData?.cv_url || ""}
+                    onChange={async (url) => {
+                      console.log("=== PERFIL ÚNICO SUBIDO ===")
+                      console.log("URL recibida:", url)
                       
-                      console.log("Response status:", response.status)
-                      const responseData = await response.json()
-                      console.log("Response data:", responseData)
-                      
-                      if (response.ok) {
-                        console.log("✅ Perfil Único actualizado en la base de datos")
-                        // Actualizar el estado local
-                        if (investigadorData) {
-                          setInvestigadorData({ ...investigadorData, cv_url: url })
+                      // Actualizar el CV en la base de datos
+                      try {
+                        const response = await fetch('/api/investigadores/update-cv', {
+                          method: 'POST',
+                          headers: { 
+                            'Content-Type': 'application/json'
+                          },
+                          body: JSON.stringify({ cv_url: url })
+                        })
+                        
+                        console.log("Response status:", response.status)
+                        const responseData = await response.json()
+                        console.log("Response data:", responseData)
+                        
+                        if (response.ok) {
+                          console.log("✅ Perfil Único actualizado en la base de datos")
+                          // Actualizar el estado local
+                          if (investigadorData) {
+                            setInvestigadorData({ ...investigadorData, cv_url: url })
+                          }
+                          alert("¡Perfil Único subido exitosamente! Recargando página...")
+                          // Recargar la página para mostrar el CV
+                          window.location.reload()
+                        } else {
+                          console.error("❌ Error en la respuesta:", responseData)
+                          alert(`Error al actualizar: ${responseData.error || 'Error desconocido'}`)
                         }
-                        alert("¡Perfil Único subido exitosamente! Recargando página...")
-                        // Recargar la página para mostrar el CV
-                        window.location.reload()
-                      } else {
-                        console.error("❌ Error en la respuesta:", responseData)
-                        alert(`Error al actualizar: ${responseData.error || 'Error desconocido'}`)
+                      } catch (error) {
+                        console.error('❌ Error al actualizar Perfil Único:', error)
+                        alert('Error al actualizar el Perfil Único. Por favor, intenta de nuevo.')
                       }
-                    } catch (error) {
-                      console.error('❌ Error al actualizar Perfil Único:', error)
-                      alert('Error al actualizar el Perfil Único. Por favor, intenta de nuevo.')
-                    }
-                  }}
-                  nombreCompleto={investigadorData?.nombre_completo || "Usuario"}
-                  showPreview={true}
-                />
-              </div>
+                    }}
+                    nombreCompleto={investigadorData?.nombre_completo || "Usuario"}
+                    showPreview={true}
+                  />
+                </div>
+              )
+            ) : (
+              // Contenido del Dictamen
+              validDictamenUrl ? (
+                <>
+                  {/* Vista previa del PDF del Dictamen */}
+                  <div className="w-full space-y-4">
+                    {/* Botones de acción */}
+                    <div className="flex gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <Button
+                        onClick={() => window.open(validDictamenUrl, "_blank", "noopener,noreferrer")}
+                        className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
+                      >
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        Abrir PDF en Nueva Pestaña
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          const link = document.createElement('a')
+                          link.href = validDictamenUrl
+                          link.download = `${investigadorData?.nombre_completo?.replace(/\s+/g, '_') || 'dictamen'}_dictamen.pdf`
+                          document.body.appendChild(link)
+                          link.click()
+                          document.body.removeChild(link)
+                        }}
+                        className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        Descargar PDF
+                      </Button>
+                    </div>
+
+                    {/* Vista previa del PDF con iframe simple */}
+                    <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200" style={{ height: '650px' }}>
+                      <iframe
+                        src={validDictamenUrl}
+                        className="w-full h-full"
+                        title="Vista previa del Dictamen"
+                        style={{ border: 'none' }}
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-4 p-6">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                    <FileText className="h-12 w-12 text-blue-400 mx-auto mb-3" />
+                    <p className="text-blue-700 font-medium mb-2">Dictamen no disponible</p>
+                    <p className="text-sm text-blue-600 mb-4">
+                      El dictamen se mostrará aquí cuando esté disponible.
+                    </p>
+                  </div>
+                </div>
+              )
             )}
           </CardContent>
         </Card>

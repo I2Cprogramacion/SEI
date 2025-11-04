@@ -190,6 +190,7 @@ model Profile {
   sni                         String? @map("sni")
   anioSni                     Int?    @map("anio_sni")
   cvUrl                       String? @map("cv_url")
+  dictamenUrl                 String? @map("dictamen_url")
 
   institucionRel      Institution? @relation(fields: [institucionId], references: [id])
   user                User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
