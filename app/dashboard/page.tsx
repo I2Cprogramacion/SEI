@@ -624,7 +624,7 @@ export default function DashboardPage() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                {validCvUrl && tipoDocumento === 'PU' && (
+                {((tipoDocumento === 'PU' && validCvUrl) || (tipoDocumento === 'Dictamen' && validDictamenUrl)) && (
                   <Button
                     onClick={() => setGestionarCvDialogOpen(true)}
                     variant="outline"
@@ -1068,14 +1068,36 @@ export default function DashboardPage() {
 
       </div>
 
-      {/* Dialog para gestionar CV */}
+      {/* Dialog para gestionar CV/Dictamen */}
       <GestionarCvDialog
         open={gestionarCvDialogOpen}
         onOpenChange={setGestionarCvDialogOpen}
-        cvUrlActual={investigadorData?.cv_url}
-        onCvUpdated={(newUrl) => {
+        cvUrlActual={tipoDocumento === 'PU' ? investigadorData?.cv_url : investigadorData?.dictamen_url}
+        tipoDocumento={tipoDocumento}
+        onCvUpdated={async (newUrl) => {
           if (investigadorData) {
-            setInvestigadorData({ ...investigadorData, cv_url: newUrl || undefined })
+            if (tipoDocumento === 'PU') {
+              setInvestigadorData({ ...investigadorData, cv_url: newUrl || undefined })
+            } else {
+              setInvestigadorData({ ...investigadorData, dictamen_url: newUrl || undefined })
+            }
+          }
+          
+          // Recargar datos del perfil para reflejar los cambios
+          try {
+            const response = await fetch("/api/investigadores/perfil");
+            if (response.ok) {
+              const result = await response.json();
+              if (result.success && result.data) {
+                let data = result.data;
+                if (typeof data.linea_investigacion === "string") {
+                  data.linea_investigacion = data.linea_investigacion.split(",").map((l: string) => l.trim()).filter(Boolean);
+                }
+                setInvestigadorData(data);
+              }
+            }
+          } catch (error) {
+            console.error("Error al recargar datos del perfil:", error);
           }
         }}
       />

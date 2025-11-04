@@ -18,14 +18,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No se pudo obtener el email del usuario" }, { status: 400 })
     }
 
-    // Obtener el cv_url del body
+    // Obtener el cv_url del body (puede ser null para eliminar)
     const { cv_url } = await request.json()
 
-    if (!cv_url) {
+    // Si cv_url es undefined (no se envió), rechazar la petición
+    if (cv_url === undefined) {
       return NextResponse.json({ error: "cv_url es requerido" }, { status: 400 })
     }
 
-    // Actualizar el CV en la base de datos
+    // Actualizar el CV en la base de datos (permite null para eliminar)
     const db = await getDatabase()
     const query = `
       UPDATE investigadores 

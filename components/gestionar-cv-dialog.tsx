@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useAuth } from "@clerk/nextjs"
 import {
   Dialog,
   DialogContent,
@@ -30,6 +29,7 @@ interface GestionarCvDialogProps {
   onOpenChange: (open: boolean) => void
   cvUrlActual?: string
   onCvUpdated: (newUrl: string | null) => void
+  tipoDocumento?: 'PU' | 'Dictamen' // Tipo de documento a gestionar
 }
 
 export function GestionarCvDialog({
@@ -37,8 +37,8 @@ export function GestionarCvDialog({
   onOpenChange,
   cvUrlActual,
   onCvUpdated,
+  tipoDocumento = 'PU',
 }: GestionarCvDialogProps) {
-  const { userId } = useAuth()
   const { toast } = useToast()
   const [isUploading, setIsUploading] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -73,7 +73,7 @@ export function GestionarCvDialog({
   }
 
   const handleUpload = async () => {
-    if (!selectedFile || !userId) return
+    if (!selectedFile) return
 
     setIsUploading(true)
 
@@ -94,24 +94,30 @@ export function GestionarCvDialog({
 
       const { url } = await uploadResponse.json()
 
-      // Actualizar en la base de datos
-      const response = await fetch("/api/investigadores/update-cv", {
+      // Actualizar en la base de datos según el tipo de documento
+      const endpoint = tipoDocumento === 'Dictamen' 
+        ? "/api/investigadores/update-dictamen"
+        : "/api/investigadores/update-cv"
+      
+      const campo = tipoDocumento === 'Dictamen' ? 'dictamen_url' : 'cv_url'
+      
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          cv_url: url,
+          [campo]: url,
         }),
       })
 
       if (!response.ok) {
-        throw new Error("Error al actualizar CV en la base de datos")
+        throw new Error(`Error al actualizar ${tipoDocumento === 'Dictamen' ? 'Dictamen' : 'CV'} en la base de datos`)
       }
 
       toast({
-        title: "¡CV actualizado!",
-        description: "Tu CV ha sido actualizado exitosamente",
+        title: `¡${tipoDocumento === 'Dictamen' ? 'Dictamen' : 'CV'} actualizado!`,
+        description: `Tu ${tipoDocumento === 'Dictamen' ? 'Dictamen' : 'CV'} ha sido actualizado exitosamente`,
       })
 
       onCvUpdated(url)
@@ -121,7 +127,7 @@ export function GestionarCvDialog({
       console.error("Error al subir CV:", error)
       toast({
         title: "Error",
-        description: "No se pudo actualizar el CV. Intenta de nuevo.",
+        description: `No se pudo actualizar el ${tipoDocumento === 'Dictamen' ? 'Dictamen' : 'CV'}. Intenta de nuevo.`,
         variant: "destructive",
       })
     } finally {
@@ -130,29 +136,35 @@ export function GestionarCvDialog({
   }
 
   const handleDelete = async () => {
-    if (!cvUrlActual || !userId) return
+    if (!cvUrlActual) return
 
     setIsDeleting(true)
 
     try {
-      // Actualizar en la base de datos (establecer a null)
-      const response = await fetch("/api/investigadores/update-cv", {
+      // Actualizar en la base de datos (establecer a null) según el tipo
+      const endpoint = tipoDocumento === 'Dictamen' 
+        ? "/api/investigadores/update-dictamen"
+        : "/api/investigadores/update-cv"
+      
+      const campo = tipoDocumento === 'Dictamen' ? 'dictamen_url' : 'cv_url'
+      
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          cv_url: null,
+          [campo]: null,
         }),
       })
 
       if (!response.ok) {
-        throw new Error("Error al eliminar CV de la base de datos")
+        throw new Error(`Error al eliminar ${tipoDocumento === 'Dictamen' ? 'Dictamen' : 'CV'} de la base de datos`)
       }
 
       toast({
-        title: "✅ CV eliminado",
-        description: "Tu CV ha sido eliminado exitosamente",
+        title: `✅ ${tipoDocumento === 'Dictamen' ? 'Dictamen' : 'CV'} eliminado`,
+        description: `Tu ${tipoDocumento === 'Dictamen' ? 'Dictamen' : 'CV'} ha sido eliminado exitosamente`,
       })
 
       // Cerrar ambos diálogos
@@ -167,7 +179,7 @@ export function GestionarCvDialog({
       console.error("Error al eliminar CV:", error)
       toast({
         title: "❌ Error",
-        description: "No se pudo eliminar el CV. Intenta de nuevo.",
+        description: `No se pudo eliminar el ${tipoDocumento === 'Dictamen' ? 'Dictamen' : 'CV'}. Intenta de nuevo.`,
         variant: "destructive",
       })
     } finally {
@@ -181,10 +193,12 @@ export function GestionarCvDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-blue-600" />
-            Perfil Único del Registro
+            {tipoDocumento === 'Dictamen' ? 'Dictamen' : 'Perfil Único del Registro'}
           </DialogTitle>
           <DialogDescription>
-            Tu Perfil Único fue procesado automáticamente durante el registro. Aquí puedes verlo o actualizarlo.
+            {tipoDocumento === 'Dictamen' 
+              ? 'Gestiona tu dictamen. Aquí puedes verlo, actualizarlo o eliminarlo.'
+              : 'Tu Perfil Único fue procesado automáticamente durante el registro. Aquí puedes verlo o actualizarlo.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -196,9 +210,13 @@ export function GestionarCvDialog({
                 <div className="flex items-start gap-3">
                   <FileText className="h-10 w-10 text-blue-600 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-blue-900 mb-1">Perfil Único del registro</p>
+                    <p className="font-semibold text-blue-900 mb-1">
+                      {tipoDocumento === 'Dictamen' ? 'Dictamen' : 'Perfil Único del registro'}
+                    </p>
                     <p className="text-sm text-blue-700">
-                      Documento procesado automáticamente durante tu registro
+                      {tipoDocumento === 'Dictamen' 
+                        ? 'Documento de dictamen disponible'
+                        : 'Documento procesado automáticamente durante tu registro'}
                     </p>
                   </div>
                 </div>
@@ -237,10 +255,10 @@ export function GestionarCvDialog({
                     <AlertDialogContent className="sm:max-w-[425px]">
                       <AlertDialogHeader>
                         <AlertDialogTitle className="text-xl font-bold text-gray-900">
-                          ¿Eliminar CV?
+                          ¿Eliminar {tipoDocumento === 'Dictamen' ? 'Dictamen' : 'CV'}?
                         </AlertDialogTitle>
                         <AlertDialogDescription className="text-gray-600">
-                          Esta acción no se puede deshacer. El CV será eliminado permanentemente.
+                          Esta acción no se puede deshacer. El {tipoDocumento === 'Dictamen' ? 'dictamen' : 'CV'} será eliminado permanentemente.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter className="gap-2 sm:gap-0">
@@ -276,28 +294,35 @@ export function GestionarCvDialog({
           <div className="space-y-3">
             <h3 className="font-semibold text-base text-gray-900 flex items-center gap-2">
               <Upload className="h-4 w-4" />
-              {cvUrlActual ? "Reemplazar CV" : "Subir CV"}
+              {cvUrlActual 
+                ? (tipoDocumento === 'Dictamen' ? "Reemplazar Dictamen" : "Reemplazar CV")
+                : (tipoDocumento === 'Dictamen' ? "Subir Dictamen" : "Subir CV")}
             </h3>
             
             <div className="space-y-3">
-              <label className="block">
+              <div className="flex items-center gap-3">
                 <input
                   type="file"
                   accept=".pdf,application/pdf"
                   onChange={handleFileSelect}
-                  className="block w-full text-sm text-gray-600
-                    file:mr-4 file:py-2.5 file:px-4
-                    file:rounded-lg file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-gradient-to-r file:from-blue-600 file:to-blue-700
-                    file:text-white
-                    hover:file:from-blue-700 hover:file:to-blue-800
-                    file:cursor-pointer
-                    cursor-pointer
-                    border border-gray-300 rounded-lg p-2"
+                  id="file-upload"
+                  className="hidden"
                   disabled={isUploading}
                 />
-              </label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="border-blue-300 text-blue-700 hover:bg-blue-50 cursor-pointer"
+                  disabled={isUploading}
+                  onClick={() => document.getElementById('file-upload')?.click()}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Seleccionar archivo
+                </Button>
+                <span className="text-sm text-gray-600 flex-1">
+                  {selectedFile ? selectedFile.name : "Ningún archivo seleccionado"}
+                </span>
+              </div>
               
               {selectedFile && (
                 <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
@@ -319,7 +344,11 @@ export function GestionarCvDialog({
                 <ul className="list-disc list-inside space-y-0.5">
                   <li>Formato PDF únicamente</li>
                   <li>Tamaño máximo: 10MB</li>
-                  {cvUrlActual && <li>El CV anterior será reemplazado</li>}
+                  {cvUrlActual && (
+                    <li>
+                      El {tipoDocumento === 'Dictamen' ? 'dictamen' : 'CV'} anterior será reemplazado
+                    </li>
+                  )}
                 </ul>
               </div>
             </div>
@@ -351,7 +380,11 @@ export function GestionarCvDialog({
             ) : (
               <>
                 <Upload className="mr-2 h-4 w-4" />
-                {selectedFile ? (cvUrlActual ? "Reemplazar CV" : "Subir CV") : "Selecciona un archivo"}
+                {selectedFile 
+                  ? (cvUrlActual 
+                      ? (tipoDocumento === 'Dictamen' ? "Reemplazar Dictamen" : "Reemplazar CV")
+                      : (tipoDocumento === 'Dictamen' ? "Subir Dictamen" : "Subir CV"))
+                  : "Selecciona un archivo"}
               </>
             )}
           </Button>

@@ -18,10 +18,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No se pudo obtener el email del usuario" }, { status: 400 })
     }
 
-    // Obtener el dictamen_url del body
+    // Obtener el dictamen_url del body (puede ser null para eliminar)
     const { dictamen_url } = await request.json()
 
-    if (!dictamen_url) {
+    // Si dictamen_url es undefined (no se envió), rechazar la petición
+    if (dictamen_url === undefined) {
       return NextResponse.json({ error: "dictamen_url es requerido" }, { status: 400 })
     }
 
