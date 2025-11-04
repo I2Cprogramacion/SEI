@@ -596,7 +596,7 @@ export default function DashboardPage() {
                   {validCvUrl ? "Documento procesado automáticamente durante el registro" : "Completa tu perfil público"}
                 </CardDescription>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap min-w-0 max-w-full">
                 {/* Botón desplegable para cambiar entre PU y Dictamen */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -625,17 +625,15 @@ export default function DashboardPage() {
                   </DropdownMenuContent>
                 </DropdownMenu>
                 {((tipoDocumento === 'PU' && validCvUrl) || (tipoDocumento === 'Dictamen' && validDictamenUrl)) && (
-                  <div className="min-w-0 w-full md:w-auto overflow-x-auto">
-                    <Button
-                      onClick={() => setGestionarCvDialogOpen(true)}
-                      variant="outline"
-                      className="border-blue-300 text-blue-700 hover:bg-blue-50 w-full md:w-auto min-w-0"
-                      size="sm"
-                    >
-                      <Edit className="mr-2 h-4 w-4" />
-                      Gestionar
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={() => setGestionarCvDialogOpen(true)}
+                    variant="outline"
+                    className="border-blue-300 text-blue-700 hover:bg-blue-50 max-w-full truncate min-w-0"
+                    size="sm"
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Gestionar
+                  </Button>
                 )}
               </div>
             </div>
