@@ -231,8 +231,12 @@ export default function DashboardPage() {
   // Obtener URL válida del CV
   const validCvUrl = investigadorData?.cv_url ? getValidCvUrl(investigadorData.cv_url) : null;
 
-  // Obtener URL válida del Dictamen
-  const validDictamenUrl = investigadorData?.dictamen_url ? getValidCvUrl(investigadorData.dictamen_url) : null;
+  // Obtener URL válida del Dictamen (permitir null/vacío)
+  const validDictamenUrl = investigadorData?.dictamen_url && 
+    typeof investigadorData.dictamen_url === 'string' && 
+    investigadorData.dictamen_url.trim() !== '' 
+    ? getValidCvUrl(investigadorData.dictamen_url) 
+    : null;
 
   // Función para reparar URL de CV problemática
   const handleFixCvUrl = async () => {
@@ -846,9 +850,50 @@ export default function DashboardPage() {
                     <FileText className="h-12 w-12 text-blue-400 mx-auto mb-3" />
                     <p className="text-blue-700 font-medium mb-2">Dictamen no disponible</p>
                     <p className="text-sm text-blue-600 mb-4">
-                      El dictamen se mostrará aquí cuando esté disponible.
+                      Sube tu dictamen en formato PDF para visualizarlo aquí.
                     </p>
                   </div>
+                  <UploadCv
+                    value={investigadorData?.dictamen_url || ""}
+                    onChange={async (url) => {
+                      console.log("=== DICTAMEN SUBIDO ===")
+                      console.log("URL recibida:", url)
+                      
+                      // Actualizar el Dictamen en la base de datos
+                      try {
+                        const response = await fetch('/api/investigadores/update-dictamen', {
+                          method: 'POST',
+                          headers: { 
+                            'Content-Type': 'application/json'
+                          },
+                          body: JSON.stringify({ dictamen_url: url })
+                        })
+                        
+                        console.log("Response status:", response.status)
+                        const responseData = await response.json()
+                        console.log("Response data:", responseData)
+                        
+                        if (response.ok) {
+                          console.log("✅ Dictamen actualizado en la base de datos")
+                          // Actualizar el estado local
+                          if (investigadorData) {
+                            setInvestigadorData({ ...investigadorData, dictamen_url: url })
+                          }
+                          alert("¡Dictamen subido exitosamente! Recargando página...")
+                          // Recargar la página para mostrar el dictamen
+                          window.location.reload()
+                        } else {
+                          console.error("❌ Error en la respuesta:", responseData)
+                          alert(`Error al actualizar: ${responseData.error || 'Error desconocido'}`)
+                        }
+                      } catch (error) {
+                        console.error('❌ Error al actualizar Dictamen:', error)
+                        alert('Error al actualizar el Dictamen. Por favor, intenta de nuevo.')
+                      }
+                    }}
+                    nombreCompleto={investigadorData?.nombre_completo || "Usuario"}
+                    showPreview={true}
+                  />
                 </div>
               )
             )}
