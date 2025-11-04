@@ -260,40 +260,40 @@ export default function InvestigadoresPage() {
                           </AvatarFallback>
                         </Avatar>
                         <h3 className="font-bold text-blue-900 mb-1">{investigador.nombre || 'Sin nombre'}</h3>
-                        <p className="text-blue-600 text-sm mb-2">
+                        <p className="text-blue-600 text-sm mb-2 break-words max-w-xs truncate">
                           {investigador.ultimoGradoEstudios || investigador.nivel || 'Investigador'}
                         </p>
                         {investigador.area && (
-                          <AnimatedBadge variant="secondary" className="mb-3 bg-blue-50 text-blue-700">
+                          <AnimatedBadge variant="secondary" className="mb-3 bg-blue-50 text-blue-700 break-words max-w-xs truncate overflow-x-auto">
                             {investigador.area}
                           </AnimatedBadge>
                         )}
 
                         <div className="w-full space-y-2 text-sm">
-                          <div className="flex items-center justify-center gap-1 text-blue-600">
+                          <div className="flex items-center justify-center gap-1 text-blue-600 overflow-x-auto max-w-xs">
                             <Building className="h-3 w-3" />
-                            <span className="text-xs">{investigador.institucion || 'Sin institución'}</span>
+                            <span className="text-xs break-words truncate">{investigador.institucion || 'Sin institución'}</span>
                           </div>
                           
                           {(investigador.estadoNacimiento || investigador.entidadFederativa) && (
                             <div className="flex items-center justify-center gap-1 text-blue-600">
                               <MapPin className="h-3 w-3" />
-                              <span className="text-xs">{investigador.estadoNacimiento || investigador.entidadFederativa}</span>
+                              <span className="text-xs break-words truncate max-w-xs">{investigador.estadoNacimiento || investigador.entidadFederativa}</span>
                             </div>
                           )}
 
                           {investigador.telefono && (
                             <div className="flex items-center justify-center gap-1 text-blue-600">
                               <Phone className="h-3 w-3" />
-                              <span className="text-xs">{investigador.telefono}</span>
+                              <span className="text-xs break-words truncate max-w-xs">{investigador.telefono}</span>
                             </div>
                           )}
                         </div>
 
                         {investigador.lineaInvestigacion && (
-                          <div className="w-full mt-4">
+                          <div className="w-full mt-4 overflow-x-auto">
                             <div className="flex flex-wrap gap-1 justify-center">
-                              <AnimatedBadge variant="outline" interactive className="text-xs border-blue-200 text-blue-700">
+                              <AnimatedBadge variant="outline" interactive className="text-xs border-blue-200 text-blue-700 break-words max-w-xs truncate overflow-x-auto">
                                 {investigador.lineaInvestigacion}
                               </AnimatedBadge>
                             </div>
@@ -302,8 +302,8 @@ export default function InvestigadoresPage() {
                       </div>
                     </CardContent>
                     <CardFooter className="border-t border-blue-100 flex justify-center py-3">
-                      <div className="text-center">
-                        <p className="text-xs text-blue-600">{investigador.email || 'Sin email'}</p>
+                      <div className="text-center overflow-x-auto max-w-xs">
+                        <p className="text-xs text-blue-600 break-words truncate">{investigador.email || 'Sin email'}</p>
                       </div>
                     </CardFooter>
                   </AnimatedCard>
