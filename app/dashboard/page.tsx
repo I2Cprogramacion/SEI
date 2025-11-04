@@ -179,19 +179,22 @@ export default function DashboardPage() {
     }
   };
 
-  if (!isLoaded || isLoadingData) {
-    return (
-      <div className="container mx-auto py-10 px-4">
-        <div className="text-center">
-          <Loader2 className="animate-spin h-12 w-12 text-blue-700 mx-auto" />
-          <p className="mt-4 text-blue-600">Cargando dashboard...</p>
-        </div>
-      </div>
-    );
+  // Depuración visual y de consola
+  if (!isLoaded) {
+    console.log('Clerk: user no está cargado todavía');
+    return <div className="text-center p-10 text-blue-700">Cargando sesión de usuario...</div>;
   }
-
   if (!user) {
-    return null;
+    console.log('Clerk: user es null, no hay sesión activa');
+    return <div className="text-center p-10 text-red-700">No has iniciado sesión. Inicia sesión para ver tu dashboard.</div>;
+  }
+  if (isLoadingData) {
+    console.log('Esperando datos del investigador...');
+    return <div className="text-center p-10 text-blue-700">Cargando datos del perfil...</div>;
+  }
+  if (!investigadorData) {
+    console.log('API /api/investigadores/perfil no devolvió datos para el usuario:', user?.primaryEmailAddress?.emailAddress || user.id);
+    return <div className="text-center p-10 text-orange-700">No se encontraron datos de tu perfil en la base de datos.<br/>Verifica que tu usuario esté correctamente registrado.<br/>Si el problema persiste, contacta a soporte.</div>;
   }
 
   // Determinar si el perfil está completo
