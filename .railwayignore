@@ -1,0 +1,62 @@
+# Ignorar archivos innecesarios en Railway para deployments más rápidos
+
+# Dependencies (se reinstalan en build)
+node_modules/
+
+# Build outputs (se regeneran)
+.next/
+out/
+build/
+dist/
+
+# Tests
+__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+coverage/
+
+# Docs y guías
+docs/
+*.md
+!README.md
+
+# Scripts locales
+scripts/
+
+# Development
+.env.local
+.env.development
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Caché
+*.tsbuildinfo
+.eslintcache
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Vercel (no necesario para Railway)
+.vercel/
+vercel.json
+
+# OCR Server (no necesario si no se usa)
+ocr-server/
+
+# Uploads temporales
+public/uploads/*
+
+# Prisma migrations (se ejecutan en build)
+prisma/migrations/

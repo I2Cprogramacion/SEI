@@ -1,0 +1,165 @@
+# ========================================
+# DEPENDENCIES
+# ========================================
+node_modules/
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+package-lock.json
+
+# ========================================
+# NEXT.JS
+# ========================================
+/.next/
+/out/
+/.next/trace
+/build
+*.trace
+
+# ========================================
+# ENVIRONMENT VARIABLES & SECRETS
+# ========================================
+# .env en cualquier carpeta
+**/.env
+**/.env.*
+
+# Variantes comunes en raíz
+.env.*
+*.env
+
+# Mantener plantillas de ejemplo
+!.env.example
+!.env.sample
+
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+.env.backup
+*.env.backup
+
+# ========================================
+# VERCEL
+# ========================================
+.vercel
+.vercel.json
+
+# ========================================
+# TYPESCRIPT
+# ========================================
+*.tsbuildinfo
+next-env.d.ts
+
+# ========================================
+# LOGS
+# ========================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ========================================
+# TESTING
+# ========================================
+/coverage
+.nyc_output
+
+# ========================================
+# IDEs & EDITORS
+# ========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ========================================
+# PYTHON (OCR SERVER)
+# ========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ========================================
+# DATABASE
+# ========================================
+*.db
+*.sqlite
+*.sqlite3
+prisma/.env
+
+# ========================================
+# CLERK (AUTHENTICATION)
+# ========================================
+/.clerk/
+
+# ========================================
+# UPLOADS & TEMPORARY FILES
+# ========================================
+/tmp/
+/temp/
+public/uploads/*
+!public/uploads/.gitkeep
+.vercel-deploy-trigger
+.vercel-force-redeploy
+*.trigger
+
+# ========================================
+# OS SPECIFIC
+# ========================================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+*.DS_Store
+
+# ========================================
+# PRISMA GENERATED
+# ========================================
+/lib/generated/prisma
+
+# ========================================
+# BACKUPS & DUPLICATES
+# ========================================
+*.backup
+*.bak
+*.old
+*.tmp
+*-copy.*
+*-backup.*
+*-old.*
+*-test.*
+*-draft.*
+
+# ========================================
+# MISC
+# ========================================
+*.pem
+.npmrc.local
+.railway/
+railway/

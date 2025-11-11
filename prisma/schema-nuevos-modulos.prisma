@@ -1,0 +1,645 @@
+// Schema actualizado con nuevos módulos
+// Este archivo contiene TODOS los modelos necesarios para los 3 módulos nuevos
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ========================================
+// MODELOS EXISTENTES
+// ========================================
+
+model User {
+  id         String    @id @default(cuid())
+  email      String    @unique
+  password   String
+  roleId     String
+  lastActive DateTime? @default(now())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  profile    Profile?
+  role       Role      @relation(fields: [roleId], references: [id])
+
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+
+  @@map("roles")
+}
+
+model Profile {
+  id                  String       @id @default(cuid())
+  userId              String       @unique
+  nombreCompleto      String
+  curp                String?      @unique
+  rfc                 String?
+  noCvu               String?
+  telefono            String?
+  ultimoGradoEstudios String?
+  empleoActual        String?
+  lineaInvestigacion  String?
+  areaInvestigacion   String?
+  fotografiaUrl       String?
+  nacionalidad        String       @default("Mexicana")
+  fechaNacimiento     DateTime?
+  institucionId       String?
+  institucion         String?
+  origen              String?
+  archivoProcesado    String?
+  
+  // NUEVOS CAMPOS PARA EVALUACIÓN
+  nivelActualId        String?
+  fechaAsignacionNivel DateTime?
+  puntajeTotal         Int        @default(0)
+  estadoEvaluacion     String     @default("PENDIENTE") // PENDIENTE, EN_PROCESO, APROBADO, RECHAZADO
+  
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  
+  institucionRel      Institution? @relation(fields: [institucionId], references: [id])
+  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nivelActual         NivelInvestigador? @relation(fields: [nivelActualId], references: [id])
+  
+  // Relaciones con nuevos módulos
+  evaluaciones        Evaluacion[]
+  certificados        Certificado[]
+  metricas            MetricaInvestigador?
+  postulaciones       Postulacion[]
+
+  @@map("profiles")
+}
+
+model Institution {
+  id        String    @id @default(cuid())
+  nombre    String
+  tipo      String?
+  ubicacion String?
+  sitioWeb  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  profiles  Profile[]
+
+  @@map("institutions")
+}
+
+// ========================================
+// MÓDULO 1: EVALUACIÓN Y NIVELES
+// ========================================
+
+model NivelInvestigador {
+  id                String      @id @default(cuid())
+  codigo            String      @unique // "NIVEL_1", "NIVEL_2", "NIVEL_3", "CANDIDATO", "EMERITO"
+  nombre            String      // "Nivel 1", "Nivel 2", "Nivel 3", "Candidato a Emérito", "Emérito"
+  descripcion       String
+  puntajeMinimo     Int         // Puntaje mínimo requerido
+  puntajeMaximo     Int         // Puntaje máximo del rango
+  color             String      // Color para UI (hex) ej: "#3B82F6"
+  icono             String?     // Nombre del icono (lucide-react)
+  orden             Int         // Orden jerárquico (1-5)
+  activo            Boolean     @default(true)
+  requisitos        Json?       // Array de requisitos específicos
+  beneficios        Json?       // Array de beneficios del nivel
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  investigadores    Profile[]
+  evaluaciones      Evaluacion[]
+  
+  @@map("niveles_investigador")
+}
+
+model Evaluacion {
+  id                    String              @id @default(cuid())
+  investigadorId        String
+  evaluadorId           String              // ClerkID del evaluador
+  evaluadorNombre       String              // Nombre del evaluador para registro
+  nivelPropuestoId      String
+  ciclo                 String              // "2025-1", "2025-2"
+  
+  // Puntajes por criterio (sobre 100 cada uno)
+  puntajePublicaciones  Int                 @default(0) // 40 pts max
+  puntajeProyectos      Int                 @default(0) // 40 pts max  
+  puntajeFormacion      Int                 @default(0) // 25 pts max
+  puntajeExperiencia    Int                 @default(0) // 20 pts max
+  puntajeImpacto        Int                 @default(0) // 15 pts max
+  puntajeTotal          Int                 @default(0) // Suma total (max 100)
+  
+  // Detalles de cada criterio
+  detallePublicaciones  Json?               // Detalle del puntaje
+  detalleProyectos      Json?
+  detalleFormacion      Json?
+  detalleExperiencia    Json?
+  detalleImpacto        Json?
+  
+  // Observaciones y soporte
+  observaciones         String?
+  fortalezas            String?
+  areasM ejora          String?
+  documentosSoporte     Json?               // URLs de documentos probatorios
+  
+  // Estado y aprobación
+  estado                String              @default("EN_REVISION") 
+  // Estados: EN_REVISION, APROBADA, RECHAZADA, PENDIENTE_DOCUMENTACION
+  aprobadoPor           String?             // ClerkID del aprobador
+  fechaAprobacion       DateTime?
+  
+  // Fechas
+  fechaInicio           DateTime            @default(now())
+  fechaFinalizacion     DateTime?
+  
+  investigador          Profile             @relation(fields: [investigadorId], references: [id])
+  nivelPropuesto        NivelInvestigador   @relation(fields: [nivelPropuestoId], references: [id])
+  
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  
+  @@index([investigadorId])
+  @@index([ciclo])
+  @@index([estado])
+  @@map("evaluaciones")
+}
+
+model CriterioEvaluacion {
+  id              String   @id @default(cuid())
+  codigo          String   @unique
+  nombre          String
+  descripcion     String
+  categoria       String   // "PRODUCTIVIDAD", "FORMACION", "EXPERIENCIA", "IMPACTO"
+  peso            Int      // Peso porcentual (0-100)
+  puntajeMaximo   Int
+  formula         String?  // Fórmula para cálculo automático
+  activo          Boolean  @default(true)
+  orden           Int
+  
+  // Subcategorías para desglose
+  subcategorias   Json?    // Array de subcategorías con sus pesos
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("criterios_evaluacion")
+}
+
+model MetricaInvestigador {
+  id                        String    @id @default(cuid())
+  investigadorId            String    @unique
+  
+  // Métricas de publicaciones
+  totalPublicaciones        Int       @default(0)
+  publicacionesQ1           Int       @default(0)
+  publicacionesQ2           Int       @default(0)
+  publicacionesQ3           Int       @default(0)
+  publicacionesQ4           Int       @default(0)
+  librosCompletos           Int       @default(0)
+  capitulosLibro            Int       @default(0)
+  totalCitas                Int       @default(0)
+  indiceH                   Int       @default(0)
+  indiceI10                 Int       @default(0)
+  
+  // Métricas de proyectos
+  totalProyectos            Int       @default(0)
+  proyectosVigentes         Int       @default(0)
+  proyectosCompletados      Int       @default(0)
+  proyectosPrincipal        Int       @default(0)
+  proyectosColaborador      Int       @default(0)
+  montoTotalFinanciamiento  Float     @default(0)
+  
+  // Métricas de formación
+  tesisLicenciatura         Int       @default(0)
+  tesisMaestria             Int       @default(0)
+  tesisDoctorado            Int       @default(0)
+  postdoctorados            Int       @default(0)
+  cursosImpartidos          Int       @default(0)
+  
+  // Métricas de impacto
+  patentes                  Int       @default(0)
+  registrosSoftware         Int       @default(0)
+  desarrollosTecnologicos   Int       @default(0)
+  colaboracionesInternacionales Int   @default(0)
+  colaboracionesNacionales  Int       @default(0)
+  premiosDistinciones       Int       @default(0)
+  
+  // Experiencia
+  aniosExperiencia          Int       @default(0)
+  estanciasInvestigacion    Int       @default(0)
+  pertenenciaSNI            Boolean   @default(false)
+  nivelSNI                  String?
+  
+  // Metadata
+  fechaActualizacion        DateTime  @default(now())
+  actualizadoAutomaticamente Boolean  @default(false)
+  
+  investigador              Profile   @relation(fields: [investigadorId], references: [id])
+  
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+  
+  @@map("metricas_investigador")
+}
+
+// ========================================
+// MÓDULO 2: CERTIFICADOS
+// ========================================
+
+model Certificado {
+  id                    String              @id @default(cuid())
+  folio                 String              @unique // SEI-2025-000123
+  investigadorId        String
+  nivelId               String?             // Nivel al momento de emisión
+  
+  // Datos del certificado (snapshot)
+  nombreCompleto        String
+  curp                  String
+  nivel                 String
+  nivelDescripcion      String?
+  
+  // Fechas
+  fechaEmision          DateTime            @default(now())
+  fechaVigenciaInicio   DateTime
+  fechaVigenciaFin      DateTime
+  
+  // Archivos generados
+  pdfUrl                String?             // URL del PDF en Cloudinary
+  qrCodeUrl             String?             // URL del QR code
+  
+  // Verificación
+  codigoVerificacion    String              @unique // Hash SHA-256
+  verificado            Boolean             @default(false)
+  vecesVerificado       Int                 @default(0)
+  ultimaVerificacion    DateTime?
+  
+  // Estado
+  estado                String              @default("ACTIVO") 
+  // Estados: ACTIVO, REVOCADO, EXPIRADO, SUSPENDIDO
+  motivoRevocacion      String?
+  fechaRevocacion       DateTime?
+  revocadoPor           String?             // ClerkID
+  
+  // Firma digital
+  firmadoPor            String?             // Nombre del funcionario
+  cargoFirmante         String?
+  firmaDigital          String?             // Hash de la firma
+  
+  // Metadata
+  plantillaUsada        String?             // ID de plantilla
+  metadataAdicional     Json?               // Información adicional
+  
+  investigador          Profile             @relation(fields: [investigadorId], references: [id])
+  verificaciones        VerificacionCertificado[]
+  
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  
+  @@index([investigadorId])
+  @@index([folio])
+  @@index([estado])
+  @@index([codigoVerificacion])
+  @@map("certificados")
+}
+
+model VerificacionCertificado {
+  id                String      @id @default(cuid())
+  certificadoId     String
+  folio             String
+  ipAddress         String?
+  userAgent         String?
+  pais              String?
+  ciudad            String?
+  exitosa           Boolean     @default(true)
+  motivoFallo       String?
+  fechaVerificacion DateTime    @default(now())
+  
+  certificado       Certificado @relation(fields: [certificadoId], references: [id])
+  
+  @@index([certificadoId])
+  @@index([fechaVerificacion])
+  @@map("verificaciones_certificado")
+}
+
+model PlantillaCertificado {
+  id              String   @id @default(cuid())
+  nombre          String
+  descripcion     String?
+  htmlTemplate    String   @db.Text // HTML del certificado
+  cssStyles       String?  @db.Text // Estilos CSS
+  variables       Json?    // Variables disponibles {nombre, placeholder, tipo}
+  
+  // Configuración
+  orientacion     String   @default("portrait") // portrait, landscape
+  tamano          String   @default("letter")   // letter, a4
+  margenes        Json?    // {top, right, bottom, left}
+  
+  // Estado
+  activa          Boolean  @default(false)
+  version         Int      @default(1)
+  
+  // Metadata
+  creadaPor       String?
+  ultimaEdicion   String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("plantillas_certificado")
+}
+
+// ========================================
+// MÓDULO 3: CONVOCATORIAS
+// ========================================
+
+model Convocatoria {
+  id                    String              @id @default(cuid())
+  folio                 String              @unique // CONV-2025-001
+  titulo                String
+  descripcion           String              @db.Text
+  objetivos             String              @db.Text
+  alcance               String?             @db.Text
+  
+  // Organización
+  organizacion          String
+  dependencia           String?
+  contacto              String?
+  email                 String?
+  telefono              String?
+  sitioWeb              String?
+  
+  // Categoría y tipo
+  categoria             String              // INVESTIGACION, DESARROLLO, INNOVACION, FORMACION
+  tipo                  String              // PROYECTO, BECA, ESTANCIA, PREMIO
+  modalidad             String?             // INDIVIDUAL, GRUPAL, INSTITUCIONAL
+  
+  // Fechas importantes
+  fechaPublicacion      DateTime
+  fechaAperturaConv     DateTime
+  fechaCierreConv       DateTime
+  fechaEvaluacion       DateTime?
+  fechaResultados       DateTime?
+  fechaInicioProyecto   DateTime?
+  fechaFinProyecto      DateTime?
+  
+  // Financiamiento
+  presupuestoTotal      Float?
+  montoMinimo           Float?
+  montoMaximo           Float?
+  numeroPlazas          Int?
+  plazasDisponibles     Int?
+  
+  // Elegibilidad
+  nivelMinimo           String?             // Nivel mínimo requerido
+  nivelMaximo           String?
+  areasElegibles        Json?               // Array de áreas de investigación
+  institucionesElegibles Json?              // Array de instituciones
+  edadMinima            Int?
+  edadMaxima            Int?
+  
+  // Requisitos
+  requisitos            Json?               // Array de requisitos textuales
+  documentosRequeridos  Json?               // Array de {nombre, descripcion, obligatorio}
+  restricciones         Json?               // Restricciones adicionales
+  
+  // Criterios de evaluación
+  criteriosEvaluacion   Json?               // Array de criterios con pesos
+  puntajeMinimo         Float?
+  
+  // Archivos oficiales
+  basesPdf              String?             // URL del PDF de bases
+  formatosPdf           String?             // URL de formatos descargables
+  ejemplosPdf           String?
+  
+  // Estado
+  estado                String              @default("BORRADOR") 
+  // Estados: BORRADOR, PUBLICADA, ABIERTA, CERRADA, EN_EVALUACION, RESULTADOS_PUBLICADOS, FINALIZADA, CANCELADA
+  
+  // Configuración
+  permitePostulacion    Boolean             @default(true)
+  requiereEvaluacion    Boolean             @default(true)
+  esPublica             Boolean             @default(true)
+  permiteEdicionPostulacion Boolean         @default(true)
+  requiereCartaPostulacion Boolean          @default(true)
+  
+  // Notificaciones automáticas
+  notificarApertura     Boolean             @default(true)
+  notificarCierre       Boolean             @default(true)
+  notificarResultados   Boolean             @default(true)
+  diasAntesNotificacion Int                 @default(3)
+  
+  // Metadata
+  creadaPor             String?             // ClerkID
+  modificadaPor         String?
+  cicloId               String?
+  
+  postulaciones         Postulacion[]
+  
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  
+  @@index([estado])
+  @@index([fechaCierreConv])
+  @@index([categoria])
+  @@map("convocatorias")
+}
+
+model Postulacion {
+  id                    String              @id @default(cuid())
+  convocatoriaId        String
+  investigadorId        String
+  folio                 String              @unique // POST-2025-000123
+  
+  // Información del proyecto (si aplica)
+  tituloProyecto        String?
+  resumen               String?             @db.Text
+  objetivoGeneral       String?             @db.Text
+  objetivosEspecificos  String?             @db.Text
+  justificacion         String?             @db.Text
+  metodologia           String?             @db.Text
+  resultadosEsperados   String?             @db.Text
+  impactoEsperado       String?             @db.Text
+  cronograma            Json?               // Array de actividades con fechas
+  
+  // Financiamiento
+  presupuestoSolicitado Float?
+  desglosepresupuesto   Json?               // Array de {concepto, monto, justificacion}
+  cofinanciamiento      Float?
+  fuenteCofinanciamiento String?
+  
+  // Documentos requeridos
+  documentos            Json?               // Array de {tipo, nombre, url, fechaSubida}
+  cartaPostulacion      String?
+  curriculumVitae       String?
+  cartaApoyo            String?
+  
+  // Colaboradores (si es grupal)
+  colaboradores         Json?               // Array de colaboradores
+  
+  // Evaluación
+  puntajeTotal          Float?
+  dictamen              String?             // APROBADO, APROBADO_CONDICIONADO, RECHAZADO
+  observaciones         String?             @db.Text
+  recomendaciones       String?             @db.Text
+  posicionFinal         Int?                // Posición en ranking
+  
+  // Estado
+  estado                String              @default("BORRADOR")
+  // Estados: BORRADOR, ENVIADA, RECIBIDA, EN_REVISION, DOCUMENTACION_INCOMPLETA, 
+  //          EN_EVALUACION, EVALUADA, APROBADA, RECHAZADA, LISTA_ESPERA
+  
+  // Notificaciones
+  notificado            Boolean             @default(false)
+  fechaNotificacion     DateTime?
+  
+  // Fechas
+  fechaPostulacion      DateTime?
+  fechaEnvio            DateTime?
+  fechaRecepcion        DateTime?
+  fechaEvaluacion       DateTime?
+  fechaResultado        DateTime?
+  
+  // Versiones (para control de cambios)
+  version               Int                 @default(1)
+  versionAnterior       String?             // ID de versión anterior
+  
+  convocatoria          Convocatoria        @relation(fields: [convocatoriaId], references: [id])
+  investigador          Profile             @relation(fields: [investigadorId], references: [id])
+  evaluaciones          EvaluacionPostulacion[]
+  
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  
+  @@index([convocatoriaId])
+  @@index([investigadorId])
+  @@index([estado])
+  @@index([folio])
+  @@map("postulaciones")
+}
+
+model EvaluacionPostulacion {
+  id                    String      @id @default(cuid())
+  postulacionId         String
+  evaluadorId           String      // ClerkID del evaluador
+  evaluadorNombre       String
+  evaluadorEspecialidad String?
+  
+  // Criterios de evaluación (configurables según convocatoria)
+  criterios             Json        // Array de {criterio, descripcion, puntaje, puntajeMaximo, comentario}
+  puntajeTotal          Float
+  puntajeMaximoTotal    Float
+  porcentaje            Float       // Porcentaje sobre puntaje máximo
+  
+  // Dictamen detallado
+  recomendacion         String      // APROBAR, APROBAR_CONDICIONADO, RECHAZAR, REVISION_ADICIONAL
+  comentariosGenerales  String?     @db.Text
+  fortalezas            String?     @db.Text
+  debilidades           String?     @db.Text
+  recomendacionesMejora String?     @db.Text
+  
+  // Aspectos específicos
+  calidadCientifica     Int?        // 1-10
+  viabilidad            Int?        // 1-10
+  impacto               Int?        // 1-10
+  presupuesto           Int?        // 1-10
+  
+  // Estado
+  estado                String      @default("PENDIENTE")
+  // Estados: ASIGNADA, EN_PROCESO, COMPLETADA, REVISADA, APROBADA
+  
+  // Conflicto de interés
+  conflictoInteres      Boolean     @default(false)
+  motivoConflicto       String?
+  
+  // Fechas
+  fechaAsignacion       DateTime    @default(now())
+  fechaInicio           DateTime?
+  fechaCompletada       DateTime?
+  fechaAprobada         DateTime?
+  
+  // Auditoría
+  aprobadaPor           String?     // ClerkID del supervisor
+  revisadaPor           String?
+  
+  postulacion           Postulacion @relation(fields: [postulacionId], references: [id])
+  
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  
+  @@index([postulacionId])
+  @@index([evaluadorId])
+  @@index([estado])
+  @@map("evaluaciones_postulacion")
+}
+
+model CicloConvocatoria {
+  id                String      @id @default(cuid())
+  nombre            String      @unique // "2025-1", "2025-2"
+  anio              Int
+  periodo           String      // "Primer Semestre", "Segundo Semestre", "Anual"
+  fechaInicio       DateTime
+  fechaFin          DateTime
+  activo            Boolean     @default(true)
+  
+  descripcion       String?
+  presupuestoTotal  Float?
+  metasProyectos    Int?
+  
+  // Estadísticas
+  totalConvocatorias Int        @default(0)
+  totalPostulaciones Int        @default(0)
+  totalAprobadas     Int        @default(0)
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  @@map("ciclos_convocatoria")
+}
+
+model NotificacionConvocatoria {
+  id                String      @id @default(cuid())
+  convocatoriaId    String?
+  tipo              String      // NUEVA, APERTURA, PROXIMO_CIERRE, CERRADA, RESULTADOS, RECORDATORIO
+  asunto            String
+  mensaje           String      @db.Text
+  destinatarios     Json        // Array de IDs de investigadores o "TODOS"
+  
+  // Filtros de destinatarios
+  filtroNivel       String?     // Solo investigadores de X nivel
+  filtroArea        String?     // Solo de X área
+  
+  // Estado de envío
+  programada        Boolean     @default(false)
+  fechaProgramada   DateTime?
+  enviada           Boolean     @default(false)
+  fechaEnvio        DateTime?
+  totalDestinatarios Int        @default(0)
+  totalEnviados     Int         @default(0)
+  totalFallidos     Int         @default(0)
+  
+  // Logs
+  logEnvio          Json?       // Detalle del envío
+  errores           Json?       // Array de errores si los hubo
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  @@index([convocatoriaId])
+  @@index([enviada])
+  @@map("notificaciones_convocatoria")
+}
+
+// ========================================
+// ÍNDICES ADICIONALES PARA OPTIMIZACIÓN
+// ========================================
+
+// Los índices ya están definidos en cada modelo con @@index
+// Esto mejora el rendimiento de queries frecuentes
