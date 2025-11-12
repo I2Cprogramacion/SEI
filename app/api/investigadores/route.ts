@@ -4,6 +4,16 @@ import { getDatabase } from "@/lib/database-config"
 
 export const dynamic = 'force-dynamic'
 
+// Función para mezclar array aleatoriamente (Fisher-Yates shuffle)
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
+
 export async function GET(request: NextRequest) {
   try {
     const db = await getDatabase()
@@ -20,8 +30,11 @@ export async function GET(request: NextRequest) {
       return estaActivo && tieneNombre
     })
 
+    // Mezclar aleatoriamente los investigadores
+    const investigadoresMezclados = shuffleArray(investigadoresActivos)
+
     // Mapear datos de snake_case a camelCase para el frontend
-    const investigadores = investigadoresActivos.map((inv: any) => {
+    const investigadores = investigadoresMezclados.map((inv: any) => {
       // Generar slug si no existe
       let slug = inv.slug
       if (!slug || slug.trim() === '') {
