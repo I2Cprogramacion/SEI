@@ -19,7 +19,7 @@ interface Proyecto {
   id: number
   titulo: string
   descripcion: string
-  autor: {
+  autor: string | {
     nombre: string
     institucion: string
     email?: string
@@ -35,7 +35,7 @@ interface Proyecto {
   resultados?: string[]
   metodologia?: string
   impacto?: string
-  colaboradores?: Array<{
+  colaboradores?: string[] | Array<{
     nombre: string
     institucion: string
   }>
@@ -103,15 +103,24 @@ export default function ProyectosPage() {
 
   // Filtrar proyectos
   const filteredProyectos = proyectos.filter((proyecto) => {
+    // Manejar autor (puede ser objeto o string por compatibilidad)
+    const autorNombre = typeof proyecto.autor === 'string' 
+      ? proyecto.autor 
+      : (proyecto.autor?.nombre || '')
+    const autorInstitucion = typeof proyecto.autor === 'string' 
+      ? (proyecto.institucion || '') 
+      : (proyecto.autor?.institucion || proyecto.institucion || '')
+    const palabrasClave = Array.isArray(proyecto.palabrasClave) ? proyecto.palabrasClave : []
+    
     const matchesSearch =
-      proyecto.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      proyecto.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      proyecto.palabrasClave.some((keyword) => keyword.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      proyecto.autor.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+      (proyecto.titulo || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (proyecto.descripcion || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      palabrasClave.some((keyword) => (keyword || '').toLowerCase().includes(searchTerm.toLowerCase())) ||
+      autorNombre.toLowerCase().includes(searchTerm.toLowerCase())
 
     const matchesCategory = selectedCategory === "all" || proyecto.categoria === selectedCategory
     const matchesStatus = selectedStatus === "all" || proyecto.estado === selectedStatus
-    const matchesInstitution = selectedInstitution === "all" || proyecto.autor.institucion === selectedInstitution
+    const matchesInstitution = selectedInstitution === "all" || autorInstitucion === selectedInstitution
 
     return matchesSearch && matchesCategory && matchesStatus && matchesInstitution
   })
@@ -246,30 +255,36 @@ export default function ProyectosPage() {
                         </AnimatedBadge>
                       </div>
                     </div>
-                    <CardTitle className="text-xl text-blue-900">{proyecto.titulo}</CardTitle>
-                    <CardDescription className="text-blue-600">{proyecto.autor.institucion}</CardDescription>
+                    <CardTitle className="text-xl text-blue-900">{proyecto.titulo || 'Sin título'}</CardTitle>
+                    <CardDescription className="text-blue-600">
+                      {typeof proyecto.autor === 'string' 
+                        ? proyecto.institucion || proyecto.autor 
+                        : (proyecto.autor?.institucion || proyecto.institucion || 'Sin institución')}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-blue-600 mb-4">{proyecto.descripcion}</p>
+                    <p className="text-blue-600 mb-4">{proyecto.descripcion || 'Sin descripción'}</p>
                     <div className="space-y-2">
-                      <div className="flex items-center text-sm text-blue-600">
-                        <Calendar className="mr-2 h-4 w-4" />
-                        <span>
-                          {proyecto.fechaInicio} - {proyecto.fechaFin}
-                        </span>
-                      </div>
+                      {(proyecto.fechaInicio || proyecto.fechaFin) && (
+                        <div className="flex items-center text-sm text-blue-600">
+                          <Calendar className="mr-2 h-4 w-4" />
+                          <span>
+                            {proyecto.fechaInicio || 'N/A'} - {proyecto.fechaFin || 'N/A'}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex items-center text-sm text-blue-600">
                         <Users className="mr-2 h-4 w-4" />
-                        <span>{proyecto.colaboradores?.length || 1} investigadores</span>
+                        <span>{Array.isArray(proyecto.colaboradores) ? proyecto.colaboradores.length + 1 : 1} investigadores</span>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 mt-4">
-                      {proyecto.palabrasClave.slice(0, 3).map((keyword: string, kwIndex: number) => (
+                      {Array.isArray(proyecto.palabrasClave) && proyecto.palabrasClave.slice(0, 3).map((keyword: string, kwIndex: number) => (
                         <AnimatedBadge key={kwIndex} variant="secondary" interactive className="bg-blue-50 text-blue-700 stagger-item">
                           {keyword}
                         </AnimatedBadge>
                       ))}
-                      {proyecto.palabrasClave.length > 3 && (
+                      {Array.isArray(proyecto.palabrasClave) && proyecto.palabrasClave.length > 3 && (
                         <AnimatedBadge variant="secondary" className="bg-blue-50 text-blue-700">
                           +{proyecto.palabrasClave.length - 3} más
                         </AnimatedBadge>
@@ -279,26 +294,28 @@ export default function ProyectosPage() {
                   <CardFooter className="border-t border-blue-100 flex items-center justify-between py-4">
                     <div className="flex items-center gap-2">
                       <Avatar className="h-8 w-8 ring-2 ring-blue-100">
-                        <AvatarImage src="/placeholder.svg" alt={proyecto.autor.nombre} />
+                        <AvatarImage src="/placeholder.svg" alt={typeof proyecto.autor === 'string' ? proyecto.autor : (proyecto.autor?.nombre || '')} />
                         <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
-                          {proyecto.autor.nombre
-                            .split(" ")
-                            .map((n: string) => n[0])
-                            .join("")}
+                          {(() => {
+                            const nombre = typeof proyecto.autor === 'string' ? proyecto.autor : (proyecto.autor?.nombre || '')
+                            return nombre ? nombre.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) : '??'
+                          })()}
                         </AvatarFallback>
                       </Avatar>
-                      {proyecto.colaboradores?.slice(0, 2).map((colaborador: any, colabIndex: number) => (
-                        <Avatar key={colabIndex} className="h-8 w-8 ring-2 ring-blue-100 -ml-2">
-                          <AvatarImage src="/placeholder.svg" alt={colaborador.nombre} />
-                          <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
-                            {colaborador.nombre
-                              .split(" ")
-                              .map((n: string) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                      ))}
-                      {proyecto.colaboradores && proyecto.colaboradores.length > 2 && (
+                      {Array.isArray(proyecto.colaboradores) && proyecto.colaboradores.slice(0, 2).map((colaborador: any, colabIndex: number) => {
+                        const colaboradorNombre = typeof colaborador === 'string' 
+                          ? colaborador.split(' - ')[0] || colaborador
+                          : (colaborador?.nombre || '')
+                        return (
+                          <Avatar key={colabIndex} className="h-8 w-8 ring-2 ring-blue-100 -ml-2">
+                            <AvatarImage src="/placeholder.svg" alt={colaboradorNombre} />
+                            <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
+                              {colaboradorNombre ? colaboradorNombre.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) : '??'}
+                            </AvatarFallback>
+                          </Avatar>
+                        )
+                      })}
+                      {Array.isArray(proyecto.colaboradores) && proyecto.colaboradores.length > 2 && (
                         <div className="h-8 w-8 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-medium ring-2 ring-blue-100 -ml-2">
                           +{proyecto.colaboradores.length - 2}
                         </div>

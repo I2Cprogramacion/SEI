@@ -305,30 +305,48 @@ export async function GET(request: NextRequest) {
         .filter(Boolean)
     }
 
-    const proyectos = rows.map((row: any) => ({
-      id: row.id,
-      titulo: row.titulo,
-      descripcion: row.descripcion,
-      resumen: row.resumen,
-      autor: row.autor,
-      institucion: row.institucion,
-      fechaInicio: row.fecha_inicio,
-      fechaFin: row.fecha_fin,
-      estado: row.estado,
-      categoria: row.categoria,
-      areaInvestigacion: row.area_investigacion,
-      presupuesto: row.presupuesto,
-      financiamiento: row.fuente_financiamiento,
-      palabrasClave: formatArray(row.palabras_clave),
-      objetivos: formatArray(row.objetivos),
-      resultados: formatArray(row.resultados),
-      metodologia: row.metodologia,
-      impacto: row.impacto,
-      colaboradores: formatArray(row.colaboradores),
-      archivoUrl: row.archivo_url,
-      slug: row.slug,
-      fechaCreacion: row.fecha_creacion
-    }))
+    const proyectos = rows.map((row: any) => {
+      // Formatear colaboradores: si es string con formato "nombre - institucion - rol", parsearlo
+      const colaboradoresFormateados = formatArray(row.colaboradores).map((colab: string) => {
+        if (typeof colab === 'string' && colab.includes(' - ')) {
+          const partes = colab.split(' - ')
+          return {
+            nombre: partes[0] || '',
+            institucion: partes[1] || '',
+            rol: partes[2] || ''
+          }
+        }
+        return colab
+      })
+
+      return {
+        id: row.id,
+        titulo: row.titulo || '',
+        descripcion: row.descripcion || '',
+        resumen: row.resumen || '',
+        autor: row.autor ? {
+          nombre: row.autor,
+          institucion: row.institucion || ''
+        } : { nombre: '', institucion: '' },
+        institucion: row.institucion || '',
+        fechaInicio: row.fecha_inicio || null,
+        fechaFin: row.fecha_fin || null,
+        estado: row.estado || '',
+        categoria: row.categoria || '',
+        areaInvestigacion: row.area_investigacion || '',
+        presupuesto: row.presupuesto || null,
+        financiamiento: row.fuente_financiamiento || null,
+        palabrasClave: formatArray(row.palabras_clave),
+        objetivos: formatArray(row.objetivos),
+        resultados: formatArray(row.resultados),
+        metodologia: row.metodologia || null,
+        impacto: row.impacto || null,
+        colaboradores: colaboradoresFormateados,
+        archivoUrl: row.archivo_url || null,
+        slug: row.slug || '',
+        fechaCreacion: row.fecha_creacion || null
+      }
+    })
 
     const filtrosQuery = await db.query(`
       SELECT
