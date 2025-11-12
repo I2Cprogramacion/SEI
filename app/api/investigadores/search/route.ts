@@ -24,13 +24,29 @@ export async function GET(request: NextRequest) {
     }
 
     // Formatear respuesta
-  const resultados = investigadores.map((inv: any) => ({
-      id: inv.id,
-      nombre: inv.nombre || inv.nombreCompleto || 'Sin nombre',
-      email: inv.email,
-      institucion: inv.institucion || 'Sin institución',
-      area: inv.area || 'Sin área'
-    }))
+    const resultados = investigadores.map((inv: any) => {
+      // Generar slug si no existe
+      let slug = inv.slug
+      if (!slug || slug.trim() === '') {
+        const nombreCompleto = inv.nombre_completo || inv.nombre || inv.nombreCompleto || 'investigador'
+        const nombreSlug = nombreCompleto
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "")
+        slug = `${nombreSlug}-${inv.id}`
+      }
+
+      return {
+        id: inv.id,
+        nombre: inv.nombre_completo || inv.nombre || inv.nombreCompleto || 'Sin nombre',
+        email: inv.correo || inv.email || '',
+        institucion: inv.institucion || 'Sin institución',
+        area: inv.area_investigacion || inv.area || 'Sin área',
+        slug: slug
+      }
+    })
 
     return NextResponse.json({ 
       investigadores: resultados,

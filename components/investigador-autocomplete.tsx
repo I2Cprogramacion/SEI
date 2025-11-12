@@ -1,12 +1,11 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Check, ChevronsUpDown, X, User, Building, Mail, ExternalLink } from "lucide-react"
+import { Check, X, User, Building, Mail, ExternalLink, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
@@ -19,19 +18,23 @@ interface Investigador {
   slug: string
 }
 
-interface InvestigadorSearchProps {
-  selectedInvestigadores: Investigador[]
-  onSelectionChange: (investigadores: Investigador[]) => void
+interface InvestigadorAutocompleteProps {
+  value?: Investigador | null
+  onSelect: (investigador: Investigador | null) => void
   placeholder?: string
   className?: string
+  showInstitucion?: boolean
+  disabled?: boolean
 }
 
-export function InvestigadorSearch({ 
-  selectedInvestigadores, 
-  onSelectionChange, 
-  placeholder = "Buscar investigadores registrados...",
-  className 
-}: InvestigadorSearchProps) {
+export function InvestigadorAutocomplete({
+  value,
+  onSelect,
+  placeholder = "Buscar investigador...",
+  className,
+  showInstitucion = true,
+  disabled = false
+}: InvestigadorAutocompleteProps) {
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [investigadores, setInvestigadores] = useState<Investigador[]>([])
@@ -85,81 +88,64 @@ export function InvestigadorSearch({
   }
 
   const handleSelect = (investigador: Investigador) => {
-    const isSelected = selectedInvestigadores.some(inv => inv.id === investigador.id)
-    
-    if (isSelected) {
-      // Remover de la selección
-      onSelectionChange(selectedInvestigadores.filter(inv => inv.id !== investigador.id))
-    } else {
-      // Agregar a la selección
-      onSelectionChange([...selectedInvestigadores, investigador])
-    }
-    
+    onSelect(investigador)
     setSearchTerm("")
     setOpen(false)
   }
 
-  const handleRemove = (investigadorId: number) => {
-    onSelectionChange(selectedInvestigadores.filter(inv => inv.id !== investigadorId))
-  }
-
-  const isSelected = (investigador: Investigador) => {
-    return selectedInvestigadores.some(inv => inv.id === investigador.id)
-    
+  const handleClear = () => {
+    onSelect(null)
+    setSearchTerm("")
   }
 
   return (
     <div className={cn("space-y-2", className)}>
-      {/* Investigadores seleccionados */}
-      {selectedInvestigadores.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {selectedInvestigadores.map((investigador) => (
-            <Badge
-              key={investigador.id}
-              variant="secondary"
-              className="flex items-center gap-2 px-3 py-1 group"
+      {/* Investigador seleccionado */}
+      {value && (
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="flex items-center gap-2 px-3 py-1.5 group">
+            <User className="h-3 w-3 flex-shrink-0" />
+            <Link
+              href={`/investigadores/${value.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm hover:text-blue-600 hover:underline flex items-center gap-1 transition-colors"
             >
-              <User className="h-3 w-3 flex-shrink-0" />
-              <Link
-                href={`/investigadores/${investigador.slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm hover:text-blue-600 hover:underline flex items-center gap-1 transition-colors"
-              >
-                {investigador.nombre}
-                <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </Link>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-4 w-4 p-0 hover:bg-transparent ml-1"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleRemove(investigador.id)
-                }}
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            </Badge>
-          ))}
+              {value.nombre}
+              <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </Link>
+            {showInstitucion && value.institucion && (
+              <span className="text-xs text-muted-foreground ml-1">
+                • {value.institucion}
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={handleClear}
+              className="ml-2 hover:bg-transparent p-0 h-4 w-4 flex items-center justify-center"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </Badge>
         </div>
       )}
 
       {/* Búsqueda */}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-between"
-          >
-            {selectedInvestigadores.length > 0 
-              ? `${selectedInvestigadores.length} investigador${selectedInvestigadores.length !== 1 ? 'es' : ''} seleccionado${selectedInvestigadores.length !== 1 ? 's' : ''}`
-              : placeholder
-            }
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
+          <div className="relative">
+            <Input
+              placeholder={placeholder}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onFocus={() => setOpen(true)}
+              disabled={disabled}
+              className="w-full"
+            />
+            {isLoading && (
+              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+            )}
+          </div>
         </PopoverTrigger>
         <PopoverContent className="w-full p-0" align="start">
           <Command shouldFilter={false}>
@@ -171,6 +157,7 @@ export function InvestigadorSearch({
             <CommandList>
               {isLoading && (
                 <div className="p-4 text-center text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin mx-auto mb-2" />
                   Buscando...
                 </div>
               )}
@@ -188,7 +175,12 @@ export function InvestigadorSearch({
               )}
               
               {!isLoading && !error && searchTerm.length >= 2 && investigadores.length === 0 && (
-                <CommandEmpty>No se encontraron investigadores</CommandEmpty>
+                <CommandEmpty>
+                  <div className="py-4">
+                    <p className="text-sm text-muted-foreground mb-2">No se encontraron investigadores</p>
+                    <p className="text-xs text-muted-foreground">Puedes escribir el nombre manualmente</p>
+                  </div>
+                </CommandEmpty>
               )}
               
               {investigadores.length > 0 && (
@@ -198,13 +190,13 @@ export function InvestigadorSearch({
                       key={investigador.id}
                       value={`${investigador.nombre} ${investigador.email} ${investigador.institucion}`}
                       onSelect={() => handleSelect(investigador)}
-                      className="flex items-center justify-between group"
+                      className="flex items-center justify-between group cursor-pointer"
                     >
-                      <div className="flex items-center gap-3 flex-1">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
                         <Check
                           className={cn(
                             "h-4 w-4 flex-shrink-0",
-                            isSelected(investigador) ? "opacity-100" : "opacity-0"
+                            value?.id === investigador.id ? "opacity-100" : "opacity-0"
                           )}
                         />
                         <div className="flex flex-col flex-1 min-w-0">
@@ -215,10 +207,10 @@ export function InvestigadorSearch({
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
-                              className="font-medium hover:text-blue-600 hover:underline flex items-center gap-1 transition-colors"
+                              className="font-medium hover:text-blue-600 hover:underline flex items-center gap-1 transition-colors truncate"
                             >
                               {investigador.nombre}
-                              <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                              <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                             </Link>
                           </div>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -242,3 +234,4 @@ export function InvestigadorSearch({
     </div>
   )
 }
+

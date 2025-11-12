@@ -18,6 +18,8 @@ import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Upload, Plus, X, FileText, Calendar, User, Building, DollarSign, Users, Target, Lightbulb, TrendingUp, CheckCircle2 } from "lucide-react"
 import { calculateSectionProgress } from "@/lib/form-utils"
+import { InvestigadorAutocomplete } from "@/components/investigador-autocomplete"
+import { InvestigadorSearch } from "@/components/investigador-search"
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-MX", {
@@ -32,6 +34,15 @@ interface Colaborador {
   nombre: string
   institucion: string
   rol?: string
+}
+
+interface Investigador {
+  id: number
+  nombre: string
+  email: string
+  institucion: string
+  area: string
+  slug: string
 }
 
 interface ProyectoFormData {
@@ -72,6 +83,9 @@ export default function NuevoProyectoPage() {
   const [colaboradorRol, setColaboradorRol] = useState("")
   const [currentSection, setCurrentSection] = useState("basica")
   const [presupuestoSeleccionado, setPresupuestoSeleccionado] = useState<string>("")
+  const [investigadorPrincipal, setInvestigadorPrincipal] = useState<Investigador | null>(null)
+  const [colaboradoresSeleccionados, setColaboradoresSeleccionados] = useState<Investigador[]>([])
+  const [rolColaborador, setRolColaborador] = useState<Record<number, string>>({})
   
   const presupuestoOpciones = useMemo(() => {
     return Array.from({ length: 100 }, (_, idx) => {
@@ -251,7 +265,7 @@ export default function NuevoProyectoPage() {
     }))
   }
 
-  // Agregar colaborador
+  // Agregar colaborador (método antiguo para compatibilidad)
   const handleAddColaborador = () => {
     if (colaboradorNombre.trim() && colaboradorInstitucion.trim()) {
       setFormData(prev => ({
@@ -275,6 +289,30 @@ export default function NuevoProyectoPage() {
       colaboradores: prev.colaboradores.filter((_, i) => i !== index)
     }))
   }
+
+  // Manejar selección de investigador principal
+  useEffect(() => {
+    if (investigadorPrincipal) {
+      setFormData(prev => ({
+        ...prev,
+        autor: investigadorPrincipal.nombre,
+        institucion: investigadorPrincipal.institucion || prev.institucion
+      }))
+    }
+  }, [investigadorPrincipal])
+
+  // Manejar selección de colaboradores
+  useEffect(() => {
+    const colaboradoresFormateados: Colaborador[] = colaboradoresSeleccionados.map(inv => ({
+      nombre: inv.nombre,
+      institucion: inv.institucion,
+      rol: rolColaborador[inv.id] || undefined
+    }))
+    setFormData(prev => ({
+      ...prev,
+      colaboradores: colaboradoresFormateados
+    }))
+  }, [colaboradoresSeleccionados, rolColaborador])
 
   // Manejar archivo
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -637,13 +675,21 @@ export default function NuevoProyectoPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="autor" className="text-blue-900">
-                      Nombre Completo del Autor *
+                      Investigador Principal *
                     </Label>
-                    <Input
-                      id="autor"
-                      placeholder="Dr. Juan Pérez González"
-                      value={formData.autor}
-                      onChange={(e) => handleInputChange("autor", e.target.value)}
+                    <InvestigadorAutocomplete
+                      value={investigadorPrincipal}
+                      onSelect={(inv) => {
+                        setInvestigadorPrincipal(inv)
+                        if (inv) {
+                          handleInputChange("autor", inv.nombre)
+                          handleInputChange("institucion", inv.institucion || "")
+                        } else {
+                          handleInputChange("autor", "")
+                        }
+                      }}
+                      placeholder="Buscar investigador principal..."
+                      showInstitucion={false}
                       className={errors.some(e => e.field === "autor") ? "border-red-300" : ""}
                     />
                     {errors.some(e => e.field === "autor") && (
@@ -651,6 +697,25 @@ export default function NuevoProyectoPage() {
                         {errors.find(e => e.field === "autor")?.message}
                       </p>
                     )}
+                    {/* Input manual alternativo - siempre visible para permitir edición */}
+                    <div className="mt-2">
+                      <Label htmlFor="autorManual" className="text-xs text-blue-600">
+                        {investigadorPrincipal ? "O edita el nombre manualmente:" : "O escribe el nombre manualmente:"}
+                      </Label>
+                      <Input
+                        id="autorManual"
+                        placeholder="Dr. Juan Pérez González"
+                        value={formData.autor}
+                        onChange={(e) => {
+                          handleInputChange("autor", e.target.value)
+                          // Si el usuario edita manualmente, limpiar la selección del autocompletado
+                          if (investigadorPrincipal && e.target.value !== investigadorPrincipal.nombre) {
+                            setInvestigadorPrincipal(null)
+                          }
+                        }}
+                        className="mt-1 text-sm"
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -905,52 +970,90 @@ export default function NuevoProyectoPage() {
                 </h3>
                 
                 <div className="space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="colaboradorNombre" className="text-blue-900">
-                        Nombre del Colaborador
-                      </Label>
-                      <Input
-                        id="colaboradorNombre"
-                        placeholder="Dr. María González"
-                        value={colaboradorNombre}
-                        onChange={(e) => setColaboradorNombre(e.target.value)}
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label className="text-blue-900">
+                      Buscar y Agregar Colaboradores
+                    </Label>
+                    <InvestigadorSearch
+                      selectedInvestigadores={colaboradoresSeleccionados}
+                      onSelectionChange={setColaboradoresSeleccionados}
+                      placeholder="Buscar colaboradores registrados..."
+                    />
+                  </div>
 
+                  {/* Roles para colaboradores seleccionados */}
+                  {colaboradoresSeleccionados.length > 0 && (
                     <div className="space-y-2">
-                      <Label htmlFor="colaboradorInstitucion" className="text-blue-900">
-                        Institución
-                      </Label>
-                      <Input
-                        id="colaboradorInstitucion"
-                        placeholder="UACH"
-                        value={colaboradorInstitucion}
-                        onChange={(e) => setColaboradorInstitucion(e.target.value)}
-                      />
+                      <Label className="text-sm text-blue-700">Asignar Roles (Opcional)</Label>
+                      <div className="space-y-2">
+                        {colaboradoresSeleccionados.map((inv) => (
+                          <div key={inv.id} className="flex items-center gap-2 p-2 bg-blue-50 rounded-md">
+                            <span className="text-sm text-blue-900 flex-1 min-w-0 truncate">{inv.nombre}</span>
+                            <Input
+                              placeholder="Rol (ej: Co-investigador)"
+                              value={rolColaborador[inv.id] || ""}
+                              onChange={(e) => setRolColaborador(prev => ({ ...prev, [inv.id]: e.target.value }))}
+                              className="max-w-xs text-sm"
+                            />
+                          </div>
+                        ))}
+                      </div>
                     </div>
+                  )}
 
-                    <div className="space-y-2">
-                      <Label htmlFor="colaboradorRol" className="text-blue-900">
-                        Rol (Opcional)
-                      </Label>
-                      <div className="flex gap-2">
+                  {/* Método alternativo manual (para investigadores no registrados) */}
+                  <div className="pt-2 border-t border-blue-100">
+                    <Label className="text-sm text-blue-700 mb-2 block">O agregar manualmente (si no está registrado)</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="colaboradorNombre" className="text-xs text-blue-600">
+                          Nombre del Colaborador
+                        </Label>
                         <Input
-                          id="colaboradorRol"
-                          placeholder="Co-investigador"
-                          value={colaboradorRol}
-                          onChange={(e) => setColaboradorRol(e.target.value)}
-                          className="flex-1"
+                          id="colaboradorNombre"
+                          placeholder="Dr. María González"
+                          value={colaboradorNombre}
+                          onChange={(e) => setColaboradorNombre(e.target.value)}
+                          className="text-sm"
                         />
-                        <Button 
-                          type="button" 
-                          onClick={handleAddColaborador} 
-                          variant="outline"
-                          className="px-3"
-                          disabled={!colaboradorNombre.trim() || !colaboradorInstitucion.trim()}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="colaboradorInstitucion" className="text-xs text-blue-600">
+                          Institución
+                        </Label>
+                        <Input
+                          id="colaboradorInstitucion"
+                          placeholder="UACH"
+                          value={colaboradorInstitucion}
+                          onChange={(e) => setColaboradorInstitucion(e.target.value)}
+                          className="text-sm"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="colaboradorRol" className="text-xs text-blue-600">
+                          Rol (Opcional)
+                        </Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="colaboradorRol"
+                            placeholder="Co-investigador"
+                            value={colaboradorRol}
+                            onChange={(e) => setColaboradorRol(e.target.value)}
+                            className="flex-1 text-sm"
+                          />
+                          <Button 
+                            type="button" 
+                            onClick={handleAddColaborador} 
+                            variant="outline"
+                            size="sm"
+                            className="px-3"
+                            disabled={!colaboradorNombre.trim() || !colaboradorInstitucion.trim()}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>

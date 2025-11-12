@@ -19,12 +19,22 @@ import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Upload, Plus, X, FileText, Calendar, User, Building, Globe, BookOpen, Users, Link as LinkIcon, CheckCircle2 } from "lucide-react"
 import { calculateSectionProgress } from "@/lib/form-utils"
+import { InvestigadorSearch } from "@/components/investigador-search"
 
 // Interfaces
 interface Coautor {
   nombre: string
   institucion: string
   email?: string
+}
+
+interface Investigador {
+  id: number
+  nombre: string
+  email: string
+  institucion: string
+  area: string
+  slug: string
 }
 
 interface FormData {
@@ -69,6 +79,9 @@ export default function NuevaPublicacionPage() {
   const [coautorInstitucion, setCoautorInstitucion] = useState("")
   const [coautorEmail, setCoautorEmail] = useState("")
   const [currentSection, setCurrentSection] = useState("basica")
+  const [autoresSeleccionados, setAutoresSeleccionados] = useState<Investigador[]>([])
+  const [coautoresSeleccionados, setCoautoresSeleccionados] = useState<Investigador[]>([])
+  const [emailCoautor, setEmailCoautor] = useState<Record<number, string>>({})
 
   const [formData, setFormData] = useState<FormData>({
     titulo: "",
@@ -286,7 +299,7 @@ export default function NuevaPublicacionPage() {
     }))
   }
 
-  // Agregar autor
+  // Agregar autor (método antiguo para compatibilidad)
   const handleAddAutor = () => {
     if (autor.trim() && !formData.autores.includes(autor.trim())) {
       setFormData(prev => ({
@@ -305,7 +318,7 @@ export default function NuevaPublicacionPage() {
     }))
   }
 
-  // Agregar coautor
+  // Agregar coautor (método antiguo para compatibilidad)
   const handleAddCoautor = () => {
     if (coautorNombre.trim() && coautorInstitucion.trim()) {
       setFormData(prev => ({
@@ -329,6 +342,29 @@ export default function NuevaPublicacionPage() {
       coautores: prev.coautores.filter((_, i) => i !== index)
     }))
   }
+
+  // Manejar selección de autores
+  useEffect(() => {
+    const nombresAutores = autoresSeleccionados.map(inv => inv.nombre)
+    // Combinar con autores manuales existentes (evitar duplicados)
+    setFormData(prev => ({
+      ...prev,
+      autores: [...new Set([...nombresAutores, ...prev.autores.filter(a => !nombresAutores.includes(a))])]
+    }))
+  }, [autoresSeleccionados])
+
+  // Manejar selección de coautores
+  useEffect(() => {
+    const coautoresFormateados: Coautor[] = coautoresSeleccionados.map(inv => ({
+      nombre: inv.nombre,
+      institucion: inv.institucion,
+      email: emailCoautor[inv.id] || inv.email || undefined
+    }))
+    setFormData(prev => ({
+      ...prev,
+      coautores: coautoresFormateados
+    }))
+  }, [coautoresSeleccionados, emailCoautor])
 
   // Manejar archivo
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -778,12 +814,24 @@ export default function NuevaPublicacionPage() {
                 
                 <div className="space-y-3">
                   <div>
-                    <Label htmlFor="autor" className="text-blue-900">
-                      Agregar Autores *
+                    <Label className="text-blue-900">
+                      Buscar y Agregar Autores *
                     </Label>
                     <p className="text-sm text-blue-600 mb-2">
-                      Agrega los autores principales de la publicación
+                      Busca investigadores registrados o agrega manualmente
                     </p>
+                    <InvestigadorSearch
+                      selectedInvestigadores={autoresSeleccionados}
+                      onSelectionChange={setAutoresSeleccionados}
+                      placeholder="Buscar autores registrados..."
+                    />
+                  </div>
+
+                  {/* Método alternativo manual */}
+                  <div className="pt-2 border-t border-blue-100">
+                    <Label htmlFor="autor" className="text-xs text-blue-600 mb-1 block">
+                      O escribe el nombre manualmente:
+                    </Label>
                     <div className="flex gap-2">
                       <Input
                         id="autor"
@@ -796,12 +844,13 @@ export default function NuevaPublicacionPage() {
                             handleAddAutor()
                           }
                         }}
-                        className="flex-1"
+                        className="flex-1 text-sm"
                       />
                       <Button 
                         type="button" 
                         onClick={handleAddAutor} 
                         variant="outline"
+                        size="sm"
                         className="px-3"
                         disabled={!autor.trim()}
                       >
@@ -855,53 +904,92 @@ export default function NuevaPublicacionPage() {
                 </h3>
                 
                 <div className="space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                      <Label htmlFor="coautorNombre" className="text-blue-900">
-                        Nombre del Coautor
-                      </Label>
-                      <Input
-                        id="coautorNombre"
-                        placeholder="Nombre completo"
-                        value={coautorNombre}
-                        onChange={(e) => setCoautorNombre(e.target.value)}
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label className="text-blue-900">
+                      Buscar y Agregar Coautores
+                    </Label>
+                    <InvestigadorSearch
+                      selectedInvestigadores={coautoresSeleccionados}
+                      onSelectionChange={setCoautoresSeleccionados}
+                      placeholder="Buscar coautores registrados..."
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                      <Label htmlFor="coautorInstitucion" className="text-blue-900">
-                        Institución
-                      </Label>
-                <Input
-                        id="coautorInstitucion"
-                        placeholder="Institución"
-                        value={coautorInstitucion}
-                        onChange={(e) => setCoautorInstitucion(e.target.value)}
-                />
-              </div>
+                  {/* Emails para coautores seleccionados */}
+                  {coautoresSeleccionados.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-sm text-blue-700">Asignar Emails (Opcional)</Label>
+                      <div className="space-y-2">
+                        {coautoresSeleccionados.map((inv) => (
+                          <div key={inv.id} className="flex items-center gap-2 p-2 bg-blue-50 rounded-md">
+                            <span className="text-sm text-blue-900 flex-1 min-w-0 truncate">{inv.nombre}</span>
+                            <Input
+                              type="email"
+                              placeholder="email@ejemplo.com"
+                              value={emailCoautor[inv.id] || inv.email || ""}
+                              onChange={(e) => setEmailCoautor(prev => ({ ...prev, [inv.id]: e.target.value }))}
+                              className="max-w-xs text-sm"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-                <div className="space-y-2">
-                      <Label htmlFor="coautorEmail" className="text-blue-900">
-                        Email (Opcional)
-                      </Label>
-                      <div className="flex gap-2">
+                  {/* Método alternativo manual */}
+                  <div className="pt-2 border-t border-blue-100">
+                    <Label className="text-sm text-blue-700 mb-2 block">O agregar manualmente (si no está registrado)</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="coautorNombre" className="text-xs text-blue-600">
+                          Nombre del Coautor
+                        </Label>
                         <Input
-                          id="coautorEmail"
-                          type="email"
-                          placeholder="email@ejemplo.com"
-                          value={coautorEmail}
-                          onChange={(e) => setCoautorEmail(e.target.value)}
-                          className="flex-1"
+                          id="coautorNombre"
+                          placeholder="Nombre completo"
+                          value={coautorNombre}
+                          onChange={(e) => setCoautorNombre(e.target.value)}
+                          className="text-sm"
                         />
-                        <Button 
-                          type="button" 
-                          onClick={handleAddCoautor} 
-                          variant="outline"
-                          className="px-3"
-                          disabled={!coautorNombre.trim() || !coautorInstitucion.trim()}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="coautorInstitucion" className="text-xs text-blue-600">
+                          Institución
+                        </Label>
+                        <Input
+                          id="coautorInstitucion"
+                          placeholder="Institución"
+                          value={coautorInstitucion}
+                          onChange={(e) => setCoautorInstitucion(e.target.value)}
+                          className="text-sm"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="coautorEmail" className="text-xs text-blue-600">
+                          Email (Opcional)
+                        </Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="coautorEmail"
+                            type="email"
+                            placeholder="email@ejemplo.com"
+                            value={coautorEmail}
+                            onChange={(e) => setCoautorEmail(e.target.value)}
+                            className="flex-1 text-sm"
+                          />
+                          <Button 
+                            type="button" 
+                            onClick={handleAddCoautor} 
+                            variant="outline"
+                            size="sm"
+                            className="px-3"
+                            disabled={!coautorNombre.trim() || !coautorInstitucion.trim()}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
