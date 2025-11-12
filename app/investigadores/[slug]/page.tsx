@@ -7,30 +7,35 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import {
   Building,
   Mail,
-  Globe,
   Calendar,
-  Award,
   FileText,
   Users,
   ExternalLink,
   Download,
   MapPin,
   Phone,
-  CreditCard,
   GraduationCap,
   Briefcase,
   Loader2,
   UserPlus,
   MessageCircle,
-  Network,
+  BookOpen,
+  User as UserIcon,
+  ChevronDown,
 } from "lucide-react"
 import { ConectarInvestigadorDialog } from "@/components/conectar-investigador-dialog"
 import { EnviarMensajeDialog } from "@/components/enviar-mensaje-dialog"
-import { CvViewer } from "@/components/cv-viewer"
+import ErrorBoundary from '@/components/error-boundary'
 
 interface InvestigadorData {
   id: number
@@ -42,67 +47,29 @@ interface InvestigadorData {
   noCvu?: string
   telefono?: string
   institution?: string
+  departamento?: string
   area?: string
   areaInvestigacion?: string
-  lineaInvestigacion?: string
+  lineaInvestigacion?: string | string[]
   fotografiaUrl?: string
   title?: string
   empleoActual?: string
   fechaNacimiento?: string
   nacionalidad?: string
-  orcid?: string
-  nivel?: string
-  location?: string
-  domicilio?: string
-  cp?: string
   gradoMaximoEstudios?: string
-  disciplina?: string
-  especialidad?: string
-  sni?: string
-  anioSni?: number
-  experienciaDocente?: string
-  experienciaLaboral?: string
-  proyectosInvestigacion?: string
-  proyectosVinculacion?: string
-  libros?: string
-  capitulosLibros?: string
-  articulos?: string
-  premiosDistinciones?: string
-  idiomas?: string
-  colaboracionInternacional?: string
-  colaboracionNacional?: string
   cvUrl?: string
-  slug: string
-}
-
-interface InvestigadorRelacionado {
-  id: number
-  name: string
-  email: string
-  institution?: string
-  area?: string
-  lineaInvestigacion?: string
-  fotografiaUrl?: string
-  title?: string
+  dictamenUrl?: string
+  sniUrl?: string
   slug: string
 }
 
 interface Publicacion {
   id: number
   titulo: string
-  autor: string
-  institucion?: string
+  año?: number
   revista?: string
-  año: number
-  volumen?: string
-  numero?: string
-  paginas?: string
+  institucion?: string
   doi?: string
-  resumen?: string
-  palabrasClave?: string[]
-  categoria?: string
-  tipo?: string
-  acceso?: string
   archivoUrl?: string
 }
 
@@ -112,12 +79,12 @@ export default function InvestigadorPage() {
   const { userId } = useAuth()
   const slug = params?.slug as string
   const [investigador, setInvestigador] = useState<InvestigadorData | null>(null)
-  const [relacionados, setRelacionados] = useState<InvestigadorRelacionado[]>([])
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [conectarDialogOpen, setConectarDialogOpen] = useState(false)
   const [mensajeDialogOpen, setMensajeDialogOpen] = useState(false)
+  const [tipoDocumento, setTipoDocumento] = useState<'PU' | 'Dictamen' | 'SNI'>('PU')
 
   // Redirigir si es tu propio perfil
   useEffect(() => {
@@ -129,13 +96,11 @@ export default function InvestigadorPage() {
   useEffect(() => {
     if (!slug) return
 
-      const fetchInvestigador = async () => {
+    const fetchInvestigador = async () => {
       try {
         setIsLoading(true)
         const response = await fetch(`/api/investigadores/${slug}`)
 
-        // Manejo más robusto de errores: si el servidor responde con 404 usamos notFound,
-        // para otros errores mostramos un mensaje en la UI en lugar de dejar la página en blanco.
         if (!response.ok) {
           if (response.status === 404) {
             notFound()
@@ -152,10 +117,14 @@ export default function InvestigadorPage() {
         }
 
         const rawData = await response.json()
-        // El endpoint puede devolver `{ perfil: { ... } }` o directamente el objeto del perfil.
         const perfilData = rawData.perfil ? rawData.perfil : rawData
 
-        // Mapear datos de snake_case a camelCase
+        // Procesar linea_investigacion (puede ser string o array)
+        let lineaInvestigacion = perfilData.linea_investigacion
+        if (typeof lineaInvestigacion === 'string' && lineaInvestigacion.trim() !== '') {
+          lineaInvestigacion = lineaInvestigacion.split(',').map((s: string) => s.trim()).filter(Boolean)
+        }
+
         const data: InvestigadorData = {
           id: perfilData.id,
           clerkUserId: perfilData.clerk_user_id || perfilData.clerkUserId,
@@ -166,57 +135,30 @@ export default function InvestigadorPage() {
           noCvu: perfilData.no_cvu || perfilData.noCvu,
           telefono: perfilData.telefono,
           institution: perfilData.institucion,
+          departamento: perfilData.departamento,
           area: perfilData.area_investigacion || perfilData.area,
           areaInvestigacion: perfilData.area_investigacion,
-          lineaInvestigacion: perfilData.linea_investigacion,
+          lineaInvestigacion: lineaInvestigacion,
           fotografiaUrl: perfilData.fotografia_url || perfilData.fotografiaUrl,
           title: perfilData.ultimo_grado_estudios,
           empleoActual: perfilData.empleo_actual,
           fechaNacimiento: perfilData.fecha_nacimiento,
           nacionalidad: perfilData.nacionalidad,
-          orcid: perfilData.orcid,
-          nivel: perfilData.nivel,
-          location: perfilData.ubicacion,
-          domicilio: perfilData.ubicacion,
           gradoMaximoEstudios: perfilData.grado_maximo_estudios,
-          disciplina: perfilData.disciplina,
-          especialidad: perfilData.especialidad,
-          sni: perfilData.sni,
-          anioSni: perfilData.anio_sni,
-          experienciaDocente: perfilData.experiencia_docente,
-          experienciaLaboral: perfilData.experiencia_laboral,
-          proyectosInvestigacion: perfilData.proyectos_investigacion,
-          proyectosVinculacion: perfilData.proyectos_vinculacion,
-          libros: perfilData.libros,
-          capitulosLibros: perfilData.capitulos_libros,
-          articulos: perfilData.articulos,
-          premiosDistinciones: perfilData.premios_distinciones,
-          idiomas: perfilData.idiomas,
-          colaboracionInternacional: perfilData.colaboracion_internacional,
-          colaboracionNacional: perfilData.colaboracion_nacional,
           cvUrl: perfilData.cv_url || perfilData.cvUrl,
+          dictamenUrl: perfilData.dictamen_url,
+          sniUrl: perfilData.sni_url,
           slug: perfilData.slug || slug,
         }
         
         setInvestigador(data)
-
-        // Cargar investigadores relacionados
-        try {
-          const relacionadosResponse = await fetch(`/api/investigadores/${slug}/relacionados`)
-          if (relacionadosResponse.ok) {
-            const relacionadosData = await relacionadosResponse.json()
-            setRelacionados(relacionadosData)
-          }
-        } catch (err) {
-          console.error("Error loading related investigators:", err)
-        }
 
         // Cargar publicaciones del investigador
         try {
           const publicacionesResponse = await fetch(`/api/investigadores/${slug}/publicaciones`)
           if (publicacionesResponse.ok) {
             const publicacionesData = await publicacionesResponse.json()
-            setPublicaciones(publicacionesData)
+            setPublicaciones(publicacionesData || [])
           }
         } catch (err) {
           console.error("Error loading publications:", err)
@@ -234,7 +176,7 @@ export default function InvestigadorPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-8 px-4 flex items-center justify-center min-h-[60vh]">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
           <p className="text-blue-600">Cargando perfil...</p>
@@ -256,59 +198,178 @@ export default function InvestigadorPage() {
       .slice(0, 2)
   }
 
+  const getValidCvUrl = (url: string | null | undefined) => {
+    if (!url) return null
+    if (url.startsWith('http://') || url.startsWith('https://')) return url
+    if (url.startsWith('/uploads/')) return url
+    return null
+  }
+
+  const validCvUrl = getValidCvUrl(investigador?.cvUrl)
+  const validDictamenUrl = getValidCvUrl(investigador?.dictamenUrl)
+  const validSniUrl = getValidCvUrl(investigador?.sniUrl)
+
+  const formatDate = (dateStr: string | Date | null | undefined) => {
+    if (!dateStr) return null
+    if (dateStr instanceof Date) {
+      return dateStr.toLocaleDateString('es-ES')
+    }
+    if (typeof dateStr === 'string' && dateStr.includes('T')) {
+      const only = dateStr.split('T')[0]
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(only)
+      if (m) {
+        const y = Number(m[1]), mo = Number(m[2]) - 1, d = Number(m[3])
+        const dt = new Date(y, mo, d)
+        return dt.toLocaleDateString('es-ES')
+      }
+    }
+    const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dateStr))
+    if (dateOnlyMatch) {
+      const year = Number(dateOnlyMatch[1])
+      const monthIndex = Number(dateOnlyMatch[2]) - 1
+      const day = Number(dateOnlyMatch[3])
+      const d = new Date(year, monthIndex, day)
+      if (isNaN(d.getTime())) return dateStr
+      return d.toLocaleDateString('es-ES')
+    }
+    try {
+      const d = new Date(dateStr)
+      if (isNaN(d.getTime())) return dateStr
+      return d.toLocaleDateString('es-ES')
+    } catch (e) {
+      return dateStr
+    }
+  }
+
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="space-y-8">
-        {/* Header del perfil */}
-        <Card className="bg-white border-blue-100">
-          <CardContent className="pt-8">
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="flex-shrink-0">
-                <Avatar className="h-32 w-32 ring-4 ring-blue-100">
-                  <AvatarImage src={investigador.fotografiaUrl || "/placeholder-user.jpg"} alt={investigador.name} />
-                  <AvatarFallback className="bg-blue-100 text-blue-700 text-2xl">{getInitials()}</AvatarFallback>
-                </Avatar>
-              </div>
-              <div className="flex-grow">
-                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                  <div>
-                    <h1 className="text-3xl font-bold text-blue-900 mb-2">{investigador.name}</h1>
-                    <p className="text-xl text-blue-600 mb-4">{investigador.title || investigador.gradoMaximoEstudios}</p>
-                    <div className="space-y-2">
-                      {investigador.institution && (
-                        <div className="flex items-center gap-2 text-blue-600">
-                          <Building className="h-4 w-4" />
-                          <span className="font-medium">{investigador.institution}</span>
-                          <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs ml-2">
-                            Registrado
-                          </Badge>
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
+        <div className="container mx-auto py-6 px-4 pb-24">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-blue-900">Perfil Público</h1>
+            <p className="text-blue-600">Información del investigador</p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Sidebar izquierdo */}
+            <div className="lg:col-span-4">
+              <div className="lg:sticky lg:top-6 space-y-6">
+                {/* Perfil del Investigador */}
+                <Card className="bg-white border-blue-100 shadow-md">
+                  <CardHeader>
+                    <CardTitle className="text-blue-900 flex items-center">
+                      <UserIcon className="mr-2 h-5 w-5" />Perfil del Investigador
+                    </CardTitle>
+                    <CardDescription className="text-blue-600">Información del investigador</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <Avatar className="h-20 w-20 flex-shrink-0">
+                        {investigador?.fotografiaUrl && investigador.fotografiaUrl.trim() !== "" ? (
+                          <AvatarImage src={investigador.fotografiaUrl} alt={investigador?.name || 'Usuario'} />
+                        ) : (
+                          <AvatarFallback className="bg-blue-100 text-blue-700 text-xl">
+                            {getInitials()}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+
+                      <div className="flex-1 min-w-0">
+                        <h2 className="text-xl font-bold text-blue-900 break-words">{investigador.name}</h2>
+                        <p className="text-sm text-blue-600 flex items-center gap-2 mt-1">
+                          <Mail className="h-3.5 w-3.5" />
+                          {investigador.email || 'No disponible'}
+                        </p>
+                        {investigador.telefono && investigador.telefono.trim() !== "" && (
+                          <p className="text-sm text-blue-600 flex items-center gap-2 mt-1">
+                            <Phone className="h-3.5 w-3.5" />
+                            {investigador.telefono}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Información secundaria */}
+                    <div className="mt-3 text-sm text-slate-700 space-y-1">
+                      {investigador.fechaNacimiento && (
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-slate-400" />
+                          <span className="truncate">{formatDate(investigador.fechaNacimiento)}</span>
                         </div>
                       )}
-                      {investigador.location && (
-                        <div className="flex items-center gap-2 text-blue-600">
-                          <MapPin className="h-4 w-4" />
-                          <span>{investigador.location}</span>
+                      {investigador.nacionalidad && (
+                        <div className="flex items-center gap-2 break-words break-all">
+                          <MapPin className="h-4 w-4 text-slate-400" />
+                          <span className="truncate">{investigador.nacionalidad}</span>
                         </div>
                       )}
-                      {investigador.email && (
-                        <div className="flex items-center gap-2 text-blue-600">
-                          <Mail className="h-4 w-4" />
-                          <a href={`mailto:${investigador.email}`} className="hover:underline">
-                            {investigador.email}
-                          </a>
+                      {investigador.title && (
+                        <div className="flex items-center gap-2 break-words break-all">
+                          <GraduationCap className="h-4 w-4 text-slate-400" />
+                          <span className="truncate">{investigador.title}</span>
                         </div>
                       )}
-                      {investigador.telefono && (
-                        <div className="flex items-center gap-2 text-blue-600">
-                          <Phone className="h-4 w-4" />
-                          <span>{investigador.telefono}</span>
+                      {investigador.empleoActual && (
+                        <div className="flex items-center gap-2 break-words break-all">
+                          <Briefcase className="h-4 w-4 text-slate-400" />
+                          <span className="truncate">{investigador.empleoActual}</span>
                         </div>
                       )}
                     </div>
-                  </div>
-                  <div className="flex flex-col gap-2">
+
+                    <div className="mt-4">
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {investigador.curp && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md">CURP: {investigador.curp}</span>}
+                        {investigador.rfc && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md">RFC: {investigador.rfc}</span>}
+                        {investigador.noCvu && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md">CVU: {investigador.noCvu}</span>}
+                      </div>
+
+                      <div className="text-sm text-blue-600 space-y-1">
+                        {investigador.institution && (
+                          <div className="flex items-center gap-2">
+                            <Building className="h-4 w-4" />
+                            {investigador.institution}
+                          </div>
+                        )}
+                        {investigador.departamento && (
+                          <div className="flex items-center gap-2 mt-1">
+                            <BookOpen className="h-4 w-4" />
+                            {investigador.departamento}
+                          </div>
+                        )}
+
+                        {investigador.lineaInvestigacion && Array.isArray(investigador.lineaInvestigacion) && investigador.lineaInvestigacion.length > 0 && (
+                          <div className="mt-6 pt-3 border-t border-blue-50">
+                            <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Líneas de Investigación</label>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {investigador.lineaInvestigacion.slice(0,5).map((tag: string, idx: number) => (
+                                <span key={idx} className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-100 break-words break-all">{tag}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {investigador.areaInvestigacion && investigador.areaInvestigacion.trim() !== "" && (
+                          <div className="mt-3">
+                            <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                              <BookOpen className="h-3.5 w-3.5" />Área de Investigación
+                            </label>
+                            <p className="text-sm text-blue-900 mt-2 whitespace-pre-line break-words break-all">{investigador.areaInvestigacion}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Botones de Contacto */}
+                <Card className="bg-white border-blue-100 shadow-sm">
+                  <CardHeader>
+                    <CardTitle className="text-blue-900 text-base">Contacto</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
                     <Button 
-                      className="bg-blue-700 text-white hover:bg-blue-800"
+                      className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
                       onClick={() => window.location.href = `mailto:${investigador.email}?subject=Contacto desde SEI&body=Hola ${investigador.name},%0D%0A%0D%0A`}
                     >
                       <Mail className="mr-2 h-4 w-4" />
@@ -316,7 +377,7 @@ export default function InvestigadorPage() {
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                      className="w-full border-blue-300 text-blue-700 hover:bg-blue-50"
                       onClick={() => setMensajeDialogOpen(true)}
                     >
                       <MessageCircle className="mr-2 h-4 w-4" />
@@ -324,420 +385,191 @@ export default function InvestigadorPage() {
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="border-green-300 text-green-700 hover:bg-green-50"
+                      className="w-full border-green-300 text-green-700 hover:bg-green-50"
                       onClick={() => setConectarDialogOpen(true)}
                     >
                       <UserPlus className="mr-2 h-4 w-4" />
                       Conectar
                     </Button>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Curriculum Vitae */}
-        {investigador.cvUrl && (
-          <CvViewer 
-            cvUrl={investigador.cvUrl} 
-            investigadorNombre={investigador.name}
-          />
-        )}
-
-        {/* Información de Institución */}
-        {investigador.institution && (
-          <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
-            <CardHeader>
-              <CardTitle className="text-blue-900 flex items-center gap-2">
-                <Building className="h-5 w-5" />
-                Institución
-              </CardTitle>
-              <CardDescription className="text-blue-600">
-                Institución donde el investigador está registrado
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Building className="h-5 w-5 text-blue-700" />
-                  <p className="text-lg font-semibold text-blue-900">{investigador.institution}</p>
-                </div>
-                {investigador.location && (
-                  <div className="flex items-center gap-2 text-blue-600">
-                    <MapPin className="h-4 w-4" />
-                    <span>{investigador.location}</span>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Información de registro */}
-        {(investigador.curp || investigador.rfc || investigador.noCvu) && (
-          <Card className="bg-white border-blue-100">
-            <CardHeader>
-              <CardTitle className="text-blue-900 flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                Información de Registro
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {investigador.curp && (
-                  <div>
-                    <p className="text-sm text-blue-600 font-medium">CURP</p>
-                    <p className="text-blue-900">{investigador.curp}</p>
-                  </div>
-                )}
-                {investigador.rfc && (
-                  <div>
-                    <p className="text-sm text-blue-600 font-medium">RFC</p>
-                    <p className="text-blue-900">{investigador.rfc}</p>
-                  </div>
-                )}
-                {investigador.noCvu && (
-                  <div>
-                    <p className="text-sm text-blue-600 font-medium">CVU/PU</p>
-                    <p className="text-blue-900">{investigador.noCvu}</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Columna principal */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Línea de investigación */}
-            {investigador.lineaInvestigacion && (
-              <Card className="bg-white border-blue-100">
+            {/* Contenido principal */}
+            <div className="lg:col-span-8 flex flex-col gap-8">
+              {/* Perfil Único del Investigador */}
+              <Card className="bg-white border-blue-100 shadow-md">
                 <CardHeader>
-                  <CardTitle className="text-blue-900">Línea de Investigación</CardTitle>
+                  <div className="flex items-center justify-between w-full">
+                    <div>
+                      <CardTitle className="text-blue-900 flex items-center">
+                        <FileText className="mr-2 h-5 w-5" />Perfil Único del Investigador
+                      </CardTitle>
+                      <CardDescription className="text-blue-600">
+                        {(tipoDocumento === 'PU' ? validCvUrl : tipoDocumento === 'Dictamen' ? validDictamenUrl : validSniUrl) 
+                          ? 'Documento disponible' 
+                          : 'Documento no disponible'}
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            {tipoDocumento}
+                            <ChevronDown className="ml-2 h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => setTipoDocumento('PU')}>PU</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setTipoDocumento('Dictamen')}>Dictamen</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setTipoDocumento('SNI')}>SNI</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-blue-600 leading-relaxed whitespace-pre-wrap">{investigador.lineaInvestigacion}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Área de investigación */}
-            {(investigador.area || investigador.areaInvestigacion) && (
-              <Card className="bg-white border-blue-100">
-                <CardHeader>
-                  <CardTitle className="text-blue-900">Áreas de Especialización</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {investigador.areaInvestigacion && (
-                      <Badge className="bg-blue-700 text-white">{investigador.areaInvestigacion}</Badge>
-                    )}
-                    {investigador.area && (
-                      <Badge className="bg-blue-600 text-white">{investigador.area}</Badge>
-                    )}
-                    {investigador.disciplina && (
-                      <Badge className="bg-blue-500 text-white">{investigador.disciplina}</Badge>
-                    )}
-                    {investigador.especialidad && (
-                      <Badge className="bg-blue-400 text-white">{investigador.especialidad}</Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Experiencia laboral */}
-            {investigador.experienciaLaboral && (
-              <Card className="bg-white border-blue-100">
-                <CardHeader>
-                  <CardTitle className="text-blue-900 flex items-center gap-2">
-                    <Briefcase className="h-5 w-5" />
-                    Experiencia Laboral
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-blue-600 leading-relaxed whitespace-pre-wrap">{investigador.experienciaLaboral}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Proyectos de investigación */}
-            {investigador.proyectosInvestigacion && (
-              <Card className="bg-white border-blue-100">
-                <CardHeader>
-                  <CardTitle className="text-blue-900 flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    Proyectos de Investigación
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-blue-600 leading-relaxed whitespace-pre-wrap">{investigador.proyectosInvestigacion}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Publicaciones */}
-            {(publicaciones.length > 0 || investigador.articulos || investigador.libros || investigador.capitulosLibros) && (
-              <Card className="bg-white border-blue-100">
-                <CardHeader>
-                  <CardTitle className="text-blue-900 flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    Publicaciones
-                  </CardTitle>
-                  {publicaciones.length > 0 && (
-                    <CardDescription className="text-blue-600">
-                      {publicaciones.length} publicacion{publicaciones.length !== 1 ? 'es' : ''} registrada{publicaciones.length !== 1 ? 's' : ''}
-                    </CardDescription>
+                  {tipoDocumento === 'PU' ? (
+                    validCvUrl ? (
+                      <div className="w-full space-y-4">
+                        <div className="flex gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                          <Button onClick={() => window.open(validCvUrl, '_blank')} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                            <ExternalLink className="mr-2 h-4 w-4" />Abrir PDF
+                          </Button>
+                          <Button variant="outline" onClick={() => { 
+                            const l = document.createElement('a')
+                            l.href = validCvUrl as string
+                            l.download = `${investigador?.name?.replace(/\s+/g, '_') || 'perfil'}.pdf`
+                            document.body.appendChild(l)
+                            l.click()
+                            document.body.removeChild(l)
+                          }}>
+                            <Download className="mr-2 h-4 w-4" />Descargar
+                          </Button>
+                        </div>
+                        <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200 h-[50vh] md:h-[60vh] lg:h-[70vh]">
+                          <iframe src={validCvUrl as string} className="w-full h-full" title="Vista previa" style={{ border: 'none' }} />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4 p-6">
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                          <FileText className="h-12 w-12 text-blue-400 mx-auto mb-3" />
+                          <p className="text-blue-700 font-medium mb-2">Perfil Único no disponible</p>
+                          <p className="text-sm text-blue-600 mb-4">Este investigador aún no ha subido su Perfil Único.</p>
+                        </div>
+                      </div>
+                    )
+                  ) : tipoDocumento === 'Dictamen' ? (
+                    validDictamenUrl ? (
+                      <div className="w-full space-y-4">
+                        <div className="flex gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                          <Button onClick={() => window.open(validDictamenUrl as string, '_blank')} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                            <ExternalLink className="mr-2 h-4 w-4" />Abrir PDF
+                          </Button>
+                          <Button variant="outline" onClick={() => { 
+                            const l = document.createElement('a')
+                            l.href = validDictamenUrl as string
+                            l.download = `${investigador?.name?.replace(/\s+/g, '_') || 'dictamen'}_dictamen.pdf`
+                            document.body.appendChild(l)
+                            l.click()
+                            document.body.removeChild(l)
+                          }}>
+                            <Download className="mr-2 h-4 w-4" />Descargar
+                          </Button>
+                        </div>
+                        <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200 h-[50vh] md:h-[60vh] lg:h-[70vh]">
+                          <iframe src={validDictamenUrl as string} className="w-full h-full" title="Vista previa dictamen" style={{ border: 'none' }} />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4 p-6">
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                          <FileText className="h-12 w-12 text-blue-400 mx-auto mb-3" />
+                          <p className="text-blue-700 font-medium mb-2">Dictamen no disponible</p>
+                          <p className="text-sm text-blue-600 mb-4">Este investigador aún no ha subido su dictamen.</p>
+                        </div>
+                      </div>
+                    )
+                  ) : (
+                    validSniUrl ? (
+                      <div className="w-full space-y-4">
+                        <div className="flex gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                          <Button onClick={() => window.open(validSniUrl as string, '_blank')} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                            <ExternalLink className="mr-2 h-4 w-4" />Abrir PDF
+                          </Button>
+                          <Button variant="outline" onClick={() => { 
+                            const l = document.createElement('a')
+                            l.href = validSniUrl as string
+                            l.download = `${investigador?.name?.replace(/\s+/g, '_') || 'sni'}_sni.pdf`
+                            document.body.appendChild(l)
+                            l.click()
+                            document.body.removeChild(l)
+                          }}>
+                            <Download className="mr-2 h-4 w-4" />Descargar
+                          </Button>
+                        </div>
+                        <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200 h-[50vh] md:h-[60vh] lg:h-[70vh]">
+                          <iframe src={validSniUrl as string} className="w-full h-full" title="Vista previa SNI" style={{ border: 'none' }} />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4 p-6">
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                          <FileText className="h-12 w-12 text-blue-400 mx-auto mb-3" />
+                          <p className="text-blue-700 font-medium mb-2">SNI no disponible</p>
+                          <p className="text-sm text-blue-600 mb-4">Este investigador aún no ha subido su documento SNI.</p>
+                        </div>
+                      </div>
+                    )
                   )}
+                </CardContent>
+              </Card>
+
+              {/* Publicaciones */}
+              <Card className="bg-white border-blue-100 shadow-md hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle className="text-blue-900 flex items-center">
+                    <FileText className="mr-2 h-5 w-5" />Publicaciones
+                  </CardTitle>
+                  <CardDescription className="text-blue-600">Producción científica del investigador</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Publicaciones de la base de datos */}
-                  {publicaciones.length > 0 && (
-                    <div className="space-y-4">
-                      <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                        <Award className="h-4 w-4" />
-                        Publicaciones Registradas
-                      </h4>
-                      <div className="space-y-3">
-                        {publicaciones.slice(0, 5).map((pub) => (
-                          <div
-                            key={pub.id}
-                            className="p-4 bg-blue-50 border border-blue-100 rounded-lg hover:shadow-md transition-shadow"
-                          >
-                            <h5 className="font-semibold text-blue-900 mb-2 line-clamp-2">
-                              {pub.titulo}
-                            </h5>
-                            <div className="text-sm text-blue-600 space-y-1">
-                              {pub.revista && (
-                                <p className="flex items-center gap-1">
-                                  <FileText className="h-3 w-3" />
-                                  {pub.revista} {pub.año && `(${pub.año})`}
-                                </p>
+                <CardContent className="p-4">
+                  <div style={{ maxHeight: 400 }} className="overflow-y-auto">
+                    {publicaciones.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-blue-900 font-medium mb-2">No hay publicaciones registradas.</p>
+                        <p className="text-sm text-blue-600">Este investigador aún no ha registrado publicaciones en el sistema.</p>
+                      </div>
+                    ) : (
+                      <ul className="space-y-3">
+                        {publicaciones.map((p: Publicacion) => (
+                          <li key={p.id} className="text-sm">
+                            <div className="font-medium text-blue-900 truncate">{p.titulo}</div>
+                            <div className="text-xs text-blue-600">{(p.año || 's.f.')} • {p.revista || p.institucion || '—'}</div>
+                            <div className="mt-1 flex gap-2">
+                              {p.archivoUrl && (
+                                <Button size="sm" variant="outline" onClick={() => window.open(p.archivoUrl, '_blank')}>
+                                  Ver
+                                </Button>
                               )}
-                              {pub.doi && (
-                                <p className="flex items-center gap-1 text-blue-500">
-                                  <ExternalLink className="h-3 w-3" />
-                                  DOI: {pub.doi}
-                                </p>
-                              )}
-                              {pub.categoria && (
-                                <Badge className="mt-2 bg-blue-600 text-white text-xs">
-                                  {pub.categoria}
-                                </Badge>
+                              {p.doi && (
+                                <Button size="sm" variant="outline" onClick={() => window.open(`https://doi.org/${p.doi}`, '_blank')}>
+                                  DOI
+                                </Button>
                               )}
                             </div>
-                          </div>
+                          </li>
                         ))}
-                      </div>
-                      {publicaciones.length > 5 && (
-                        <p className="text-sm text-blue-500 text-center pt-2">
-                          + {publicaciones.length - 5} publicaciones más
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Publicaciones del perfil (texto) */}
-                  {investigador.articulos && (
-                    <div>
-                      <h4 className="font-semibold text-blue-900 mb-2">Artículos</h4>
-                      <p className="text-blue-600 whitespace-pre-wrap">{investigador.articulos}</p>
-                    </div>
-                  )}
-                  {investigador.libros && (
-                    <div>
-                      <h4 className="font-semibold text-blue-900 mb-2">Libros</h4>
-                      <p className="text-blue-600 whitespace-pre-wrap">{investigador.libros}</p>
-                    </div>
-                  )}
-                  {investigador.capitulosLibros && (
-                    <div>
-                      <h4 className="font-semibold text-blue-900 mb-2">Capítulos de Libros</h4>
-                      <p className="text-blue-600 whitespace-pre-wrap">{investigador.capitulosLibros}</p>
-                    </div>
-                  )}
+                      </ul>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
-            )}
-          </div>
-
-          {/* Columna lateral */}
-          <div className="space-y-8">
-            {/* Formación académica */}
-            <Card className="bg-white border-blue-100">
-              <CardHeader>
-                <CardTitle className="text-blue-900 flex items-center gap-2">
-                  <GraduationCap className="h-5 w-5" />
-                  Formación Académica
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {investigador.gradoMaximoEstudios && (
-                    <div>
-                      <p className="text-sm text-blue-600 font-medium">Grado Máximo</p>
-                      <p className="text-blue-900">{investigador.gradoMaximoEstudios}</p>
-                    </div>
-                  )}
-                  {investigador.title && (
-                    <div>
-                      <p className="text-sm text-blue-600 font-medium">Último Grado de Estudios</p>
-                      <p className="text-blue-900">{investigador.title}</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Empleo actual */}
-            {investigador.empleoActual && (
-              <Card className="bg-white border-blue-100">
-                <CardHeader>
-                  <CardTitle className="text-blue-900 flex items-center gap-2">
-                    <Briefcase className="h-5 w-5" />
-                    Empleo Actual
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-blue-600">{investigador.empleoActual}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* SNI */}
-            {investigador.sni && (
-              <Card className="bg-white border-blue-100">
-                <CardHeader>
-                  <CardTitle className="text-blue-900 flex items-center gap-2">
-                    <Award className="h-5 w-5" />
-                    Sistema Nacional de Investigadores
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-blue-900 font-semibold">{investigador.sni}</p>
-                  {investigador.anioSni && (
-                    <p className="text-sm text-blue-600">Año: {investigador.anioSni}</p>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Reconocimientos */}
-            {investigador.premiosDistinciones && (
-              <Card className="bg-white border-blue-100">
-                <CardHeader>
-                  <CardTitle className="text-blue-900">Reconocimientos</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-blue-600 whitespace-pre-wrap">{investigador.premiosDistinciones}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Idiomas */}
-            {investigador.idiomas && (
-              <Card className="bg-white border-blue-100">
-                <CardHeader>
-                  <CardTitle className="text-blue-900">Idiomas</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-blue-600">{investigador.idiomas}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Colaboración */}
-            {(investigador.colaboracionInternacional || investigador.colaboracionNacional) && (
-              <Card className="bg-white border-blue-100">
-                <CardHeader>
-                  <CardTitle className="text-blue-900 flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Colaboración
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {investigador.colaboracionInternacional && (
-                    <div>
-                      <p className="text-sm text-blue-600 font-medium">Internacional</p>
-                      <p className="text-blue-900 text-sm">{investigador.colaboracionInternacional}</p>
-                    </div>
-                  )}
-                  {investigador.colaboracionNacional && (
-                    <div>
-                      <p className="text-sm text-blue-600 font-medium">Nacional</p>
-                      <p className="text-blue-900 text-sm">{investigador.colaboracionNacional}</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+            </div>
           </div>
         </div>
-
-        {/* Investigadores Relacionados */}
-        {relacionados.length > 0 && (
-          <Card className="bg-white border-blue-100">
-            <CardHeader>
-              <CardTitle className="text-blue-900 flex items-center gap-2">
-                <Network className="h-5 w-5" />
-                Investigadores Relacionados
-              </CardTitle>
-              <CardDescription className="text-blue-600">
-                Otros investigadores con intereses similares
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {relacionados.map((rel) => (
-                  <Link
-                    key={rel.id}
-                    href={`/investigadores/${rel.slug}`}
-                    className="block group"
-                  >
-                    <Card className="bg-blue-50 border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all">
-                      <CardContent className="pt-6">
-                        <div className="flex flex-col items-center text-center space-y-3">
-                          <Avatar className="h-20 w-20 ring-2 ring-blue-200 group-hover:ring-blue-400 transition-all">
-                            <AvatarImage src={rel.fotografiaUrl || "/placeholder-user.jpg"} alt={rel.name} />
-                            <AvatarFallback className="bg-blue-100 text-blue-700">
-                              {rel.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")
-                                .toUpperCase()
-                                .slice(0, 2)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-grow">
-                            <h3 className="font-semibold text-blue-900 group-hover:text-blue-700 transition-colors line-clamp-2">
-                              {rel.name}
-                            </h3>
-                            {rel.title && (
-                              <p className="text-sm text-blue-600 mt-1 line-clamp-1">{rel.title}</p>
-                            )}
-                            {rel.institution && (
-                              <p className="text-xs text-blue-500 mt-1 line-clamp-1 flex items-center justify-center gap-1">
-                                <Building className="h-3 w-3" />
-                                {rel.institution}
-                              </p>
-                            )}
-                            {rel.area && (
-                              <Badge className="mt-2 bg-blue-600 text-white text-xs">
-                                {rel.area}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
 
       {/* Diálogos */}
@@ -760,6 +592,7 @@ export default function InvestigadorPage() {
           />
         </>
       )}
-    </div>
+    </ErrorBoundary>
   )
 }
+

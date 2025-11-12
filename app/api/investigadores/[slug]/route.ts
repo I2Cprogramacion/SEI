@@ -34,8 +34,11 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
       COALESCE(linea_investigacion, '') AS linea_investigacion,
       COALESCE(area_investigacion, '') AS area_investigacion,
       COALESCE(institucion, '') AS institucion,
+      COALESCE(departamento, '') AS departamento,
       COALESCE(slug, '') AS slug,
       COALESCE(cv_url, '') AS cv_url,
+      dictamen_url,
+      sni_url,
       COALESCE(perfil_publico, true) AS perfil_publico
       FROM investigadores
       WHERE ${isNumeric ? 'id = $1' : `(slug = $1 OR LOWER(REPLACE(REPLACE(nombre_completo, ' ', '-'), '.', '')) = $1)`}
@@ -73,8 +76,11 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
       COALESCE(linea_investigacion, '') AS linea_investigacion,
       COALESCE(area_investigacion, '') AS area_investigacion,
       COALESCE(institucion, '') AS institucion,
+      COALESCE(departamento, '') AS departamento,
       COALESCE(slug, '') AS slug,
       COALESCE(cv_url, '') AS cv_url,
+      dictamen_url,
+      sni_url,
       COALESCE(perfil_publico, true) AS perfil_publico
       FROM investigadores
       WHERE LOWER(nombre_completo) ILIKE $1 OR LOWER(slug) ILIKE $2
