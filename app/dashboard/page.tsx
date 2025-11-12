@@ -72,7 +72,7 @@ export default function DashboardPage() {
   const [misPublicaciones, setMisPublicaciones] = useState<any[]>([])
   const [isLoadingMisPublicaciones, setIsLoadingMisPublicaciones] = useState(true)
   const [gestionarCvDialogOpen, setGestionarCvDialogOpen] = useState(false)
-  const [tipoDocumento, setTipoDocumento] = useState<'PU' | 'Dictamen'>('PU')
+  const [tipoDocumento, setTipoDocumento] = useState<'PU' | 'Dictamen' | 'SNI'>('PU')
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
 
   useEffect(() => {
@@ -199,6 +199,7 @@ export default function DashboardPage() {
 
   const validCvUrl = getValidCvUrl(investigadorData?.cv_url)
   const validDictamenUrl = getValidCvUrl(investigadorData?.dictamen_url)
+  const validSniUrl = getValidCvUrl(investigadorData?.sni_url)
 
   const formatDate = (dateStr: string | Date | null | undefined) => {
     if (!dateStr) return null
@@ -456,9 +457,10 @@ export default function DashboardPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => setTipoDocumento('PU')}>PU</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setTipoDocumento('Dictamen')}>Dictamen</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTipoDocumento('SNI')}>SNI</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                    {(tipoDocumento === 'PU' ? validCvUrl : validDictamenUrl) && (
+                    {(tipoDocumento === 'PU' ? validCvUrl : tipoDocumento === 'Dictamen' ? validDictamenUrl : validSniUrl) && (
                       <Button onClick={() => setGestionarCvDialogOpen(true)} variant="outline" className="border-blue-300 text-blue-700"> <Edit className="mr-2 h-4 w-4" />Gestionar</Button>
                     )}
                   </div>
@@ -486,7 +488,7 @@ export default function DashboardPage() {
                       <UploadCv value={investigadorData?.cv_url || ''} onChange={async (url) => { try { const res = await fetch('/api/investigadores/update-cv', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cv_url: url }) }); if (res.ok) { setInvestigadorData({ ...investigadorData, cv_url: url }); alert('CV actualizado'); } else { alert('Error al actualizar'); } } catch (e) { alert('Error al actualizar'); } }} nombreCompleto={investigadorData?.nombre_completo || 'Usuario'} showPreview />
                     </div>
                   )
-                ) : (
+                ) : tipoDocumento === 'Dictamen' ? (
                   validDictamenUrl ? (
                     <div className="w-full space-y-4">
                       <div className="flex gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200">
@@ -505,6 +507,27 @@ export default function DashboardPage() {
                         <p className="text-sm text-blue-600 mb-4">Sube tu dictamen en PDF para visualizarlo aquí.</p>
                       </div>
                       <UploadCv value={investigadorData?.dictamen_url || ''} onChange={async (url) => { try { const res = await fetch('/api/investigadores/update-dictamen', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dictamen_url: url }) }); if (res.ok) { setInvestigadorData({ ...investigadorData, dictamen_url: url }); alert('Dictamen actualizado'); } else { alert('Error al actualizar'); } } catch (e) { alert('Error al actualizar'); } }} nombreCompleto={investigadorData?.nombre_completo || 'Usuario'} showPreview />
+                    </div>
+                  )
+                ) : (
+                  validSniUrl ? (
+                    <div className="w-full space-y-4">
+                      <div className="flex gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <Button onClick={() => window.open(validSniUrl as string, '_blank')} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white"><ExternalLink className="mr-2 h-4 w-4" />Abrir PDF</Button>
+                        <Button variant="outline" onClick={() => { const l = document.createElement('a'); l.href = validSniUrl as string; l.download = `${investigadorData?.nombre_completo?.replace(/\s+/g, '_') || 'sni'}_sni.pdf`; document.body.appendChild(l); l.click(); document.body.removeChild(l); }}> <Download className="mr-2 h-4 w-4" />Descargar</Button>
+                      </div>
+                      <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200 h-[50vh] md:h-[60vh] lg:h-[70vh]">
+                        <iframe src={validSniUrl as string} className="w-full h-full" title="Vista previa SNI" style={{ border: 'none' }} />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 p-6">
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                        <FileText className="h-12 w-12 text-blue-400 mx-auto mb-3" />
+                        <p className="text-blue-700 font-medium mb-2">SNI no disponible</p>
+                        <p className="text-sm text-blue-600 mb-4">Sube tu documento SNI en PDF para visualizarlo aquí.</p>
+                      </div>
+                      <UploadCv value={investigadorData?.sni_url || ''} onChange={async (url) => { try { const res = await fetch('/api/investigadores/update-sni', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sni_url: url }) }); if (res.ok) { setInvestigadorData({ ...investigadorData, sni_url: url }); alert('SNI actualizado'); } else { alert('Error al actualizar'); } } catch (e) { alert('Error al actualizar'); } }} nombreCompleto={investigadorData?.nombre_completo || 'Usuario'} showPreview />
                     </div>
                   )
                 )}
@@ -556,12 +579,13 @@ export default function DashboardPage() {
             <GestionarCvDialog
               open={gestionarCvDialogOpen}
               onOpenChange={setGestionarCvDialogOpen}
-              cvUrlActual={tipoDocumento === 'PU' ? investigadorData?.cv_url : investigadorData?.dictamen_url}
+              cvUrlActual={tipoDocumento === 'PU' ? investigadorData?.cv_url : tipoDocumento === 'Dictamen' ? investigadorData?.dictamen_url : investigadorData?.sni_url}
               tipoDocumento={tipoDocumento}
               onCvUpdated={async (newUrl) => {
                 if (investigadorData) {
                   if (tipoDocumento === 'PU') setInvestigadorData({ ...investigadorData, cv_url: newUrl || undefined })
-                  else setInvestigadorData({ ...investigadorData, dictamen_url: newUrl || undefined })
+                  else if (tipoDocumento === 'Dictamen') setInvestigadorData({ ...investigadorData, dictamen_url: newUrl || undefined })
+                  else setInvestigadorData({ ...investigadorData, sni_url: newUrl || undefined })
                 }
                 try {
                   const r = await fetch('/api/investigadores/perfil')
