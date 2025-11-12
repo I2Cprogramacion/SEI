@@ -52,22 +52,13 @@ import {
 } from "@/components/ui/alert-dialog"
 import ErrorBoundary from '@/components/error-boundary'
 
-type Estadisticas = {
-  publicaciones: number
-  proyectos: number
-  conexiones: number
-  perfilCompleto: number
-}
-
 export default function DashboardPage() {
   const { user, isLoaded } = useUser()
   const router = useRouter()
   const { signOut } = useClerk()
 
   const [investigadorData, setInvestigadorData] = useState<any>(null)
-  const [estadisticas, setEstadisticas] = useState<Estadisticas>({ publicaciones: 0, proyectos: 0, conexiones: 0, perfilCompleto: 0 })
   const [isLoadingData, setIsLoadingData] = useState(true)
-  const [isLoadingEstadisticas, setIsLoadingEstadisticas] = useState(true)
   const [isDeletingAccount, setIsDeletingAccount] = useState(false)
   const [misPublicaciones, setMisPublicaciones] = useState<any[]>([])
   const [isLoadingMisPublicaciones, setIsLoadingMisPublicaciones] = useState(true)
@@ -100,15 +91,14 @@ export default function DashboardPage() {
   }, [isLoaded, user])
 
   useEffect(() => {
-    const cargar = async () => {
+    const cargarPublicaciones = async () => {
       if (!isLoaded || !user) return
-      // fetch user's own publicaciones
       try {
         setIsLoadingMisPublicaciones(true)
-        const r2 = await fetch(`/api/publicaciones?clerk_user_id=${encodeURIComponent(user.id)}`)
-        if (r2.ok) {
-          const j2 = await r2.json()
-          setMisPublicaciones(j2.publicaciones || [])
+        const r = await fetch(`/api/publicaciones?clerk_user_id=${encodeURIComponent(user.id)}`)
+        if (r.ok) {
+          const j = await r.json()
+          setMisPublicaciones(j.publicaciones || [])
         } else {
           setMisPublicaciones([])
         }
@@ -118,70 +108,9 @@ export default function DashboardPage() {
       } finally {
         setIsLoadingMisPublicaciones(false)
       }
-      try {
-        const r = await fetch('/api/dashboard/estadisticas')
-        if (r.ok) {
-          const data = await r.json()
-          // If API returns something that looks like an error or zeros, try to derive from perfil
-          const hasMeaningful = data && (Number(data.publicaciones) > 0 || Number(data.proyectos) > 0 || Number(data.conexiones) > 0 || Number(data.perfilCompleto) > 0)
-          if (hasMeaningful) setEstadisticas(data)
-          else {
-            // fallback: derive from investigadorData if available
-            const fallback = {
-              publicaciones: 0,
-              proyectos: 0,
-              conexiones: 0,
-              perfilCompleto: investigadorData?.perfil_completo === true ? 100 : (typeof investigadorData?.perfil_completo === 'number' ? investigadorData.perfil_completo : 0)
-            }
-            // count publicaciones if campo articulos is present
-            if (investigadorData?.articulos && typeof investigadorData.articulos === 'string') {
-              fallback.publicaciones = investigadorData.articulos.split('\n').filter((p: string) => p.trim()).length
-            }
-            // count proyectos if campo proyectos_investigacion present
-            if (investigadorData?.proyectos_investigacion && typeof investigadorData.proyectos_investigacion === 'string') {
-              fallback.proyectos = investigadorData.proyectos_investigacion.split('\n').filter((p: string) => p.trim()).length
-            }
-            // conexiones fallback: try a field or keep 0
-            if (typeof investigadorData?.conexiones === 'number') fallback.conexiones = investigadorData.conexiones
-
-            setEstadisticas(fallback)
-          }
-        }
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setIsLoadingEstadisticas(false)
-      }
     }
-    cargar()
-  }, [isLoaded, user, investigadorData])
-
-  // If investigadorData arrives after the API call and API had no meaningful stats,
-  // derive the stats from investigadorData so the UI updates reactively.
-  useEffect(() => {
-    if (!investigadorData) return
-
-    const current = estadisticas || { publicaciones: 0, proyectos: 0, conexiones: 0, perfilCompleto: 0 }
-    const hasMeaningful = current && (Number(current.publicaciones) > 0 || Number(current.proyectos) > 0 || Number(current.conexiones) > 0 || Number(current.perfilCompleto) > 0)
-    if (hasMeaningful) return // don't override explicit API values
-
-    const derived = {
-      publicaciones: 0,
-      proyectos: 0,
-      conexiones: 0,
-      perfilCompleto: investigadorData?.perfil_completo === true ? 100 : (typeof investigadorData?.perfil_completo === 'number' ? investigadorData.perfil_completo : 0)
-    }
-
-    if (investigadorData?.articulos && typeof investigadorData.articulos === 'string') {
-      derived.publicaciones = investigadorData.articulos.split('\n').filter((p: string) => p.trim()).length
-    }
-    if (investigadorData?.proyectos_investigacion && typeof investigadorData.proyectos_investigacion === 'string') {
-      derived.proyectos = investigadorData.proyectos_investigacion.split('\n').filter((p: string) => p.trim()).length
-    }
-    if (typeof investigadorData?.conexiones === 'number') derived.conexiones = investigadorData.conexiones
-
-    setEstadisticas(derived)
-  }, [investigadorData])
+    cargarPublicaciones()
+  }, [isLoaded, user])
 
   if (!isLoaded) return <div className="text-center p-10 text-blue-700">Cargando sesión de usuario...</div>
   if (!user) return <div className="text-center p-10 text-red-700">No has iniciado sesión. Inicia sesión para ver tu dashboard.</div>
@@ -383,34 +312,6 @@ export default function DashboardPage() {
                           <p className="text-sm text-blue-900 mt-2 whitespace-pre-line break-words break-all">{investigadorData.area_investigacion}</p>
                         </div>
                       )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Resumen de Actividad (estadísticas) */}
-              <Card className="bg-white border-blue-100 shadow-sm">
-                <CardHeader className="px-6 pt-6">
-                  <CardTitle className="text-blue-900">Resumen de Actividad</CardTitle>
-                  <CardDescription className="text-blue-600 text-sm">Estadísticas de tu perfil</CardDescription>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg shadow-md flex flex-col items-center justify-center">
-                      {isLoadingEstadisticas ? <Loader2 className="h-8 w-8 animate-spin" /> : <div className="text-4xl md:text-5xl font-extrabold">{estadisticas.publicaciones}</div>}
-                      <div className="text-sm mt-2">Publicaciones</div>
-                    </div>
-                    <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg shadow-md flex flex-col items-center justify-center">
-                      {isLoadingEstadisticas ? <Loader2 className="h-8 w-8 animate-spin" /> : <div className="text-4xl md:text-5xl font-extrabold">{estadisticas.proyectos}</div>}
-                      <div className="text-sm mt-2">Proyectos</div>
-                    </div>
-                    <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg shadow-md flex flex-col items-center justify-center">
-                      {isLoadingEstadisticas ? <Loader2 className="h-8 w-8 animate-spin" /> : <div className="text-4xl md:text-5xl font-extrabold">{estadisticas.conexiones}</div>}
-                      <div className="text-sm mt-2">Conexiones</div>
-                    </div>
-                    <div className="p-3 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg shadow-md flex flex-col items-center justify-center">
-                      {isLoadingEstadisticas ? <Loader2 className="h-8 w-8 animate-spin" /> : <div className="text-4xl md:text-5xl font-extrabold">{estadisticas.perfilCompleto}%</div>}
-                      <div className="text-sm mt-2">Perfil Completo</div>
                     </div>
                   </div>
                 </CardContent>
