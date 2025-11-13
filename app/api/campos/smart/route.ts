@@ -1,9 +1,16 @@
 import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 import { getDatabase } from "@/lib/database-config"
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams
+  const searchTerm = searchParams.get('search') || ''
+  const institucion = searchParams.get('institucion') || 'all'
+  const actividad = searchParams.get('actividad') || 'all'
+  const orden = searchParams.get('orden') || 'investigadores'
+  const direccion = searchParams.get('direccion') || 'desc'
   try {
     console.log('=== SMART API CAMPOS ===')
     
@@ -114,24 +121,47 @@ export async function GET() {
       })
     }
     
-    // Si hay datos, intentar obtener áreas reales
-    const areasQuery = `
-      SELECT 
-        COALESCE(area_investigacion, 'Sin especificar') as nombre,
-        COUNT(DISTINCT id) as investigadores,
-        COUNT(DISTINCT institucion) as instituciones
-      FROM investigadores 
-      WHERE area_investigacion IS NOT NULL AND area_investigacion != ''
-      GROUP BY area_investigacion
-      ORDER BY investigadores DESC
-    `
+    // Si hay datos, intentar obtener áreas reales con líneas de investigación
+    // Primero obtener las áreas con sus líneas de investigación agrupadas
+    let areasQuery: string
+    let queryParams: any[] = []
+    
+    if (institucion !== 'all') {
+      areasQuery = `
+        SELECT 
+          COALESCE(area_investigacion, 'Sin especificar') as nombre,
+          COUNT(DISTINCT inv.id) as investigadores,
+          COUNT(DISTINCT inv.institucion) as instituciones,
+          STRING_AGG(DISTINCT inv.linea_investigacion, ', ') FILTER (WHERE inv.linea_investigacion IS NOT NULL AND inv.linea_investigacion != '') as lineas_investigacion
+        FROM investigadores inv
+        WHERE inv.area_investigacion IS NOT NULL AND inv.area_investigacion != ''
+        AND LOWER(TRIM(inv.institucion)) = LOWER(TRIM($1))
+        GROUP BY area_investigacion
+        ORDER BY investigadores DESC
+      `
+      queryParams = [institucion]
+    } else {
+      areasQuery = `
+        SELECT 
+          COALESCE(area_investigacion, 'Sin especificar') as nombre,
+          COUNT(DISTINCT inv.id) as investigadores,
+          COUNT(DISTINCT inv.institucion) as instituciones,
+          STRING_AGG(DISTINCT inv.linea_investigacion, ', ') FILTER (WHERE inv.linea_investigacion IS NOT NULL AND inv.linea_investigacion != '') as lineas_investigacion
+        FROM investigadores inv
+        WHERE inv.area_investigacion IS NOT NULL AND inv.area_investigacion != ''
+        GROUP BY area_investigacion
+        ORDER BY investigadores DESC
+      `
+    }
     
     console.log('Obteniendo áreas reales...')
     console.log('Query SQL:', areasQuery)
+    console.log('Parámetros de búsqueda:', { searchTerm, institucion, actividad, orden, direccion })
+    console.log('Query params:', queryParams)
     
     let areas
     try {
-      areas = await db.query(areasQuery)
+      areas = await db.query(areasQuery, queryParams)
       console.log('Áreas encontradas:', areas?.length || 0)
       console.log('Datos de áreas:', areas)
     } catch (queryError) {
@@ -198,8 +228,8 @@ export async function GET() {
       })
     }
     
-    // Formatear datos reales
-    const camposFormateados = areas.map((area: any, index: number) => {
+    // Formatear datos reales y extraer líneas de investigación
+    let camposFormateados = areas.map((area: any, index: number) => {
       try {
         const slug = area.nombre
           .toLowerCase()
@@ -221,7 +251,20 @@ export async function GET() {
         ]
         const colorIndex = index % colores.length
         
-        const actividad = Math.min(100, Math.round(area.investigadores * 5))
+        const actividadCalculada = Math.min(100, Math.round(area.investigadores * 5))
+        
+        // Procesar líneas de investigación: pueden venir como string separado por comas
+        let lineasInvestigacion: string[] = []
+        if (area.lineas_investigacion) {
+          // Separar por comas y limpiar, eliminando duplicados
+          const lineasSet = new Set<string>()
+          area.lineas_investigacion
+            .split(',')
+            .map((l: string) => l.trim())
+            .filter((l: string) => l.length > 0)
+            .forEach((l: string) => lineasSet.add(l))
+          lineasInvestigacion = Array.from(lineasSet)
+        }
         
         return {
           id: index + 1,
@@ -231,13 +274,14 @@ export async function GET() {
           proyectos: 0,
           publicaciones: 0,
           instituciones: parseInt(area.instituciones) || 0,
-          crecimiento: actividad,
-          tendencia: actividad > 70 ? "up" : actividad > 40 ? "stable" : "down",
-          subcampos: [],
+          crecimiento: actividadCalculada,
+          tendencia: actividadCalculada > 70 ? "up" : actividadCalculada > 40 ? "stable" : "down",
+          subcampos: lineasInvestigacion, // Usar líneas de investigación como subcampos
           color: colores[colorIndex],
           slug: slug,
           instituciones_lista: '',
-          dias_promedio_registro: 0
+          dias_promedio_registro: 0,
+          lineas_investigacion: lineasInvestigacion // Agregar campo adicional para búsqueda
         }
       } catch (formatError) {
         console.error('Error formateando área:', formatError, 'Área:', area)
@@ -256,9 +300,61 @@ export async function GET() {
           color: 'bg-gray-100 text-gray-800',
           slug: 'area-sin-nombre',
           instituciones_lista: '',
-          dias_promedio_registro: 0
+          dias_promedio_registro: 0,
+          lineas_investigacion: []
         }
       }
+    })
+    
+    // Aplicar filtro de búsqueda si hay término de búsqueda
+    if (searchTerm && searchTerm.trim() !== '') {
+      const searchLower = searchTerm.toLowerCase().trim()
+      camposFormateados = camposFormateados.filter((campo: any) => {
+        // Buscar en nombre del campo
+        const nombreMatch = campo.nombre.toLowerCase().includes(searchLower)
+        
+        // Buscar en descripción
+        const descripcionMatch = campo.descripcion.toLowerCase().includes(searchLower)
+        
+        // Buscar en líneas de investigación
+        const lineasMatch = campo.lineas_investigacion && campo.lineas_investigacion.some((linea: string) => 
+          linea.toLowerCase().includes(searchLower)
+        )
+        
+        // Buscar en subcampos (que también son líneas de investigación)
+        const subcamposMatch = campo.subcampos && campo.subcampos.some((subcampo: string) =>
+          subcampo.toLowerCase().includes(searchLower)
+        )
+        
+        return nombreMatch || descripcionMatch || lineasMatch || subcamposMatch
+      })
+    }
+    
+    // Aplicar filtro de actividad
+    if (actividad !== 'all') {
+      camposFormateados = camposFormateados.filter((campo: any) => {
+        if (actividad === 'alto') return campo.crecimiento >= 70
+        if (actividad === 'medio') return campo.crecimiento >= 40 && campo.crecimiento < 70
+        if (actividad === 'bajo') return campo.crecimiento < 40
+        return true
+      })
+    }
+    
+    // Aplicar ordenamiento
+    camposFormateados.sort((a: any, b: any) => {
+      let comparison = 0
+      if (orden === 'investigadores') {
+        comparison = a.investigadores - b.investigadores
+      } else if (orden === 'proyectos') {
+        comparison = a.proyectos - b.proyectos
+      } else if (orden === 'publicaciones') {
+        comparison = a.publicaciones - b.publicaciones
+      } else if (orden === 'instituciones') {
+        comparison = a.instituciones - b.instituciones
+      } else if (orden === 'nombre') {
+        comparison = a.nombre.localeCompare(b.nombre)
+      }
+      return direccion === 'desc' ? -comparison : comparison
     })
     
     const totalInvestigadoresCalculado = camposFormateados.reduce((sum: number, campo: any) => {
@@ -295,11 +391,11 @@ export async function GET() {
           ]
         },
         parametros: {
-          search: '',
-          institucion: 'all',
-          actividad: 'all',
-          orden: 'investigadores',
-          direccion: 'desc'
+          search: searchTerm,
+          institucion: institucion,
+          actividad: actividad,
+          orden: orden,
+          direccion: direccion
         },
         mensaje: "Datos reales obtenidos de la base de datos."
       })
