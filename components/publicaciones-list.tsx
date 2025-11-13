@@ -72,7 +72,14 @@ export function PublicacionesList({ slug, isOwner = false, showAddButton = true 
         }
         
         const data = await response.json()
-        setPublicaciones(Array.isArray(data) ? data : [])
+        
+        // El endpoint /api/publicaciones devuelve { publicaciones, filtros }
+        // El endpoint /api/investigadores/[slug]/publicaciones devuelve array directo
+        if (slug) {
+          setPublicaciones(Array.isArray(data) ? data : [])
+        } else {
+          setPublicaciones(Array.isArray(data.publicaciones) ? data.publicaciones : [])
+        }
       } catch (err) {
         console.error('Error fetching publicaciones:', err)
         setError('Error al cargar las publicaciones')
