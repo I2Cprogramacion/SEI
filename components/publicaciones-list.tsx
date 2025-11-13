@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useUser } from "@clerk/nextjs"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -35,19 +36,34 @@ interface PublicacionesListProps {
 
 export function PublicacionesList({ slug, isOwner = false, showAddButton = true }: PublicacionesListProps) {
   const router = useRouter()
+  const { user, isLoaded } = useUser()
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    // Esperar a que Clerk cargue el usuario
+    if (!isLoaded) return
+
     async function fetchPublicaciones() {
       try {
         setLoading(true)
         setError(null)
         
-        const url = slug 
-          ? `/api/investigadores/${slug}/publicaciones`
-          : '/api/publicaciones'
+        let url: string
+        
+        if (slug) {
+          // Perfil público: usar endpoint de investigadores
+          url = `/api/investigadores/${slug}/publicaciones`
+        } else if (user?.id) {
+          // Dashboard propio: usar endpoint con clerk_user_id
+          url = `/api/publicaciones?clerk_user_id=${user.id}`
+        } else {
+          // Sin slug ni usuario: no cargar nada
+          setPublicaciones([])
+          setLoading(false)
+          return
+        }
         
         const response = await fetch(url)
         
@@ -66,7 +82,7 @@ export function PublicacionesList({ slug, isOwner = false, showAddButton = true 
     }
 
     fetchPublicaciones()
-  }, [slug])
+  }, [slug, user?.id, isLoaded])
 
   if (loading) {
     return (

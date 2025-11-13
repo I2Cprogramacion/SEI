@@ -82,7 +82,6 @@ export default function IniciarSesionPage() {
             routing="path"
             path="/iniciar-sesion"
             signUpUrl="/registro"
-            afterSignInUrl="/dashboard"
             fallbackRedirectUrl="/dashboard"
           />
         </div>

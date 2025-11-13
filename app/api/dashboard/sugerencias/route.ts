@@ -38,6 +38,17 @@ export async function GET(request: NextRequest) {
 
     const perfil = miPerfil.rows[0]
     
+    // Extraer palabras clave de la línea de investigación
+    const palabrasClave = (perfil.linea_investigacion || '')
+      .toLowerCase()
+      .split(' ')
+      .filter((p: string) => p.length > 3)
+      .slice(0, 3)
+    
+    const patronBusqueda = palabrasClave.length > 0 
+      ? `%${palabrasClave.join('%')}%` 
+      : '%'
+    
     // Buscar investigadores relacionados con sistema de scoring
     // Excluir conexiones ya establecidas y solicitudes pendientes
     const sugerencias = await sql`
@@ -62,7 +73,7 @@ export async function GET(request: NextRequest) {
         fotografia_url,
         (
           CASE WHEN area = ${perfil.area || ''} THEN 10 ELSE 0 END +
-          CASE WHEN LOWER(linea_investigacion) LIKE ${`%${(perfil.linea_investigacion || '').toLowerCase().split(' ').slice(0, 3).join('%')}%`} THEN 8 ELSE 0 END +
+          CASE WHEN LOWER(linea_investigacion) LIKE ${patronBusqueda} THEN 8 ELSE 0 END +
           CASE WHEN ultimo_grado_estudios ILIKE '%doctorado%' THEN 3 ELSE 0 END
         ) as relevancia_score
       FROM investigadores 
@@ -70,7 +81,7 @@ export async function GET(request: NextRequest) {
         AND id NOT IN (SELECT id_conexion FROM conexiones_existentes)
         AND (
           area = ${perfil.area || ''} OR 
-          LOWER(linea_investigacion) LIKE ${`%${(perfil.linea_investigacion || '').toLowerCase().split(' ').slice(0, 3).join('%')}%`}
+          LOWER(linea_investigacion) LIKE ${patronBusqueda}
         )
       ORDER BY relevancia_score DESC, RANDOM()
       LIMIT 6
