@@ -12,6 +12,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { CvViewer } from "@/components/cv-viewer";
 import { UploadCv } from "@/components/upload-cv";
 import { GestionarCvDialog } from "@/components/gestionar-cv-dialog";
+import { PublicacionesList } from "@/components/publicaciones-list";
 
 import {
   User as UserIcon,
@@ -1102,18 +1103,9 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Publicaciones - Dentro de la columna derecha, debajo del CV */}
-        <Card className="bg-white border-blue-100 shadow-md hover:shadow-lg transition-shadow cursor-pointer">
-          <CardHeader>
-            <CardTitle className="text-blue-900 flex items-center text-lg md:text-xl">
-              <FileText className="mr-2 h-4 w-4 md:h-5 md:w-5" />
-              Publicaciones
-            </CardTitle>
-            <CardDescription className="text-blue-600 text-sm">
-              Gestiona tu producción científica
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        {/* Publicaciones - Componente reutilizable */}
+        <PublicacionesList isOwner={true} showAddButton={true} />
+
         </div> {/* Fin columna derecha lg:col-span-8 */}
 
         </div> {/* Fin del grid de dos columnas */}

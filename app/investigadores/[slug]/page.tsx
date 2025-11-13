@@ -35,6 +35,7 @@ import {
 } from "lucide-react"
 import { ConectarInvestigadorDialog } from "@/components/conectar-investigador-dialog"
 import { EnviarMensajeDialog } from "@/components/enviar-mensaje-dialog"
+import { PublicacionesList } from "@/components/publicaciones-list"
 import ErrorBoundary from '@/components/error-boundary'
 
 interface InvestigadorData {
@@ -527,46 +528,9 @@ export default function InvestigadorPage() {
                 </CardContent>
               </Card>
 
-              {/* Publicaciones */}
-              <Card className="bg-white border-blue-100 shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader className="px-3 sm:px-6 pt-4 sm:pt-6">
-                  <CardTitle className="text-blue-900 flex items-center text-base sm:text-lg break-words">
-                    <FileText className="mr-2 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />Publicaciones
-                  </CardTitle>
-                  <CardDescription className="text-blue-600 text-xs sm:text-sm break-words">Producción científica del investigador</CardDescription>
-                </CardHeader>
-                <CardContent className="p-3 sm:p-4">
-                  <div style={{ maxHeight: 400 }} className="overflow-y-auto">
-                    {publicaciones.length === 0 ? (
-                      <div className="text-center py-6 sm:py-8 px-2">
-                        <p className="text-blue-900 font-medium mb-2 text-sm sm:text-base break-words">No hay publicaciones registradas.</p>
-                        <p className="text-xs sm:text-sm text-blue-600 break-words">Este investigador aún no ha registrado publicaciones en el sistema.</p>
-                      </div>
-                    ) : (
-                      <ul className="space-y-3">
-                        {publicaciones.map((p: Publicacion) => (
-                          <li key={p.id} className="text-xs sm:text-sm">
-                            <div className="font-medium text-blue-900 break-words">{p.titulo}</div>
-                            <div className="text-xs text-blue-600 break-words">{(p.año || 's.f.')} • {p.revista || p.institucion || '—'}</div>
-                            <div className="mt-1 flex flex-wrap gap-2">
-                              {p.archivoUrl && (
-                                <Button size="sm" variant="outline" onClick={() => window.open(p.archivoUrl, '_blank')} className="text-xs">
-                                  Ver
-                                </Button>
-                              )}
-                              {p.doi && (
-                                <Button size="sm" variant="outline" onClick={() => window.open(`https://doi.org/${p.doi}`, '_blank')} className="text-xs break-all">
-                                  DOI
-                                </Button>
-                              )}
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Publicaciones - Componente reutilizable */}
+              <PublicacionesList slug={params.slug as string} isOwner={false} showAddButton={false} />
+
             </div>
           </div>
         </div>
