@@ -154,6 +154,25 @@ export async function GET(request: NextRequest) {
     
     console.log('📌 [GET Publicaciones] Solicitadas para clerk_user_id:', clerkUserId)
 
+    // Si hay clerk_user_id, obtener los datos del investigador para buscar también por nombre y correo
+    let investigador: { nombre_completo?: string; correo?: string } | null = null
+    
+    if (clerkUserId) {
+      try {
+        const invResult = await db.query(
+          `SELECT nombre_completo, correo FROM investigadores WHERE clerk_user_id = $1 LIMIT 1`,
+          [clerkUserId]
+        )
+        const invRows = Array.isArray(invResult) ? invResult : invResult.rows
+        if (invRows && invRows.length > 0) {
+          investigador = invRows[0]
+          console.log('👤 [GET Publicaciones] Investigador encontrado:', investigador?.nombre_completo)
+        }
+      } catch (err) {
+        console.error('⚠️ Error al buscar investigador:', err)
+      }
+    }
+
     // Base query selects uploader info
     let publicacionesQuery = `
       SELECT p.id, p.titulo, p.autor, p.institucion, p.editorial, p.año_creacion AS año, p.doi,
@@ -165,9 +184,33 @@ export async function GET(request: NextRequest) {
     `
 
     const values: any[] = []
+    const whereConditions: string[] = []
+    let paramIndex = 1
+    
     if (clerkUserId) {
-      publicacionesQuery += ` WHERE p.clerk_user_id = $1`
+      // Buscar por clerk_user_id (publicaciones que subió)
+      whereConditions.push(`p.clerk_user_id = $${paramIndex}`)
       values.push(clerkUserId)
+      paramIndex++
+      
+      // Si tenemos datos del investigador, buscar también en campo autor
+      if (investigador?.correo) {
+        whereConditions.push(`LOWER(p.autor) LIKE $${paramIndex}`)
+        values.push(`%${investigador.correo.toLowerCase()}%`)
+        paramIndex++
+      }
+      
+      if (investigador?.nombre_completo) {
+        whereConditions.push(`LOWER(p.autor) LIKE $${paramIndex}`)
+        values.push(`%${investigador.nombre_completo.toLowerCase()}%`)
+        paramIndex++
+      }
+      
+      if (whereConditions.length > 0) {
+        publicacionesQuery += ` WHERE (${whereConditions.join(' OR ')})`
+      }
+      
+      console.log('🔍 [GET Publicaciones] Buscando con', whereConditions.length, 'condiciones')
     }
 
     publicacionesQuery += ` ORDER BY p.fecha_creacion DESC LIMIT 200`
@@ -186,7 +229,8 @@ export async function GET(request: NextRequest) {
           pubsRows.slice(0, 3).map((p: any) => ({ 
             id: p.id, 
             titulo: p.titulo?.substring(0, 50),
-            clerk_user_id: p.clerk_user_id 
+            clerk_user_id: p.clerk_user_id,
+            autor: p.autor?.substring(0, 50)
           }))
         )
       }
