@@ -53,77 +53,77 @@ export async function GET(
       clerk_id: inv.clerk_user_id 
     })
     
-    // Buscar publicaciones
-    // Prioridad: buscar por clerk_user_id si es válido (user_*)
-    // Si no tiene clerk_user_id válido, buscar por correo exacto en campo autor
-    let publicacionesResult
+    // Buscar publicaciones de 3 formas:
+    // 1. Por clerk_user_id (publicaciones que subió este investigador)
+    // 2. Por correo en el campo autor (publicaciones donde aparece como coautor)
+    // 3. Por nombre en el campo autor (publicaciones donde aparece como coautor)
     
     const hasClerkId = inv.clerk_user_id && inv.clerk_user_id.startsWith('user_')
     
+    console.log('🔍 [Publicaciones] Estrategia de búsqueda:', {
+      por_clerk_id: hasClerkId,
+      por_correo: !!inv.correo,
+      por_nombre: !!inv.nombre_completo
+    })
+    
+    // Construir query con múltiples condiciones
+    let whereConditions: string[] = []
+    let queryParams: any[] = []
+    let paramIndex = 1
+    
     if (hasClerkId) {
-      // Tiene Clerk ID válido: buscar publicaciones por ese campo
-      console.log('🔍 [Publicaciones] Buscando publicaciones con clerk_user_id:', inv.clerk_user_id)
-      
-      publicacionesResult = await db.query(
-        `SELECT 
-          id,
-          titulo,
-          autor,
-          institucion,
-          editorial,
-          año_creacion as anio,
-          doi,
-          resumen,
-          palabras_clave,
-          categoria,
-          tipo,
-          acceso,
-          volumen,
-          numero,
-          paginas,
-          archivo_url,
-          fecha_creacion
-        FROM publicaciones 
-        WHERE clerk_user_id = $1
-        ORDER BY año_creacion DESC, fecha_creacion DESC
-        LIMIT 50`,
-        [inv.clerk_user_id]
-      )
-    } else if (inv.correo) {
-      // No tiene Clerk ID válido pero tiene correo: buscar por correo exacto en autor
-      // Esto es más preciso que buscar por nombre completo
-      console.log('🔍 [Publicaciones] Buscando publicaciones con correo:', inv.correo)
-      
-      publicacionesResult = await db.query(
-        `SELECT 
-          id,
-          titulo,
-          autor,
-          institucion,
-          editorial,
-          año_creacion as anio,
-          doi,
-          resumen,
-          palabras_clave,
-          categoria,
-          tipo,
-          acceso,
-          volumen,
-          numero,
-          paginas,
-          archivo_url,
-          fecha_creacion
-        FROM publicaciones 
-        WHERE LOWER(autor) = LOWER($1) OR autor ILIKE '%' || $1 || '%'
-        ORDER BY año_creacion DESC, fecha_creacion DESC
-        LIMIT 50`,
-        [inv.correo]
-      )
-    } else {
-      // No tiene ni clerk_user_id ni correo válido
-      console.log('⚠️ [Publicaciones] Investigador sin clerk_user_id ni correo válido, no se cargan publicaciones')
-      publicacionesResult = { rows: [] }
+      whereConditions.push(`clerk_user_id = $${paramIndex}`)
+      queryParams.push(inv.clerk_user_id)
+      paramIndex++
     }
+    
+    if (inv.correo) {
+      whereConditions.push(`LOWER(autor) LIKE $${paramIndex}`)
+      queryParams.push(`%${inv.correo.toLowerCase()}%`)
+      paramIndex++
+    }
+    
+    if (inv.nombre_completo) {
+      whereConditions.push(`LOWER(autor) LIKE $${paramIndex}`)
+      queryParams.push(`%${inv.nombre_completo.toLowerCase()}%`)
+      paramIndex++
+    }
+    
+    if (whereConditions.length === 0) {
+      console.log('⚠️ [Publicaciones] No hay criterios de búsqueda válidos')
+      return NextResponse.json([])
+    }
+    
+    const whereClause = whereConditions.join(' OR ')
+    
+    console.log('� [Publicaciones] Query WHERE:', whereClause)
+    console.log('📝 [Publicaciones] Params:', queryParams)
+    
+    const publicacionesResult = await db.query(
+      `SELECT 
+        id,
+        titulo,
+        autor,
+        institucion,
+        editorial,
+        año_creacion as anio,
+        doi,
+        resumen,
+        palabras_clave,
+        categoria,
+        tipo,
+        acceso,
+        volumen,
+        numero,
+        paginas,
+        archivo_url,
+        fecha_creacion
+      FROM publicaciones 
+      WHERE ${whereClause}
+      ORDER BY año_creacion DESC, fecha_creacion DESC
+      LIMIT 50`,
+      queryParams
+    )
 
     const publicaciones = Array.isArray(publicacionesResult)
       ? publicacionesResult
