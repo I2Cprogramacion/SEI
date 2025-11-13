@@ -284,11 +284,11 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
-      <div className="container mx-auto py-6 px-4">
+      <div className="container mx-auto py-4 md:py-6 px-3 md:px-4 max-w-7xl">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-blue-900">Dashboard Social</h1>
-          <p className="text-blue-600">Tu red de colaboración científica</p>
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-blue-900">Dashboard Social</h1>
+          <p className="text-sm md:text-base text-blue-600">Tu red de colaboración científica</p>
         </div>
 
         {/* Mensaje de error si hubo problemas cargando datos */}
@@ -348,22 +348,22 @@ export default function DashboardPage() {
         )}
 
         {/* Layout de dos columnas: Perfil + Vista previa del CV */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 mb-6 md:mb-8">
           {/* Columna izquierda: Información del investigador (35% del ancho) */}
           <Card className="bg-white border-blue-100 shadow-md h-fit lg:col-span-4">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 pb-4">
               <div>
-                <CardTitle className="text-blue-900 flex items-center">
-                  <UserIcon className="mr-2 h-5 w-5" />
+                <CardTitle className="text-blue-900 flex items-center text-lg md:text-xl">
+                  <UserIcon className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                   Perfil del Investigador
                 </CardTitle>
-                <CardDescription className="text-blue-600">
+                <CardDescription className="text-blue-600 text-sm">
                   Información completa de tu cuenta
                 </CardDescription>
               </div>
               <Button
                 onClick={() => router.push("/dashboard/editar-perfil")}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 w-full sm:w-auto"
                 size="sm"
               >
                 <Edit className="mr-2 h-4 w-4" />
@@ -372,24 +372,24 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Foto y datos básicos */}
-              <div className="flex items-start gap-4">
-                <Avatar className="h-20 w-20 flex-shrink-0">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                <Avatar className="h-20 w-20 md:h-24 md:w-24 flex-shrink-0">
                   {investigadorData?.fotografia_url && investigadorData.fotografia_url.trim() !== "" ? (
                     <AvatarImage src={investigadorData.fotografia_url} alt={investigadorData?.nombre_completo || "Usuario"} />
                   ) : null}
-                  <AvatarFallback className="bg-blue-100 text-blue-700 text-xl">
+                  <AvatarFallback className="bg-blue-100 text-blue-700 text-xl md:text-2xl">
                     {(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== ""
                       ? investigadorData.nombre_completo
                       : user.fullName || "U").charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-xl font-bold text-blue-900 break-words">
+                <div className="flex-1 min-w-0 text-center sm:text-left w-full">
+                  <h2 className="text-lg md:text-xl font-bold text-blue-900 break-words">
                     {(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== "")
                       ? investigadorData.nombre_completo
                       : user.fullName || user.firstName || "Usuario"}
                   </h2>
-                  <p className="text-sm text-blue-600 flex items-center gap-2 mt-1">
+                  <p className="text-xs md:text-sm text-blue-600 flex items-center justify-center sm:justify-start gap-2 mt-1">
                     <Mail className="h-3.5 w-3.5 flex-shrink-0" />
                     <span className="truncate">
                       {(investigadorData?.correo && investigadorData.correo.trim() !== "")
@@ -398,7 +398,7 @@ export default function DashboardPage() {
                     </span>
                   </p>
                   {investigadorData?.telefono && investigadorData.telefono.trim() !== "" && (
-                    <p className="text-sm text-blue-600 flex items-center gap-2 mt-1">
+                    <p className="text-xs md:text-sm text-blue-600 flex items-center justify-center sm:justify-start gap-2 mt-1">
                       <Phone className="h-3.5 w-3.5 flex-shrink-0" />
                       {investigadorData.telefono}
                     </p>
@@ -615,23 +615,23 @@ export default function DashboardPage() {
           {/* Columna derecha: Vista previa del CV/Perfil Único (65% del ancho) */}
           <Card className="bg-white border-blue-100 shadow-md lg:col-span-8">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-blue-900 flex items-center">
-                  <FileText className="mr-2 h-5 w-5" />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-blue-900 flex items-center text-lg md:text-xl">
+                  <FileText className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                   Perfil Único del Investigador
                 </CardTitle>
-                <CardDescription className="text-blue-600">
+                <CardDescription className="text-blue-600 text-sm">
                   {validCvUrl ? "Documento procesado automáticamente durante el registro" : "Completa tu perfil público"}
                 </CardDescription>
               </div>
-              <div className="flex items-center gap-2 flex-wrap min-w-0 max-w-full">
+              <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
                 {/* Botón desplegable para cambiar entre PU y Dictamen */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                      className="border-blue-300 text-blue-700 hover:bg-blue-50 w-full sm:w-auto"
                       size="sm"
                     >
                       {tipoDocumento === 'PU' ? 'PU' : 'Dictamen'}
@@ -657,7 +657,7 @@ export default function DashboardPage() {
                   <Button
                     onClick={() => setGestionarCvDialogOpen(true)}
                     variant="outline"
-                    className="border-blue-300 text-blue-700 hover:bg-blue-50 max-w-full truncate min-w-0"
+                    className="border-blue-300 text-blue-700 hover:bg-blue-50 w-full sm:w-auto"
                     size="sm"
                   >
                     <Edit className="mr-2 h-4 w-4" />
@@ -935,68 +935,68 @@ export default function DashboardPage() {
         {/* Publicaciones */}
         <Card className="bg-white border-blue-100 shadow-md hover:shadow-lg transition-shadow cursor-pointer">
           <CardHeader>
-            <CardTitle className="text-blue-900 flex items-center">
-              <FileText className="mr-2 h-5 w-5" />
+            <CardTitle className="text-blue-900 flex items-center text-lg md:text-xl">
+              <FileText className="mr-2 h-4 w-4 md:h-5 md:w-5" />
               Publicaciones
             </CardTitle>
-            <CardDescription className="text-blue-600">
+            <CardDescription className="text-blue-600 text-sm">
               Gestiona tu producción científica
             </CardDescription>
           </CardHeader>
         </Card>
 
         {/* Estadísticas */}
-        <div className="mt-8">
+        <div className="mt-6 md:mt-8">
           <Card className="bg-white border-blue-100 shadow-md">
             <CardHeader>
-              <CardTitle className="text-blue-900">Resumen de Actividad</CardTitle>
-              <CardDescription className="text-blue-600">
+              <CardTitle className="text-blue-900 text-lg md:text-xl">Resumen de Actividad</CardTitle>
+              <CardDescription className="text-blue-600 text-sm">
                 Estadísticas de tu perfil de investigador
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-center">
+                <div className="p-3 md:p-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                   {isLoadingEstadisticas ? (
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+                    <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin mx-auto mb-2" />
                   ) : (
-                    <div className="text-3xl font-bold mb-1">{estadisticas.publicaciones}</div>
+                    <div className="text-2xl md:text-3xl font-bold mb-1">{estadisticas.publicaciones}</div>
                   )}
-                  <div className="text-sm opacity-90 flex items-center justify-center gap-1">
-                    <BookOpen className="h-4 w-4" />
+                  <div className="text-xs md:text-sm opacity-90 flex items-center justify-center gap-1">
+                    <BookOpen className="h-3 w-3 md:h-4 md:w-4" />
                     Publicaciones
                   </div>
                 </div>
-                <div className="p-4 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <div className="p-3 md:p-4 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                   {isLoadingEstadisticas ? (
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+                    <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin mx-auto mb-2" />
                   ) : (
-                    <div className="text-3xl font-bold mb-1">{estadisticas.proyectos}</div>
+                    <div className="text-2xl md:text-3xl font-bold mb-1">{estadisticas.proyectos}</div>
                   )}
-                  <div className="text-sm opacity-90 flex items-center justify-center gap-1">
-                    <FileText className="h-4 w-4" />
+                  <div className="text-xs md:text-sm opacity-90 flex items-center justify-center gap-1">
+                    <FileText className="h-3 w-3 md:h-4 md:w-4" />
                     Proyectos
                   </div>
                 </div>
-                <div className="p-4 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <div className="p-3 md:p-4 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                   {isLoadingEstadisticas ? (
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+                    <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin mx-auto mb-2" />
                   ) : (
-                    <div className="text-3xl font-bold mb-1">{estadisticas.conexiones}</div>
+                    <div className="text-2xl md:text-3xl font-bold mb-1">{estadisticas.conexiones}</div>
                   )}
-                  <div className="text-sm opacity-90 flex items-center justify-center gap-1">
-                    <Users className="h-4 w-4" />
+                  <div className="text-xs md:text-sm opacity-90 flex items-center justify-center gap-1">
+                    <Users className="h-3 w-3 md:h-4 md:w-4" />
                     Conexiones
                   </div>
                 </div>
-                <div className="p-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <div className="p-3 md:p-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                   {isLoadingEstadisticas ? (
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+                    <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin mx-auto mb-2" />
                   ) : (
-                    <div className="text-3xl font-bold mb-1">{estadisticas.perfilCompleto}%</div>
+                    <div className="text-2xl md:text-3xl font-bold mb-1">{estadisticas.perfilCompleto}%</div>
                   )}
-                  <div className="text-sm opacity-90 flex items-center justify-center gap-1">
-                    <BarChart3 className="h-4 w-4" />
+                  <div className="text-xs md:text-sm opacity-90 flex items-center justify-center gap-1">
+                    <BarChart3 className="h-3 w-3 md:h-4 md:w-4" />
                     Perfil Completo
                   </div>
                 </div>
@@ -1007,19 +1007,19 @@ export default function DashboardPage() {
 
 
         {/* Zona de peligro - Ocultar perfil y Eliminar cuenta */}
-        <div className="mt-8">
+        <div className="mt-6 md:mt-8">
           <Card className="bg-white border-red-200">
             <CardHeader>
-              <CardTitle className="text-red-900 flex items-center">
-                <AlertCircle className="mr-2 h-5 w-5" />
+              <CardTitle className="text-red-900 flex items-center text-lg md:text-xl">
+                <AlertCircle className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                 Zona de Peligro
               </CardTitle>
-              <CardDescription className="text-red-600">
+              <CardDescription className="text-red-600 text-sm">
                 Acciones irreversibles
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col gap-4 p-4 bg-red-50 rounded-lg border border-red-200">
+              <div className="flex flex-col gap-3 md:gap-4 p-3 md:p-4 bg-red-50 rounded-lg border border-red-200">
                 {/* Ocultar perfil solo si activo === true */}
                 {investigadorData?.activo !== false && (
                   <Button
