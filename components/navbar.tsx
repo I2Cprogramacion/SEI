@@ -24,12 +24,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
-import { Menu, User, LogOut, LayoutDashboard, Search, FileText, Building2, Users, Telescope, BookOpen } from "lucide-react"
+import { Menu, User, LogOut, LayoutDashboard, FileText, Building2, Users, Telescope, BookOpen, Search } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { useUser, useClerk } from "@clerk/nextjs"
-import { GlobalSearch } from "@/components/global-search"
 import { useCurrentPage } from "@/hooks/use-current-page"
 
 
@@ -158,42 +157,6 @@ export default function Navbar() {
             <NavigationMenu className="hidden lg:flex">
               <NavigationMenuList className="gap-1">
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-gray-700 hover:text-blue-600 font-medium">
-                    Explorar
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid gap-3 p-6 w-[500px] grid-cols-2 bg-white shadow-lg">
-                      <li className="row-span-3">
-                        <NavigationMenuLink asChild>
-                          <Link
-                            href="/explorar"
-                            className="flex h-full w-full select-none flex-col justify-end rounded-lg bg-gradient-to-br from-blue-600 to-blue-800 p-6 no-underline outline-none focus:shadow-md hover:from-blue-700 hover:to-blue-900 transition-all"
-                          >
-                            <Search className="h-8 w-8 text-white mb-2" />
-                            <div className="mb-2 text-lg font-semibold text-white">Explorar Todo</div>
-                            <p className="text-sm leading-tight text-blue-100">
-                              Descubre investigadores, proyectos e instituciones
-                            </p>
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                      <ListItem href="/investigadores" title="Investigadores" icon={<Users className="h-4 w-4" />}>
-                        Perfiles de investigadores destacados
-                      </ListItem>
-                      <ListItem href="/proyectos" title="Proyectos" icon={<Telescope className="h-4 w-4" />}>
-                        Proyectos de investigación activos
-                      </ListItem>
-                      <ListItem href="/instituciones" title="Instituciones" icon={<Building2 className="h-4 w-4" />}>
-                        Universidades y centros de investigación
-                      </ListItem>
-                      <ListItem href="/campos" title="Campos" icon={<BookOpen className="h-4 w-4" />}>
-                        Áreas de conocimiento
-                      </ListItem>
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-                
-                <NavigationMenuItem>
                   <NavigationMenuLink asChild>
                     <Link 
                       href="/investigadores" 
@@ -230,16 +193,41 @@ export default function Navbar() {
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href="/instituciones"
+                      className={cn(
+                        navigationMenuTriggerStyle(),
+                        "text-gray-700 hover:text-blue-600 font-medium",
+                        currentSection === 'instituciones' && "bg-blue-50 text-blue-700 border-blue-200"
+                      )}
+                    >
+                      Instituciones
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href="/campos"
+                      className={cn(
+                        navigationMenuTriggerStyle(),
+                        "text-gray-700 hover:text-blue-600 font-medium",
+                        currentSection === 'campos' && "bg-blue-50 text-blue-700 border-blue-200"
+                      )}
+                    >
+                      Campos
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-3">
-              {/* Global Search */}
-              <div className="hidden md:block">
-                <GlobalSearch />
-              </div>
-              
               {/* IIC Button */}
               <Button 
                 className="hidden lg:flex bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all px-4 h-10" 
