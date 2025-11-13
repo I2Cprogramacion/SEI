@@ -259,46 +259,46 @@ export default function InvestigadoresPage() {
                               ?.slice(0, 2) || "??"}
                           </AvatarFallback>
                         </Avatar>
-                        <h3 className="font-bold text-blue-900 mb-1 text-sm sm:text-base">{investigador.nombre || 'Sin nombre'}</h3>
-                        <p className="text-blue-600 text-xs sm:text-sm mb-2">
+                        <h3 className="font-bold text-blue-900 mb-1 text-sm sm:text-base break-words w-full px-2">{investigador.nombre || 'Sin nombre'}</h3>
+                        <p className="text-blue-600 text-xs sm:text-sm mb-2 break-words w-full px-2">
                           {investigador.ultimoGradoEstudios || investigador.nivel || 'Investigador'}
                         </p>
                         {investigador.area && (
-                          <AnimatedBadge variant="secondary" className="mb-2 sm:mb-3 bg-blue-50 text-blue-700 text-xs">
+                          <AnimatedBadge variant="secondary" className="mb-2 sm:mb-3 bg-blue-50 text-blue-700 text-xs break-words max-w-full">
                             {investigador.area}
                           </AnimatedBadge>
                         )}
 
                         <div className="w-full space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
                           {investigador.institucion && investigador.institucion.trim() !== '' && (
-                            <div className="flex items-center justify-center gap-1 text-blue-600">
-                              <Building className="h-3 w-3" />
-                              <span className="text-xs font-medium">{investigador.institucion}</span>
-                              <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-[10px] px-1.5 py-0 ml-1">
+                            <div className="flex items-center justify-center gap-1 text-blue-600 px-2">
+                              <Building className="h-3 w-3 flex-shrink-0" />
+                              <span className="text-xs font-medium break-words text-center">{investigador.institucion}</span>
+                              <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-[10px] px-1.5 py-0 ml-1 flex-shrink-0">
                                 Registrado
                               </Badge>
                             </div>
                           )}
                           
                           {(investigador.estadoNacimiento || investigador.entidadFederativa) && (
-                            <div className="flex items-center justify-center gap-1 text-blue-600">
-                              <MapPin className="h-3 w-3" />
-                              <span className="text-xs">{investigador.estadoNacimiento || investigador.entidadFederativa}</span>
+                            <div className="flex items-center justify-center gap-1 text-blue-600 px-2">
+                              <MapPin className="h-3 w-3 flex-shrink-0" />
+                              <span className="text-xs break-words text-center">{investigador.estadoNacimiento || investigador.entidadFederativa}</span>
                             </div>
                           )}
 
                           {investigador.telefono && (
-                            <div className="flex items-center justify-center gap-1 text-blue-600">
-                              <Phone className="h-3 w-3" />
-                              <span className="text-xs">{investigador.telefono}</span>
+                            <div className="flex items-center justify-center gap-1 text-blue-600 px-2">
+                              <Phone className="h-3 w-3 flex-shrink-0" />
+                              <span className="text-xs break-words text-center">{investigador.telefono}</span>
                             </div>
                           )}
                         </div>
 
                         {investigador.lineaInvestigacion && (
-                          <div className="w-full mt-4">
+                          <div className="w-full mt-4 px-2">
                             <div className="flex flex-wrap gap-1 justify-center">
-                              <AnimatedBadge variant="outline" interactive className="text-xs border-blue-200 text-blue-700">
+                              <AnimatedBadge variant="outline" interactive className="text-xs border-blue-200 text-blue-700 break-words max-w-full">
                                 {investigador.lineaInvestigacion}
                               </AnimatedBadge>
                             </div>
@@ -307,8 +307,8 @@ export default function InvestigadoresPage() {
                       </div>
                     </CardContent>
                     <CardFooter className="border-t border-blue-100 flex justify-center py-2 sm:py-3 px-3 sm:px-6">
-                      <div className="text-center">
-                        <p className="text-[10px] sm:text-xs text-blue-600 break-all">{investigador.email || 'Sin email'}</p>
+                      <div className="text-center w-full">
+                        <p className="text-[10px] sm:text-xs text-blue-600 break-words px-2">{investigador.email || 'Sin email'}</p>
                       </div>
                     </CardFooter>
                   </AnimatedCard>

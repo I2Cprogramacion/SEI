@@ -244,27 +244,27 @@ export default function InvestigadorPage() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
-        <div className="container mx-auto py-6 px-4 pb-24">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-blue-900">Perfil Público</h1>
-            <p className="text-blue-600">Información del investigador</p>
+        <div className="container mx-auto py-4 sm:py-6 px-3 sm:px-4 md:px-6 pb-20 sm:pb-24">
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-blue-900 break-words">Perfil Público</h1>
+            <p className="text-blue-600 text-sm sm:text-base break-words">Información del investigador</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
             {/* Sidebar izquierdo */}
             <div className="lg:col-span-4">
-              <div className="lg:sticky lg:top-6 space-y-6">
+              <div className="lg:sticky lg:top-6 space-y-4 sm:space-y-6">
                 {/* Perfil del Investigador */}
                 <Card className="bg-white border-blue-100 shadow-md">
-                  <CardHeader>
-                    <CardTitle className="text-blue-900 flex items-center">
-                      <UserIcon className="mr-2 h-5 w-5" />Perfil del Investigador
+                  <CardHeader className="px-3 sm:px-6 pt-4 sm:pt-6">
+                    <CardTitle className="text-blue-900 flex items-center text-base sm:text-lg break-words">
+                      <UserIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />Perfil del Investigador
                     </CardTitle>
-                    <CardDescription className="text-blue-600">Información del investigador</CardDescription>
+                    <CardDescription className="text-blue-600 text-xs sm:text-sm break-words">Información del investigador</CardDescription>
                   </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="flex items-start gap-4">
-                      <Avatar className="h-20 w-20 flex-shrink-0">
+                  <CardContent className="p-3 sm:p-4 md:p-6">
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <Avatar className="h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0">
                         {investigador?.fotografiaUrl && investigador.fotografiaUrl.trim() !== "" ? (
                           <AvatarImage src={investigador.fotografiaUrl} alt={investigador?.name || 'Usuario'} />
                         ) : (
@@ -275,14 +275,14 @@ export default function InvestigadorPage() {
                       </Avatar>
 
                       <div className="flex-1 min-w-0">
-                        <h2 className="text-xl font-bold text-blue-900 break-words">{investigador.name}</h2>
-                        <p className="text-sm text-blue-600 flex items-center gap-2 mt-1">
-                          <Mail className="h-3.5 w-3.5" />
+                        <h2 className="text-lg sm:text-xl font-bold text-blue-900 break-words">{investigador.name}</h2>
+                        <p className="text-xs sm:text-sm text-blue-600 flex items-center gap-2 mt-1 break-words">
+                          <Mail className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
                           {investigador.email || 'No disponible'}
                         </p>
                         {investigador.telefono && investigador.telefono.trim() !== "" && (
-                          <p className="text-sm text-blue-600 flex items-center gap-2 mt-1">
-                            <Phone className="h-3.5 w-3.5" />
+                          <p className="text-xs sm:text-sm text-blue-600 flex items-center gap-2 mt-1 break-words">
+                            <Phone className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
                             {investigador.telefono}
                           </p>
                         )}
@@ -290,50 +290,50 @@ export default function InvestigadorPage() {
                     </div>
 
                     {/* Información secundaria */}
-                    <div className="mt-3 text-sm text-slate-700 space-y-1">
+                    <div className="mt-3 text-xs sm:text-sm text-slate-700 space-y-1">
                       {investigador.fechaNacimiento && (
                         <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-slate-400" />
-                          <span className="truncate">{formatDate(investigador.fechaNacimiento)}</span>
+                          <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-slate-400 flex-shrink-0" />
+                          <span className="break-words">{formatDate(investigador.fechaNacimiento)}</span>
                         </div>
                       )}
                       {investigador.nacionalidad && (
-                        <div className="flex items-center gap-2 break-words break-all">
-                          <MapPin className="h-4 w-4 text-slate-400" />
-                          <span className="truncate">{investigador.nacionalidad}</span>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-slate-400 flex-shrink-0" />
+                          <span className="break-words">{investigador.nacionalidad}</span>
                         </div>
                       )}
                       {investigador.title && (
-                        <div className="flex items-center gap-2 break-words break-all">
-                          <GraduationCap className="h-4 w-4 text-slate-400" />
-                          <span className="truncate">{investigador.title}</span>
+                        <div className="flex items-center gap-2">
+                          <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4 text-slate-400 flex-shrink-0" />
+                          <span className="break-words">{investigador.title}</span>
                         </div>
                       )}
                       {investigador.empleoActual && (
-                        <div className="flex items-center gap-2 break-words break-all">
-                          <Briefcase className="h-4 w-4 text-slate-400" />
-                          <span className="truncate">{investigador.empleoActual}</span>
+                        <div className="flex items-center gap-2">
+                          <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 text-slate-400 flex-shrink-0" />
+                          <span className="break-words">{investigador.empleoActual}</span>
                         </div>
                       )}
                     </div>
 
                     <div className="mt-4">
                       <div className="flex flex-wrap gap-2 mb-3">
-                        {investigador.curp && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md">CURP: {investigador.curp}</span>}
-                        {investigador.rfc && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md">RFC: {investigador.rfc}</span>}
-                        {investigador.noCvu && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md">CVU: {investigador.noCvu}</span>}
+                        {investigador.curp && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md break-words">CURP: {investigador.curp}</span>}
+                        {investigador.rfc && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md break-words">RFC: {investigador.rfc}</span>}
+                        {investigador.noCvu && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md break-words">CVU: {investigador.noCvu}</span>}
                       </div>
 
-                      <div className="text-sm text-blue-600 space-y-1">
+                      <div className="text-xs sm:text-sm text-blue-600 space-y-1">
                         {investigador.institution && (
-                          <div className="flex items-center gap-2">
-                            <Building className="h-4 w-4" />
+                          <div className="flex items-center gap-2 break-words">
+                            <Building className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                             {investigador.institution}
                           </div>
                         )}
                         {investigador.departamento && (
-                          <div className="flex items-center gap-2 mt-1">
-                            <BookOpen className="h-4 w-4" />
+                          <div className="flex items-center gap-2 mt-1 break-words">
+                            <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                             {investigador.departamento}
                           </div>
                         )}
@@ -364,31 +364,31 @@ export default function InvestigadorPage() {
 
                 {/* Botones de Contacto */}
                 <Card className="bg-white border-blue-100 shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="text-blue-900 text-base">Contacto</CardTitle>
+                  <CardHeader className="px-3 sm:px-6 pt-4 sm:pt-6">
+                    <CardTitle className="text-blue-900 text-sm sm:text-base break-words">Contacto</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-2">
+                  <CardContent className="space-y-2 px-3 sm:px-6 pb-4 sm:pb-6">
                     <Button 
-                      className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
+                      className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 text-xs sm:text-sm"
                       onClick={() => window.location.href = `mailto:${investigador.email}?subject=Contacto desde SEI&body=Hola ${investigador.name},%0D%0A%0D%0A`}
                     >
-                      <Mail className="mr-2 h-4 w-4" />
+                      <Mail className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                       Enviar Email
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="w-full border-blue-300 text-blue-700 hover:bg-blue-50"
+                      className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 text-xs sm:text-sm"
                       onClick={() => setMensajeDialogOpen(true)}
                     >
-                      <MessageCircle className="mr-2 h-4 w-4" />
+                      <MessageCircle className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                       Mensaje Interno
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="w-full border-green-300 text-green-700 hover:bg-green-50"
+                      className="w-full border-green-300 text-green-700 hover:bg-green-50 text-xs sm:text-sm"
                       onClick={() => setConectarDialogOpen(true)}
                     >
-                      <UserPlus className="mr-2 h-4 w-4" />
+                      <UserPlus className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                       Conectar
                     </Button>
                   </CardContent>
@@ -397,27 +397,27 @@ export default function InvestigadorPage() {
             </div>
 
             {/* Contenido principal */}
-            <div className="lg:col-span-8 flex flex-col gap-8">
+            <div className="lg:col-span-8 flex flex-col gap-4 sm:gap-6 lg:gap-8">
               {/* Perfil Único del Investigador */}
               <Card className="bg-white border-blue-100 shadow-md">
-                <CardHeader>
-                  <div className="flex items-center justify-between w-full">
-                    <div>
-                      <CardTitle className="text-blue-900 flex items-center">
-                        <FileText className="mr-2 h-5 w-5" />Perfil Único del Investigador
+                <CardHeader className="px-3 sm:px-6 pt-4 sm:pt-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-3 sm:gap-4">
+                    <div className="min-w-0 flex-1">
+                      <CardTitle className="text-blue-900 flex items-center text-base sm:text-lg break-words">
+                        <FileText className="mr-2 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />Perfil Único del Investigador
                       </CardTitle>
-                      <CardDescription className="text-blue-600">
+                      <CardDescription className="text-blue-600 text-xs sm:text-sm break-words">
                         {(tipoDocumento === 'PU' ? validCvUrl : tipoDocumento === 'Dictamen' ? validDictamenUrl : validSniUrl) 
                           ? 'Documento disponible' 
                           : 'Documento no disponible'}
                       </CardDescription>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs sm:text-sm">
                             {tipoDocumento}
-                            <ChevronDown className="ml-2 h-4 w-4" />
+                            <ChevronDown className="ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -429,13 +429,13 @@ export default function InvestigadorPage() {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-3 sm:px-6 pb-4 sm:pb-6">
                   {tipoDocumento === 'PU' ? (
                     validCvUrl ? (
-                      <div className="w-full space-y-4">
-                        <div className="flex gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                          <Button onClick={() => window.open(validCvUrl, '_blank')} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-                            <ExternalLink className="mr-2 h-4 w-4" />Abrir PDF
+                      <div className="w-full space-y-3 sm:space-y-4">
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
+                          <Button onClick={() => window.open(validCvUrl, '_blank')} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white w-full sm:w-auto text-xs sm:text-sm">
+                            <ExternalLink className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />Abrir PDF
                           </Button>
                           <Button variant="outline" onClick={() => { 
                             const l = document.createElement('a')
@@ -444,8 +444,8 @@ export default function InvestigadorPage() {
                             document.body.appendChild(l)
                             l.click()
                             document.body.removeChild(l)
-                          }}>
-                            <Download className="mr-2 h-4 w-4" />Descargar
+                          }} className="w-full sm:w-auto text-xs sm:text-sm">
+                            <Download className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />Descargar
                           </Button>
                         </div>
                         <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200 h-[50vh] md:h-[60vh] lg:h-[70vh]">
@@ -463,10 +463,10 @@ export default function InvestigadorPage() {
                     )
                   ) : tipoDocumento === 'Dictamen' ? (
                     validDictamenUrl ? (
-                      <div className="w-full space-y-4">
-                        <div className="flex gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                          <Button onClick={() => window.open(validDictamenUrl as string, '_blank')} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-                            <ExternalLink className="mr-2 h-4 w-4" />Abrir PDF
+                      <div className="w-full space-y-3 sm:space-y-4">
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
+                          <Button onClick={() => window.open(validDictamenUrl as string, '_blank')} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white w-full sm:w-auto text-xs sm:text-sm">
+                            <ExternalLink className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />Abrir PDF
                           </Button>
                           <Button variant="outline" onClick={() => { 
                             const l = document.createElement('a')
@@ -475,8 +475,8 @@ export default function InvestigadorPage() {
                             document.body.appendChild(l)
                             l.click()
                             document.body.removeChild(l)
-                          }}>
-                            <Download className="mr-2 h-4 w-4" />Descargar
+                          }} className="w-full sm:w-auto text-xs sm:text-sm">
+                            <Download className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />Descargar
                           </Button>
                         </div>
                         <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200 h-[50vh] md:h-[60vh] lg:h-[70vh]">
@@ -494,10 +494,10 @@ export default function InvestigadorPage() {
                     )
                   ) : (
                     validSniUrl ? (
-                      <div className="w-full space-y-4">
-                        <div className="flex gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                          <Button onClick={() => window.open(validSniUrl as string, '_blank')} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-                            <ExternalLink className="mr-2 h-4 w-4" />Abrir PDF
+                      <div className="w-full space-y-3 sm:space-y-4">
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
+                          <Button onClick={() => window.open(validSniUrl as string, '_blank')} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white w-full sm:w-auto text-xs sm:text-sm">
+                            <ExternalLink className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />Abrir PDF
                           </Button>
                           <Button variant="outline" onClick={() => { 
                             const l = document.createElement('a')
@@ -506,8 +506,8 @@ export default function InvestigadorPage() {
                             document.body.appendChild(l)
                             l.click()
                             document.body.removeChild(l)
-                          }}>
-                            <Download className="mr-2 h-4 w-4" />Descargar
+                          }} className="w-full sm:w-auto text-xs sm:text-sm">
+                            <Download className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />Descargar
                           </Button>
                         </div>
                         <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200 h-[50vh] md:h-[60vh] lg:h-[70vh]">
@@ -529,33 +529,33 @@ export default function InvestigadorPage() {
 
               {/* Publicaciones */}
               <Card className="bg-white border-blue-100 shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-blue-900 flex items-center">
-                    <FileText className="mr-2 h-5 w-5" />Publicaciones
+                <CardHeader className="px-3 sm:px-6 pt-4 sm:pt-6">
+                  <CardTitle className="text-blue-900 flex items-center text-base sm:text-lg break-words">
+                    <FileText className="mr-2 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />Publicaciones
                   </CardTitle>
-                  <CardDescription className="text-blue-600">Producción científica del investigador</CardDescription>
+                  <CardDescription className="text-blue-600 text-xs sm:text-sm break-words">Producción científica del investigador</CardDescription>
                 </CardHeader>
-                <CardContent className="p-4">
+                <CardContent className="p-3 sm:p-4">
                   <div style={{ maxHeight: 400 }} className="overflow-y-auto">
                     {publicaciones.length === 0 ? (
-                      <div className="text-center py-8">
-                        <p className="text-blue-900 font-medium mb-2">No hay publicaciones registradas.</p>
-                        <p className="text-sm text-blue-600">Este investigador aún no ha registrado publicaciones en el sistema.</p>
+                      <div className="text-center py-6 sm:py-8 px-2">
+                        <p className="text-blue-900 font-medium mb-2 text-sm sm:text-base break-words">No hay publicaciones registradas.</p>
+                        <p className="text-xs sm:text-sm text-blue-600 break-words">Este investigador aún no ha registrado publicaciones en el sistema.</p>
                       </div>
                     ) : (
                       <ul className="space-y-3">
                         {publicaciones.map((p: Publicacion) => (
-                          <li key={p.id} className="text-sm">
-                            <div className="font-medium text-blue-900 truncate">{p.titulo}</div>
-                            <div className="text-xs text-blue-600">{(p.año || 's.f.')} • {p.revista || p.institucion || '—'}</div>
-                            <div className="mt-1 flex gap-2">
+                          <li key={p.id} className="text-xs sm:text-sm">
+                            <div className="font-medium text-blue-900 break-words">{p.titulo}</div>
+                            <div className="text-xs text-blue-600 break-words">{(p.año || 's.f.')} • {p.revista || p.institucion || '—'}</div>
+                            <div className="mt-1 flex flex-wrap gap-2">
                               {p.archivoUrl && (
-                                <Button size="sm" variant="outline" onClick={() => window.open(p.archivoUrl, '_blank')}>
+                                <Button size="sm" variant="outline" onClick={() => window.open(p.archivoUrl, '_blank')} className="text-xs">
                                   Ver
                                 </Button>
                               )}
                               {p.doi && (
-                                <Button size="sm" variant="outline" onClick={() => window.open(`https://doi.org/${p.doi}`, '_blank')}>
+                                <Button size="sm" variant="outline" onClick={() => window.open(`https://doi.org/${p.doi}`, '_blank')} className="text-xs break-all">
                                   DOI
                                 </Button>
                               )}

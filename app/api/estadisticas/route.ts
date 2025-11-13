@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
 
     // Contar proyectos
     let proyectosCount = 0
+    
     try {
       const proyectosQuery = `SELECT COUNT(*) as count FROM proyectos`
       const proyectosResult = await db.query(proyectosQuery)

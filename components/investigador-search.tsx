@@ -39,14 +39,28 @@ export function InvestigadorSearch({
   const [error, setError] = useState("")
   const debounceRef = useRef<NodeJS.Timeout>()
 
+  // Cargar investigadores cuando se abre el popover
+  useEffect(() => {
+    if (open) {
+      // Cargar todos los investigadores cuando se abre
+      if (!searchTerm || searchTerm.length < 2) {
+        searchInvestigadores("")
+      } else {
+        searchInvestigadores(searchTerm)
+      }
+    } else {
+      // Limpiar cuando se cierra
+      setInvestigadores([])
+    }
+  }, [open])
+
   // Debounce search
   useEffect(() => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
     }
 
-    if (searchTerm.length < 2) {
-      setInvestigadores([])
+    if (!open) {
       return
     }
 
@@ -59,14 +73,16 @@ export function InvestigadorSearch({
         clearTimeout(debounceRef.current)
       }
     }
-  }, [searchTerm])
+  }, [searchTerm, open])
 
   const searchInvestigadores = async (term: string) => {
     setIsLoading(true)
     setError("")
     
     try {
-      const response = await fetch(`/api/investigadores/search?q=${encodeURIComponent(term)}&limit=10`)
+      // Si el término está vacío o tiene menos de 2 caracteres, buscar todos (sin filtro)
+      const queryParam = term.length >= 2 ? term : ""
+      const response = await fetch(`/api/investigadores/search?q=${encodeURIComponent(queryParam)}&limit=20`)
       const data = await response.json()
       
       if (response.ok) {
@@ -181,18 +197,30 @@ export function InvestigadorSearch({
                 </div>
               )}
               
-              {!isLoading && !error && searchTerm.length < 2 && (
-                <div className="p-4 text-center text-sm text-muted-foreground">
-                  Escribe al menos 2 caracteres para buscar
-                </div>
+              {!isLoading && !error && investigadores.length === 0 && searchTerm.length >= 2 && (
+                <CommandEmpty>
+                  <div className="py-4">
+                    <p className="text-sm text-muted-foreground mb-2">No se encontraron investigadores</p>
+                    <p className="text-xs text-muted-foreground">Puedes escribir el nombre manualmente</p>
+                  </div>
+                </CommandEmpty>
               )}
               
-              {!isLoading && !error && searchTerm.length >= 2 && investigadores.length === 0 && (
-                <CommandEmpty>No se encontraron investigadores</CommandEmpty>
+              {!isLoading && !error && investigadores.length === 0 && searchTerm.length < 2 && (
+                <div className="p-4 text-center text-sm text-muted-foreground">
+                  <p className="mb-2">Escribe para buscar o selecciona de la lista</p>
+                  <p className="text-xs">Mostrando todos los investigadores disponibles</p>
+                </div>
               )}
               
               {investigadores.length > 0 && (
                 <CommandGroup>
+                  <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                    {searchTerm.length >= 2 
+                      ? `${investigadores.length} resultado${investigadores.length !== 1 ? 's' : ''} encontrado${investigadores.length !== 1 ? 's' : ''}`
+                      : `${investigadores.length} investigador${investigadores.length !== 1 ? 'es' : ''} disponible${investigadores.length !== 1 ? 's' : ''}`
+                    }
+                  </div>
                   {investigadores.map((investigador) => (
                     <CommandItem
                       key={investigador.id}

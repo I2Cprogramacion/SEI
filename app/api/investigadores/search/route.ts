@@ -12,15 +12,38 @@ export async function GET(request: NextRequest) {
 
     const db = await getDatabase()
     let investigadores: any[] = [];
-    if (!query || query.length < 2) {
-      // Si no hay query, mostrar todos los investigadores
-      investigadores = await db.obtenerInvestigadores();
-    } else {
-      // Buscar investigadores por nombre, email o institución
-      investigadores = await db.buscarInvestigadores({
-        termino: query,
-        limite: limit
-      });
+    
+    try {
+      if (!query || query.length < 2) {
+        // Si no hay query, mostrar todos los investigadores (limitados)
+        const allInvestigadores = await db.obtenerInvestigadores();
+        console.log(`[SEARCH API] Total investigadores obtenidos: ${allInvestigadores.length}`)
+        
+        // Filtrar solo los que tienen nombre_completo (más permisivo con activo)
+        investigadores = allInvestigadores
+          .filter((inv: any) => {
+            const tieneNombre = inv.nombre_completo && inv.nombre_completo.trim() !== ''
+            // Solo excluir si activo es explícitamente false, permitir undefined/null/true
+            const estaActivo = inv.activo !== false
+            return tieneNombre && estaActivo
+          })
+          .slice(0, limit || 50) // Limitar a 50 por defecto si no hay query
+        
+        console.log(`[SEARCH API] Investigadores después del filtro: ${investigadores.length}`)
+      } else {
+        // Buscar investigadores por nombre, email o institución
+        investigadores = await db.buscarInvestigadores({
+          termino: query,
+          limite: limit
+        });
+        console.log(`[SEARCH API] Búsqueda con término "${query}": ${investigadores.length} resultados`)
+      }
+    } catch (error) {
+      console.error("Error en búsqueda de investigadores:", error)
+      return NextResponse.json(
+        { error: "Error al buscar investigadores", detalles: error instanceof Error ? error.message : String(error) },
+        { status: 500 }
+      )
     }
 
     // Formatear respuesta

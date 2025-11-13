@@ -90,12 +90,12 @@ export default function ExplorarPage() {
   }, [])
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="space-y-8">
+    <div className="container mx-auto py-4 sm:py-6 md:py-8 px-3 sm:px-4 md:px-6">
+      <div className="space-y-6 sm:space-y-8">
         {/* Hero Section */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-blue-900">Explora la Investigación en Chihuahua</h1>
-          <p className="text-xl text-blue-600 max-w-3xl mx-auto">
+        <div className="text-center space-y-3 sm:space-y-4">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-blue-900 px-2 break-words">Explora la Investigación en Chihuahua</h1>
+          <p className="text-base sm:text-lg md:text-xl text-blue-600 max-w-3xl mx-auto px-2 break-words">
             Descubre investigadores, proyectos, publicaciones e instituciones que están impulsando la ciencia y
             tecnología en el estado
           </p>
@@ -103,53 +103,53 @@ export default function ExplorarPage() {
 
 
         {/* Estadísticas generales */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           <Card className="glass-effect card-hover text-center">
-            <CardContent className="pt-6">
-              <Users className="h-8 w-8 mx-auto text-blue-600 mb-2" />
-              <div className="text-2xl font-bold text-blue-900">{loading ? "..." : estadisticas.investigadores}</div>
-              <p className="text-sm text-blue-600">Investigadores</p>
+            <CardContent className="pt-4 sm:pt-6 px-2 sm:px-4">
+              <Users className="h-6 w-6 sm:h-8 sm:w-8 mx-auto text-blue-600 mb-2" />
+              <div className="text-xl sm:text-2xl font-bold text-blue-900 break-words">{loading ? "..." : estadisticas.investigadores}</div>
+              <p className="text-xs sm:text-sm text-blue-600 break-words">Investigadores</p>
             </CardContent>
           </Card>
           <Card className="glass-effect card-hover text-center">
-            <CardContent className="pt-6">
-              <FileText className="h-8 w-8 mx-auto text-blue-600 mb-2" />
-              <div className="text-2xl font-bold text-blue-900">{loading ? "..." : estadisticas.proyectos}</div>
-              <p className="text-sm text-blue-600">Proyectos</p>
+            <CardContent className="pt-4 sm:pt-6 px-2 sm:px-4">
+              <FileText className="h-6 w-6 sm:h-8 sm:w-8 mx-auto text-blue-600 mb-2" />
+              <div className="text-xl sm:text-2xl font-bold text-blue-900 break-words">{loading ? "..." : estadisticas.proyectos}</div>
+              <p className="text-xs sm:text-sm text-blue-600 break-words">Proyectos</p>
             </CardContent>
           </Card>
           <Card className="glass-effect card-hover text-center">
-            <CardContent className="pt-6">
-              <Award className="h-8 w-8 mx-auto text-blue-600 mb-2" />
-              <div className="text-2xl font-bold text-blue-900">{loading ? "..." : estadisticas.publicaciones}</div>
-              <p className="text-sm text-blue-600">Publicaciones</p>
+            <CardContent className="pt-4 sm:pt-6 px-2 sm:px-4">
+              <Award className="h-6 w-6 sm:h-8 sm:w-8 mx-auto text-blue-600 mb-2" />
+              <div className="text-xl sm:text-2xl font-bold text-blue-900 break-words">{loading ? "..." : estadisticas.publicaciones}</div>
+              <p className="text-xs sm:text-sm text-blue-600 break-words">Publicaciones</p>
             </CardContent>
           </Card>
           <Card className="glass-effect card-hover text-center">
-            <CardContent className="pt-6">
-              <Building className="h-8 w-8 mx-auto text-blue-600 mb-2" />
-              <div className="text-2xl font-bold text-blue-900">{loading ? "..." : estadisticas.instituciones}</div>
-              <p className="text-sm text-blue-600">Instituciones</p>
+            <CardContent className="pt-4 sm:pt-6 px-2 sm:px-4">
+              <Building className="h-6 w-6 sm:h-8 sm:w-8 mx-auto text-blue-600 mb-2" />
+              <div className="text-xl sm:text-2xl font-bold text-blue-900 break-words">{loading ? "..." : estadisticas.instituciones}</div>
+              <p className="text-xs sm:text-sm text-blue-600 break-words">Instituciones</p>
             </CardContent>
           </Card>
           <Card className="glass-effect card-hover text-center">
-            <CardContent className="pt-6">
-              <Globe className="h-8 w-8 mx-auto text-blue-600 mb-2" />
-              <div className="text-2xl font-bold text-blue-900">{loading ? "..." : estadisticas.colaboraciones}</div>
-              <p className="text-sm text-blue-600">Colaboraciones</p>
+            <CardContent className="pt-4 sm:pt-6 px-2 sm:px-4">
+              <Globe className="h-6 w-6 sm:h-8 sm:w-8 mx-auto text-blue-600 mb-2" />
+              <div className="text-xl sm:text-2xl font-bold text-blue-900 break-words">{loading ? "..." : estadisticas.colaboraciones}</div>
+              <p className="text-xs sm:text-sm text-blue-600 break-words">Colaboraciones</p>
             </CardContent>
           </Card>
           <Card className="glass-effect card-hover text-center">
-            <CardContent className="pt-6">
-              <GraduationCap className="h-8 w-8 mx-auto text-blue-600 mb-2" />
-              <div className="text-2xl font-bold text-blue-900">{loading ? "..." : estadisticas.areas}</div>
-              <p className="text-sm text-blue-600">Áreas</p>
+            <CardContent className="pt-4 sm:pt-6 px-2 sm:px-4">
+              <GraduationCap className="h-6 w-6 sm:h-8 sm:w-8 mx-auto text-blue-600 mb-2" />
+              <div className="text-xl sm:text-2xl font-bold text-blue-900 break-words">{loading ? "..." : estadisticas.areas}</div>
+              <p className="text-xs sm:text-sm text-blue-600 break-words">Áreas</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Navegación rápida */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <Link href="/investigadores">
             <Card className="glass-effect card-hover cursor-pointer">
               <CardHeader className="text-center">
@@ -193,10 +193,10 @@ export default function ExplorarPage() {
         </div>
 
         {/* Áreas de investigación populares */}
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-blue-900">Áreas de Investigación Populares</h2>
-            <Button variant="ghost" asChild className="text-blue-700 hover:bg-blue-50">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 px-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-blue-900 break-words">Áreas de Investigación Populares</h2>
+            <Button variant="ghost" asChild className="text-blue-700 hover:bg-blue-50 w-full sm:w-auto">
               <Link href="/campos">Ver todas</Link>
             </Button>
           </div>
@@ -219,19 +219,19 @@ export default function ExplorarPage() {
               {areasPopulares.map((area, index) => (
                 <Link key={index} href={`/campos/${area.nombre.toLowerCase().replace(/\s+/g, "-")}`}>
                   <Card className="glass-effect card-hover cursor-pointer">
-                    <CardContent className="pt-6">
-                      <div className="flex justify-between items-start mb-3">
-                        <Badge className={area.color}>{area.nombre}</Badge>
-                        <TrendingUp className="h-4 w-4 text-blue-500" />
+                    <CardContent className="pt-4 sm:pt-6 px-3 sm:px-4">
+                      <div className="flex justify-between items-start mb-3 gap-2">
+                        <Badge className={`${area.color} break-words text-xs sm:text-sm`}>{area.nombre}</Badge>
+                        <TrendingUp className="h-4 w-4 text-blue-500 flex-shrink-0" />
                       </div>
                       <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-blue-600">Investigadores:</span>
-                          <span className="font-medium text-blue-900">{area.investigadores}</span>
+                        <div className="flex justify-between text-xs sm:text-sm">
+                          <span className="text-blue-600 break-words">Investigadores:</span>
+                          <span className="font-medium text-blue-900 ml-2">{area.investigadores}</span>
                         </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-blue-600">Proyectos:</span>
-                          <span className="font-medium text-blue-900">{area.proyectos}</span>
+                        <div className="flex justify-between text-xs sm:text-sm">
+                          <span className="text-blue-600 break-words">Proyectos:</span>
+                          <span className="font-medium text-blue-900 ml-2">{area.proyectos}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -250,10 +250,10 @@ export default function ExplorarPage() {
         </div>
 
         {/* Instituciones destacadas */}
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-blue-900">Instituciones Destacadas</h2>
-            <Button variant="ghost" asChild className="text-blue-700 hover:bg-blue-50">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 px-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-blue-900 break-words">Instituciones Destacadas</h2>
+            <Button variant="ghost" asChild className="text-blue-700 hover:bg-blue-50 w-full sm:w-auto">
               <Link href="/instituciones">Ver todas</Link>
             </Button>
           </div>
@@ -284,18 +284,18 @@ export default function ExplorarPage() {
               {institucionesDestacadas.map((institucion, index) => (
                 <Link key={index} href={`/instituciones/${institucion.nombre.toLowerCase().replace(/\s+/g, "-")}`}>
                   <Card className="glass-effect card-hover cursor-pointer">
-                    <CardHeader>
-                      <CardTitle className="text-blue-900">{institucion.nombre}</CardTitle>
-                      <CardDescription className="text-blue-600">
+                    <CardHeader className="px-3 sm:px-6 pt-4 sm:pt-6">
+                      <CardTitle className="text-blue-900 text-base sm:text-lg break-words">{institucion.nombre}</CardTitle>
+                      <CardDescription className="text-blue-600 text-xs sm:text-sm break-words">
                         {institucion.investigadores} investigadores • {institucion.proyectos} proyectos
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="px-3 sm:px-6 pb-4 sm:pb-6">
                       <div className="space-y-2">
-                        <p className="text-sm font-medium text-blue-900">Áreas principales:</p>
+                        <p className="text-xs sm:text-sm font-medium text-blue-900">Áreas principales:</p>
                         <div className="flex flex-wrap gap-2">
                           {institucion.areas.map((area, areaIndex) => (
-                            <Badge key={areaIndex} variant="secondary" className="bg-blue-50 text-blue-700">
+                            <Badge key={areaIndex} variant="secondary" className="bg-blue-50 text-blue-700 text-xs break-words">
                               {area}
                             </Badge>
                           ))}

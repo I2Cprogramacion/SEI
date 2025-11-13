@@ -197,43 +197,43 @@ export default function DashboardPage() {
     <ErrorBoundary>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       {/* add bottom padding to avoid sticky overlap with footer */}
-      <div className="container mx-auto py-6 px-4 pb-24">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-blue-900">Dashboard Social</h1>
-          <p className="text-blue-600">Tu red de colaboración científica</p>
+      <div className="container mx-auto py-4 sm:py-6 px-3 sm:px-4 md:px-6 pb-20 sm:pb-24">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-blue-900 break-words">Dashboard Social</h1>
+          <p className="text-blue-600 text-sm sm:text-base break-words">Tu red de colaboración científica</p>
         </div>
 
         {investigadorData && !perfilCompleto && (
-          <Card className="mb-6 bg-amber-50 border-amber-200">
-            <CardContent className="pt-6">
+          <Card className="mb-4 sm:mb-6 bg-amber-50 border-amber-200">
+            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-4 md:px-6">
               <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
-                <div>
-                  <h3 className="font-semibold text-amber-900">Perfil incompleto</h3>
-                  <p className="text-sm text-amber-700 mt-1">Faltan datos clave en tu perfil. Completa tu información para aprovechar todas las funcionalidades.</p>
+                <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-amber-900 text-sm sm:text-base break-words">Perfil incompleto</h3>
+                  <p className="text-xs sm:text-sm text-amber-700 mt-1 break-words">Faltan datos clave en tu perfil. Completa tu información para aprovechar todas las funcionalidades.</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
           <div className="lg:col-span-4">
-            <div className="lg:sticky lg:top-6 space-y-6">
+            <div className="lg:sticky lg:top-6 space-y-4 sm:space-y-6">
               {/* Perfil del Investigador (diseño inspirado en el ejemplo proporcionado) */}
               <Card className="bg-white border-blue-100 shadow-md">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <div>
-                    <CardTitle className="text-blue-900 flex items-center"><UserIcon className="mr-2 h-5 w-5" />Perfil del Investigador</CardTitle>
-                    <CardDescription className="text-blue-600">Información de tu cuenta</CardDescription>
+                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2 gap-3 px-3 sm:px-6 pt-4 sm:pt-6">
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="text-blue-900 flex items-center text-base sm:text-lg break-words"><UserIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />Perfil del Investigador</CardTitle>
+                    <CardDescription className="text-blue-600 text-xs sm:text-sm break-words">Información de tu cuenta</CardDescription>
                   </div>
-                  <Button onClick={() => router.push('/dashboard/editar-perfil')} size="sm" className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-                    <Edit className="mr-2 h-4 w-4" />Editar
+                  <Button onClick={() => router.push('/dashboard/editar-perfil')} size="sm" className="bg-gradient-to-r from-blue-600 to-blue-700 text-white w-full sm:w-auto text-xs sm:text-sm">
+                    <Edit className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />Editar
                   </Button>
                 </CardHeader>
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <Avatar className="h-20 w-20 flex-shrink-0">
+                <CardContent className="p-3 sm:p-4 md:p-6">
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <Avatar className="h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0">
                       {investigadorData?.fotografia_url && investigadorData.fotografia_url.trim() !== "" ? (
                         <AvatarImage src={investigadorData.fotografia_url} alt={investigadorData?.nombre_completo || 'Usuario'} />
                       ) : (
@@ -244,53 +244,53 @@ export default function DashboardPage() {
                     </Avatar>
 
                     <div className="flex-1 min-w-0">
-                      <h2 className="text-xl font-bold text-blue-900 break-words">{(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== "") ? investigadorData.nombre_completo : user.fullName || user.firstName || 'Usuario'}</h2>
-                      <p className="text-sm text-blue-600 flex items-center gap-2 mt-1"><Mail className="h-3.5 w-3.5" />{(investigadorData?.correo && investigadorData.correo.trim() !== "") ? investigadorData.correo : user.primaryEmailAddress?.emailAddress || 'No disponible'}</p>
+                      <h2 className="text-lg sm:text-xl font-bold text-blue-900 break-words">{(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== "") ? investigadorData.nombre_completo : user.fullName || user.firstName || 'Usuario'}</h2>
+                      <p className="text-xs sm:text-sm text-blue-600 flex items-center gap-2 mt-1 break-words"><Mail className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />{(investigadorData?.correo && investigadorData.correo.trim() !== "") ? investigadorData.correo : user.primaryEmailAddress?.emailAddress || 'No disponible'}</p>
                       {investigadorData?.telefono && investigadorData.telefono.trim() !== "" && (
-                        <p className="text-sm text-blue-600 flex items-center gap-2 mt-1"><Phone className="h-3.5 w-3.5" />{investigadorData.telefono}</p>
+                        <p className="text-xs sm:text-sm text-blue-600 flex items-center gap-2 mt-1 break-words"><Phone className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />{investigadorData.telefono}</p>
                       )}
                     </div>
                   </div>
 
                   {/* Información secundaria: mostrar debajo de la foto/nombre y encima de los chips */}
-                  <div className="mt-3 text-sm text-slate-700 space-y-1">
+                  <div className="mt-3 text-xs sm:text-sm text-slate-700 space-y-1">
                     {investigadorData?.fecha_nacimiento && (
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-slate-400" />
-                        <span className="truncate">{formatDate(investigadorData.fecha_nacimiento)}</span>
+                        <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-slate-400 flex-shrink-0" />
+                        <span className="break-words">{formatDate(investigadorData.fecha_nacimiento)}</span>
                       </div>
                     )}
                     {investigadorData?.nacionalidad && (
-                      <div className="flex items-center gap-2 break-words break-all">
-                        <MapPin className="h-4 w-4 text-slate-400" />
-                        <span className="truncate">{investigadorData.nacionalidad}</span>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-slate-400 flex-shrink-0" />
+                        <span className="break-words">{investigadorData.nacionalidad}</span>
                       </div>
                     )}
                     {investigadorData?.ultimo_grado_estudios && (
-                      <div className="flex items-center gap-2 break-words break-all">
-                        <GraduationCap className="h-4 w-4 text-slate-400" />
-                        <span className="truncate">{investigadorData.ultimo_grado_estudios}</span>
+                      <div className="flex items-center gap-2">
+                        <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4 text-slate-400 flex-shrink-0" />
+                        <span className="break-words">{investigadorData.ultimo_grado_estudios}</span>
                       </div>
                     )}
                     {investigadorData?.empleo_actual && (
-                      <div className="flex items-center gap-2 break-words break-all">
-                        <Briefcase className="h-4 w-4 text-slate-400" />
-                        <span className="truncate">{investigadorData.empleo_actual}</span>
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 text-slate-400 flex-shrink-0" />
+                        <span className="break-words">{investigadorData.empleo_actual}</span>
                       </div>
                     )}
                   </div>
 
                   <div className="mt-4">
                     <div className="flex flex-wrap gap-2 mb-3">
-                      {investigadorData?.curp && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md">CURP: {investigadorData.curp}</span>}
-                      {investigadorData?.rfc && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md">RFC: {investigadorData.rfc}</span>}
-                      {investigadorData?.no_cvu && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md">CVU: {investigadorData.no_cvu}</span>}
+                      {investigadorData?.curp && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md break-words">CURP: {investigadorData.curp}</span>}
+                      {investigadorData?.rfc && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md break-words">RFC: {investigadorData.rfc}</span>}
+                      {investigadorData?.no_cvu && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md break-words">CVU: {investigadorData.no_cvu}</span>}
                     </div>
 
-                    <div className="text-sm text-blue-600 space-y-1">
-                      {investigadorData?.institucion && <div className="flex items-center gap-2"><Building className="h-4 w-4" />{investigadorData.institucion}</div>}
-                      {investigadorData?.dependencia && <div className="flex items-center gap-2 mt-1"><Users className="h-4 w-4" />{investigadorData.dependencia}</div>}
-                      {investigadorData?.departamento && <div className="flex items-center gap-2 mt-1"><BookOpen className="h-4 w-4" />{investigadorData.departamento}</div>}
+                    <div className="text-xs sm:text-sm text-blue-600 space-y-1">
+                      {investigadorData?.institucion && <div className="flex items-center gap-2 break-words"><Building className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />{investigadorData.institucion}</div>}
+                      {investigadorData?.dependencia && <div className="flex items-center gap-2 mt-1 break-words"><Users className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />{investigadorData.dependencia}</div>}
+                      {investigadorData?.departamento && <div className="flex items-center gap-2 mt-1 break-words"><BookOpen className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />{investigadorData.departamento}</div>}
 
                       {investigadorData?.linea_investigacion && Array.isArray(investigadorData.linea_investigacion) && (
                         <div className="mt-6 pt-3 border-t border-blue-50">
@@ -319,22 +319,22 @@ export default function DashboardPage() {
 
               {/* Zona de Peligro */}
               <Card className="bg-white border-red-200">
-                <CardHeader className="px-6 pt-6">
-                  <CardTitle className="text-red-900 flex items-center"><AlertCircle className="mr-2 h-5 w-5" />Zona de Peligro</CardTitle>
-                  <CardDescription className="text-red-600 text-sm">Acciones irreversibles</CardDescription>
+                <CardHeader className="px-3 sm:px-6 pt-4 sm:pt-6">
+                  <CardTitle className="text-red-900 flex items-center text-base sm:text-lg break-words"><AlertCircle className="mr-2 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />Zona de Peligro</CardTitle>
+                  <CardDescription className="text-red-600 text-xs sm:text-sm break-words">Acciones irreversibles</CardDescription>
                 </CardHeader>
-                <CardContent className="p-6">
-                  <div className="flex flex-col gap-4 bg-red-50 rounded-md border border-red-200 p-4">
+                <CardContent className="p-3 sm:p-4 md:p-6">
+                  <div className="flex flex-col gap-4 bg-red-50 rounded-md border border-red-200 p-3 sm:p-4">
                     {investigadorData?.activo !== false && (
-                      <Button variant="outline" className="w-full border border-red-400 text-red-700 hover:bg-red-100">Ocultar perfil</Button>
+                      <Button variant="outline" className="w-full border border-red-400 text-red-700 hover:bg-red-100 text-xs sm:text-sm">Ocultar perfil</Button>
                     )}
-                      <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-red-900">Eliminar Cuenta</h3>
-                        <p className="text-sm text-red-700 mt-1">Esta acción eliminará permanentemente tu cuenta y datos. Esta acción no se puede deshacer.</p>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-red-900 text-sm sm:text-base break-words">Eliminar Cuenta</h3>
+                        <p className="text-xs sm:text-sm text-red-700 mt-1 break-words">Esta acción eliminará permanentemente tu cuenta y datos. Esta acción no se puede deshacer.</p>
                       </div>
                       {/* Open the confirmation dialog instead of calling undefined handler */}
-                      <Button variant="destructive" className="bg-red-600 hover:bg-red-700 text-white" disabled={isDeletingAccount} onClick={() => setOpenDeleteDialog(true)}>{isDeletingAccount ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Eliminando...</> : <><Trash2 className="mr-2 h-4 w-4" />Eliminar Cuenta</>}</Button>
+                      <Button variant="destructive" className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto text-xs sm:text-sm" disabled={isDeletingAccount} onClick={() => setOpenDeleteDialog(true)}>{isDeletingAccount ? <><Loader2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />Eliminando...</> : <><Trash2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />Eliminar Cuenta</>}</Button>
                     </div>
                   </div>
                 </CardContent>

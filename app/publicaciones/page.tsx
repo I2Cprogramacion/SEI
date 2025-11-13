@@ -790,14 +790,14 @@ export default function PublicacionesPage() {
 
         {/* Resultados */}
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <p className="text-blue-600">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+            <p className="text-blue-600 text-sm sm:text-base break-words">
               {loading
                 ? "Cargando..."
                 : `${filteredPublicaciones.length} publicación${filteredPublicaciones.length !== 1 ? "es" : ""} encontrada${filteredPublicaciones.length !== 1 ? "s" : ""}`}
             </p>
-            <AnimatedButton variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent">
-              <Filter className="mr-2 h-4 w-4" />
+            <AnimatedButton variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent w-full sm:w-auto text-xs sm:text-sm">
+              <Filter className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
               Filtros avanzados
             </AnimatedButton>
           </div>
@@ -825,17 +825,17 @@ export default function PublicacionesPage() {
           ) : filteredPublicaciones.length > 0 ? (
             filteredPublicaciones.map((publicacion, index) => (
               <AnimatedCard key={publicacion.id} className="bg-white border-blue-100" delay={index * 100}>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge className="bg-blue-700 text-white">{publicacion.categoria}</Badge>
-                        <Badge variant="outline" className="border-blue-200 text-blue-700">
+                <CardHeader className="px-3 sm:px-6 pt-4 sm:pt-6">
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <Badge className="bg-blue-700 text-white text-xs break-words">{publicacion.categoria}</Badge>
+                        <Badge variant="outline" className="border-blue-200 text-blue-700 text-xs break-words">
                           {publicacion.tipo}
                         </Badge>
                         <Badge
                           variant="outline"
-                          className={`${
+                          className={`text-xs break-words ${
                             publicacion.acceso === "Abierto"
                               ? "border-green-200 text-green-700 bg-green-50"
                               : "border-amber-200 text-amber-700 bg-amber-50"
@@ -844,53 +844,53 @@ export default function PublicacionesPage() {
                           {publicacion.acceso === "Abierto" ? "Acceso abierto" : "Acceso restringido"}
                         </Badge>
                       </div>
-                      <CardTitle className="text-xl text-blue-900 mb-2">{publicacion.titulo}</CardTitle>
-                      <CardDescription className="text-blue-600">
+                      <CardTitle className="text-lg sm:text-xl text-blue-900 mb-2 break-words">{publicacion.titulo}</CardTitle>
+                      <CardDescription className="text-blue-600 text-xs sm:text-sm">
                         <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <User className="h-4 w-4" />
-                            <span>{publicacion.autores.join(", ")}</span>
+                          <div className="flex items-center gap-2 break-words">
+                            <User className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                            <span className="break-words">{publicacion.autores.join(", ")}</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4" />
-                            <span>{publicacion.revista}</span>
+                          <div className="flex items-center gap-2 break-words">
+                            <FileText className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                            <span className="break-words">{publicacion.revista}</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            <span>
+                          <div className="flex items-center gap-2 break-words">
+                            <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                            <span className="break-words">
                               {publicacion.año}
                               {publicacion.volumen && `, Vol. ${publicacion.volumen}`}
                               {publicacion.numero && `(${publicacion.numero})`}
                               {publicacion.paginas && `, pp. ${publicacion.paginas}`}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Building className="h-4 w-4" />
-                            <span>{publicacion.institucion}</span>
+                          <div className="flex items-center gap-2 break-words">
+                            <Building className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                            <span className="break-words">{publicacion.institucion}</span>
                           </div>
                         </div>
                       </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-blue-600 mb-4">{publicacion.resumen}</p>
+                <CardContent className="px-3 sm:px-6">
+                  <p className="text-blue-600 mb-4 text-sm sm:text-base break-words line-clamp-3">{publicacion.resumen}</p>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {publicacion.palabrasClave.map((palabra, index) => (
-                      <Badge key={index} variant="secondary" className="bg-blue-50 text-blue-700">
+                      <Badge key={index} variant="secondary" className="bg-blue-50 text-blue-700 text-xs break-words">
                         {palabra}
                       </Badge>
                     ))}
                   </div>
-                  <div className="text-sm text-blue-600">
+                  <div className="text-xs sm:text-sm text-blue-600 break-words">
                     <strong>DOI:</strong> {publicacion.doi}
                   </div>
                 </CardContent>
-                <CardFooter className="border-t border-blue-100 flex justify-between">
-                  <div className="flex gap-2">
+                <CardFooter className="border-t border-blue-100 flex flex-col sm:flex-row justify-between gap-3 sm:gap-4 py-3 sm:py-4 px-3 sm:px-6">
+                  <div className="flex flex-wrap gap-2">
                     {publicacion.autores.slice(0, 3).map((autor, index) => (
                       <div key={index} className="flex items-center gap-2">
-                        <Avatar className="h-6 w-6">
+                        <Avatar className="h-6 w-6 flex-shrink-0">
                           <AvatarImage src="/placeholder.svg" alt={autor} />
                           <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
                             {autor
@@ -901,14 +901,14 @@ export default function PublicacionesPage() {
                         </Avatar>
                         <Link
                           href={`/investigadores/${autor.toLowerCase().replace(/\s+/g, "-").replace(/\./g, "")}`}
-                          className="text-sm text-blue-700 hover:underline"
+                          className="text-xs sm:text-sm text-blue-700 hover:underline break-words"
                         >
                           {autor}
                         </Link>
                       </div>
                     ))}
                   </div>
-                  <div className="text-xs text-blue-500 mt-1">
+                  <div className="text-xs text-blue-500 break-words">
                     Subido por: {publicacion.uploaderNombre || 'Usuario'}
                     {user && (user.id === publicacion.clerkUserId || user.clerkUserId === publicacion.clerkUserId) && (
                       <span className="ml-1 font-medium">(Tú)</span>

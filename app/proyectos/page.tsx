@@ -131,16 +131,16 @@ export default function ProyectosPage() {
   const institutions = instituciones
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="container mx-auto py-4 sm:py-6 md:py-8 px-3 sm:px-4 md:px-6">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <AnimatedHeader 
             title="Proyectos de Investigación"
             subtitle="Explora los proyectos de investigación activos y completados en Chihuahua"
           />
           <AnimatedButton 
             asChild
-            className="bg-blue-700 hover:bg-blue-800 text-white animate-glow"
+            className="bg-blue-700 hover:bg-blue-800 text-white animate-glow w-full sm:w-auto"
           >
             <Link href="/proyectos/nuevo">
               <Upload className="mr-2 h-4 w-4" />
@@ -151,15 +151,15 @@ export default function ProyectosPage() {
 
         {/* Filtros y búsqueda */}
         <Card className="glass-effect">
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="lg:col-span-2">
+          <CardContent className="pt-4 sm:pt-6 px-3 sm:px-4 md:px-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+              <div className="sm:col-span-2 lg:col-span-2">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-4 w-4" />
                   <Input
                     type="text"
                     placeholder="Buscar por título, descripción o investigador..."
-                    className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400"
+                    className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 text-sm sm:text-base"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -210,30 +210,30 @@ export default function ProyectosPage() {
 
         {/* Resultados */}
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <p className="text-blue-600">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+            <p className="text-blue-600 text-sm sm:text-base break-words">
               {loading
                 ? "Cargando..."
                 : `${filteredProyectos.length} proyecto${filteredProyectos.length !== 1 ? "s" : ""} encontrado${filteredProyectos.length !== 1 ? "s" : ""}`}
             </p>
-            <AnimatedButton variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent">
+            <AnimatedButton variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent w-full sm:w-auto">
               <Filter className="mr-2 h-4 w-4" />
               Filtros avanzados
             </AnimatedButton>
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {[...Array(4)].map((_, i) => (
                 <Card key={i} className="glass-effect">
-                  <CardHeader>
+                  <CardHeader className="px-3 sm:px-6 pt-4 sm:pt-6">
                     <div className="animate-pulse">
                       <div className="h-4 bg-blue-100 rounded w-1/4 mb-2"></div>
                       <div className="h-6 bg-blue-100 rounded w-3/4 mb-2"></div>
                       <div className="h-4 bg-blue-100 rounded w-1/2"></div>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="px-3 sm:px-6">
                     <div className="animate-pulse">
                       <div className="h-4 bg-blue-100 rounded w-full mb-2"></div>
                       <div className="h-4 bg-blue-100 rounded w-2/3"></div>
@@ -243,27 +243,25 @@ export default function ProyectosPage() {
               ))}
             </div>
           ) : filteredProyectos.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {filteredProyectos.map((proyecto, index) => (
                 <AnimatedCard key={proyecto.id} className="glass-effect card-hover" delay={index * 100}>
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <AnimatedBadge className="mb-2 bg-blue-700 text-white">{proyecto.categoria}</AnimatedBadge>
-                        <AnimatedBadge variant="outline" className="ml-2 border-blue-200 text-blue-700">
-                          {proyecto.estado}
-                        </AnimatedBadge>
-                      </div>
+                  <CardHeader className="px-3 sm:px-6 pt-4 sm:pt-6">
+                    <div className="flex flex-wrap gap-2 items-start mb-2">
+                      <AnimatedBadge className="bg-blue-700 text-white text-xs sm:text-sm break-words">{proyecto.categoria}</AnimatedBadge>
+                      <AnimatedBadge variant="outline" className="border-blue-200 text-blue-700 text-xs sm:text-sm break-words">
+                        {proyecto.estado}
+                      </AnimatedBadge>
                     </div>
-                    <CardTitle className="text-xl text-blue-900">{proyecto.titulo || 'Sin título'}</CardTitle>
-                    <CardDescription className="text-blue-600">
+                    <CardTitle className="text-lg sm:text-xl text-blue-900 break-words">{proyecto.titulo || 'Sin título'}</CardTitle>
+                    <CardDescription className="text-blue-600 text-xs sm:text-sm break-words">
                       {typeof proyecto.autor === 'string' 
                         ? proyecto.institucion || proyecto.autor 
                         : (proyecto.autor?.institucion || proyecto.institucion || 'Sin institución')}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-blue-600 mb-4">{proyecto.descripcion || 'Sin descripción'}</p>
+                  <CardContent className="px-3 sm:px-6">
+                    <p className="text-blue-600 mb-4 text-sm sm:text-base break-words line-clamp-3">{proyecto.descripcion || 'Sin descripción'}</p>
                     <div className="space-y-2">
                       {(proyecto.fechaInicio || proyecto.fechaFin) && (
                         <div className="flex items-center text-sm text-blue-600">
@@ -280,18 +278,18 @@ export default function ProyectosPage() {
                     </div>
                     <div className="flex flex-wrap gap-2 mt-4">
                       {Array.isArray(proyecto.palabrasClave) && proyecto.palabrasClave.slice(0, 3).map((keyword: string, kwIndex: number) => (
-                        <AnimatedBadge key={kwIndex} variant="secondary" interactive className="bg-blue-50 text-blue-700 stagger-item">
+                        <AnimatedBadge key={kwIndex} variant="secondary" interactive className="bg-blue-50 text-blue-700 stagger-item text-xs break-words">
                           {keyword}
                         </AnimatedBadge>
                       ))}
                       {Array.isArray(proyecto.palabrasClave) && proyecto.palabrasClave.length > 3 && (
-                        <AnimatedBadge variant="secondary" className="bg-blue-50 text-blue-700">
+                        <AnimatedBadge variant="secondary" className="bg-blue-50 text-blue-700 text-xs">
                           +{proyecto.palabrasClave.length - 3} más
                         </AnimatedBadge>
                       )}
                     </div>
                   </CardContent>
-                  <CardFooter className="border-t border-blue-100 flex items-center justify-between py-4">
+                  <CardFooter className="border-t border-blue-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 py-3 sm:py-4 px-3 sm:px-6">
                     <div className="flex items-center gap-2">
                       <Avatar className="h-8 w-8 ring-2 ring-blue-100">
                         <AvatarImage src="/placeholder.svg" alt={typeof proyecto.autor === 'string' ? proyecto.autor : (proyecto.autor?.nombre || '')} />

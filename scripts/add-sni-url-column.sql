@@ -23,3 +23,4 @@ AND column_name = 'sni_url';
 -- ✅ Columna sni_url agregada exitosamente
 -- =====================================================
 
+
