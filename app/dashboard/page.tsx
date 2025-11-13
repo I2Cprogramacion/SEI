@@ -322,9 +322,11 @@ export default function DashboardPage() {
         )}
 
         {/* Layout de dos columnas: Perfil + Vista previa del CV */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 mb-6 md:mb-8">
-          {/* Columna izquierda: Información del investigador (35% del ancho) */}
-          <Card className="bg-white border-blue-100 shadow-md h-fit lg:col-span-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
+          {/* Columna izquierda: Perfil, Publicaciones y Zona de Peligro (35% del ancho) */}
+          <div className="lg:col-span-4 space-y-4 md:space-y-6">
+            {/* Card: Perfil del Investigador */}
+            <Card className="bg-white border-blue-100 shadow-md">
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 pb-4">
               <div>
                 <CardTitle className="text-blue-900 flex items-center text-lg md:text-xl">
@@ -586,21 +588,8 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Publicaciones - Debajo del perfil */}
-          <Card className="bg-white border-blue-100 shadow-md hover:shadow-lg transition-shadow cursor-pointer lg:col-span-4">
-            <CardHeader>
-              <CardTitle className="text-blue-900 flex items-center text-lg md:text-xl">
-                <FileText className="mr-2 h-4 w-4 md:h-5 md:w-5" />
-                Publicaciones
-              </CardTitle>
-              <CardDescription className="text-blue-600 text-sm">
-                Gestiona tu producción científica
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          {/* Zona de peligro - A la izquierda como contacto */}
-          <Card className="bg-white border-red-200 lg:col-span-4">
+          {/* Card: Zona de peligro */}
+          <Card className="bg-white border-red-200">
             <CardHeader>
               <CardTitle className="text-red-900 flex items-center text-lg md:text-xl">
                 <AlertCircle className="mr-2 h-4 w-4 md:h-5 md:w-5" />
@@ -689,6 +678,7 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
+          </div> {/* Fin columna izquierda */}
 
           {/* Columna derecha: Vista previa del CV/Perfil Único (65% del ancho) */}
           <Card className="bg-white border-blue-100 shadow-md lg:col-span-8">
@@ -1110,6 +1100,19 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
         </div> {/* Fin del grid de dos columnas */}
+
+        {/* Publicaciones - Debajo del CV viewer */}
+        <Card className="bg-white border-blue-100 shadow-md hover:shadow-lg transition-shadow cursor-pointer mt-6 md:mt-8">
+          <CardHeader>
+            <CardTitle className="text-blue-900 flex items-center text-lg md:text-xl">
+              <FileText className="mr-2 h-4 w-4 md:h-5 md:w-5" />
+              Publicaciones
+            </CardTitle>
+            <CardDescription className="text-blue-600 text-sm">
+              Gestiona tu producción científica
+            </CardDescription>
+          </CardHeader>
+        </Card>
 
       </div>
 
