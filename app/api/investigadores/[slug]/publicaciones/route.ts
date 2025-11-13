@@ -54,8 +54,8 @@ export async function GET(
     })
     
     // Buscar publicaciones
-    // IMPORTANTE: Solo buscamos publicaciones por clerk_user_id para garantizar que sean del investigador correcto
-    // Si el investigador no tiene clerk_user_id válido (user_*), no tiene publicaciones en el sistema
+    // Prioridad: buscar por clerk_user_id si es válido (user_*)
+    // Si no tiene clerk_user_id válido, buscar por correo exacto en campo autor
     let publicacionesResult
     
     const hasClerkId = inv.clerk_user_id && inv.clerk_user_id.startsWith('user_')
@@ -89,9 +89,39 @@ export async function GET(
         LIMIT 50`,
         [inv.clerk_user_id]
       )
+    } else if (inv.correo) {
+      // No tiene Clerk ID válido pero tiene correo: buscar por correo exacto en autor
+      // Esto es más preciso que buscar por nombre completo
+      console.log('🔍 [Publicaciones] Buscando publicaciones con correo:', inv.correo)
+      
+      publicacionesResult = await db.query(
+        `SELECT 
+          id,
+          titulo,
+          autor,
+          institucion,
+          editorial,
+          año_creacion as anio,
+          doi,
+          resumen,
+          palabras_clave,
+          categoria,
+          tipo,
+          acceso,
+          volumen,
+          numero,
+          paginas,
+          archivo_url,
+          fecha_creacion
+        FROM publicaciones 
+        WHERE LOWER(autor) = LOWER($1) OR autor ILIKE '%' || $1 || '%'
+        ORDER BY año_creacion DESC, fecha_creacion DESC
+        LIMIT 50`,
+        [inv.correo]
+      )
     } else {
-      // No tiene Clerk ID válido: no buscar publicaciones para evitar mezclar datos
-      console.log('⚠️ [Publicaciones] Investigador sin clerk_user_id válido, no se cargan publicaciones')
+      // No tiene ni clerk_user_id ni correo válido
+      console.log('⚠️ [Publicaciones] Investigador sin clerk_user_id ni correo válido, no se cargan publicaciones')
       publicacionesResult = { rows: [] }
     }
 
