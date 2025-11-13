@@ -54,14 +54,16 @@ export async function GET(
     })
     
     // Buscar publicaciones
-    // Si tiene clerk_user_id de Clerk (user_*), buscar por ese campo
-    // Si tiene clerk_user_id de Supabase (sua_*) o no tiene, buscar por nombre en autor
+    // IMPORTANTE: Solo buscamos publicaciones por clerk_user_id para garantizar que sean del investigador correcto
+    // Si el investigador no tiene clerk_user_id válido (user_*), no tiene publicaciones en el sistema
     let publicacionesResult
     
     const hasClerkId = inv.clerk_user_id && inv.clerk_user_id.startsWith('user_')
     
     if (hasClerkId) {
-      // Tiene Clerk ID válido: buscar por ese campo
+      // Tiene Clerk ID válido: buscar publicaciones por ese campo
+      console.log('🔍 [Publicaciones] Buscando publicaciones con clerk_user_id:', inv.clerk_user_id)
+      
       publicacionesResult = await db.query(
         `SELECT 
           id,
@@ -88,35 +90,9 @@ export async function GET(
         [inv.clerk_user_id]
       )
     } else {
-      // No tiene Clerk ID válido (tiene Supabase ID o null): buscar por nombre en autor
-      publicacionesResult = await db.query(
-        `SELECT 
-          id,
-          titulo,
-          autor,
-          institucion,
-          editorial,
-          año_creacion as anio,
-          doi,
-          resumen,
-          palabras_clave,
-          categoria,
-          tipo,
-          acceso,
-          volumen,
-          numero,
-          paginas,
-          archivo_url,
-          fecha_creacion
-        FROM publicaciones 
-        WHERE LOWER(autor) LIKE $1 OR LOWER(autor) LIKE $2
-        ORDER BY año_creacion DESC, fecha_creacion DESC
-        LIMIT 50`,
-        [
-          `%${inv.nombre_completo.toLowerCase()}%`,
-          `%${inv.correo.toLowerCase()}%`
-        ]
-      )
+      // No tiene Clerk ID válido: no buscar publicaciones para evitar mezclar datos
+      console.log('⚠️ [Publicaciones] Investigador sin clerk_user_id válido, no se cargan publicaciones')
+      publicacionesResult = { rows: [] }
     }
 
     const publicaciones = Array.isArray(publicacionesResult)
