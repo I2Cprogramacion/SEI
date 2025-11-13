@@ -680,8 +680,10 @@ export default function DashboardPage() {
           </Card>
           </div> {/* Fin columna izquierda */}
 
-          {/* Columna derecha: Vista previa del CV/Perfil Único (65% del ancho) */}
-          <Card className="bg-white border-blue-100 shadow-md lg:col-span-8">
+          {/* Columna derecha: CV y Publicaciones (65% del ancho) */}
+          <div className="lg:col-span-8 flex flex-col gap-4 md:gap-6">
+            {/* Card: Vista previa del CV/Perfil Único */}
+            <Card className="bg-white border-blue-100 shadow-md">
           <CardHeader>
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex-1 min-w-0">
@@ -1099,10 +1101,9 @@ export default function DashboardPage() {
             )}
           </CardContent>
         </Card>
-        </div> {/* Fin del grid de dos columnas */}
 
-        {/* Publicaciones - Debajo del CV viewer */}
-        <Card className="bg-white border-blue-100 shadow-md hover:shadow-lg transition-shadow cursor-pointer mt-6 md:mt-8">
+        {/* Publicaciones - Dentro de la columna derecha, debajo del CV */}
+        <Card className="bg-white border-blue-100 shadow-md hover:shadow-lg transition-shadow cursor-pointer">
           <CardHeader>
             <CardTitle className="text-blue-900 flex items-center text-lg md:text-xl">
               <FileText className="mr-2 h-4 w-4 md:h-5 md:w-5" />
@@ -1113,6 +1114,9 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
         </Card>
+        </div> {/* Fin columna derecha lg:col-span-8 */}
+
+        </div> {/* Fin del grid de dos columnas */}
 
       </div>
 
