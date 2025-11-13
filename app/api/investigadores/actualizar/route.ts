@@ -3,6 +3,10 @@ import type { NextRequest } from "next/server"
 import { currentUser } from "@clerk/nextjs/server"
 import { getDatabase } from "@/lib/database-config"
 
+// Forzar rendering dinámico (usa Clerk auth)
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function PUT(request: NextRequest) {
   try {
     // Obtener el usuario autenticado de Clerk

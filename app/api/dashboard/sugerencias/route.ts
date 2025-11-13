@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server"
 import { currentUser } from "@clerk/nextjs/server"
 import { sql } from "@vercel/postgres"
 
+// Forzar rendering dinámico (usa Clerk auth)
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 // Cache de sugerencias por 1 hora
 export const revalidate = 3600
 
