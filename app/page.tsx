@@ -9,71 +9,26 @@ import { RecentProjects } from "@/components/recent-projects"
 export default function Home() {
   return (
     <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
-      {/* Hero Section - Mejorado */}
-      <section className="relative py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden">
-        {/* Gradiente de fondo decorativo */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 rounded-3xl -z-10"></div>
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5 -z-10"></div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center">
-          <div className="space-y-6 sm:space-y-8 text-center lg:text-left">
-            {/* Badge informativo */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full text-blue-700 text-sm font-medium mx-auto lg:mx-0 animate-fade-in-up">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-              </span>
-              Sistema Estatal de Investigadores
-            </div>
-            
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight bg-gradient-to-r from-blue-900 via-blue-700 to-purple-800 bg-clip-text text-transparent leading-tight animate-fade-in-up">
+      {/* Hero Section */}
+      <section className="py-8 sm:py-12 md:py-16 lg:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center">
+          <div className="space-y-4 sm:space-y-6 text-center lg:text-left">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-blue-900 leading-tight animate-fade-in-up">
               Conectando investigadores de Chihuahua
             </h1>
-            
-            <p className="text-lg sm:text-xl md:text-2xl text-blue-700 max-w-2xl mx-auto lg:mx-0 animate-fade-in-up delay-200 leading-relaxed">
+            <p className="text-lg sm:text-xl text-blue-600 max-w-2xl mx-auto lg:mx-0 animate-fade-in-up delay-200">
               Crea tu perfil profesional, comparte tus investigaciones y conecta con otros investigadores en el estado.
             </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in-up delay-300">
-              <AnimatedButton 
-                size="lg" 
-                asChild 
-                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all w-full sm:w-auto text-base sm:text-lg px-8 py-6"
-              >
-                <Link href="/convocatorias">
-                  🎯 Ver Convocatorias
-                </Link>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start animate-fade-in-up delay-300">
+              <AnimatedButton size="lg" asChild className="bg-blue-700 text-white hover:bg-blue-800 w-full sm:w-auto animate-glow">
+                <Link href="/convocatorias">Convocatorias abiertas</Link>
               </AnimatedButton>
-              <AnimatedButton 
-                size="lg" 
-                variant="outline" 
-                asChild 
-                className="border-2 border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400 w-full sm:w-auto text-base sm:text-lg px-8 py-6"
-              >
-                <Link href="/redes">
-                  🤝 Redes de colaboración
-                </Link>
+              <AnimatedButton size="lg" variant="outline" asChild className="border-blue-200 text-blue-700 hover:bg-blue-50 w-full sm:w-auto">
+                <Link href="/redes">Redes de colaboración</Link>
               </AnimatedButton>
-            </div>
-            
-            {/* Stats preview */}
-            <div className="grid grid-cols-3 gap-4 pt-8 animate-fade-in-up delay-400">
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-blue-900">100+</div>
-                <div className="text-sm text-blue-600 mt-1">Investigadores</div>
-              </div>
-              <div className="text-center border-x border-blue-200">
-                <div className="text-2xl sm:text-3xl font-bold text-blue-900">50+</div>
-                <div className="text-sm text-blue-600 mt-1">Publicaciones</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-blue-900">20+</div>
-                <div className="text-sm text-blue-600 mt-1">Redes Activas</div>
-              </div>
             </div>
           </div>
-          
-          <div className="relative h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px] rounded-2xl overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 p-6 sm:p-8 flex items-center justify-center order-first lg:order-last animate-fade-in-right shadow-2xl">
+          <div className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] pb-12 rounded-lg overflow-visible bg-transparent p-4 sm:p-6 flex items-center justify-center order-first lg:order-last animate-fade-in-right">
             <FadeCarousel
               images={[
                 {
