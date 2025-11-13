@@ -137,17 +137,26 @@ function extractData(text) {
   // Ejemplo: juan.perez@universidad.edu.mx
   // =========================================================================
   const emailPatterns = [
-    /(?:email|correo|e-mail)[:\s]*([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,})/gi,
-    /\b([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,})\b/g
+    /(?:email|correo|e-mail|mail|electronic)[:\s]*([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/gi,
+    /\b([A-Za-z0-9][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\b/g
   ];
   
   for (const pattern of emailPatterns) {
-    const match = cleanText.match(pattern);
-    if (match) {
-      data.correo = match[1] ? match[1].toLowerCase() : match[0].toLowerCase();
-      console.log('✅ Email encontrado:', data.correo);
-      break;
+    const matches = [...cleanText.matchAll(pattern)];
+    for (const match of matches) {
+      let email = (match[1] || match[0]).toLowerCase().trim();
+      
+      // Limpiar texto pegado después del dominio (ej: @gmail.comcelular -> @gmail.com)
+      email = email.replace(/\.(com|mx|edu|org|net|gob|gov|es|cl|ar|co|br)[a-z]+$/i, '.$1');
+      
+      // Validar que termine en TLD válido
+      if (/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|mx|edu|org|net|gob|gov|es|cl|ar|co|br|uk|us|ca|de|fr|it|jp|cn)$/i.test(email)) {
+        data.correo = email;
+        console.log('✅ Email encontrado:', data.correo);
+        break;
+      }
     }
+    if (data.correo) break;
   }
 
   // =========================================================================
@@ -155,20 +164,28 @@ function extractData(text) {
   // Ejemplos: 614-123-4567, (614) 123 4567, +52 614 123 4567
   // =========================================================================
   const phonePatterns = [
-    /(?:teléfono|telefono|tel|phone|celular|móvil|movil)[:\s]*(\+?52\s?)?(\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4})/gi,
-    /(\+?52\s?)?(\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4})/g
+    /(?:teléfono|telefono|tel|phone|celular|móvil|movil)[:\s]*(\+?52)?[\s\-]?(\d{10})/gi,
+    /(?:teléfono|telefono|tel|phone)[:\s]*(\+?52)?[\s\-]?\(?(\d{3})\)?[\s\-]?(\d{3})[\s\-]?(\d{4})/gi,
+    /\b(\d{10})\b/g
   ];
   
   for (const pattern of phonePatterns) {
-    const match = cleanText.match(pattern);
-    if (match) {
-      // Extraer solo los dígitos
-      const phoneRaw = match[0].replace(/\D/g, '');
-      // Si tiene más de 10 dígitos, probablemente incluye +52, removerlo
-      data.telefono = phoneRaw.length > 10 ? phoneRaw.slice(-10) : phoneRaw;
-      console.log('✅ Teléfono encontrado:', data.telefono);
-      break;
+    const matches = [...cleanText.matchAll(pattern)];
+    for (const match of matches) {
+      // Extraer solo dígitos
+      let phoneRaw = match[0].replace(/\D/g, '');
+      // Si tiene +52 al inicio, removerlo
+      if (phoneRaw.length > 10 && phoneRaw.startsWith('52')) {
+        phoneRaw = phoneRaw.substring(2);
+      }
+      // Validar que tenga exactamente 10 dígitos
+      if (phoneRaw.length === 10 && !/^0{10}|1{10}/.test(phoneRaw)) {
+        data.telefono = phoneRaw;
+        console.log('✅ Teléfono encontrado:', data.telefono);
+        break;
+      }
     }
+    if (data.telefono) break;
   }
 
   // =========================================================================
@@ -176,21 +193,27 @@ function extractData(text) {
   // Ejemplos: Dr. Juan Alberto Pérez López, Nombre: María Elena García
   // =========================================================================
   const namePatterns = [
-    /(?:Dr\.?|Dra\.?|Prof\.?|Profesora?\.?|Mtro\.?|Mtra\.?)\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,3})/g,
-    /(?:Nombre|Name)[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,3})/gi
+    /(?:Dr\.?|Dra\.?|Prof\.?|Profesora?\.?|Mtro\.?|Mtra\.?|Lic\.?|Ing\.?)\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,4})/gi,
+    /(?:Nombre|Name)[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,4})/gi
   ];
 
   for (const pattern of namePatterns) {
-    const match = cleanText.match(pattern);
-    if (match) {
-      // Capturar el grupo de nombre sin el título
-      const captured = match[0].match(/[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,3}/);
-      if (captured) {
-        data.nombre_completo = captured[0];
+    const matches = [...cleanText.matchAll(pattern)];
+    for (const match of matches) {
+      let nombre = (match[1] || match[0]).trim();
+      // Limpiar títulos si quedaron
+      nombre = nombre.replace(/^(?:Dr\.?|Dra\.?|Prof\.?|Mtro\.?|Mtra\.?|Lic\.?|Ing\.?)\s+/i, '');
+      
+      const palabras = nombre.split(/\s+/);
+      // Validar que tenga al menos 2 palabras (nombre y apellido)
+      if (palabras.length >= 2 && palabras.length <= 5 && 
+          palabras.every(p => p.length >= 2)) {
+        data.nombre_completo = nombre;
         console.log('✅ Nombre encontrado:', data.nombre_completo);
         break;
       }
     }
+    if (data.nombre_completo) break;
   }
 
   // =========================================================================
