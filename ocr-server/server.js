@@ -206,8 +206,16 @@ function extractData(text) {
       
       const palabras = nombre.split(/\s+/);
       // Validar que tenga al menos 2 palabras (nombre y apellido)
+      // Y que NO contenga números ni sea todo mayúsculas
+      const tieneNumeros = /\d/.test(nombre);
+      const esTodoMayusculas = nombre === nombre.toUpperCase();
+      const esInstitución = /^(Universidad|Instituto|Centro|Facultad|Escuela)/i.test(nombre);
+      
       if (palabras.length >= 2 && palabras.length <= 5 && 
-          palabras.every(p => p.length >= 2)) {
+          palabras.every(p => p.length >= 2) &&
+          !tieneNumeros && 
+          !esTodoMayusculas &&
+          !esInstitución) {
         data.nombre_completo = nombre;
         console.log('✅ Nombre encontrado:', data.nombre_completo);
         break;
