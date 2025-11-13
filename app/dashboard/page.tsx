@@ -586,6 +586,110 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
+          {/* Publicaciones - Debajo del perfil */}
+          <Card className="bg-white border-blue-100 shadow-md hover:shadow-lg transition-shadow cursor-pointer lg:col-span-4">
+            <CardHeader>
+              <CardTitle className="text-blue-900 flex items-center text-lg md:text-xl">
+                <FileText className="mr-2 h-4 w-4 md:h-5 md:w-5" />
+                Publicaciones
+              </CardTitle>
+              <CardDescription className="text-blue-600 text-sm">
+                Gestiona tu producción científica
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          {/* Zona de peligro - A la izquierda como contacto */}
+          <Card className="bg-white border-red-200 lg:col-span-4">
+            <CardHeader>
+              <CardTitle className="text-red-900 flex items-center text-lg md:text-xl">
+                <AlertCircle className="mr-2 h-4 w-4 md:h-5 md:w-5" />
+                Zona de Peligro
+              </CardTitle>
+              <CardDescription className="text-red-600 text-sm">
+                Acciones irreversibles
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-3 md:gap-4 p-3 md:p-4 bg-red-50 rounded-lg border border-red-200">
+                {/* Ocultar perfil solo si activo === true */}
+                {investigadorData?.activo !== false && (
+                  <Button
+                    variant="outline"
+                    className="border border-red-400 text-red-700 hover:bg-red-100"
+                    disabled={isDesactivando}
+                    onClick={async () => {
+                      setIsDesactivando(true);
+                      try {
+                        const response = await fetch("/api/investigadores/desactivar", { method: "POST" });
+                        const result = await response.json();
+                        if (response.ok && result.success) {
+                          alert("Tu perfil ha sido ocultado y ahora está invisible para los demás.");
+                          if (investigadorData) {
+                            setInvestigadorData({ ...investigadorData, activo: false });
+                          }
+                        } else {
+                          alert("Error al ocultar perfil: " + (result.error || "Error desconocido"));
+                        }
+                      } catch (error) {
+                        alert("Error al ocultar perfil. Por favor, intenta de nuevo.");
+                      } finally {
+                        setIsDesactivando(false);
+                      }
+                    }}
+                  >
+                    Ocultar perfil
+                  </Button>
+                )}
+                <div className="flex items-start justify-between">
+                  <div className="flex flex-col md:flex-row w-full gap-3">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-red-900">Eliminar Cuenta</h3>
+                      <p className="text-sm text-red-700 mt-1">
+                        Esta acción eliminará permanentemente tu cuenta, todos tus datos del sistema y tu usuario de Clerk. 
+                        <strong className="block mt-1">Esta acción no se puede deshacer.</strong>
+                      </p>
+                    </div>
+                    <Button
+                      variant="destructive"
+                      className="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white border-none"
+                      disabled={isDeletingAccount}
+                      onClick={async () => {
+                        setIsDeletingAccount(true);
+                        try {
+                          const response = await fetch("/api/investigadores/eliminar", { method: "POST" });
+                          const result = await response.json();
+                          if (response.ok && result.success) {
+                            alert("Tu usuario ha sido eliminado completamente de la base de datos.");
+                            router.push("/iniciar-sesion");
+                          } else {
+                            alert("Error al eliminar usuario: " + (result.error || "Error desconocido"));
+                          }
+                        } catch (error) {
+                          alert("Error al eliminar usuario. Por favor, intenta de nuevo.");
+                        } finally {
+                          setIsDeletingAccount(false);
+                        }
+                      }}
+                    >
+                      {isDeletingAccount ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Eliminando...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Eliminar Cuenta
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Columna derecha: Vista previa del CV/Perfil Único (65% del ancho) */}
           <Card className="bg-white border-blue-100 shadow-md lg:col-span-8">
           <CardHeader>
@@ -1006,112 +1110,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
         </div> {/* Fin del grid de dos columnas */}
-
-        {/* Publicaciones */}
-        <Card className="bg-white border-blue-100 shadow-md hover:shadow-lg transition-shadow cursor-pointer">
-          <CardHeader>
-            <CardTitle className="text-blue-900 flex items-center text-lg md:text-xl">
-              <FileText className="mr-2 h-4 w-4 md:h-5 md:w-5" />
-              Publicaciones
-            </CardTitle>
-            <CardDescription className="text-blue-600 text-sm">
-              Gestiona tu producción científica
-            </CardDescription>
-          </CardHeader>
-        </Card>
-
-        {/* Zona de peligro - Ocultar perfil y Eliminar cuenta */}
-        <div className="mt-6 md:mt-8">
-          <Card className="bg-white border-red-200">
-            <CardHeader>
-              <CardTitle className="text-red-900 flex items-center text-lg md:text-xl">
-                <AlertCircle className="mr-2 h-4 w-4 md:h-5 md:w-5" />
-                Zona de Peligro
-              </CardTitle>
-              <CardDescription className="text-red-600 text-sm">
-                Acciones irreversibles
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-3 md:gap-4 p-3 md:p-4 bg-red-50 rounded-lg border border-red-200">
-                {/* Ocultar perfil solo si activo === true */}
-                {investigadorData?.activo !== false && (
-                  <Button
-                    variant="outline"
-                    className="border border-red-400 text-red-700 hover:bg-red-100"
-                    disabled={isDesactivando}
-                    onClick={async () => {
-                      setIsDesactivando(true);
-                      try {
-                        const response = await fetch("/api/investigadores/desactivar", { method: "POST" });
-                        const result = await response.json();
-                        if (response.ok && result.success) {
-                          alert("Tu perfil ha sido ocultado y ahora está invisible para los demás.");
-                          if (investigadorData) {
-                            setInvestigadorData({ ...investigadorData, activo: false });
-                          }
-                        } else {
-                          alert("Error al ocultar perfil: " + (result.error || "Error desconocido"));
-                        }
-                      } catch (error) {
-                        alert("Error al ocultar perfil. Por favor, intenta de nuevo.");
-                      } finally {
-                        setIsDesactivando(false);
-                      }
-                    }}
-                  >
-                    Ocultar perfil
-                  </Button>
-                )}
-                <div className="flex items-start justify-between">
-                  <div className="flex flex-col md:flex-row w-full gap-3">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-red-900">Eliminar Cuenta</h3>
-                      <p className="text-sm text-red-700 mt-1">
-                        Esta acción eliminará permanentemente tu cuenta, todos tus datos del sistema y tu usuario de Clerk. 
-                        <strong className="block mt-1">Esta acción no se puede deshacer.</strong>
-                      </p>
-                    </div>
-                    <Button
-                      variant="destructive"
-                      className="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white border-none"
-                      disabled={isDeletingAccount}
-                      onClick={async () => {
-                        setIsDeletingAccount(true);
-                        try {
-                          const response = await fetch("/api/investigadores/eliminar", { method: "POST" });
-                          const result = await response.json();
-                          if (response.ok && result.success) {
-                            alert("Tu usuario ha sido eliminado completamente de la base de datos.");
-                            router.push("/iniciar-sesion");
-                          } else {
-                            alert("Error al eliminar usuario: " + (result.error || "Error desconocido"));
-                          }
-                        } catch (error) {
-                          alert("Error al eliminar usuario. Por favor, intenta de nuevo.");
-                        } finally {
-                          setIsDeletingAccount(false);
-                        }
-                      }}
-                    >
-                      {isDeletingAccount ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Eliminando...
-                        </>
-                      ) : (
-                        <>
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Eliminar Cuenta
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
       </div>
 
