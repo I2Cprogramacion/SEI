@@ -288,9 +288,22 @@ export default function Navbar() {
                 </DropdownMenu>
               )}
 
+              {/* Explorar Button */}
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="h-9 w-9 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                asChild
+              >
+                <Link href="/explorar">
+                  <Search className="h-4 w-4" />
+                  <span className="sr-only">Explorar</span>
+                </Link>
+              </Button>
+
               {/* IIC Button */}
               <Button 
-                className="hidden lg:flex bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all px-4 h-10" 
+                className="hidden lg:flex bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all px-4 h-10" 
                 asChild
               >
                 <a href="https://i2c.com.mx/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
