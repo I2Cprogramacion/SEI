@@ -66,12 +66,19 @@ export async function POST(request: NextRequest) {
 
     const ct = upstream.headers.get('content-type') || '';
     const payload = ct.includes('application/json') ? await upstream.json() : { data: rawText };
-    // Permitir tanto payload.data como payload plano
-  let fields = (payload as any).data || payload;
-  // (Eliminado log de campos extraídos para reducir el rate limit)
+    
+    // Extraer los campos del payload
+    let fields = (payload as any).data || payload;
+    console.log('📦 Campos recibidos del backend OCR:', fields);
 
+    // Si el backend ya extrajo los datos estructurados, usarlos directamente
+    if (fields && !fields.text && (fields.curp || fields.rfc || fields.no_cvu || fields.correo || fields.telefono)) {
+      console.log('✅ Backend OCR ya extrajo datos estructurados');
+      // Los datos ya vienen procesados del servidor OCR
+    }
     // Si solo hay 'text', intentar extraer campos clave con regex mejorados
-    if (fields && typeof fields.text === 'string') {
+    else if (fields && typeof fields.text === 'string') {
+      console.log('📝 Procesando texto plano con regex...');
       const text = fields.text;
       
       // CURP: 18 caracteres (4 letras + 6 dígitos + H/M + 5 letras + alfanumérico + dígito)
@@ -128,15 +135,11 @@ export async function POST(request: NextRequest) {
         fallback: true,
         raw_text: text.substring(0, 1000), // Guardar solo primeros 1000 chars
       };
-    }
-
-    // Validar que se extrajeron datos mínimos
-    const hasMinimalData = fields && (fields.curp || fields.rfc || fields.no_cvu);
-    
-    if (!hasMinimalData) {
+    } else if (!fields) {
+      // No hay datos en absoluto
       return NextResponse.json(
         {
-          error: 'No se extrajeron datos suficientes del PDF. Asegúrate de que el PDF contenga información legible de CURP, RFC o CVU.',
+          error: 'No se pudo procesar el PDF. El servidor OCR no devolvió datos.',
           curp: null,
           rfc: null,
           no_cvu: null,
@@ -144,6 +147,36 @@ export async function POST(request: NextRequest) {
           telefono: null,
           origen: 'ocr',
           filename: file.name
+        },
+        { status: 400 }
+      );
+    }
+
+    console.log('📊 Campos finales procesados:', fields);
+
+    // Validar que se extrajeron datos mínimos
+    const hasMinimalData = fields && (fields.curp || fields.rfc || fields.no_cvu);
+    
+    if (!hasMinimalData) {
+      console.log('⚠️ No se encontraron datos mínimos:', {
+        curp: fields?.curp || 'no encontrado',
+        rfc: fields?.rfc || 'no encontrado',
+        no_cvu: fields?.no_cvu || 'no encontrado',
+        correo: fields?.correo || 'no encontrado',
+        telefono: fields?.telefono || 'no encontrado'
+      });
+      
+      return NextResponse.json(
+        {
+          error: 'No se pudieron extraer datos clave del PDF (CURP, RFC o CVU). Verifica que el documento contenga esta información de forma legible.',
+          curp: fields?.curp || null,
+          rfc: fields?.rfc || null,
+          no_cvu: fields?.no_cvu || null,
+          correo: fields?.correo || null,
+          telefono: fields?.telefono || null,
+          origen: 'ocr',
+          filename: file.name,
+          sugerencia: 'Si el PDF es una imagen escaneada, asegúrate de que el texto sea legible. Los campos CURP, RFC o CVU deben estar visibles y sin errores.'
         },
         { status: 400 }
       );

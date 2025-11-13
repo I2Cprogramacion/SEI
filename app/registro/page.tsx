@@ -272,17 +272,67 @@ const sanitizeOcrData = (data: any) => {
     }
   }
 
-  return {
+  // Validar y limpiar CURP (debe tener exactamente 18 caracteres)
+  let curp = data.curp?.trim().toUpperCase() || ""
+  if (curp && !/^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/.test(curp)) {
+    console.warn("⚠️ CURP inválido detectado:", curp)
+    curp = "" // Limpiar si no es válido
+  }
+
+  // Validar y limpiar RFC (debe tener exactamente 13 caracteres)
+  let rfc = data.rfc?.trim().toUpperCase() || ""
+  if (rfc && !/^[A-Z]{4}\d{6}[A-Z0-9]{3}$/.test(rfc)) {
+    console.warn("⚠️ RFC inválido detectado:", rfc)
+    rfc = "" // Limpiar si no es válido
+  }
+
+  // Validar y limpiar correo electrónico
+  let correo = data.correo?.trim().toLowerCase() || ""
+  if (correo) {
+    // Limpiar texto pegado al final del dominio
+    const emailMatch = correo.match(/^([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|mx|edu|org|net|gob|gov|es|cl|ar|co|br|uk|us|ca|de|fr|it|jp|cn))/)
+    if (emailMatch) {
+      correo = emailMatch[1]
+    } else {
+      // Validar formato general
+      if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(correo)) {
+        console.warn("⚠️ Correo inválido detectado:", correo)
+        correo = "" // Limpiar si no es válido
+      }
+    }
+  }
+
+  // Validar teléfono (debe tener exactamente 10 dígitos)
+  let telefono = data.telefono?.trim().replace(/\D/g, '') || ""
+  if (telefono) {
+    // Si tiene más de 10 dígitos (ej: con +52), tomar últimos 10
+    if (telefono.length > 10) {
+      telefono = telefono.slice(-10)
+    }
+    // Validar que tenga exactamente 10 dígitos
+    if (telefono.length !== 10) {
+      console.warn("⚠️ Teléfono inválido detectado:", telefono)
+      telefono = "" // Limpiar si no es válido
+    }
+  }
+
+  const sanitizedData = {
     nombres: nombres,
     apellidos: apellidos,
     nombre_completo: nombreCompleto,
-    curp: data.curp?.trim().toUpperCase() || "",
-    rfc: data.rfc?.trim().toUpperCase() || "",
+    curp: curp,
+    rfc: rfc,
     no_cvu: data.no_cvu?.trim() || "",
-    correo: data.correo?.trim().toLowerCase() || "",
-    telefono: data.telefono?.trim() || "",
+    correo: correo,
+    telefono: telefono,
     fecha_nacimiento: data.fecha_nacimiento?.trim() || "",
+    institucion: data.institucion?.trim() || "",
+    grado_maximo_estudios: data.grado_maximo_estudios?.trim() || "",
+    empleo_actual: data.experiencia_laboral?.trim() || data.empleo_actual?.trim() || "",
   }
+
+  console.log("📊 Datos sanitizados del OCR:", sanitizedData)
+  return sanitizedData
 }
 
 // File Upload Section Component
