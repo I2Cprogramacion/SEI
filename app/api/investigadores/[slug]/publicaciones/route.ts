@@ -11,19 +11,28 @@ export async function GET(
     
     const db = await getDatabase()
     
-    // Primero obtener el investigador para conseguir su nombre, correo y clerk_user_id
-    // Buscar por slug exacto O por slug sin el sufijo aleatorio O por nombre normalizado
-    const slugWithoutSuffix = slug.split('-').slice(0, -1).join('-') // Remover último segmento
+    // Extraer las partes principales del slug (sin el sufijo aleatorio)
+    const slugParts = slug.toLowerCase().split('-')
+    const slugWithoutSuffix = slugParts.slice(0, -1).join('-') // Remover último segmento
+    
+    // Crear patrones de búsqueda flexibles
+    const searchPattern = `%${slugParts.slice(0, Math.max(2, slugParts.length - 1)).join('%')}%`
+    
+    console.log('🔍 [Publicaciones] Patrones de búsqueda:', {
+      slugExacto: slug.toLowerCase(),
+      slugSinSufijo: slugWithoutSuffix,
+      patron: searchPattern
+    })
     
     const investigadorResult = await db.query(
       `SELECT id, nombre_completo, correo, clerk_user_id, slug
        FROM investigadores 
-       WHERE slug = $1 
-          OR slug = $2
-          OR LOWER(REPLACE(REPLACE(REPLACE(nombre_completo, ' ', '-'), '.', ''), 'á', 'a')) LIKE $3
-          OR LOWER(REPLACE(REPLACE(REPLACE(nombre_completo, ' ', '-'), '.', ''), 'é', 'e')) LIKE $3
+       WHERE LOWER(slug) = $1 
+          OR LOWER(slug) = $2
+          OR LOWER(slug) LIKE $3
+          OR LOWER(REPLACE(REPLACE(REPLACE(REPLACE(nombre_completo, ' ', '-'), '.', ''), 'á', 'a'), 'é', 'e')) LIKE $3
        LIMIT 1`,
-      [slug.toLowerCase(), slugWithoutSuffix.toLowerCase(), `%${slug.toLowerCase().split('-').slice(0, -1).join('%')}%`]
+      [slug.toLowerCase(), slugWithoutSuffix, searchPattern]
     )
 
     const investigadorRows = Array.isArray(investigadorResult) 
