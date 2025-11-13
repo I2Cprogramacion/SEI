@@ -66,96 +66,44 @@ export async function POST(request: NextRequest) {
 
     const ct = upstream.headers.get('content-type') || '';
     const payload = ct.includes('application/json') ? await upstream.json() : { data: rawText };
-    
-    // Extraer los campos del payload
-    let fields = (payload as any).data || payload;
-    console.log('📦 Campos recibidos del backend OCR:', JSON.stringify(fields, null, 2));
+    // Permitir tanto payload.data como payload plano
+  let fields = (payload as any).data || payload;
+  // (Eliminado log de campos extraídos para reducir el rate limit)
 
-    // Verificar si el backend devolvió el texto plano que necesitamos procesar
-    // El backend SIEMPRE devuelve estructura {curp, rfc, no_cvu, correo, telefono, ...}
-    // Si NO tiene 'text', significa que el backend ya intentó extraer (exitoso o no)
-    const hasText = fields && typeof fields.text === 'string';
-    const hasStructuredData = fields && (fields.curp || fields.rfc || fields.no_cvu || fields.correo || fields.telefono);
-    
-    console.log('🔍 Análisis de respuesta del backend:');
-    console.log('   - hasText:', hasText);
-    console.log('   - hasStructuredData:', hasStructuredData);
-    
-    // Si el backend ya intentó extraer datos (con o sin éxito), usar su resultado
-    if (!hasText) {
-      console.log('✅ Usando datos del backend OCR (extraídos o vacíos)');
-      // Los datos ya vienen procesados del servidor OCR, usar tal cual
-      // Puede que sean todos null si el backend no encontró nada
-    }
-    // Si solo hay 'text', intentar extraer campos clave con regex mejorados
-    else if (hasText) {
-      console.log('📝 Procesando texto plano con regex...');
+    // Si solo hay 'text', intentar extraer campos clave con regex
+    if (fields && typeof fields.text === 'string') {
       const text = fields.text;
-      
-      // CURP: 18 caracteres (4 letras + 6 dígitos + H/M + 5 letras + alfanumérico + dígito)
-      const curpMatch = text.match(/\b([A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d)\b/i);
-      
-      // RFC: 13 caracteres (4 letras + 6 dígitos + 3 alfanuméricos)
+      // CURP: 18 caracteres, letras y números
+      const curpMatch = text.match(/\b([A-Z]{4}\d{6}[A-Z]{6}\d{2})\b/i);
+      // RFC: 13 caracteres, letras y números
       const rfcMatch = text.match(/\b([A-Z]{4}\d{6}[A-Z0-9]{3})\b/i);
-      
-      // CVU: 4-8 dígitos después de 'CVU:' o 'NO.CVU:' o similar
-      const cvuMatch = text.match(/(?:CVU|C\.V\.U\.?|NO\.?\s*CVU)[:\s-]*(\d{4,8})/i) || 
-                      text.match(/\bCVU[\s:-]*(\d{4,8})\b/i);
-      
-      // Correo electrónico - patrón más robusto con validación estricta
-      const correoPattern1 = text.match(/(?:email|correo|e-mail|mail)[:\s]*([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/i);
-      const correoPattern2 = text.match(/\b([A-Z0-9][A-Z0-9._%+-]*@[A-Z0-9.-]+\.[A-Z]{2,})\b/i);
-      
-      let correo = null;
-      const correoMatch = correoPattern1 || correoPattern2;
-      
-      if (correoMatch) {
-        let emailRaw = correoMatch[1] || correoMatch[0];
-        // Limpiar cualquier texto pegado al final del dominio
-        // Ejemplo: @gmail.comcelular -> @gmail.com
-        const emailClean = emailRaw.match(/([A-Z0-9._%+-]+@[A-Z0-9.-]+\.(com|mx|edu|org|net|gob|gov|es|cl|ar|co|br|uk|us|ca|de|fr|it|jp|cn))/i);
-        if (emailClean) {
-          correo = emailClean[1].toLowerCase();
-        } else {
-          // Si no matchea con TLD específico, intentar limpiar con regex general
-          emailRaw = emailRaw.replace(/\.(com|mx|edu|org|net|gob|gov)[a-z]+$/i, '.$1');
-          if (/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailRaw)) {
-            correo = emailRaw.toLowerCase();
-          }
-        }
-      }
-      
-      // Teléfono - formatos mexicanos (10 dígitos)
-      const telefonoMatch = text.match(/(?:tel|teléfono|phone)[:\s]*(\+?52)?[\s\-]?(\d{3})[\s\-]?(\d{3})[\s\-]?(\d{4})/i) ||
-                           text.match(/\b(\d{10})\b/);
-      
-      let telefono = null;
-      if (telefonoMatch) {
-        const digits = telefonoMatch[0].replace(/\D/g, '');
-        telefono = digits.length > 10 ? digits.slice(-10) : digits;
-      }
-      
+      // CVU: después de 'NO.CVU:' o 'CVU:'
+      const cvuMatch = text.match(/CVU[:\s-]*([0-9]{5,})/i) || text.match(/NO\.CVU[:\s-]*([0-9]{5,})/i);
+      // Correo electrónico
+      const correoMatch = text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
       fields = {
         curp: curpMatch ? curpMatch[1].toUpperCase() : null,
         rfc: rfcMatch ? rfcMatch[1].toUpperCase() : null,
         no_cvu: cvuMatch ? cvuMatch[1] : null,
-        correo: correo,
-        telefono: telefono,
+        correo: correoMatch ? correoMatch[0] : null,
+        telefono: null,
         origen: 'ocr',
         fecha_registro: new Date().toISOString(),
         fallback: true,
-        raw_text: text.substring(0, 1000), // Guardar solo primeros 1000 chars
+        raw_text: text,
       };
-    } else if (!fields) {
-      // No hay datos en absoluto
+    }
+
+    if (!fields || (!fields.curp && !fields.rfc && !fields.no_cvu)) {
+      // Siempre devolver los campos clave en la raíz, aunque falte alguno
       return NextResponse.json(
         {
-          error: 'No se pudo procesar el PDF. El servidor OCR no devolvió datos.',
-          curp: null,
-          rfc: null,
-          no_cvu: null,
-          correo: null,
-          telefono: null,
+          error: 'No se extrajeron datos suficientes del PDF.',
+          curp: fields?.curp || null,
+          rfc: fields?.rfc || null,
+          no_cvu: fields?.no_cvu || null,
+          correo: fields?.correo || null,
+          telefono: fields?.telefono || null,
           origen: 'ocr',
           filename: file.name
         },
@@ -163,95 +111,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('📊 Campos finales procesados:', JSON.stringify(fields, null, 2));
 
-    // Validar que se extrajeron datos mínimos
-    // NOTA: Permitir continuar si al menos hay CURP O RFC O CVU O (correo Y teléfono)
-    const hasCURP = fields && fields.curp && fields.curp.length === 18;
-    const hasRFC = fields && fields.rfc && fields.rfc.length === 13;
-    const hasCVU = fields && fields.no_cvu && fields.no_cvu.length >= 4;
-    const hasContacto = fields && fields.correo && fields.telefono;
-    
-    const hasMinimalData = hasCURP || hasRFC || hasCVU || hasContacto;
-    
-    console.log('🔍 Validación de datos mínimos:');
-    console.log('   - CURP válido (18 chars):', hasCURP ? '✅' : '❌', fields?.curp || 'null');
-    console.log('   - RFC válido (13 chars):', hasRFC ? '✅' : '❌', fields?.rfc || 'null');
-    console.log('   - CVU válido (4+ dígitos):', hasCVU ? '✅' : '❌', fields?.no_cvu || 'null');
-    console.log('   - Contacto (correo+tel):', hasContacto ? '✅' : '❌');
-    console.log('   - Resultado final:', hasMinimalData ? '✅ VÁLIDO' : '❌ RECHAZADO');
-    
-    if (!hasMinimalData) {
-      return NextResponse.json(
-        {
-          error: 'No se pudieron extraer datos clave del PDF. Se requiere al menos: CURP (18 caracteres) O RFC (13 caracteres) O CVU (4+ dígitos) O (correo electrónico + teléfono).',
-          detalles: {
-            curp: fields?.curp ? `Encontrado pero inválido: ${fields.curp} (longitud: ${fields.curp.length})` : 'No encontrado',
-            rfc: fields?.rfc ? `Encontrado pero inválido: ${fields.rfc} (longitud: ${fields.rfc.length})` : 'No encontrado',
-            no_cvu: fields?.no_cvu ? `Encontrado: ${fields.no_cvu}` : 'No encontrado',
-            correo: fields?.correo || 'No encontrado',
-            telefono: fields?.telefono || 'No encontrado'
-          },
-          origen: 'ocr',
-          filename: file.name,
-          sugerencias: [
-            '• Verifica que el PDF contenga texto legible (no sea una imagen de baja calidad)',
-            '• El CURP debe tener exactamente 18 caracteres',
-            '• El RFC debe tener exactamente 13 caracteres',
-            '• El CVU debe tener al menos 4 dígitos',
-            '• Alternativamente, asegúrate de incluir correo electrónico y teléfono'
-          ]
-        },
-        { status: 400 }
-      );
-    }
+    // Extraer nombre_completo del texto si es posible
 
-
-    // Normalizar y validar datos extraídos
+    // Solo enviar los campos clave al frontend
     const datosAGuardar: any = {
-      curp: fields.curp?.trim().toUpperCase() || null,
-      rfc: fields.rfc?.trim().toUpperCase() || null,
-      no_cvu: fields.no_cvu?.trim() || null,
-      correo: fields.correo?.trim().toLowerCase() || null,
-      telefono: fields.telefono?.trim() || null,
-      nombre_completo: fields.nombre_completo?.trim() || null,
-      fecha_nacimiento: fields.fecha_nacimiento?.trim() || null,
-      institucion: fields.institucion?.trim() || null,
-      grado_maximo_estudios: fields.grado_maximo_estudios?.trim() || null,
-      experiencia_laboral: fields.experiencia_laboral?.trim() || null,
+      curp: fields.curp || null,
+      rfc: fields.rfc || null,
+      no_cvu: fields.no_cvu || null,
+      correo: fields.correo || null,
+      telefono: fields.telefono || null,
       origen: 'ocr',
       fecha_registro: new Date().toISOString(),
     };
 
-    // Validar formato de CURP si existe
-    if (datosAGuardar.curp && !/^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/.test(datosAGuardar.curp)) {
-      console.log('⚠️  CURP con formato inválido:', datosAGuardar.curp);
-      datosAGuardar.curp = null;
-    }
-
-    // Validar formato de RFC si existe
-    if (datosAGuardar.rfc && !/^[A-Z]{4}\d{6}[A-Z0-9]{3}$/.test(datosAGuardar.rfc)) {
-      console.log('⚠️  RFC con formato inválido:', datosAGuardar.rfc);
-      datosAGuardar.rfc = null;
-    }
-
-    // Validar formato de correo si existe
-    if (datosAGuardar.correo && !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$/i.test(datosAGuardar.correo)) {
-      console.log('⚠️  Correo con formato inválido:', datosAGuardar.correo);
-      datosAGuardar.correo = null;
-    }
-
-    // Validar que tenga al menos uno de los campos clave
     if (!datosAGuardar.curp && !datosAGuardar.rfc && !datosAGuardar.no_cvu) {
       return NextResponse.json(
         {
-          error: 'No se detectó CURP, RFC ni CVU válidos en el PDF. Verifica que el documento contenga esta información claramente.',
-          curp: null,
-          rfc: null,
-          no_cvu: null,
-          correo: datosAGuardar.correo,
-          telefono: datosAGuardar.telefono,
-          nombre_completo: datosAGuardar.nombre_completo,
+          error: 'No se detectó CURP, RFC ni CVU para guardar.',
+          curp: fields?.curp || null,
+          rfc: fields?.rfc || null,
+          no_cvu: fields?.no_cvu || null,
+          correo: fields?.correo || null,
+          telefono: fields?.telefono || null,
           origen: 'ocr',
           filename: file.name
         },
@@ -259,20 +141,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validar que el correo esté presente (requerido para registro)
+    // Validar que el correo esté presente antes de guardar
     if (!datosAGuardar.correo) {
+      // Devolver los campos clave en la raíz aunque falte el correo
       return NextResponse.json(
         {
-          error: 'No se detectó correo electrónico en el PDF. Por favor ingrésalo manualmente.',
-          curp: datosAGuardar.curp,
-          rfc: datosAGuardar.rfc,
-          no_cvu: datosAGuardar.no_cvu,
+          error: 'Falta el correo electrónico. Por favor complétalo manualmente antes de guardar.',
+          curp: datosAGuardar.curp || null,
+          rfc: datosAGuardar.rfc || null,
+          no_cvu: datosAGuardar.no_cvu || null,
           correo: null,
-          telefono: datosAGuardar.telefono,
-          nombre_completo: datosAGuardar.nombre_completo,
+          telefono: datosAGuardar.telefono || null,
           origen: 'ocr',
-          filename: file.name,
-          requiere_correccion: true
+          filename: file.name
         },
         { status: 400 }
       );
@@ -280,36 +161,18 @@ export async function POST(request: NextRequest) {
 
     const resultado = await guardarInvestigador(datosAGuardar);
     if (resultado?.success) {
-      // Responder con todos los campos extraídos
+      // Responder solo los campos clave al frontend
       return NextResponse.json({
-        success: true,
         curp: datosAGuardar.curp,
         rfc: datosAGuardar.rfc,
         no_cvu: datosAGuardar.no_cvu,
         correo: datosAGuardar.correo,
-        telefono: datosAGuardar.telefono,
-        nombre_completo: datosAGuardar.nombre_completo,
-        fecha_nacimiento: datosAGuardar.fecha_nacimiento,
-        institucion: datosAGuardar.institucion,
-        grado_maximo_estudios: datosAGuardar.grado_maximo_estudios,
-        experiencia_laboral: datosAGuardar.experiencia_laboral,
-        mensaje: 'Datos extraídos y guardados exitosamente'
+        telefono: datosAGuardar.telefono
       });
     }
 
     return NextResponse.json(
-      { 
-        error: resultado?.message || 'Error al guardar los datos en la base de datos', 
-        datos_extraidos: {
-          curp: datosAGuardar.curp,
-          rfc: datosAGuardar.rfc,
-          no_cvu: datosAGuardar.no_cvu,
-          correo: datosAGuardar.correo,
-          telefono: datosAGuardar.telefono,
-          nombre_completo: datosAGuardar.nombre_completo
-        },
-        filename: file.name 
-      },
+      { error: resultado?.message || 'Fallo al guardar', ocr: fields, filename: file.name },
       { status: 400 }
     );
   } catch (err: any) {
