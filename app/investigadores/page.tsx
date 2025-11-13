@@ -237,91 +237,106 @@ export default function InvestigadoresPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {filteredInvestigadores.map((investigador, index) => (
                 <Link href={`/investigadores/${investigador.slug}`} key={investigador.id}>
-                  <AnimatedCard className="h-full glass-effect card-hover cursor-pointer overflow-hidden" delay={index * 100}>
-                    <CardContent className="pt-6 sm:pt-8 px-4 sm:px-6 pb-4 overflow-hidden">
+                  <AnimatedCard className="h-full glass-effect card-hover cursor-pointer overflow-hidden group relative" delay={index * 100}>
+                    {/* Gradiente decorativo superior */}
+                    <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    
+                    <CardContent className="pt-8 sm:pt-10 px-5 sm:px-6 pb-5 overflow-hidden relative z-10">
                       <div className="flex flex-col items-center text-center w-full max-w-full">
-                        {/* Avatar */}
-                        <Avatar className="h-24 w-24 sm:h-28 sm:w-28 mb-4 sm:mb-5 ring-2 ring-blue-100">
-                          <AvatarImage 
-                            src={investigador.fotografiaUrl && investigador.fotografiaUrl.includes('/image/upload/') && investigador.fotografiaUrl.length > 50 
-                              ? investigador.fotografiaUrl 
-                              : "/placeholder.svg"} 
-                            alt={investigador.nombre}
-                            onError={(e) => {
-                              e.currentTarget.src = "/placeholder.svg"
-                            }}
-                          />
-                          <AvatarFallback className="bg-blue-100 text-blue-700 text-lg font-semibold">
-                            {investigador.nombre
-                              ?.split(" ")
-                              ?.map((n) => n[0])
-                              ?.join("")
-                              ?.toUpperCase()
-                              ?.slice(0, 2) || "??"}
-                          </AvatarFallback>
-                        </Avatar>
+                        {/* Avatar con efecto mejorado */}
+                        <div className="relative mb-5 sm:mb-6">
+                          <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full blur-lg opacity-20 group-hover:opacity-30 transition-opacity"></div>
+                          <Avatar className="h-28 w-28 sm:h-32 sm:w-32 relative ring-4 ring-blue-100 group-hover:ring-blue-200 transition-all duration-300 shadow-lg">
+                            <AvatarImage 
+                              src={investigador.fotografiaUrl && investigador.fotografiaUrl.includes('/image/upload/') && investigador.fotografiaUrl.length > 50 
+                                ? investigador.fotografiaUrl 
+                                : "/placeholder.svg"} 
+                              alt={investigador.nombre}
+                              onError={(e) => {
+                                e.currentTarget.src = "/placeholder.svg"
+                              }}
+                            />
+                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xl font-bold shadow-inner">
+                              {investigador.nombre
+                                ?.split(" ")
+                                ?.map((n) => n[0])
+                                ?.join("")
+                                ?.toUpperCase()
+                                ?.slice(0, 2) || "??"}
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
 
-                        {/* Nombre */}
-                        <h3 className="font-bold text-blue-900 mb-1.5 text-base sm:text-lg w-full px-2 line-clamp-2 leading-tight">
+                        {/* Nombre con mejor tipografía */}
+                        <h3 className="font-bold text-blue-900 mb-2 text-lg sm:text-xl w-full px-3 line-clamp-2 leading-tight group-hover:text-blue-700 transition-colors">
                           {investigador.nombre || 'Sin nombre'}
                         </h3>
 
-                        {/* Título/Grado */}
-                        <p className="text-blue-600 text-xs sm:text-sm mb-3 sm:mb-4 w-full px-2 line-clamp-1">
-                          {investigador.ultimoGradoEstudios || investigador.nivel || 'Investigador'}
-                        </p>
+                        {/* Título/Grado con estilo mejorado */}
+                        <div className="mb-4 w-full px-3">
+                          <p className="text-blue-600 text-sm sm:text-base font-medium line-clamp-1">
+                            {investigador.ultimoGradoEstudios || investigador.nivel || 'Investigador'}
+                          </p>
+                        </div>
 
-                        {/* Badge principal de área - Centrado y prominente */}
+                        {/* Badge principal de área - Rediseñado */}
                         {investigador.area && (
-                          <div className="w-full mb-4 sm:mb-5 px-2">
-                            <AnimatedBadge 
-                              variant="secondary" 
-                              className="bg-blue-50 text-blue-700 text-xs sm:text-sm font-semibold px-3 py-1.5 w-full overflow-hidden"
-                            >
-                              <span className="block truncate uppercase">{investigador.area}</span>
-                            </AnimatedBadge>
+                          <div className="w-full mb-5 px-3">
+                            <div className="inline-block w-full">
+                              <AnimatedBadge 
+                                variant="secondary" 
+                                className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs sm:text-sm font-bold px-4 py-2 w-full overflow-hidden shadow-md hover:shadow-lg transition-shadow"
+                              >
+                                <span className="block truncate uppercase tracking-wide">{investigador.area}</span>
+                              </AnimatedBadge>
+                            </div>
                           </div>
                         )}
 
-                        {/* Información de contacto */}
-                        <div className="w-full space-y-2 sm:space-y-2.5 text-xs sm:text-sm mb-3 px-2">
+                        {/* Información de contacto - Rediseñada */}
+                        <div className="w-full space-y-2.5 sm:space-y-3 text-xs sm:text-sm mb-4 px-3">
                           {investigador.institucion && investigador.institucion.trim() !== '' && (
-                            <div className="flex items-center justify-center gap-1 text-blue-600 max-w-full">
-                              <Building className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
-                              <span className="text-xs font-medium text-center truncate min-w-0 flex-1">{investigador.institucion}</span>
-                              <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 ml-1 flex-shrink-0 font-medium">
-                                Registrado
+                            <div className="flex items-center justify-center gap-2 text-blue-700 max-w-full bg-blue-50/50 rounded-lg px-3 py-2 border border-blue-100">
+                              <Building className="h-4 w-4 flex-shrink-0 text-blue-500" />
+                              <span className="text-xs font-semibold text-center truncate min-w-0 flex-1">{investigador.institucion}</span>
+                              <Badge variant="secondary" className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 ml-1 flex-shrink-0 font-bold border border-green-200">
+                                ✓
                               </Badge>
                             </div>
                           )}
 
                           {investigador.telefono && (
-                            <div className="flex items-center justify-center gap-1 text-blue-600 max-w-full">
-                              <Phone className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
-                              <span className="text-xs text-center truncate min-w-0 flex-1">{investigador.telefono}</span>
+                            <div className="flex items-center justify-center gap-2 text-blue-700 max-w-full bg-blue-50/50 rounded-lg px-3 py-2 border border-blue-100">
+                              <Phone className="h-4 w-4 flex-shrink-0 text-blue-500" />
+                              <span className="text-xs font-semibold text-center truncate min-w-0 flex-1">{investigador.telefono}</span>
                             </div>
                           )}
                         </div>
 
-                        {/* Badge de líneas de investigación - Keywords style */}
+                        {/* Badge de líneas de investigación - Rediseñado */}
                         {investigador.lineaInvestigacion && (
-                          <div className="w-full mt-3 sm:mt-4 px-2">
-                            <AnimatedBadge 
-                              variant="outline" 
-                              interactive 
-                              className="border-blue-200 text-blue-700 bg-blue-50/50 px-3 py-1.5 w-full overflow-hidden"
-                            >
-                              <span className="block truncate text-[10px] sm:text-xs font-medium uppercase">{investigador.lineaInvestigacion}</span>
-                            </AnimatedBadge>
+                          <div className="w-full mt-2 px-3">
+                            <div className="inline-block w-full">
+                              <AnimatedBadge 
+                                variant="outline" 
+                                interactive 
+                                className="border-2 border-indigo-200 text-indigo-700 bg-indigo-50/70 px-4 py-2 w-full overflow-hidden hover:bg-indigo-100/70 transition-colors shadow-sm"
+                              >
+                                <span className="block truncate text-[11px] sm:text-xs font-semibold uppercase tracking-wide">{investigador.lineaInvestigacion}</span>
+                              </AnimatedBadge>
+                            </div>
                           </div>
                         )}
                       </div>
                     </CardContent>
-                    {/* Footer con email */}
-                    <CardFooter className="border-t border-blue-100 flex justify-center py-3 sm:py-4 px-4 sm:px-6 bg-blue-50/30">
-                      <div className="text-center w-full max-w-full overflow-hidden">
-                        <p className="text-[11px] sm:text-xs text-blue-600 px-2 truncate font-medium">
-                          {investigador.email || 'Sin email'}
+                    
+                    {/* Footer con email - Rediseñado */}
+                    <CardFooter className="border-t-2 border-blue-100 flex justify-center py-4 sm:py-5 px-5 sm:px-6 bg-gradient-to-r from-blue-50/50 via-indigo-50/30 to-blue-50/50 relative overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div className="text-center w-full max-w-full overflow-hidden relative z-10">
+                        <p className="text-xs sm:text-sm text-blue-600 px-2 truncate font-semibold flex items-center justify-center gap-2">
+                          <span className="text-blue-400">✉</span>
+                          <span>{investigador.email || 'Sin email'}</span>
                         </p>
                       </div>
                     </CardFooter>
