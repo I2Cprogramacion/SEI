@@ -238,9 +238,10 @@ export default function InvestigadoresPage() {
               {filteredInvestigadores.map((investigador, index) => (
                 <Link href={`/investigadores/${investigador.slug}`} key={investigador.id}>
                   <AnimatedCard className="h-full glass-effect card-hover cursor-pointer overflow-hidden" delay={index * 100}>
-                    <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6 overflow-hidden">
+                    <CardContent className="pt-6 sm:pt-8 px-4 sm:px-6 pb-4 overflow-hidden">
                       <div className="flex flex-col items-center text-center w-full max-w-full">
-                        <Avatar className="h-20 w-20 sm:h-24 sm:w-24 mb-3 sm:mb-4">
+                        {/* Avatar */}
+                        <Avatar className="h-24 w-24 sm:h-28 sm:w-28 mb-4 sm:mb-5 ring-2 ring-blue-100">
                           <AvatarImage 
                             src={investigador.fotografiaUrl && investigador.fotografiaUrl.includes('/image/upload/') && investigador.fotografiaUrl.length > 50 
                               ? investigador.fotografiaUrl 
@@ -250,7 +251,7 @@ export default function InvestigadoresPage() {
                               e.currentTarget.src = "/placeholder.svg"
                             }}
                           />
-                          <AvatarFallback className="bg-blue-100 text-blue-700">
+                          <AvatarFallback className="bg-blue-100 text-blue-700 text-lg font-semibold">
                             {investigador.nombre
                               ?.split(" ")
                               ?.map((n) => n[0])
@@ -259,56 +260,67 @@ export default function InvestigadoresPage() {
                               ?.slice(0, 2) || "??"}
                           </AvatarFallback>
                         </Avatar>
-                        <h3 className="font-bold text-blue-900 mb-1 text-sm sm:text-base w-full px-2 line-clamp-2">{investigador.nombre || 'Sin nombre'}</h3>
-                        <p className="text-blue-600 text-xs sm:text-sm mb-2 w-full px-2 line-clamp-1">
+
+                        {/* Nombre */}
+                        <h3 className="font-bold text-blue-900 mb-1.5 text-base sm:text-lg w-full px-2 line-clamp-2 leading-tight">
+                          {investigador.nombre || 'Sin nombre'}
+                        </h3>
+
+                        {/* Título/Grado */}
+                        <p className="text-blue-600 text-xs sm:text-sm mb-3 sm:mb-4 w-full px-2 line-clamp-1">
                           {investigador.ultimoGradoEstudios || investigador.nivel || 'Investigador'}
                         </p>
+
+                        {/* Badge principal de área - Centrado y prominente */}
                         {investigador.area && (
-                          <AnimatedBadge variant="secondary" className="mb-2 sm:mb-3 bg-blue-50 text-blue-700 text-xs max-w-full px-2 truncate overflow-hidden">
+                          <AnimatedBadge 
+                            variant="secondary" 
+                            className="mb-4 sm:mb-5 bg-blue-50 text-blue-700 text-xs sm:text-sm font-semibold px-3 py-1.5 max-w-[90%] truncate overflow-hidden uppercase"
+                          >
                             {investigador.area}
                           </AnimatedBadge>
                         )}
 
-                        <div className="w-full space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
+                        {/* Información de contacto */}
+                        <div className="w-full space-y-2 sm:space-y-2.5 text-xs sm:text-sm mb-3">
                           {investigador.institucion && investigador.institucion.trim() !== '' && (
-                            <div className="flex items-center justify-center gap-1 text-blue-600 px-2 max-w-full">
-                              <Building className="h-3 w-3 flex-shrink-0" />
-                              <span className="text-xs font-medium break-words text-center truncate min-w-0 flex-1">{investigador.institucion}</span>
-                              <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-[10px] px-1.5 py-0 ml-1 flex-shrink-0">
+                            <div className="flex items-center justify-center gap-1.5 text-blue-600 px-2 max-w-full">
+                              <Building className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
+                              <span className="text-xs font-medium text-center truncate min-w-0 flex-1">{investigador.institucion}</span>
+                              <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 ml-1 flex-shrink-0 font-medium">
                                 Registrado
                               </Badge>
                             </div>
                           )}
-                          
-                          {(investigador.estadoNacimiento || investigador.entidadFederativa) && (
-                            <div className="flex items-center justify-center gap-1 text-blue-600 px-2 max-w-full">
-                              <MapPin className="h-3 w-3 flex-shrink-0" />
-                              <span className="text-xs break-words text-center truncate min-w-0 flex-1">{investigador.estadoNacimiento || investigador.entidadFederativa}</span>
-                            </div>
-                          )}
 
                           {investigador.telefono && (
-                            <div className="flex items-center justify-center gap-1 text-blue-600 px-2 max-w-full">
-                              <Phone className="h-3 w-3 flex-shrink-0" />
-                              <span className="text-xs break-words text-center truncate min-w-0 flex-1">{investigador.telefono}</span>
+                            <div className="flex items-center justify-center gap-1.5 text-blue-600 px-2 max-w-full">
+                              <Phone className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
+                              <span className="text-xs text-center truncate min-w-0 flex-1">{investigador.telefono}</span>
                             </div>
                           )}
                         </div>
 
+                        {/* Badge de líneas de investigación - Keywords style */}
                         {investigador.lineaInvestigacion && (
-                          <div className="w-full mt-4 px-2 max-w-full overflow-hidden">
-                            <div className="flex flex-wrap gap-1 justify-center">
-                              <AnimatedBadge variant="outline" interactive className="text-xs border-blue-200 text-blue-700 max-w-full px-2 truncate overflow-hidden">
-                                {investigador.lineaInvestigacion}
-                              </AnimatedBadge>
-                            </div>
+                          <div className="w-full mt-3 sm:mt-4 px-2 max-w-full overflow-hidden">
+                            <AnimatedBadge 
+                              variant="outline" 
+                              interactive 
+                              className="text-[10px] sm:text-xs border-blue-200 text-blue-700 bg-blue-50/50 px-3 py-1.5 max-w-full truncate overflow-hidden font-medium uppercase"
+                            >
+                              {investigador.lineaInvestigacion}
+                            </AnimatedBadge>
                           </div>
                         )}
                       </div>
                     </CardContent>
-                    <CardFooter className="border-t border-blue-100 flex justify-center py-2 sm:py-3 px-3 sm:px-6">
+                    {/* Footer con email */}
+                    <CardFooter className="border-t border-blue-100 flex justify-center py-3 sm:py-4 px-4 sm:px-6 bg-blue-50/30">
                       <div className="text-center w-full max-w-full overflow-hidden">
-                        <p className="text-[10px] sm:text-xs text-blue-600 break-words px-2 truncate">{investigador.email || 'Sin email'}</p>
+                        <p className="text-[11px] sm:text-xs text-blue-600 px-2 truncate font-medium">
+                          {investigador.email || 'Sin email'}
+                        </p>
                       </div>
                     </CardFooter>
                   </AnimatedCard>
