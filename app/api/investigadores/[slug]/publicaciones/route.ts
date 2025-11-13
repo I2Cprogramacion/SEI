@@ -130,6 +130,12 @@ export async function GET(
       : publicacionesResult.rows
 
     console.log(`✅ [Publicaciones] Encontradas ${publicaciones?.length || 0} publicaciones para ${inv.nombre_completo}`)
+    
+    if (publicaciones?.length > 0) {
+      console.log('📄 [Publicaciones Perfil] IDs encontradas:', 
+        publicaciones.map((p: any) => p.id).join(', ')
+      )
+    }
 
     // Transformar datos para el frontend
     const publicacionesFormateadas = (publicaciones || []).map((pub: any) => ({

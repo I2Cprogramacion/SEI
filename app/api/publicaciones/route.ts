@@ -225,6 +225,9 @@ export async function GET(request: NextRequest) {
       
       console.log(`✅ [GET Publicaciones] Encontradas ${pubsRows?.length || 0} publicaciones`)
       if (pubsRows?.length > 0) {
+        console.log('📄 [GET Publicaciones] IDs de publicaciones encontradas:', 
+          pubsRows.map((p: any) => p.id).join(', ')
+        )
         console.log('📄 [GET Publicaciones] Primeras 3 publicaciones:', 
           pubsRows.slice(0, 3).map((p: any) => ({ 
             id: p.id, 
