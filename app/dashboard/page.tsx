@@ -89,6 +89,7 @@ export default function DashboardPage() {
   const [areasInput, setAreasInput] = useState("");
   const [isFixingCvUrl, setIsFixingCvUrl] = useState(false);
   const [tipoDocumento, setTipoDocumento] = useState<'PU' | 'Dictamen'>('PU');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Cargar datos del investigador
   useEffect(() => {
@@ -109,9 +110,11 @@ export default function DashboardPage() {
           }
         } else {
           console.warn("No se pudieron cargar los datos del perfil desde PostgreSQL");
+          setErrorMessage("No se pudo cargar tu perfil. Intenta recargar la página.");
         }
       } catch (error) {
         console.error("Error al cargar datos del investigador:", error);
+        setErrorMessage("Error al cargar los datos de tu perfil. Por favor, recarga la página.");
       } finally {
         setIsLoadingData(false);
       }
@@ -287,6 +290,29 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-bold text-blue-900">Dashboard Social</h1>
           <p className="text-blue-600">Tu red de colaboración científica</p>
         </div>
+
+        {/* Mensaje de error si hubo problemas cargando datos */}
+        {errorMessage && (
+          <Card className="mb-6 bg-red-50 border-red-200">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-red-900">Error al cargar datos</h3>
+                  <p className="text-sm text-red-700 mt-1">{errorMessage}</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.location.reload()}
+                  className="border-red-300 text-red-700 hover:bg-red-100"
+                >
+                  Recargar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Mensaje informativo si el perfil está incompleto */}
         {investigadorData && !perfilCompleto && (

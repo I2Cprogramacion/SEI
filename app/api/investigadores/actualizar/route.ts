@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { currentUser } from "@clerk/nextjs/server"
 import { getDatabase } from "@/lib/database-config"
+import { requireInvestigadorId } from "@/lib/auth/ownership-validator"
 
 export async function PUT(request: NextRequest) {
   try {
@@ -17,6 +18,9 @@ export async function PUT(request: NextRequest) {
     if (!email) {
       return NextResponse.json({ error: "No se pudo obtener el email del usuario" }, { status: 400 })
     }
+
+    // Validar ownership: obtener ID desde sesión (no desde request body)
+    const investigadorId = await requireInvestigadorId()
 
     const data = await request.json()
 
@@ -68,14 +72,13 @@ export async function PUT(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Agregar el clerk_user_id y email al final para el WHERE
-    valores.push(user.id)
-    valores.push(email)
+    // Agregar el ID del investigador validado al final para el WHERE
+    valores.push(investigadorId)
 
     const query = `
       UPDATE investigadores 
       SET ${camposActualizar.join(', ')}
-      WHERE clerk_user_id = $${paramCount} OR correo = $${paramCount + 1}
+      WHERE id = $${paramCount}
       RETURNING id, nombre_completo, correo, clerk_user_id
     `
 
