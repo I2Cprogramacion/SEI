@@ -5,6 +5,8 @@ import { useUser } from "@clerk/nextjs"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { EmptyState } from "@/components/ui/empty-state"
+import { LoadingCard } from "@/components/ui/loading-card"
 import { FileText, Plus, Calendar, ExternalLink, BookOpen, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 
@@ -103,11 +105,8 @@ export function PublicacionesList({ slug, isOwner = false, showAddButton = true 
             Producción científica del investigador
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
-            <span className="ml-2 text-blue-600">Cargando publicaciones...</span>
-          </div>
+        <CardContent className="space-y-4">
+          <LoadingCard variant="list" />
         </CardContent>
       </Card>
     )
@@ -161,114 +160,112 @@ export function PublicacionesList({ slug, isOwner = false, showAddButton = true 
       </CardHeader>
       <CardContent>
         {publicaciones.length === 0 ? (
-          <div className="text-center py-8">
-            <FileText className="h-12 w-12 text-blue-300 mx-auto mb-3" />
-            <p className="text-blue-700 font-medium mb-2">No hay publicaciones registradas</p>
-            {isOwner && (
-              <>
-                <p className="text-sm text-blue-600 mb-4">
-                  Comienza a compartir tu producción científica con la comunidad.
-                </p>
-                <Button
-                  onClick={() => router.push('/publicaciones/nueva')}
-                  className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Agregar Primera Publicación
-                </Button>
-              </>
-            )}
-          </div>
+          <EmptyState
+            icon={FileText}
+            title="No hay publicaciones registradas"
+            description={isOwner 
+              ? "Comienza a compartir tu producción científica con la comunidad." 
+              : "Este investigador aún no ha registrado publicaciones."}
+            action={isOwner ? {
+              label: "Agregar Primera Publicación",
+              onClick: () => router.push('/publicaciones/nueva')
+            } : undefined}
+          />
         ) : (
           <div className="space-y-4">
             {publicaciones.map((pub) => (
               <div 
                 key={pub.id} 
-                className="border border-blue-100 rounded-lg p-4 hover:shadow-md transition-shadow bg-blue-50/30"
+                className="group border border-blue-100 rounded-xl p-5 hover:shadow-lg hover:border-blue-200 transition-all duration-300 bg-gradient-to-br from-white to-blue-50/30 relative overflow-hidden"
               >
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <h3 className="font-semibold text-blue-900 flex-1">
-                    {pub.titulo}
-                  </h3>
-                  {pub.acceso && (
-                    <Badge 
-                      variant={pub.acceso.toLowerCase() === 'abierto' ? 'default' : 'secondary'}
-                      className="shrink-0"
-                    >
-                      {pub.acceso}
-                    </Badge>
-                  )}
-                </div>
-
-                {pub.autor && (
-                  <p className="text-sm text-blue-700 mb-2">
-                    <span className="font-medium">Autores:</span> {pub.autor}
-                  </p>
-                )}
-
-                <div className="flex flex-wrap gap-3 text-sm text-blue-600 mb-3">
-                  {pub.revista && (
-                    <span className="flex items-center gap-1">
-                      <BookOpen className="h-3.5 w-3.5" />
-                      {pub.revista}
-                    </span>
-                  )}
-                  {pub.año && (
-                    <span className="flex items-center gap-1">
-                      <Calendar className="h-3.5 w-3.5" />
-                      {pub.año}
-                    </span>
-                  )}
-                  {pub.volumen && (
-                    <span>Vol. {pub.volumen}</span>
-                  )}
-                  {pub.numero && (
-                    <span>Núm. {pub.numero}</span>
-                  )}
-                  {pub.paginas && (
-                    <span>pp. {pub.paginas}</span>
-                  )}
-                </div>
-
-                {pub.resumen && (
-                  <p className="text-sm text-blue-700 mb-3 line-clamp-2">
-                    {pub.resumen}
-                  </p>
-                )}
-
-                {pub.palabrasClave && pub.palabrasClave.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {pub.palabrasClave.slice(0, 5).map((palabra, idx) => (
-                      <Badge key={idx} variant="outline" className="text-xs">
-                        {palabra}
+                {/* Decorative gradient */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100/50 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                
+                <div className="relative z-10">
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <h3 className="font-bold text-blue-900 flex-1 text-lg group-hover:text-blue-700 transition-colors">
+                      {pub.titulo}
+                    </h3>
+                    {pub.acceso && (
+                      <Badge 
+                        variant={pub.acceso.toLowerCase() === 'abierto' ? 'default' : 'secondary'}
+                        className="shrink-0 shadow-sm"
+                      >
+                        {pub.acceso}
                       </Badge>
-                    ))}
+                    )}
                   </div>
-                )}
 
-                <div className="flex flex-wrap gap-2">
-                  {pub.doi && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
-                      onClick={() => window.open(`https://doi.org/${pub.doi}`, '_blank')}
-                    >
-                      <ExternalLink className="mr-1 h-3 w-3" />
-                      DOI
-                    </Button>
+                  {pub.autor && (
+                    <p className="text-sm text-blue-700 mb-3 font-medium">
+                      <span className="text-blue-500">Autores:</span> {pub.autor}
+                    </p>
                   )}
-                  {pub.archivoUrl && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
-                      onClick={() => window.open(pub.archivoUrl, '_blank')}
-                    >
-                      <FileText className="mr-1 h-3 w-3" />
-                      Ver PDF
-                    </Button>
+
+                  <div className="flex flex-wrap gap-4 text-sm text-blue-600 mb-3">
+                    {pub.revista && (
+                      <span className="flex items-center gap-1.5 bg-blue-50 px-2 py-1 rounded-md">
+                        <BookOpen className="h-3.5 w-3.5" />
+                        {pub.revista}
+                      </span>
+                    )}
+                    {pub.año && (
+                      <span className="flex items-center gap-1.5 bg-blue-50 px-2 py-1 rounded-md">
+                        <Calendar className="h-3.5 w-3.5" />
+                        {pub.año}
+                      </span>
+                    )}
+                    {pub.volumen && (
+                      <span className="bg-blue-50 px-2 py-1 rounded-md">Vol. {pub.volumen}</span>
+                    )}
+                    {pub.numero && (
+                      <span className="bg-blue-50 px-2 py-1 rounded-md">Núm. {pub.numero}</span>
+                    )}
+                    {pub.paginas && (
+                      <span className="bg-blue-50 px-2 py-1 rounded-md">pp. {pub.paginas}</span>
+                    )}
+                  </div>
+
+                  {pub.resumen && (
+                    <p className="text-sm text-blue-700 mb-3 line-clamp-2 leading-relaxed">
+                      {pub.resumen}
+                    </p>
                   )}
+
+                  {pub.palabrasClave && pub.palabrasClave.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {pub.palabrasClave.slice(0, 5).map((palabra, idx) => (
+                        <Badge key={idx} variant="outline" className="text-xs bg-white">
+                          {palabra}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap gap-2">
+                    {pub.doi && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs hover:bg-blue-50 hover:border-blue-300"
+                        onClick={() => window.open(`https://doi.org/${pub.doi}`, '_blank')}
+                      >
+                        <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                        Ver DOI
+                      </Button>
+                    )}
+                    {pub.archivoUrl && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs hover:bg-blue-50 hover:border-blue-300"
+                        onClick={() => window.open(pub.archivoUrl, '_blank')}
+                      >
+                        <FileText className="mr-1.5 h-3.5 w-3.5" />
+                        Ver PDF
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

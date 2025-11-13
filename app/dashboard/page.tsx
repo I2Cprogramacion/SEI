@@ -13,6 +13,7 @@ import { CvViewer } from "@/components/cv-viewer";
 import { UploadCv } from "@/components/upload-cv";
 import { GestionarCvDialog } from "@/components/gestionar-cv-dialog";
 import { PublicacionesList } from "@/components/publicaciones-list";
+import { LoadingCard } from "@/components/ui/loading-card";
 
 import {
   User as UserIcon,
@@ -153,7 +154,24 @@ export default function DashboardPage() {
   // Depuración visual y de consola
   if (!isLoaded) {
     console.log('Clerk: user no está cargado todavía');
-    return <div className="text-center p-10 text-blue-700">Cargando sesión de usuario...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
+        <div className="container mx-auto py-8 px-4 max-w-7xl">
+          <div className="mb-8">
+            <div className="h-8 w-64 bg-blue-100 rounded animate-pulse mb-2"></div>
+            <div className="h-4 w-48 bg-blue-50 rounded animate-pulse"></div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-4 space-y-6">
+              <LoadingCard variant="profile" />
+            </div>
+            <div className="lg:col-span-8">
+              <LoadingCard variant="default" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
   if (!user) {
     console.log('Clerk: user es null, no hay sesión activa');
@@ -161,7 +179,25 @@ export default function DashboardPage() {
   }
   if (isLoadingData) {
     console.log('Esperando datos del investigador...');
-    return <div className="text-center p-10 text-blue-700">Cargando datos del perfil...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
+        <div className="container mx-auto py-8 px-4 max-w-7xl">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-blue-900">Dashboard Social</h1>
+            <p className="text-base text-blue-600">Tu red de colaboración científica</p>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-4 space-y-6">
+              <LoadingCard variant="profile" />
+            </div>
+            <div className="lg:col-span-8 space-y-6">
+              <LoadingCard variant="default" />
+              <LoadingCard variant="list" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
   if (!investigadorData) {
     console.log('API /api/investigadores/perfil no devolvió datos para el usuario:', user?.primaryEmailAddress?.emailAddress || user.id);
