@@ -85,17 +85,25 @@ export async function POST(request: NextRequest) {
                       text.match(/\bCVU[\s:-]*(\d{4,8})\b/i);
       
       // Correo electrónico - patrón más robusto con validación estricta
-      let correoMatch = text.match(/(?:email|correo|e-mail|mail)[:\s]*([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/gi) ||
-                       text.match(/(?:^|\s)([A-Z0-9][A-Z0-9._%+-]*@[A-Z0-9.-]+\.[A-Z]{2,})(?:\s|$|[,;])/gi) ||
-                       text.match(/\b([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})\b/gi);
+      const correoPattern1 = text.match(/(?:email|correo|e-mail|mail)[:\s]*([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/i);
+      const correoPattern2 = text.match(/\b([A-Z0-9][A-Z0-9._%+-]*@[A-Z0-9.-]+\.[A-Z]{2,})\b/i);
       
       let correo = null;
+      const correoMatch = correoPattern1 || correoPattern2;
+      
       if (correoMatch) {
-        const emailRaw = correoMatch[1] || correoMatch[0];
-        // Extraer solo la parte del email, eliminar texto pegado
-        const emailClean = emailRaw.match(/([A-Z0-9._%+-]+@[A-Z0-9.-]+\.(com|mx|edu|org|net|gob|gov|es|cl|ar|co|br|uk|us|ca|de|fr))/i);
+        let emailRaw = correoMatch[1] || correoMatch[0];
+        // Limpiar cualquier texto pegado al final del dominio
+        // Ejemplo: @gmail.comcelular -> @gmail.com
+        const emailClean = emailRaw.match(/([A-Z0-9._%+-]+@[A-Z0-9.-]+\.(com|mx|edu|org|net|gob|gov|es|cl|ar|co|br|uk|us|ca|de|fr|it|jp|cn))/i);
         if (emailClean) {
           correo = emailClean[1].toLowerCase();
+        } else {
+          // Si no matchea con TLD específico, intentar limpiar con regex general
+          emailRaw = emailRaw.replace(/\.(com|mx|edu|org|net|gob|gov)[a-z]+$/i, '.$1');
+          if (/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailRaw)) {
+            correo = emailRaw.toLowerCase();
+          }
         }
       }
       
