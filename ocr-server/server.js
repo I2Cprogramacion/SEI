@@ -173,18 +173,31 @@ function extractData(text) {
   // Ejemplo: juan.perez@universidad.edu.mx
   // =========================================================================
   const emailPatterns = [
-    // Con etiqueta
-    /(?:email|correo|e-mail|mail)[:\s]*([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,})/gi,
-    // Sin etiqueta, formato estándar
-    /\b([A-Za-z0-9][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,})\b/g
+    // Con etiqueta (capturar solo hasta el dominio)
+    /(?:email|correo|e-mail|mail|electronic)[:\s]*([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/gi,
+    // Sin etiqueta, con word boundaries estrictos
+    /(?:^|\s)([A-Za-z0-9][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,})(?:\s|$|[,;])/g,
+    // Patrón general como último recurso
+    /([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/g
   ];
   
   for (const pattern of emailPatterns) {
     const matches = cleanText.matchAll(pattern);
     for (const match of matches) {
       let email = (match[1] || match[0]).toLowerCase().trim();
-      // Validar formato básico
-      if (/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$/i.test(email)) {
+      
+      // Limpiar caracteres no deseados al final (palabras pegadas)
+      // Remover todo después del TLD (com, mx, edu, etc.)
+      const emailMatch = email.match(/^([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/);
+      if (emailMatch) {
+        email = emailMatch[1];
+      }
+      
+      // Remover cualquier texto pegado después del dominio
+      email = email.replace(/\.(com|mx|edu|org|net|gob|gov|es|cl|ar|co|br)[a-z]+$/i, '.$1');
+      
+      // Validar formato estricto (debe terminar en TLD válido)
+      if (/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|mx|edu|org|net|gob|gov|es|cl|ar|co|br|uk|us|ca|de|fr|it|jp|cn|in|au|nz)$/i.test(email)) {
         data.correo = email;
         console.log('✅ Email encontrado:', data.correo);
         break;

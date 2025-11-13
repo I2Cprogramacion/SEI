@@ -84,8 +84,20 @@ export async function POST(request: NextRequest) {
       const cvuMatch = text.match(/(?:CVU|C\.V\.U\.?|NO\.?\s*CVU)[:\s-]*(\d{4,8})/i) || 
                       text.match(/\bCVU[\s:-]*(\d{4,8})\b/i);
       
-      // Correo electrónico - patrón más robusto
-      const correoMatch = text.match(/\b([A-Z0-9][A-Z0-9._%+-]*@[A-Z0-9.-]+\.[A-Z]{2,})\b/i);
+      // Correo electrónico - patrón más robusto con validación estricta
+      let correoMatch = text.match(/(?:email|correo|e-mail|mail)[:\s]*([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/gi) ||
+                       text.match(/(?:^|\s)([A-Z0-9][A-Z0-9._%+-]*@[A-Z0-9.-]+\.[A-Z]{2,})(?:\s|$|[,;])/gi) ||
+                       text.match(/\b([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})\b/gi);
+      
+      let correo = null;
+      if (correoMatch) {
+        const emailRaw = correoMatch[1] || correoMatch[0];
+        // Extraer solo la parte del email, eliminar texto pegado
+        const emailClean = emailRaw.match(/([A-Z0-9._%+-]+@[A-Z0-9.-]+\.(com|mx|edu|org|net|gob|gov|es|cl|ar|co|br|uk|us|ca|de|fr))/i);
+        if (emailClean) {
+          correo = emailClean[1].toLowerCase();
+        }
+      }
       
       // Teléfono - formatos mexicanos (10 dígitos)
       const telefonoMatch = text.match(/(?:tel|teléfono|phone)[:\s]*(\+?52)?[\s\-]?(\d{3})[\s\-]?(\d{3})[\s\-]?(\d{4})/i) ||
@@ -101,7 +113,7 @@ export async function POST(request: NextRequest) {
         curp: curpMatch ? curpMatch[1].toUpperCase() : null,
         rfc: rfcMatch ? rfcMatch[1].toUpperCase() : null,
         no_cvu: cvuMatch ? cvuMatch[1] : null,
-        correo: correoMatch ? correoMatch[1].toLowerCase() : null,
+        correo: correo,
         telefono: telefono,
         origen: 'ocr',
         fecha_registro: new Date().toISOString(),
