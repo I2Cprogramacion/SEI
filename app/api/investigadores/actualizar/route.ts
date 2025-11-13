@@ -2,7 +2,6 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { currentUser } from "@clerk/nextjs/server"
 import { getDatabase } from "@/lib/database-config"
-import { requireInvestigadorId } from "@/lib/auth/ownership-validator"
 
 export async function PUT(request: NextRequest) {
   try {
@@ -19,8 +18,24 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "No se pudo obtener el email del usuario" }, { status: 400 })
     }
 
-    // Validar ownership: obtener ID desde sesión (no desde request body)
-    const investigadorId = await requireInvestigadorId()
+    // Obtener el investigador_id desde la base de datos usando el correo
+    const db = await getDatabase()
+    const investigadorResult = await db.query(
+      `SELECT id FROM investigadores WHERE correo = $1 LIMIT 1`,
+      [email]
+    )
+
+    const investigadorRows = Array.isArray(investigadorResult) 
+      ? investigadorResult 
+      : (investigadorResult.rows || [])
+
+    if (investigadorRows.length === 0) {
+      return NextResponse.json({ 
+        error: "No se encontró el perfil de investigador asociado a este usuario" 
+      }, { status: 404 })
+    }
+
+    const investigadorId = investigadorRows[0].id
 
     const data = await request.json()
 
@@ -82,8 +97,6 @@ export async function PUT(request: NextRequest) {
       RETURNING id, nombre_completo, correo, clerk_user_id
     `
 
-
-    const db = await getDatabase()
     const result = await db.query(query, valores)
 
     const rows = Array.isArray(result) ? result : (result.rows || [])
