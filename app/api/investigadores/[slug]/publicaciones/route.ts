@@ -12,12 +12,18 @@ export async function GET(
     const db = await getDatabase()
     
     // Primero obtener el investigador para conseguir su nombre, correo y clerk_user_id
+    // Buscar por slug exacto O por slug sin el sufijo aleatorio O por nombre normalizado
+    const slugWithoutSuffix = slug.split('-').slice(0, -1).join('-') // Remover último segmento
+    
     const investigadorResult = await db.query(
-      `SELECT id, nombre_completo, correo, clerk_user_id
+      `SELECT id, nombre_completo, correo, clerk_user_id, slug
        FROM investigadores 
-       WHERE slug = $1 OR 
-             LOWER(REPLACE(REPLACE(nombre_completo, ' ', '-'), '.', '')) = $1`,
-      [slug.toLowerCase()]
+       WHERE slug = $1 
+          OR slug = $2
+          OR LOWER(REPLACE(REPLACE(REPLACE(nombre_completo, ' ', '-'), '.', ''), 'á', 'a')) LIKE $3
+          OR LOWER(REPLACE(REPLACE(REPLACE(nombre_completo, ' ', '-'), '.', ''), 'é', 'e')) LIKE $3
+       LIMIT 1`,
+      [slug.toLowerCase(), slugWithoutSuffix.toLowerCase(), `%${slug.toLowerCase().split('-').slice(0, -1).join('%')}%`]
     )
 
     const investigadorRows = Array.isArray(investigadorResult) 
@@ -26,6 +32,7 @@ export async function GET(
 
     if (!investigadorRows || investigadorRows.length === 0) {
       console.log('❌ [Publicaciones] Investigador no encontrado con slug:', slug)
+      console.log('   Intentó buscar también con:', slugWithoutSuffix)
       return NextResponse.json({ error: "Investigador no encontrado" }, { status: 404 })
     }
 
@@ -33,6 +40,7 @@ export async function GET(
     console.log('✅ [Publicaciones] Investigador encontrado:', { 
       id: inv.id, 
       nombre: inv.nombre_completo,
+      slug_db: inv.slug,
       clerk_id: inv.clerk_user_id 
     })
     
