@@ -78,9 +78,15 @@ export function PublicacionesList({ slug, isOwner = false, showAddButton = true 
         // El endpoint /api/publicaciones devuelve { publicaciones, filtros }
         // El endpoint /api/investigadores/[slug]/publicaciones devuelve array directo
         if (slug) {
-          setPublicaciones(Array.isArray(data) ? data : [])
+          const pubs = Array.isArray(data) ? data : []
+          console.log('🔵 [CLIENT - Perfil Público] Publicaciones recibidas:', pubs.length)
+          console.log('🔵 [CLIENT - Perfil Público] IDs:', pubs.map(p => p.id).join(', '))
+          setPublicaciones(pubs)
         } else {
-          setPublicaciones(Array.isArray(data.publicaciones) ? data.publicaciones : [])
+          const pubs = Array.isArray(data.publicaciones) ? data.publicaciones : []
+          console.log('🟢 [CLIENT - Dashboard] Publicaciones recibidas:', pubs.length)
+          console.log('🟢 [CLIENT - Dashboard] IDs:', pubs.map(p => p.id).join(', '))
+          setPublicaciones(pubs)
         }
       } catch (err) {
         console.error('Error fetching publicaciones:', err)
