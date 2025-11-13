@@ -44,26 +44,33 @@ export default function ExplorarPage() {
   const [institucionesDestacadas, setInstitucionesDestacadas] = useState<InstitucionDestacada[]>([])
   const [loading, setLoading] = useState(true)
 
-  // TODO: Conectar con APIs reales
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true)
-        // const [statsResponse, areasResponse, institutionsResponse] = await Promise.all([
-        //   fetch('/api/estadisticas'),
-        //   fetch('/api/areas-populares'),
-        //   fetch('/api/instituciones-destacadas')
-        // ])
+        const [statsResponse, areasResponse, institutionsResponse] = await Promise.all([
+          fetch('/api/estadisticas'),
+          fetch('/api/areas-populares?limit=6'),
+          fetch('/api/instituciones-destacadas?limit=4')
+        ])
 
-        // const stats = await statsResponse.json()
-        // const areas = await areasResponse.json()
-        // const institutions = await institutionsResponse.json()
+        if (statsResponse.ok) {
+          const stats = await statsResponse.json()
+          setEstadisticas(stats)
+        }
 
-        // setEstadisticas(stats)
-        // setAreasPopulares(areas)
-        // setInstitucionesDestacadas(institutions)
+        if (areasResponse.ok) {
+          const areas = await areasResponse.json()
+          setAreasPopulares(areas)
+        }
 
-        // Por ahora, datos vacíos
+        if (institutionsResponse.ok) {
+          const institutions = await institutionsResponse.json()
+          setInstitucionesDestacadas(institutions)
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error)
+        // En caso de error, mantener valores por defecto
         setEstadisticas({
           investigadores: 0,
           proyectos: 0,
@@ -74,8 +81,6 @@ export default function ExplorarPage() {
         })
         setAreasPopulares([])
         setInstitucionesDestacadas([])
-      } catch (error) {
-        console.error("Error fetching data:", error)
       } finally {
         setLoading(false)
       }

@@ -24,12 +24,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
-import { Menu, User, LogOut, LayoutDashboard, FileText, Building2, Users, Telescope, BookOpen } from "lucide-react"
+import { Menu, User, LogOut, LayoutDashboard, FileText, Building2, Users, Telescope, BookOpen, Search } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { useUser, useClerk } from "@clerk/nextjs"
-import { GlobalSearch } from "@/components/global-search"
 import { useCurrentPage } from "@/hooks/use-current-page"
 
 
@@ -229,10 +228,18 @@ export default function Navbar() {
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-3">
-              {/* Global Search */}
-              <div className="hidden md:block">
-                <GlobalSearch />
-              </div>
+              {/* Explorar Button */}
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="h-9 w-9 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                asChild
+              >
+                <Link href="/explorar">
+                  <Search className="h-4 w-4" />
+                  <span className="sr-only">Explorar</span>
+                </Link>
+              </Button>
               
               {/* IIC Button */}
               <Button 
