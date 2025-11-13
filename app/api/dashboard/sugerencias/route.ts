@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server"
 import { currentUser } from "@clerk/nextjs/server"
 import { sql } from "@vercel/postgres"
 
+// Forzar rendering dinámico (usa Clerk auth)
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
+// Cache de sugerencias por 1 hora
+export const revalidate = 3600
+
 export async function GET(request: NextRequest) {
   try {
     // Obtener usuario autenticado
@@ -31,8 +38,19 @@ export async function GET(request: NextRequest) {
 
     const perfil = miPerfil.rows[0]
     
-    // Buscar investigadores relacionados (excluyendo al usuario actual)
+    // Buscar investigadores relacionados con sistema de scoring
+    // Excluir conexiones ya establecidas y solicitudes pendientes
     const sugerencias = await sql`
+      WITH conexiones_existentes AS (
+        SELECT 
+          CASE 
+            WHEN investigador_id = ${perfil.id} THEN conectado_con_id
+            ELSE investigador_id
+          END as id_conexion
+        FROM conexiones
+        WHERE (investigador_id = ${perfil.id} OR conectado_con_id = ${perfil.id})
+          AND estado IN ('aceptada', 'pendiente')
+      )
       SELECT 
         id,
         nombre_completo,
@@ -40,14 +58,21 @@ export async function GET(request: NextRequest) {
         institucion,
         area,
         linea_investigacion,
-        ultimo_grado_estudios
+        ultimo_grado_estudios,
+        fotografia_url,
+        (
+          CASE WHEN area = ${perfil.area || ''} THEN 10 ELSE 0 END +
+          CASE WHEN LOWER(linea_investigacion) LIKE ${`%${(perfil.linea_investigacion || '').toLowerCase().split(' ').slice(0, 3).join('%')}%`} THEN 8 ELSE 0 END +
+          CASE WHEN ultimo_grado_estudios ILIKE '%doctorado%' THEN 3 ELSE 0 END
+        ) as relevancia_score
       FROM investigadores 
       WHERE id != ${perfil.id}
+        AND id NOT IN (SELECT id_conexion FROM conexiones_existentes)
         AND (
           area = ${perfil.area || ''} OR 
           LOWER(linea_investigacion) LIKE ${`%${(perfil.linea_investigacion || '').toLowerCase().split(' ').slice(0, 3).join('%')}%`}
         )
-      ORDER BY RANDOM()
+      ORDER BY relevancia_score DESC, RANDOM()
       LIMIT 6
     `
 
@@ -59,13 +84,14 @@ export async function GET(request: NextRequest) {
       institution: inv.institucion,
       area: inv.area,
       lineaInvestigacion: inv.linea_investigacion,
-      fotografiaUrl: null, // Campo no existe en BD
+      fotografiaUrl: inv.fotografia_url || null,
       title: inv.ultimo_grado_estudios,
       slug: inv.nombre_completo?.toLowerCase()
         .replace(/[^a-z0-9\s]/g, '')
         .replace(/\s+/g, '-')
         .trim() || `investigador-${inv.id}`,
-      razonSugerencia: inv.area === perfil.area ? 'Área similar' : 'Intereses relacionados'
+      razonSugerencia: inv.area === perfil.area ? 'Área similar' : 'Intereses relacionados',
+      relevanciaScore: inv.relevancia_score || 0
     }))
 
     return NextResponse.json(sugerenciasFormateadas)

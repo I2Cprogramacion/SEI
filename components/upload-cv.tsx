@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState } from "react"
+import { useDropzone } from "react-dropzone"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Upload, X, Loader2, FileText, CheckCircle, Eye } from "lucide-react"
+import { Upload, X, Loader2, FileText, CheckCircle, Eye, CloudUpload } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 interface UploadCvProps {
@@ -19,32 +20,25 @@ export function UploadCv({ value, onChange, nombreCompleto, showPreview = true }
   const [cvUrl, setCvUrl] = useState<string | null>(value || null)
   const [fileName, setFileName] = useState<string | null>(null)
   const [uploadMessage, setUploadMessage] = useState<string>("")
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const uploadFile = async (file: File) => {
     console.log("=== INICIO UPLOAD CV ===")
-    const file = e.target.files?.[0]
-    console.log("1. Archivo seleccionado:", file ? file.name : "NINGUNO")
-    
-    if (!file) {
-      console.log("No hay archivo, abortando")
-      return
-    }
+    console.log("1. Archivo seleccionado:", file.name)
 
     // Validar tipo de archivo
     console.log("2. Tipo de archivo:", file.type)
     if (file.type !== "application/pdf") {
       console.log("No es PDF")
-      setError("Por favor selecciona un archivo PDF valido")
+      setError("Por favor selecciona un archivo PDF válido")
       return
     }
 
     // Validar tamaño (maximo 10MB)
     const maxSize = 10 * 1024 * 1024 // 10MB
-    console.log("3. Tamano del archivo:", (file.size / 1024 / 1024).toFixed(2), "MB")
+    console.log("3. Tamaño del archivo:", (file.size / 1024 / 1024).toFixed(2), "MB")
     if (file.size > maxSize) {
       console.log("Archivo muy grande")
-      setError(`El archivo es demasiado grande. Tamano maximo: 10MB`)
+      setError(`El archivo es demasiado grande. Tamaño máximo: 10MB`)
       return
     }
 
@@ -55,7 +49,7 @@ export function UploadCv({ value, onChange, nombreCompleto, showPreview = true }
     setUploadMessage("Subiendo archivo...")
 
     try {
-      // Subir a Vercel Blob (funciona en la nube)
+      // Subir a Vercel Blob
       const formData = new FormData()
       formData.append("file", file)
       console.log("4. FormData creado")
@@ -86,11 +80,10 @@ export function UploadCv({ value, onChange, nombreCompleto, showPreview = true }
       onChange(result.url)
       setCvUrl(result.url)
       
-      setUploadMessage("CV actualizado exitosamente! Recargando pagina...")
+      setUploadMessage("CV actualizado exitosamente!")
       console.log("Proceso completado")
     } catch (error) {
       console.error("ERROR EN UPLOAD CV:", error)
-      console.error("Detalles:", error)
       setError(error instanceof Error ? error.message : "Error al subir el archivo")
       setCvUrl(null)
       setFileName(null)
@@ -101,13 +94,38 @@ export function UploadCv({ value, onChange, nombreCompleto, showPreview = true }
     }
   }
 
+  // Configurar react-dropzone
+  const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
+    accept: {
+      'application/pdf': ['.pdf']
+    },
+    maxSize: 10 * 1024 * 1024, // 10MB
+    multiple: false,
+    disabled: isUploading,
+    onDrop: (acceptedFiles) => {
+      if (acceptedFiles.length > 0) {
+        uploadFile(acceptedFiles[0])
+      }
+    },
+    onDropRejected: (fileRejections) => {
+      const rejection = fileRejections[0]
+      if (rejection) {
+        const errorCode = rejection.errors[0]?.code
+        if (errorCode === 'file-too-large') {
+          setError('El archivo es demasiado grande. Tamaño máximo: 10MB')
+        } else if (errorCode === 'file-invalid-type') {
+          setError('Formato inválido. Solo se permiten archivos PDF')
+        } else {
+          setError('Error al procesar el archivo')
+        }
+      }
+    }
+  })
+
   const handleRemove = () => {
     setCvUrl(null)
     setFileName(null)
     onChange("")
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
-    }
   }
 
   const handleViewPdf = () => {
@@ -164,44 +182,64 @@ export function UploadCv({ value, onChange, nombreCompleto, showPreview = true }
         </div>
       )}
 
-      {/* Boton de upload */}
-      <div className="space-y-2">
-        <input
-          ref={fileInputRef}
-          id="cv-upload"
-          type="file"
-          accept=".pdf,application/pdf"
-          onChange={handleFileChange}
-          className="hidden"
-          disabled={isUploading}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isUploading}
-          className="w-full border-blue-200 text-blue-700 hover:bg-blue-50"
-        >
+      {/* Zona de Drag & Drop */}
+      <div
+        {...getRootProps()}
+        className={`
+          relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+          transition-all duration-200 ease-in-out
+          ${isDragActive && !isDragReject ? 'border-blue-500 bg-blue-50' : ''}
+          ${isDragReject ? 'border-red-500 bg-red-50' : ''}
+          ${!isDragActive && !isDragReject ? 'border-blue-200 hover:border-blue-400 hover:bg-blue-50/50' : ''}
+          ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}
+        `}
+      >
+        <input {...getInputProps()} id="cv-upload" />
+        
+        <div className="flex flex-col items-center gap-3">
           {isUploading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Subiendo CV...
+              <Loader2 className="h-12 w-12 text-blue-600 animate-spin" />
+              <p className="text-sm font-medium text-blue-900">Subiendo CV...</p>
+              <p className="text-xs text-blue-600">{uploadMessage}</p>
             </>
-          ) : cvUrl ? (
+          ) : isDragActive && !isDragReject ? (
             <>
-              <Upload className="mr-2 h-4 w-4" />
-              Cambiar CV
+              <CloudUpload className="h-12 w-12 text-blue-600" />
+              <p className="text-sm font-medium text-blue-900">Suelta el PDF aquí</p>
+              <p className="text-xs text-blue-600">El archivo se subirá automáticamente</p>
+            </>
+          ) : isDragReject ? (
+            <>
+              <X className="h-12 w-12 text-red-600" />
+              <p className="text-sm font-medium text-red-900">Archivo no válido</p>
+              <p className="text-xs text-red-600">Solo se permiten archivos PDF de máximo 10MB</p>
             </>
           ) : (
             <>
-              <Upload className="mr-2 h-4 w-4" />
-              Subir CV (Opcional)
+              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Upload className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-blue-900">
+                  {cvUrl ? 'Arrastra un nuevo PDF o haz clic para cambiar' : 'Arrastra un PDF aquí o haz clic para seleccionar'}
+                </p>
+                <p className="text-xs text-blue-600 mt-1">
+                  Formato: PDF • Tamaño máximo: 10MB
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="border-blue-200 text-blue-700 hover:bg-blue-100 mt-2"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Seleccionar archivo
+              </Button>
             </>
           )}
-        </Button>
-        <p className="text-xs text-blue-600">
-          Formato: PDF. Tamano maximo: 10MB. Este archivo estara visible en tu perfil publico.
-        </p>
+        </div>
       </div>
 
       {isUploading && uploadMessage && (
@@ -223,10 +261,14 @@ export function UploadCv({ value, onChange, nombreCompleto, showPreview = true }
         <Alert className="bg-green-50 border-green-200">
           <CheckCircle className="h-4 w-4 text-green-600" />
           <AlertDescription className="text-green-700">
-            CV cargado correctamente. Los visitantes de tu perfil podran visualizarlo.
+            CV cargado correctamente. Los visitantes de tu perfil podrán visualizarlo.
           </AlertDescription>
         </Alert>
       )}
+
+      <p className="text-xs text-gray-500">
+        💡 <strong>Consejo:</strong> Puedes arrastrar y soltar el PDF directamente en la zona de carga o hacer clic para seleccionarlo.
+      </p>
     </div>
   )
 }

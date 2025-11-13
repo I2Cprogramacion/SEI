@@ -166,20 +166,10 @@ export default function EditarPerfilPage() {
         if (result.success && result.data) {
           const data = result.data as InvestigadorData
           setInvestigadorId(data.id)
-          // Formatear fecha_nacimiento a YYYY-MM-DD si es necesario
-          let fechaNacimiento = data.fecha_nacimiento || "";
-          if (fechaNacimiento) {
-            // Si viene como Date o string con hora, recortar solo la fecha
-            if (typeof fechaNacimiento === "string" && fechaNacimiento.includes("T")) {
-              fechaNacimiento = fechaNacimiento.split("T")[0];
-            } else if (typeof fechaNacimiento === "string" && fechaNacimiento.includes("/")) {
-              // Si viene como dd/mm/yyyy, convertir a yyyy-mm-dd
-              const parts = fechaNacimiento.split("/");
-              if (parts.length === 3) {
-                fechaNacimiento = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-              }
-            }
-          }
+          
+          // Formatear fecha_nacimiento a YYYY-MM-DD (simplificado)
+          const fechaNacimiento = data.fecha_nacimiento?.split('T')[0] || ""
+          
           setFormData({
             nombres: data.nombres || "",
             apellidos: data.apellidos || "",
@@ -437,8 +427,6 @@ export default function EditarPerfilPage() {
                     <Input
                       id="telefono"
                       name="telefono"
-                      type="tel"
-                      inputMode="numeric"
                       value={formData.telefono}
                       onChange={handleChange}
                       placeholder="Teléfono"

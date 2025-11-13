@@ -3,6 +3,10 @@ import type { NextRequest } from "next/server"
 import { currentUser } from "@clerk/nextjs/server"
 import { getDatabase } from "@/lib/database-config"
 
+// Forzar rendering dinámico (usa Clerk auth)
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function PUT(request: NextRequest) {
   try {
     // Obtener el usuario autenticado de Clerk
@@ -17,6 +21,25 @@ export async function PUT(request: NextRequest) {
     if (!email) {
       return NextResponse.json({ error: "No se pudo obtener el email del usuario" }, { status: 400 })
     }
+
+    // Obtener el investigador_id desde la base de datos usando el correo
+    const db = await getDatabase()
+    const investigadorResult = await db.query(
+      `SELECT id FROM investigadores WHERE correo = $1 LIMIT 1`,
+      [email]
+    )
+
+    const investigadorRows = Array.isArray(investigadorResult) 
+      ? investigadorResult 
+      : (investigadorResult.rows || [])
+
+    if (investigadorRows.length === 0) {
+      return NextResponse.json({ 
+        error: "No se encontró el perfil de investigador asociado a este usuario" 
+      }, { status: 404 })
+    }
+
+    const investigadorId = investigadorRows[0].id
 
     const data = await request.json()
 
@@ -68,19 +91,16 @@ export async function PUT(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Agregar el clerk_user_id y email al final para el WHERE
-    valores.push(user.id)
-    valores.push(email)
+    // Agregar el ID del investigador validado al final para el WHERE
+    valores.push(investigadorId)
 
     const query = `
       UPDATE investigadores 
       SET ${camposActualizar.join(', ')}
-      WHERE clerk_user_id = $${paramCount} OR correo = $${paramCount + 1}
+      WHERE id = $${paramCount}
       RETURNING id, nombre_completo, correo, clerk_user_id
     `
 
-
-    const db = await getDatabase()
     const result = await db.query(query, valores)
 
     const rows = Array.isArray(result) ? result : (result.rows || [])

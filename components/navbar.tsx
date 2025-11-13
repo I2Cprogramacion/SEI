@@ -38,6 +38,7 @@ export default function Navbar() {
   const [fotografiaUrl, setFotografiaUrl] = useState<string | null>(null)
   const [mensajesNoLeidos, setMensajesNoLeidos] = useState(0)
   const [conexionesPendientes, setConexionesPendientes] = useState(0)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
   const { user, isSignedIn } = useUser()
   const { signOut } = useClerk()
@@ -135,8 +136,8 @@ export default function Navbar() {
           {/* Main Navbar */}
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <div className="relative h-10 w-10 flex-shrink-0">
+            <Link href="/" className="flex items-center gap-2 lg:gap-3 hover:opacity-80 transition-opacity">
+              <div className="relative h-8 w-8 lg:h-10 lg:w-10 flex-shrink-0">
                 <Image
                   src="/images/sei-logo.png"
                   alt="SEI Logo"
@@ -146,7 +147,7 @@ export default function Navbar() {
                 />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-base lg:text-lg text-gray-900 leading-tight">
+                <span className="font-bold text-sm lg:text-lg text-gray-900 leading-tight">
                   Sistema Estatal de Investigadores
                 </span>
                 <span className="text-xs text-gray-500 hidden sm:block">Chihuahua</span>
@@ -196,14 +197,14 @@ export default function Navbar() {
 
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
-                    <Link 
-                      href="/instituciones" 
+                    <Link
+                      href="/instituciones"
                       className={cn(
-                        navigationMenuTriggerStyle(), 
+                        navigationMenuTriggerStyle(),
                         "text-gray-700 hover:text-blue-600 font-medium",
                         currentSection === 'instituciones' && "bg-blue-50 text-blue-700 border-blue-200"
                       )}
-                    > 
+                    >
                       Instituciones
                     </Link>
                   </NavigationMenuLink>
@@ -211,14 +212,14 @@ export default function Navbar() {
 
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
-                    <Link 
-                      href="/campos" 
+                    <Link
+                      href="/campos"
                       className={cn(
-                        navigationMenuTriggerStyle(), 
+                        navigationMenuTriggerStyle(),
                         "text-gray-700 hover:text-blue-600 font-medium",
                         currentSection === 'campos' && "bg-blue-50 text-blue-700 border-blue-200"
                       )}
-                    > 
+                    >
                       Campos
                     </Link>
                   </NavigationMenuLink>
@@ -227,7 +228,66 @@ export default function Navbar() {
             </NavigationMenu>
 
             {/* Right Side Actions */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 lg:gap-3">
+              {/* Mobile User Avatar - Solo mostrar en móvil cuando está autenticado */}
+              {isSignedIn && user && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="md:hidden hover:bg-gray-100">
+                      <Avatar className="h-8 w-8 ring-2 ring-blue-100">
+                        <AvatarImage 
+                          src={fotografiaUrl || user.imageUrl} 
+                          alt={getDisplayName()} 
+                        />
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-700 text-white text-xs font-semibold">
+                          {(getDisplayName().charAt(0) || "U").toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 bg-white shadow-lg">
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{getDisplayName()}</p>
+                        <p className="text-xs text-gray-500 truncate">{user.primaryEmailAddress?.emailAddress}</p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => router.push("/dashboard")} className="cursor-pointer">
+                      <LayoutDashboard className="mr-2 h-4 w-4 text-blue-600" />
+                      <span>Dashboard</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push("/dashboard/editar-perfil")} className="cursor-pointer">
+                      <User className="mr-2 h-4 w-4 text-blue-600" />
+                      <span>Editar Perfil</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push("/dashboard/mensajes")} className="cursor-pointer">
+                      <FileText className="mr-2 h-4 w-4 text-blue-600" />
+                      <span>Mensajes</span>
+                      {mensajesNoLeidos > 0 && (
+                        <Badge className="ml-auto bg-orange-500 text-white text-xs">
+                          {mensajesNoLeidos}
+                        </Badge>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push("/dashboard/conexiones")} className="cursor-pointer">
+                      <Users className="mr-2 h-4 w-4 text-blue-600" />
+                      <span>Conexiones</span>
+                      {conexionesPendientes > 0 && (
+                        <Badge className="ml-auto bg-blue-500 text-white text-xs">
+                          {conexionesPendientes}
+                        </Badge>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Cerrar sesión</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+
               {/* Explorar Button */}
               <Button 
                 variant="ghost" 
@@ -240,7 +300,7 @@ export default function Navbar() {
                   <span className="sr-only">Explorar</span>
                 </Link>
               </Button>
-              
+
               {/* IIC Button */}
               <Button 
                 className="hidden lg:flex bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all px-4 h-10" 
@@ -255,7 +315,7 @@ export default function Navbar() {
                 </a>
               </Button>
 
-              {/* User Menu */}
+              {/* Desktop User Menu */}
               {isSignedIn && user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -320,14 +380,14 @@ export default function Navbar() {
                   <Button variant="ghost" size="sm" asChild className="text-gray-700 hover:bg-gray-100 font-medium">
                     <Link href="/iniciar-sesion">Iniciar sesión</Link>
                   </Button>
-                  <Button size="sm" asChild className="bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all font-medium">
+                  <Button size="sm" asChild className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all font-medium">
                     <Link href="/registro">Registrarse</Link>
                   </Button>
                 </div>
               )}
 
-              {/* Mobile Menu */}
-              <Sheet>
+              {/* Mobile Menu Button */}
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                 <SheetTrigger asChild className="lg:hidden">
                   <Button variant="ghost" size="icon" className="text-gray-700 hover:bg-gray-100">
                     <Menu className="h-5 w-5" />
@@ -341,7 +401,7 @@ export default function Navbar() {
                   
                   <div className="flex flex-col gap-2 mt-6">
                     {/* Logo en móvil */}
-                    <div className="flex items-center gap-3 px-2 mb-4">
+                    <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-2 mb-4 hover:opacity-80 transition-opacity">
                       <div className="relative h-8 w-8">
                         <Image
                           src="/images/sei-logo.png"
@@ -354,36 +414,90 @@ export default function Navbar() {
                         <span className="font-bold text-sm text-gray-900">SEI Chihuahua</span>
                         <span className="text-xs text-gray-500">Sistema Estatal de Investigadores</span>
                       </div>
-                    </div>
+                    </Link>
 
                     {/* Navegación */}
                     <div className="space-y-1">
-                      <Button variant="ghost" size="sm" className="w-full justify-start text-gray-700 hover:bg-gray-100" asChild>
-                        <Link href="/investigadores">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className={cn(
+                          "w-full justify-start text-gray-700 hover:bg-gray-100",
+                          currentSection === 'explorar' && "bg-blue-50 text-blue-700"
+                        )}
+                        asChild
+                      >
+                        <Link href="/explorar" onClick={() => setMobileMenuOpen(false)}>
+                          <Search className="mr-2 h-4 w-4" />
+                          Explorar
+                        </Link>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className={cn(
+                          "w-full justify-start text-gray-700 hover:bg-gray-100",
+                          currentSection === 'investigadores' && "bg-blue-50 text-blue-700"
+                        )}
+                        asChild
+                      >
+                        <Link href="/investigadores" onClick={() => setMobileMenuOpen(false)}>
                           <Users className="mr-2 h-4 w-4" />
                           Investigadores
                         </Link>
                       </Button>
-                      <Button variant="ghost" size="sm" className="w-full justify-start text-gray-700 hover:bg-gray-100" asChild>
-                        <Link href="/proyectos">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className={cn(
+                          "w-full justify-start text-gray-700 hover:bg-gray-100",
+                          currentSection === 'proyectos' && "bg-blue-50 text-blue-700"
+                        )}
+                        asChild
+                      >
+                        <Link href="/proyectos" onClick={() => setMobileMenuOpen(false)}>
                           <Telescope className="mr-2 h-4 w-4" />
                           Proyectos
                         </Link>
                       </Button>
-                      <Button variant="ghost" size="sm" className="w-full justify-start text-gray-700 hover:bg-gray-100" asChild>
-                        <Link href="/publicaciones">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className={cn(
+                          "w-full justify-start text-gray-700 hover:bg-gray-100",
+                          currentSection === 'publicaciones' && "bg-blue-50 text-blue-700"
+                        )}
+                        asChild
+                      >
+                        <Link href="/publicaciones" onClick={() => setMobileMenuOpen(false)}>
                           <FileText className="mr-2 h-4 w-4" />
                           Publicaciones
                         </Link>
                       </Button>
-                      <Button variant="ghost" size="sm" className="w-full justify-start text-gray-700 hover:bg-gray-100" asChild>
-                        <Link href="/instituciones">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className={cn(
+                          "w-full justify-start text-gray-700 hover:bg-gray-100",
+                          currentSection === 'instituciones' && "bg-blue-50 text-blue-700"
+                        )}
+                        asChild
+                      >
+                        <Link href="/instituciones" onClick={() => setMobileMenuOpen(false)}>
                           <Building2 className="mr-2 h-4 w-4" />
                           Instituciones
                         </Link>
                       </Button>
-                      <Button variant="ghost" size="sm" className="w-full justify-start text-gray-700 hover:bg-gray-100" asChild>
-                        <Link href="/campos">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className={cn(
+                          "w-full justify-start text-gray-700 hover:bg-gray-100",
+                          currentSection === 'campos' && "bg-blue-50 text-blue-700"
+                        )}
+                        asChild
+                      >
+                        <Link href="/campos" onClick={() => setMobileMenuOpen(false)}>
                           <BookOpen className="mr-2 h-4 w-4" />
                           Campos
                         </Link>
@@ -391,9 +505,9 @@ export default function Navbar() {
                     </div>
 
                     {/* IIC Button móvil */}
-                    <Button className="w-full mt-4 bg-purple-500 text-white hover:bg-purple-600" asChild>
+                    <Button className="w-full mt-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800" asChild>
                       <a href="https://i2c.com.mx/" target="_blank" rel="noopener noreferrer">
-                        <div className="flex items-baseline">
+                        <div className="flex items-baseline gap-1">
                           <span className="text-lg font-bold tracking-tight">I</span>
                           <span className="text-lg font-bold tracking-tight">I</span>
                           <span className="text-lg font-bold tracking-tight">C</span>
@@ -404,13 +518,13 @@ export default function Navbar() {
                     {/* User Info o Auth Buttons */}
                     {isSignedIn && user ? (
                       <div className="mt-6 pt-6 border-t space-y-2">
-                        <div className="flex items-center gap-3 px-2 py-3 rounded-lg bg-gray-50">
-                          <Avatar className="h-10 w-10 ring-2 ring-blue-100">
+                        <div className="flex items-center gap-3 px-2 py-3 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100">
+                          <Avatar className="h-10 w-10 ring-2 ring-blue-200">
                             <AvatarImage 
                               src={fotografiaUrl || user.imageUrl} 
                               alt={getDisplayName()} 
                             />
-                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-700 text-white">
+                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-700 text-white font-semibold">
                               {(getDisplayName().charAt(0) || "U").toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
@@ -418,19 +532,64 @@ export default function Navbar() {
                             <div className="text-sm font-semibold text-gray-900 truncate">
                               {getDisplayName()}
                             </div>
-                            <div className="text-xs text-gray-500 truncate">
+                            <div className="text-xs text-gray-600 truncate">
                               {user.primaryEmailAddress?.emailAddress}
                             </div>
                           </div>
                         </div>
-                        <Button variant="ghost" size="sm" className="w-full justify-start text-gray-700 hover:bg-gray-100" asChild>
-                          <Link href="/dashboard">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className={cn(
+                            "w-full justify-start text-gray-700 hover:bg-gray-100",
+                            currentSection === 'dashboard' && "bg-blue-50 text-blue-700"
+                          )}
+                          asChild
+                        >
+                          <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
                             <LayoutDashboard className="mr-2 h-4 w-4" />
                             Dashboard
                           </Link>
                         </Button>
-                        <Button variant="ghost" size="sm" className="w-full justify-start text-gray-700 hover:bg-gray-100" asChild>
-                          <Link href="/dashboard/editar-perfil">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start text-gray-700 hover:bg-gray-100 relative" 
+                          asChild
+                        >
+                          <Link href="/dashboard/mensajes" onClick={() => setMobileMenuOpen(false)}>
+                            <FileText className="mr-2 h-4 w-4" />
+                            Mensajes
+                            {mensajesNoLeidos > 0 && (
+                              <Badge className="ml-auto bg-orange-500 text-white text-xs">
+                                {mensajesNoLeidos}
+                              </Badge>
+                            )}
+                          </Link>
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start text-gray-700 hover:bg-gray-100 relative" 
+                          asChild
+                        >
+                          <Link href="/dashboard/conexiones" onClick={() => setMobileMenuOpen(false)}>
+                            <Users className="mr-2 h-4 w-4" />
+                            Conexiones
+                            {conexionesPendientes > 0 && (
+                              <Badge className="ml-auto bg-blue-500 text-white text-xs">
+                                {conexionesPendientes}
+                              </Badge>
+                            )}
+                          </Link>
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start text-gray-700 hover:bg-gray-100" 
+                          asChild
+                        >
+                          <Link href="/dashboard/editar-perfil" onClick={() => setMobileMenuOpen(false)}>
                             <User className="mr-2 h-4 w-4" />
                             Editar Perfil
                           </Link>
@@ -438,8 +597,11 @@ export default function Navbar() {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="w-full justify-start border-red-200 text-red-600 hover:bg-red-50" 
-                          onClick={handleLogout}
+                          className="w-full justify-start border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700" 
+                          onClick={() => {
+                            setMobileMenuOpen(false)
+                            handleLogout()
+                          }}
                         >
                           <LogOut className="mr-2 h-4 w-4" />
                           Cerrar sesión
@@ -447,11 +609,24 @@ export default function Navbar() {
                       </div>
                     ) : (
                       <div className="mt-6 pt-6 border-t space-y-2">
-                        <Button variant="ghost" size="sm" className="w-full justify-start text-gray-700 hover:bg-gray-100" asChild>
-                          <Link href="/iniciar-sesion">Iniciar sesión</Link>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full justify-center text-gray-700 hover:bg-gray-100 border-gray-300" 
+                          asChild
+                        >
+                          <Link href="/iniciar-sesion" onClick={() => setMobileMenuOpen(false)}>
+                            Iniciar sesión
+                          </Link>
                         </Button>
-                        <Button size="sm" className="w-full bg-purple-500 text-white hover:bg-purple-600" asChild>
-                          <Link href="/registro">Registrarse</Link>
+                        <Button 
+                          size="sm" 
+                          className="w-full justify-center bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md" 
+                          asChild
+                        >
+                          <Link href="/registro" onClick={() => setMobileMenuOpen(false)}>
+                            Registrarse
+                          </Link>
                         </Button>
                       </div>
                     )}
@@ -465,14 +640,6 @@ export default function Navbar() {
     </>
   )
 }
-
-
-
-
-
-
-
-
 
 const ListItem = React.forwardRef<
   React.ElementRef<"a">, 

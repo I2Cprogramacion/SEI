@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server"
 import { currentUser } from "@clerk/nextjs/server"
 import { sql } from "@vercel/postgres"
 
+// Forzar rendering dinámico (usa Clerk auth)
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function GET(request: NextRequest) {
   try {
     // Obtener usuario autenticado
@@ -71,37 +75,55 @@ export async function GET(request: NextRequest) {
       console.log("No se pudieron contar proyectos:", error)
     }
 
-    // Conexiones (simulado - para implementación futura)
-    const totalConexiones = 0
+    // Contar conexiones activas del investigador
+    let totalConexiones = 0
+    try {
+      const conexiones = await sql`
+        SELECT COUNT(*) as total
+        FROM conexiones
+        WHERE (investigador_id = ${perfil.id} OR conectado_con_id = ${perfil.id})
+          AND estado = 'aceptada'
+      `
+      
+      if (conexiones.rows.length > 0 && conexiones.rows[0].total) {
+        totalConexiones = parseInt(conexiones.rows[0].total)
+      }
+    } catch (error) {
+      console.log("No se pudieron contar conexiones:", error)
+    }
 
     // Calcular porcentaje de perfil completo
     const camposRequeridos = await sql`
       SELECT 
         nombre_completo, 
         correo, 
-        telefono, 
+        telefono,
+        fotografia_url,
         institucion, 
         area, 
         linea_investigacion, 
         ultimo_grado_estudios, 
-        empleo_actual
+        empleo_actual,
+        cv_url
       FROM investigadores 
       WHERE id = ${perfil.id}
     `
 
     let camposCompletados = 0
-    const totalCampos = 8
+    const totalCampos = 10
     
     if (camposRequeridos.rows.length > 0) {
       const datos = camposRequeridos.rows[0]
-      if (datos.nombre_completo) camposCompletados++
-      if (datos.correo) camposCompletados++
-      if (datos.telefono) camposCompletados++
-      if (datos.institucion) camposCompletados++
-      if (datos.area) camposCompletados++
-      if (datos.linea_investigacion) camposCompletados++
-      if (datos.ultimo_grado_estudios) camposCompletados++
-      if (datos.empleo_actual) camposCompletados++
+      if (datos.nombre_completo && datos.nombre_completo.trim()) camposCompletados++
+      if (datos.correo && datos.correo.trim()) camposCompletados++
+      if (datos.telefono && datos.telefono.trim()) camposCompletados++
+      if (datos.fotografia_url && datos.fotografia_url.trim()) camposCompletados++
+      if (datos.institucion && datos.institucion.trim()) camposCompletados++
+      if (datos.area && datos.area.trim()) camposCompletados++
+      if (datos.linea_investigacion && datos.linea_investigacion.trim()) camposCompletados++
+      if (datos.ultimo_grado_estudios && datos.ultimo_grado_estudios.trim()) camposCompletados++
+      if (datos.empleo_actual && datos.empleo_actual.trim()) camposCompletados++
+      if (datos.cv_url && datos.cv_url.trim()) camposCompletados++
     }
 
     const perfilCompleto = Math.round((camposCompletados / totalCampos) * 100)
