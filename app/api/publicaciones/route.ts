@@ -151,6 +151,8 @@ export async function GET(request: NextRequest) {
     // Parse optional query param to filter by uploader (clerk_user_id)
     const url = new URL(request.url)
     const clerkUserId = url.searchParams.get('clerk_user_id')
+    
+    console.log('📌 [GET Publicaciones] Solicitadas para clerk_user_id:', clerkUserId)
 
     // Base query selects uploader info
     let publicacionesQuery = `
@@ -177,6 +179,17 @@ export async function GET(request: NextRequest) {
     try {
       const pubsResult = await db.query(publicacionesQuery, values)
       const pubsRows = Array.isArray(pubsResult) ? pubsResult : pubsResult.rows
+      
+      console.log(`✅ [GET Publicaciones] Encontradas ${pubsRows?.length || 0} publicaciones`)
+      if (pubsRows?.length > 0) {
+        console.log('📄 [GET Publicaciones] Primeras 3 publicaciones:', 
+          pubsRows.slice(0, 3).map((p: any) => ({ 
+            id: p.id, 
+            titulo: p.titulo?.substring(0, 50),
+            clerk_user_id: p.clerk_user_id 
+          }))
+        )
+      }
 
       // Transformar campos (autor, palabras_clave) que están guardados como CSV en el esquema actual
       publicaciones = (pubsRows || []).map((r: any) => ({
