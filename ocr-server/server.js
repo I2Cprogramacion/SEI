@@ -135,56 +135,32 @@ function extractData(text) {
   }
 
   // =========================================================================
-  // CVU (número de 4-8 dígitos con validación mejorada)
+  // CVU (número de 4-8 dígitos, típicamente después de "CVU:" o "NO.CVU:")
   // Ejemplo: CVU: 123456 o NO. CVU: 654321
-  // Evitar: fechas, códigos postales, años, números de página
   // =========================================================================
   const cvuPatterns = [
-    // Con etiqueta específica CVU (más confiable)
+    // Con etiqueta específica
     /(?:CVU|C\.V\.U\.?|NO\.?\s*CVU)[:\s-]*(\d{4,8})/gi,
     /(?:número|numero|no\.?)\s*(?:CVU|cvu)[:\s-]*(\d{4,8})/gi,
     // Dentro de contexto
-    /\bCVU[\s:-]*(\d{4,8})\b/gi
+    /\bCVU[\s:-]*(\d{4,8})\b/gi,
+    // Número aislado de 5-7 dígitos (último recurso)
+    /\b(\d{5,7})\b/g
   ];
   
   let potentialCVU = null;
-  let hasExplicitCVULabel = false;
-  
   for (const pattern of cvuPatterns) {
     const matches = cleanText.matchAll(pattern);
     for (const match of matches) {
       const captured = match[1] || match[0].match(/\d{4,8}/)?.[0];
-      
       if (captured && captured.length >= 4 && captured.length <= 8) {
-        // Verificar si tiene etiqueta explícita "CVU"
-        const hasLabel = /CVU|C\.V\.U\./i.test(match[0]);
-        
-        // No aceptar años (1900-2099)
-        if (captured.length === 4 && /^(19|20)\d{2}$/.test(captured)) continue;
-        
-        // No aceptar códigos postales comunes mexicanos (5 dígitos que empiezan con ciertos números)
-        if (captured.length === 5 && /^(0[1-9]|[1-9]\d)\d{3}$/.test(captured)) {
-          // Verificar si es código postal común
-          const cp = parseInt(captured);
-          if ((cp >= 1000 && cp <= 99999) && !hasLabel) continue; // Solo rechazar si no tiene etiqueta
-        }
-        
-        // Preferir números con etiqueta explícita
-        // Secundariamente, preferir números de 5-7 dígitos
-        if (hasLabel) {
-          potentialCVU = captured;
-          hasExplicitCVULabel = true;
-          console.log('🔍 CVU con etiqueta encontrado:', potentialCVU);
-          break;
-        } else if (!potentialCVU && captured.length >= 5 && captured.length <= 7) {
+        // Preferir números de 5-7 dígitos
+        if (!potentialCVU || (captured.length >= 5 && captured.length <= 7)) {
           potentialCVU = captured;
           console.log('🔍 CVU potencial encontrado:', potentialCVU);
         }
       }
     }
-    
-    // Si encontramos uno con etiqueta, detener
-    if (hasExplicitCVULabel) break;
   }
   
   if (potentialCVU) {
@@ -193,13 +169,13 @@ function extractData(text) {
   }
 
   // =========================================================================
-  // Email (formato estándar, más permisivo y con limpieza)
+  // Email (formato estándar, más permisivo)
   // Ejemplo: juan.perez@universidad.edu.mx
   // =========================================================================
   const emailPatterns = [
-    // Con etiqueta explícita y captura precisa
-    /(?:email|correo|e-mail|mail)[:\s]*([A-Za-z0-9][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,})/gi,
-    // Sin etiqueta, formato estándar (más estricto al inicio)
+    // Con etiqueta
+    /(?:email|correo|e-mail|mail)[:\s]*([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,})/gi,
+    // Sin etiqueta, formato estándar
     /\b([A-Za-z0-9][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,})\b/g
   ];
   
@@ -207,18 +183,10 @@ function extractData(text) {
     const matches = cleanText.matchAll(pattern);
     for (const match of matches) {
       let email = (match[1] || match[0]).toLowerCase().trim();
-      
-      // Limpiar cualquier texto adicional después del email
-      // Ejemplo: "correo@dominio.com celular" -> "correo@dominio.com"
-      email = email.split(/[\s,;()]+/)[0];
-      
-      // Remover puntos finales accidentales
-      email = email.replace(/\.+$/, '');
-      
-      // Validar formato básico (debe terminar con dominio válido)
-      if (/^[A-Za-z0-9][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$/i.test(email)) {
+      // Validar formato básico
+      if (/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$/i.test(email)) {
         data.correo = email;
-        console.log('✅ Email encontrado y limpiado:', data.correo);
+        console.log('✅ Email encontrado:', data.correo);
         break;
       }
     }
@@ -226,23 +194,21 @@ function extractData(text) {
   }
 
   // =========================================================================
-  // Teléfono (formatos mexicanos mejorados con validación estricta)
+  // Teléfono (formatos mexicanos mejorados)
   // Ejemplos: 614-123-4567, (614) 123 4567, +52 614 123 4567, 6141234567
-  // Evitar: fechas, IDs, números de página, etc.
   // =========================================================================
   const phonePatterns = [
-    // Con etiqueta explícita (más confiable)
+    // Con etiqueta y formato completo
     /(?:teléfono|telefono|tel|phone|celular|móvil|movil)[:\s]*(\+?52)?[\s\-]?(\(?[0-9]{3}\)?)?[\s\-]?([0-9]{3})[\s\-]?([0-9]{4})/gi,
-    // Formato internacional +52
-    /\+52[\s\-]?([0-9]{2,3})[\s\-]?([0-9]{3,4})[\s\-]?([0-9]{4})/g,
-    // Formato con paréntesis en área
-    /\(([0-9]{3})\)[\s\-]?([0-9]{3})[\s\-]?([0-9]{4})/g,
-    // Formato con guiones consistentes
-    /\b([0-9]{3})[\s\-]([0-9]{3})[\s\-]([0-9]{4})\b/g
+    // Formato internacional
+    /\+52[\s\-]?(\d{2,3})[\s\-]?(\d{3,4})[\s\-]?(\d{4})/g,
+    // Formato con paréntesis
+    /\((\d{3})\)[\s\-]?(\d{3})[\s\-]?(\d{4})/g,
+    // Formato con guiones
+    /(\d{3})[\s\-](\d{3})[\s\-](\d{4})/g,
+    // 10 dígitos seguidos
+    /\b(\d{10})\b/g
   ];
-  
-  let bestPhoneMatch = null;
-  let hasPhoneLabel = false;
   
   for (const pattern of phonePatterns) {
     const matches = cleanText.matchAll(pattern);
@@ -250,130 +216,53 @@ function extractData(text) {
       // Extraer solo dígitos
       let phoneRaw = match[0].replace(/\D/g, '');
       
-      // Si tiene +52 al inicio, removerlo
+      // Si tiene +52, removerlo
       if (phoneRaw.startsWith('52') && phoneRaw.length > 10) {
         phoneRaw = phoneRaw.substring(2);
       }
       
-      // Validaciones estrictas para 10 dígitos
-      if (phoneRaw.length === 10) {
-        // No aceptar secuencias repetidas (0000000000, 1111111111, etc.)
-        if (/^(\d)\1{9}$/.test(phoneRaw)) continue;
-        
-        // No aceptar números que sean parte del CURP
-        if (data.curp && phoneRaw === data.curp.substring(4, 14)) continue;
-        
-        // No aceptar números que sean parte del RFC
-        if (data.rfc && phoneRaw === data.rfc.substring(4, 14)) continue;
-        
-        // Validar que inicie con código de área válido mexicano (2-9)
-        const areaCode = phoneRaw.substring(0, 3);
-        if (!/^[2-9]\d{2}$/.test(areaCode)) continue;
-        
-        // Dar prioridad a números con etiqueta explícita
-        const hasLabel = /teléfono|telefono|tel|phone|celular|móvil|movil/i.test(match[0]);
-        
-        if (hasLabel || !bestPhoneMatch) {
-          bestPhoneMatch = phoneRaw;
-          hasPhoneLabel = hasLabel;
-          console.log(`🔍 Teléfono candidato: ${phoneRaw} (con etiqueta: ${hasLabel})`);
-          
-          // Si tiene etiqueta, es muy confiable, detener búsqueda
-          if (hasLabel) break;
-        }
+      // Validar que tenga 10 dígitos y no sea una secuencia obvia
+      if (phoneRaw.length === 10 && 
+          !/^0{10}|1{10}|2{10}/.test(phoneRaw) &&
+          phoneRaw !== data.curp?.substring(4, 14)) { // No es parte del CURP
+        data.telefono = phoneRaw;
+        console.log('✅ Teléfono encontrado:', data.telefono);
+        break;
       }
     }
-    
-    // Si ya encontramos uno con etiqueta, detener
-    if (hasPhoneLabel) break;
-  }
-  
-  if (bestPhoneMatch) {
-    data.telefono = bestPhoneMatch;
-    console.log('✅ Teléfono confirmado:', data.telefono);
+    if (data.telefono) break;
   }
 
   // =========================================================================
-  // Nombre completo (patrones mejorados con validación estricta)
+  // Nombre completo (patrones mejorados)
   // =========================================================================
   const namePatterns = [
-    // Con título académico (más confiable)
+    // Con título académico
     /(?:Dr\.?|Dra\.?|Prof\.?|Profesora?\.?|Mtro\.?|Mtra\.?|Lic\.?|Ing\.?)\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,4})/g,
-    // Con etiqueta "Nombre:" o "Name:"
-    /(?:Nombre|Name|Nombre\s+completo)[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,4})/gi,
-    // Patrón de 2-4 palabras capitalizadas (menos confiable)
+    // Con etiqueta "Nombre:"
+    /(?:Nombre|Name)[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,4})/gi,
+    // Patrón de 2-4 palabras capitalizadas
     /\b([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,3})\b/g
   ];
-
-  // Palabras a excluir que no son nombres
-  const excludedWords = [
-    'Universidad', 'Instituto', 'Centro', 'Facultad', 'Escuela', 'Departamento',
-    'Nacional', 'Autónoma', 'Tecnológico', 'Politécnico', 'Superior', 'Federal',
-    'Estatal', 'Municipal', 'Público', 'Privado', 'Internacional',
-    'Doctorado', 'Maestría', 'Licenciatura', 'Ingeniería', 'Profesor', 'Investigador',
-    'Coordinador', 'Director', 'Jefe', 'Responsable', 'Titular', 'Asociado',
-    'Sistema', 'Perfil', 'Único', 'Investigadores', 'Conacyt', 'Prodep', 'Promep'
-  ];
-
-  let bestNameMatch = null;
-  let hasNameLabel = false;
 
   for (const pattern of namePatterns) {
     const matches = cleanText.matchAll(pattern);
     for (const match of matches) {
       let nombre = (match[1] || match[0]).trim();
-      
-      // Limpiar títulos académicos si quedaron
+      // Limpiar títulos si quedaron
       nombre = nombre.replace(/^(?:Dr\.?|Dra\.?|Prof\.?|Mtro\.?|Mtra\.?|Lic\.?|Ing\.?)\s+/i, '');
       
-      // Validar que no contenga números
-      if (/\d/.test(nombre)) continue;
-      
-      // Validar que no sea todo mayúsculas (probablemente sea institución o acrónimo)
-      if (nombre === nombre.toUpperCase()) continue;
-      
-      // Validar palabras
+      // Validar que tenga al menos 2 palabras y cada palabra tenga al menos 2 caracteres
       const palabras = nombre.split(/\s+/);
-      
-      // Debe tener entre 2 y 5 palabras
-      if (palabras.length < 2 || palabras.length > 5) continue;
-      
-      // Cada palabra debe tener al menos 2 caracteres
-      if (!palabras.every(p => p.length >= 2)) continue;
-      
-      // No debe comenzar con palabras excluidas
-      let isExcluded = false;
-      for (const excluded of excludedWords) {
-        if (nombre.toLowerCase().includes(excluded.toLowerCase())) {
-          isExcluded = true;
-          break;
-        }
-      }
-      if (isExcluded) continue;
-      
-      // Validar que cada palabra empiece con mayúscula
-      if (!palabras.every(p => /^[A-ZÁÉÍÓÚÑ]/.test(p))) continue;
-      
-      // Verificar si tiene etiqueta explícita o título académico
-      const hasLabel = /(?:Nombre|Name|Dr\.?|Dra\.?|Prof\.?|Mtro\.?|Mtra\.?)/i.test(match[0]);
-      
-      if (hasLabel || !bestNameMatch) {
-        bestNameMatch = nombre;
-        hasNameLabel = hasLabel;
-        console.log(`🔍 Nombre candidato: "${nombre}" (con etiqueta: ${hasLabel})`);
-        
-        // Si tiene etiqueta o título, es muy confiable
-        if (hasLabel) break;
+      if (palabras.length >= 2 && palabras.length <= 5 &&
+          palabras.every(p => p.length >= 2) &&
+          !/^(Universidad|Instituto|Centro|Facultad|Escuela)/i.test(nombre)) {
+        data.nombre_completo = nombre;
+        console.log('✅ Nombre encontrado:', data.nombre_completo);
+        break;
       }
     }
-    
-    // Si ya encontramos uno con etiqueta, detener
-    if (hasNameLabel) break;
-  }
-
-  if (bestNameMatch) {
-    data.nombre_completo = bestNameMatch;
-    console.log('✅ Nombre confirmado:', data.nombre_completo);
+    if (data.nombre_completo) break;
   }
 
   // =========================================================================
