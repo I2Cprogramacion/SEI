@@ -69,15 +69,26 @@ export async function POST(request: NextRequest) {
     
     // Extraer los campos del payload
     let fields = (payload as any).data || payload;
-    console.log('📦 Campos recibidos del backend OCR:', fields);
+    console.log('📦 Campos recibidos del backend OCR:', JSON.stringify(fields, null, 2));
 
-    // Si el backend ya extrajo los datos estructurados, usarlos directamente
-    if (fields && !fields.text && (fields.curp || fields.rfc || fields.no_cvu || fields.correo || fields.telefono)) {
-      console.log('✅ Backend OCR ya extrajo datos estructurados');
-      // Los datos ya vienen procesados del servidor OCR
+    // Verificar si el backend devolvió el texto plano que necesitamos procesar
+    // El backend SIEMPRE devuelve estructura {curp, rfc, no_cvu, correo, telefono, ...}
+    // Si NO tiene 'text', significa que el backend ya intentó extraer (exitoso o no)
+    const hasText = fields && typeof fields.text === 'string';
+    const hasStructuredData = fields && (fields.curp || fields.rfc || fields.no_cvu || fields.correo || fields.telefono);
+    
+    console.log('🔍 Análisis de respuesta del backend:');
+    console.log('   - hasText:', hasText);
+    console.log('   - hasStructuredData:', hasStructuredData);
+    
+    // Si el backend ya intentó extraer datos (con o sin éxito), usar su resultado
+    if (!hasText) {
+      console.log('✅ Usando datos del backend OCR (extraídos o vacíos)');
+      // Los datos ya vienen procesados del servidor OCR, usar tal cual
+      // Puede que sean todos null si el backend no encontró nada
     }
     // Si solo hay 'text', intentar extraer campos clave con regex mejorados
-    else if (fields && typeof fields.text === 'string') {
+    else if (hasText) {
       console.log('📝 Procesando texto plano con regex...');
       const text = fields.text;
       
@@ -152,31 +163,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('📊 Campos finales procesados:', fields);
+    console.log('📊 Campos finales procesados:', JSON.stringify(fields, null, 2));
 
     // Validar que se extrajeron datos mínimos
-    const hasMinimalData = fields && (fields.curp || fields.rfc || fields.no_cvu);
+    // NOTA: Permitir continuar si al menos hay CURP O RFC O CVU O (correo Y teléfono)
+    const hasCURP = fields && fields.curp && fields.curp.length === 18;
+    const hasRFC = fields && fields.rfc && fields.rfc.length === 13;
+    const hasCVU = fields && fields.no_cvu && fields.no_cvu.length >= 4;
+    const hasContacto = fields && fields.correo && fields.telefono;
+    
+    const hasMinimalData = hasCURP || hasRFC || hasCVU || hasContacto;
+    
+    console.log('🔍 Validación de datos mínimos:');
+    console.log('   - CURP válido (18 chars):', hasCURP ? '✅' : '❌', fields?.curp || 'null');
+    console.log('   - RFC válido (13 chars):', hasRFC ? '✅' : '❌', fields?.rfc || 'null');
+    console.log('   - CVU válido (4+ dígitos):', hasCVU ? '✅' : '❌', fields?.no_cvu || 'null');
+    console.log('   - Contacto (correo+tel):', hasContacto ? '✅' : '❌');
+    console.log('   - Resultado final:', hasMinimalData ? '✅ VÁLIDO' : '❌ RECHAZADO');
     
     if (!hasMinimalData) {
-      console.log('⚠️ No se encontraron datos mínimos:', {
-        curp: fields?.curp || 'no encontrado',
-        rfc: fields?.rfc || 'no encontrado',
-        no_cvu: fields?.no_cvu || 'no encontrado',
-        correo: fields?.correo || 'no encontrado',
-        telefono: fields?.telefono || 'no encontrado'
-      });
-      
       return NextResponse.json(
         {
-          error: 'No se pudieron extraer datos clave del PDF (CURP, RFC o CVU). Verifica que el documento contenga esta información de forma legible.',
-          curp: fields?.curp || null,
-          rfc: fields?.rfc || null,
-          no_cvu: fields?.no_cvu || null,
-          correo: fields?.correo || null,
-          telefono: fields?.telefono || null,
+          error: 'No se pudieron extraer datos clave del PDF. Se requiere al menos: CURP (18 caracteres) O RFC (13 caracteres) O CVU (4+ dígitos) O (correo electrónico + teléfono).',
+          detalles: {
+            curp: fields?.curp ? `Encontrado pero inválido: ${fields.curp} (longitud: ${fields.curp.length})` : 'No encontrado',
+            rfc: fields?.rfc ? `Encontrado pero inválido: ${fields.rfc} (longitud: ${fields.rfc.length})` : 'No encontrado',
+            no_cvu: fields?.no_cvu ? `Encontrado: ${fields.no_cvu}` : 'No encontrado',
+            correo: fields?.correo || 'No encontrado',
+            telefono: fields?.telefono || 'No encontrado'
+          },
           origen: 'ocr',
           filename: file.name,
-          sugerencia: 'Si el PDF es una imagen escaneada, asegúrate de que el texto sea legible. Los campos CURP, RFC o CVU deben estar visibles y sin errores.'
+          sugerencias: [
+            '• Verifica que el PDF contenga texto legible (no sea una imagen de baja calidad)',
+            '• El CURP debe tener exactamente 18 caracteres',
+            '• El RFC debe tener exactamente 13 caracteres',
+            '• El CVU debe tener al menos 4 dígitos',
+            '• Alternativamente, asegúrate de incluir correo electrónico y teléfono'
+          ]
         },
         { status: 400 }
       );
