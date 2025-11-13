@@ -58,14 +58,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-// Define missing types
-type Estadisticas = {
-  publicaciones: number;
-  proyectos: number;
-  conexiones: number;
-  perfilCompleto: number;
-};
-
 // Main dashboard component
 export default function DashboardPage() {
   const { user, isLoaded } = useUser();
@@ -73,22 +65,15 @@ export default function DashboardPage() {
   const { signOut } = useClerk();
 
   const [investigadorData, setInvestigadorData] = useState<any>(null);
-  const [estadisticas, setEstadisticas] = useState<Estadisticas>({
-    publicaciones: 0,
-    proyectos: 0,
-    conexiones: 0,
-    perfilCompleto: 0
-  });
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isLoadingSugerencias, setIsLoadingSugerencias] = useState(true);
-  const [isLoadingEstadisticas, setIsLoadingEstadisticas] = useState(true);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [gestionarCvDialogOpen, setGestionarCvDialogOpen] = useState(false);
   const [sugerencias, setSugerencias] = useState<any>(null);
   const [isDesactivando, setIsDesactivando] = useState(false);
   const [areasInput, setAreasInput] = useState("");
   const [isFixingCvUrl, setIsFixingCvUrl] = useState(false);
-  const [tipoDocumento, setTipoDocumento] = useState<'PU' | 'Dictamen'>('PU');
+  const [tipoDocumento, setTipoDocumento] = useState<'PU' | 'Dictamen' | 'SNI'>('PU');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Cargar datos del investigador
@@ -141,24 +126,6 @@ export default function DashboardPage() {
     cargarSugerencias();
   }, [isLoaded, user]);
 
-  // Cargar estadísticas
-  useEffect(() => {
-    const cargarEstadisticas = async () => {
-      if (!isLoaded || !user) return;
-      try {
-        const response = await fetch("/api/dashboard/estadisticas");
-        if (response.ok) {
-          const data = await response.json();
-          setEstadisticas(data);
-        }
-      } catch (error) {
-        console.error("Error al cargar estadísticas:", error);
-      } finally {
-        setIsLoadingEstadisticas(false);
-      }
-    };
-    cargarEstadisticas();
-  }, [isLoaded, user]);
 
   // Función para eliminar cuenta
   const handleEliminarCuenta = async () => {
@@ -242,6 +209,13 @@ export default function DashboardPage() {
     typeof investigadorData.dictamen_url === 'string' && 
     investigadorData.dictamen_url.trim() !== '' 
     ? getValidCvUrl(investigadorData.dictamen_url) 
+    : null;
+
+  // Obtener URL válida del SNI (permitir null/vacío)
+  const validSniUrl = investigadorData?.sni_url && 
+    typeof investigadorData.sni_url === 'string' && 
+    investigadorData.sni_url.trim() !== '' 
+    ? getValidCvUrl(investigadorData.sni_url) 
     : null;
 
   // Función para reparar URL de CV problemática
@@ -626,7 +600,7 @@ export default function DashboardPage() {
                 </CardDescription>
               </div>
               <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-                {/* Botón desplegable para cambiar entre PU y Dictamen */}
+                {/* Botón desplegable para cambiar entre PU, Dictamen y SNI */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -634,7 +608,7 @@ export default function DashboardPage() {
                       className="border-blue-300 text-blue-700 hover:bg-blue-50 w-full sm:w-auto"
                       size="sm"
                     >
-                      {tipoDocumento === 'PU' ? 'PU' : 'Dictamen'}
+                      {tipoDocumento === 'PU' ? 'PU' : tipoDocumento === 'Dictamen' ? 'Dictamen' : 'SNI'}
                       <ChevronDown className="ml-2 h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -651,9 +625,15 @@ export default function DashboardPage() {
                     >
                       Cambiar Dictamen
                     </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setTipoDocumento('SNI')}
+                      className="cursor-pointer"
+                    >
+                      Cambiar SNI
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                {((tipoDocumento === 'PU' && validCvUrl) || (tipoDocumento === 'Dictamen' && validDictamenUrl)) && (
+                {((tipoDocumento === 'PU' && validCvUrl) || (tipoDocumento === 'Dictamen' && validDictamenUrl) || (tipoDocumento === 'SNI' && validSniUrl)) && (
                   <Button
                     onClick={() => setGestionarCvDialogOpen(true)}
                     variant="outline"
@@ -832,7 +812,7 @@ export default function DashboardPage() {
                   />
                 </div>
               )
-            ) : (
+            ) : tipoDocumento === 'Dictamen' ? (
               // Contenido del Dictamen
               validDictamenUrl ? (
                 <>
@@ -927,6 +907,101 @@ export default function DashboardPage() {
                   />
                 </div>
               )
+            ) : (
+              // Contenido del SNI
+              validSniUrl ? (
+                <>
+                  {/* Vista previa del PDF del SNI */}
+                  <div className="w-full space-y-4">
+                    {/* Botones de acción mejorados */}
+                    <div className="flex flex-col md:flex-row flex-wrap gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200 min-w-0 max-w-full">
+                      <Button
+                        onClick={() => window.open(validSniUrl, "_blank", "noopener,noreferrer")}
+                        className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 min-w-0 max-w-full truncate"
+                      >
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        Abrir PDF en Nueva Pestaña
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          const link = document.createElement('a')
+                          link.href = validSniUrl
+                          link.download = `${investigadorData?.nombre_completo?.replace(/\s+/g, '_') || 'sni'}_sni.pdf`
+                          document.body.appendChild(link)
+                          link.click()
+                          document.body.removeChild(link)
+                        }}
+                        className="w-full md:w-auto border-blue-300 text-blue-700 hover:bg-blue-50 min-w-0 max-w-full truncate"
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        Descargar PDF
+                      </Button>
+                    </div>
+
+                    {/* Vista previa del PDF con iframe simple */}
+                    <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200" style={{ height: '650px' }}>
+                      <iframe
+                        src={validSniUrl}
+                        className="w-full h-full"
+                        title="Vista previa del SNI"
+                        style={{ border: 'none' }}
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-4 p-6">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                    <FileText className="h-12 w-12 text-blue-400 mx-auto mb-3" />
+                    <p className="text-blue-700 font-medium mb-2">SNI no disponible</p>
+                    <p className="text-sm text-blue-600 mb-4">
+                      Sube tu documento SNI en formato PDF para visualizarlo aquí.
+                    </p>
+                  </div>
+                  <UploadCv
+                    value={investigadorData?.sni_url || ""}
+                    onChange={async (url) => {
+                      console.log("=== SNI SUBIDO ===")
+                      console.log("URL recibida:", url)
+                      
+                      // Actualizar el SNI en la base de datos
+                      try {
+                        const response = await fetch('/api/investigadores/update-sni', {
+                          method: 'POST',
+                          headers: { 
+                            'Content-Type': 'application/json'
+                          },
+                          body: JSON.stringify({ sni_url: url })
+                        })
+                        
+                        console.log("Response status:", response.status)
+                        const responseData = await response.json()
+                        console.log("Response data:", responseData)
+                        
+                        if (response.ok) {
+                          console.log("✅ SNI actualizado en la base de datos")
+                          // Actualizar el estado local
+                          if (investigadorData) {
+                            setInvestigadorData({ ...investigadorData, sni_url: url })
+                          }
+                          alert("¡SNI subido exitosamente! Recargando página...")
+                          // Recargar la página para mostrar el SNI
+                          window.location.reload()
+                        } else {
+                          console.error("❌ Error en la respuesta:", responseData)
+                          alert(`Error al actualizar: ${responseData.error || 'Error desconocido'}`)
+                        }
+                      } catch (error) {
+                        console.error('❌ Error al actualizar SNI:', error)
+                        alert('Error al actualizar el SNI. Por favor, intenta de nuevo.')
+                      }
+                    }}
+                    nombreCompleto={investigadorData?.nombre_completo || "Usuario"}
+                    showPreview={true}
+                  />
+                </div>
+              )
             )}
           </CardContent>
         </Card>
@@ -944,67 +1019,6 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
         </Card>
-
-        {/* Estadísticas */}
-        <div className="mt-6 md:mt-8">
-          <Card className="bg-white border-blue-100 shadow-md">
-            <CardHeader>
-              <CardTitle className="text-blue-900 text-lg md:text-xl">Resumen de Actividad</CardTitle>
-              <CardDescription className="text-blue-600 text-sm">
-                Estadísticas de tu perfil de investigador
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-center">
-                <div className="p-3 md:p-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                  {isLoadingEstadisticas ? (
-                    <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin mx-auto mb-2" />
-                  ) : (
-                    <div className="text-2xl md:text-3xl font-bold mb-1">{estadisticas.publicaciones}</div>
-                  )}
-                  <div className="text-xs md:text-sm opacity-90 flex items-center justify-center gap-1">
-                    <BookOpen className="h-3 w-3 md:h-4 md:w-4" />
-                    Publicaciones
-                  </div>
-                </div>
-                <div className="p-3 md:p-4 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                  {isLoadingEstadisticas ? (
-                    <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin mx-auto mb-2" />
-                  ) : (
-                    <div className="text-2xl md:text-3xl font-bold mb-1">{estadisticas.proyectos}</div>
-                  )}
-                  <div className="text-xs md:text-sm opacity-90 flex items-center justify-center gap-1">
-                    <FileText className="h-3 w-3 md:h-4 md:w-4" />
-                    Proyectos
-                  </div>
-                </div>
-                <div className="p-3 md:p-4 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                  {isLoadingEstadisticas ? (
-                    <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin mx-auto mb-2" />
-                  ) : (
-                    <div className="text-2xl md:text-3xl font-bold mb-1">{estadisticas.conexiones}</div>
-                  )}
-                  <div className="text-xs md:text-sm opacity-90 flex items-center justify-center gap-1">
-                    <Users className="h-3 w-3 md:h-4 md:w-4" />
-                    Conexiones
-                  </div>
-                </div>
-                <div className="p-3 md:p-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                  {isLoadingEstadisticas ? (
-                    <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin mx-auto mb-2" />
-                  ) : (
-                    <div className="text-2xl md:text-3xl font-bold mb-1">{estadisticas.perfilCompleto}%</div>
-                  )}
-                  <div className="text-xs md:text-sm opacity-90 flex items-center justify-center gap-1">
-                    <BarChart3 className="h-3 w-3 md:h-4 md:w-4" />
-                    Perfil Completo
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
 
         {/* Zona de peligro - Ocultar perfil y Eliminar cuenta */}
         <div className="mt-6 md:mt-8">
@@ -1105,14 +1119,16 @@ export default function DashboardPage() {
       <GestionarCvDialog
         open={gestionarCvDialogOpen}
         onOpenChange={setGestionarCvDialogOpen}
-        cvUrlActual={tipoDocumento === 'PU' ? investigadorData?.cv_url : investigadorData?.dictamen_url}
+        cvUrlActual={tipoDocumento === 'PU' ? investigadorData?.cv_url : tipoDocumento === 'Dictamen' ? investigadorData?.dictamen_url : investigadorData?.sni_url}
         tipoDocumento={tipoDocumento}
         onCvUpdated={async (newUrl) => {
           if (investigadorData) {
             if (tipoDocumento === 'PU') {
               setInvestigadorData({ ...investigadorData, cv_url: newUrl || undefined })
-            } else {
+            } else if (tipoDocumento === 'Dictamen') {
               setInvestigadorData({ ...investigadorData, dictamen_url: newUrl || undefined })
+            } else {
+              setInvestigadorData({ ...investigadorData, sni_url: newUrl || undefined })
             }
           }
           
