@@ -273,18 +273,20 @@ export default function InvestigadoresPage() {
 
                         {/* Badge principal de área - Centrado y prominente */}
                         {investigador.area && (
-                          <AnimatedBadge 
-                            variant="secondary" 
-                            className="mb-4 sm:mb-5 bg-blue-50 text-blue-700 text-xs sm:text-sm font-semibold px-3 py-1.5 max-w-[90%] truncate overflow-hidden uppercase"
-                          >
-                            {investigador.area}
-                          </AnimatedBadge>
+                          <div className="w-full mb-4 sm:mb-5 px-2">
+                            <AnimatedBadge 
+                              variant="secondary" 
+                              className="bg-blue-50 text-blue-700 text-xs sm:text-sm font-semibold px-3 py-1.5 w-full overflow-hidden"
+                            >
+                              <span className="block truncate uppercase">{investigador.area}</span>
+                            </AnimatedBadge>
+                          </div>
                         )}
 
                         {/* Información de contacto */}
-                        <div className="w-full space-y-2 sm:space-y-2.5 text-xs sm:text-sm mb-3">
+                        <div className="w-full space-y-2 sm:space-y-2.5 text-xs sm:text-sm mb-3 px-2">
                           {investigador.institucion && investigador.institucion.trim() !== '' && (
-                            <div className="flex items-center justify-center gap-1.5 text-blue-600 px-2 max-w-full">
+                            <div className="flex items-center justify-center gap-1 text-blue-600 max-w-full">
                               <Building className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
                               <span className="text-xs font-medium text-center truncate min-w-0 flex-1">{investigador.institucion}</span>
                               <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 ml-1 flex-shrink-0 font-medium">
@@ -294,7 +296,7 @@ export default function InvestigadoresPage() {
                           )}
 
                           {investigador.telefono && (
-                            <div className="flex items-center justify-center gap-1.5 text-blue-600 px-2 max-w-full">
+                            <div className="flex items-center justify-center gap-1 text-blue-600 max-w-full">
                               <Phone className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
                               <span className="text-xs text-center truncate min-w-0 flex-1">{investigador.telefono}</span>
                             </div>
@@ -303,13 +305,13 @@ export default function InvestigadoresPage() {
 
                         {/* Badge de líneas de investigación - Keywords style */}
                         {investigador.lineaInvestigacion && (
-                          <div className="w-full mt-3 sm:mt-4 px-2 max-w-full overflow-hidden">
+                          <div className="w-full mt-3 sm:mt-4 px-2">
                             <AnimatedBadge 
                               variant="outline" 
                               interactive 
-                              className="text-[10px] sm:text-xs border-blue-200 text-blue-700 bg-blue-50/50 px-3 py-1.5 max-w-full truncate overflow-hidden font-medium uppercase"
+                              className="border-blue-200 text-blue-700 bg-blue-50/50 px-3 py-1.5 w-full overflow-hidden"
                             >
-                              {investigador.lineaInvestigacion}
+                              <span className="block truncate text-[10px] sm:text-xs font-medium uppercase">{investigador.lineaInvestigacion}</span>
                             </AnimatedBadge>
                           </div>
                         )}
