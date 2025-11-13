@@ -53,7 +53,7 @@ const upload = multer({
 // =============================================================================
 
 /**
- * Extrae información específica del texto usando regex mejorados
+ * Extrae información específica del texto usando regex
  */
 function extractData(text) {
   const data = {
@@ -69,36 +69,27 @@ function extractData(text) {
     experiencia_laboral: null
   };
 
-  // Limpiar y normalizar el texto
-  let cleanText = text
-    .replace(/\s+/g, ' ')  // Múltiples espacios a uno solo
-    .replace(/[ÌÍÎÏ]/g, 'I') // Normalizar caracteres especiales
-    .replace(/[ÒÓÔÕÖ]/g, 'O')
-    .replace(/[ÙÚÛÜ]/g, 'U')
-    .trim();
-  
+  // Limpiar el texto
+  const cleanText = text.replace(/\s+/g, ' ').trim();
   console.log('📝 Texto limpio (primeros 500 chars):', cleanText.substring(0, 500));
 
   // =========================================================================
-  // CURP (18 caracteres: 4 letras + 6 dígitos + H/M + 5 letras + 1 alfanumérico + 1 dígito)
-  // Ejemplo: AESR850312HCHMNL02
-  // Patrones mejorados para capturar variaciones
+  // CURP (18 caracteres exactos: 4 letras + 6 dígitos + H/M + 5 letras + 1 alfanumérico + 1 dígito)
+  // Ejemplo: BAOA850312HCHRRL02
   // =========================================================================
   const curpPatterns = [
-    // Con etiqueta explícita
-    /(?:CURP|C\.U\.R\.P\.?)[:\s]*([A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d)/gi,
-    // Sin etiqueta, solo el patrón
-    /\b([A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d)\b/g,
-    // Con separadores o espacios accidentales
-    /\b([A-Z]{4}\s?\d{6}\s?[HM]\s?[A-Z]{5}\s?[A-Z0-9]\s?\d)\b/g
+    // Primero buscar con etiqueta explícita
+    /(?:CURP|curp)[:\s]*([A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d)/gi,
+    // Luego sin etiqueta pero con validación estricta
+    /\b([A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d)\b/g
   ];
   
   for (const pattern of curpPatterns) {
     const matches = cleanText.matchAll(pattern);
     for (const match of matches) {
-      let curp = (match[1] || match[0]).replace(/\s/g, '').toUpperCase();
-      // Validar longitud exacta
-      if (curp.length === 18 && /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/.test(curp)) {
+      const curp = (match[1] || match[0]).toUpperCase();
+      // Validar que no sea parte de otra palabra
+      if (curp.length === 18) {
         data.curp = curp;
         console.log('✅ CURP encontrado:', data.curp);
         break;
@@ -109,23 +100,19 @@ function extractData(text) {
 
   // =========================================================================
   // RFC (13 caracteres: 4 letras + 6 dígitos + 3 alfanuméricos)
-  // Ejemplo: AESR850312AB1
+  // Ejemplo: BAOA850312AB1
   // =========================================================================
   const rfcPatterns = [
-    // Con etiqueta explícita
-    /(?:RFC|R\.F\.C\.?)[:\s]*([A-Z]{4}\d{6}[A-Z0-9]{3})/gi,
-    // Sin etiqueta, solo el patrón
-    /\b([A-Z]{4}\d{6}[A-Z0-9]{3})\b/g,
-    // Con separadores o espacios
-    /\b([A-Z]{4}\s?\d{6}\s?[A-Z0-9]{3})\b/g
+    /(?:RFC|rfc)[:\s]*([A-Z]{4}\d{6}[A-Z0-9]{3})/gi,
+    /\b([A-Z]{4}\d{6}[A-Z0-9]{3})\b/g
   ];
   
   for (const pattern of rfcPatterns) {
     const matches = cleanText.matchAll(pattern);
     for (const match of matches) {
-      let rfc = (match[1] || match[0]).replace(/\s/g, '').toUpperCase();
-      // Validar longitud exacta y que no sea el mismo que CURP
-      if (rfc.length === 13 && /^[A-Z]{4}\d{6}[A-Z0-9]{3}$/.test(rfc) && rfc !== data.curp?.substring(0, 13)) {
+      const rfc = (match[1] || match[0]).toUpperCase();
+      // Evitar confusión con CURP - RFC debe ser exactamente 13 caracteres
+      if (rfc.length === 13 && rfc !== data.curp?.substring(0, 13)) {
         data.rfc = rfc;
         console.log('✅ RFC encontrado:', data.rfc);
         break;
@@ -135,56 +122,70 @@ function extractData(text) {
   }
 
   // =========================================================================
-  // CVU (número de 4-8 dígitos, típicamente después de "CVU:" o "NO.CVU:")
-  // Ejemplo: CVU: 123456 o NO. CVU: 654321
+  // CVU (número de 5-8 dígitos, evitar años, códigos postales y teléfonos)
+  // Ejemplo: CVU: 521748
   // =========================================================================
   const cvuPatterns = [
-    // Con etiqueta específica
-    /(?:CVU|C\.V\.U\.?|NO\.?\s*CVU)[:\s-]*(\d{4,8})/gi,
-    /(?:número|numero|no\.?)\s*(?:CVU|cvu)[:\s-]*(\d{4,8})/gi,
-    // Dentro de contexto
-    /\bCVU[\s:-]*(\d{4,8})\b/gi,
-    // Número aislado de 5-7 dígitos (último recurso)
-    /\b(\d{5,7})\b/g
+    // Primero buscar con etiqueta explícita (mayor prioridad)
+    /(?:CVU|cvu|C\.V\.U\.)[:\s-]*(\d{5,8})/gi,
+    /(?:número|numero|no\.?|#)\s*(?:CVU|cvu)[:\s-]*(\d{5,8})/gi,
+    // Luego sin etiqueta, pero con más contexto
+    /\bCVU\s*[:\-]?\s*(\d{5,8})\b/gi
   ];
   
-  let potentialCVU = null;
+  const cvuCandidates = [];
+  
   for (const pattern of cvuPatterns) {
     const matches = cleanText.matchAll(pattern);
     for (const match of matches) {
-      const captured = match[1] || match[0].match(/\d{4,8}/)?.[0];
-      if (captured && captured.length >= 4 && captured.length <= 8) {
-        // Preferir números de 5-7 dígitos
-        if (!potentialCVU || (captured.length >= 5 && captured.length <= 7)) {
-          potentialCVU = captured;
-          console.log('🔍 CVU potencial encontrado:', potentialCVU);
+      const extracted = match[1] || match[0].match(/\d{5,8}/)?.[0];
+      if (extracted) {
+        const num = extracted;
+        const numVal = parseInt(num);
+        
+        // Validaciones para evitar falsos positivos
+        const isYear = numVal >= 1900 && numVal <= 2100 && num.length === 4;
+        const isZipCode = num.length === 5 && numVal >= 1000 && numVal <= 99999;
+        const isPhone = num.length === 10;
+        const hasLabel = match[0].toLowerCase().includes('cvu');
+        
+        if (!isYear && !isZipCode && !isPhone) {
+          // Dar prioridad a los que tienen etiqueta explícita
+          cvuCandidates.push({ value: num, priority: hasLabel ? 1 : 2 });
         }
       }
     }
   }
   
-  if (potentialCVU) {
-    data.no_cvu = potentialCVU;
-    console.log('✅ CVU confirmado:', data.no_cvu);
+  // Ordenar por prioridad y tomar el mejor candidato
+  if (cvuCandidates.length > 0) {
+    cvuCandidates.sort((a, b) => a.priority - b.priority);
+    data.no_cvu = cvuCandidates[0].value;
+    console.log('✅ CVU encontrado:', data.no_cvu);
   }
 
   // =========================================================================
-  // Email (formato estándar, más permisivo)
-  // Ejemplo: juan.perez@universidad.edu.mx
+  // Email (formato estándar, limpieza de texto adicional)
+  // Ejemplo: correo: alfonsobarrosobarajas@gmail.comcelular
   // =========================================================================
   const emailPatterns = [
-    // Con etiqueta
-    /(?:email|correo|e-mail|mail)[:\s]*([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,})/gi,
-    // Sin etiqueta, formato estándar
-    /\b([A-Za-z0-9][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,})\b/g
+    /(?:email|correo|e-mail|e\.mail)[:\s]*([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/gi,
+    /\b([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\b/g
   ];
   
   for (const pattern of emailPatterns) {
     const matches = cleanText.matchAll(pattern);
     for (const match of matches) {
-      let email = (match[1] || match[0]).toLowerCase().trim();
-      // Validar formato básico
-      if (/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$/i.test(email)) {
+      let email = (match[1] || match[0]).toLowerCase();
+      
+      // Limpiar texto adicional pegado al final
+      email = email.replace(/(celular|telefono|teléfono|movil|móvil).*$/i, '');
+      
+      // Remover puntos finales si están pegados al email
+      email = email.replace(/\.+$/, '');
+      
+      // Validar que el dominio sea válido
+      if (email.match(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/)) {
         data.correo = email;
         console.log('✅ Email encontrado:', data.correo);
         break;
@@ -194,171 +195,193 @@ function extractData(text) {
   }
 
   // =========================================================================
-  // Teléfono (formatos mexicanos mejorados)
-  // Ejemplos: 614-123-4567, (614) 123 4567, +52 614 123 4567, 6141234567
+  // Teléfono (formatos mexicanos: 10 dígitos, validar código de área)
+  // Ejemplos: 6144609002, 614-460-9002, (614) 460 9002
   // =========================================================================
   const phonePatterns = [
-    // Con etiqueta y formato completo
-    /(?:teléfono|telefono|tel|phone|celular|móvil|movil)[:\s]*(\+?52)?[\s\-]?(\(?[0-9]{3}\)?)?[\s\-]?([0-9]{3})[\s\-]?([0-9]{4})/gi,
-    // Formato internacional
-    /\+52[\s\-]?(\d{2,3})[\s\-]?(\d{3,4})[\s\-]?(\d{4})/g,
-    // Formato con paréntesis
-    /\((\d{3})\)[\s\-]?(\d{3})[\s\-]?(\d{4})/g,
-    // Formato con guiones
-    /(\d{3})[\s\-](\d{3})[\s\-](\d{4})/g,
-    // 10 dígitos seguidos
-    /\b(\d{10})\b/g
+    /(?:teléfono|telefono|tel\.?|phone|celular|móvil|movil|cel\.?)[:\s]*(\+?52\s?)?\(?([2-9]\d{2})\)?[-.\s]?(\d{3})[-.\s]?(\d{4})/gi,
+    /\b(\+?52\s?)?\(?([2-9]\d{2})\)?[-.\s]?(\d{3})[-.\s]?(\d{4})\b/g
   ];
+  
+  const phoneCandidates = [];
   
   for (const pattern of phonePatterns) {
     const matches = cleanText.matchAll(pattern);
     for (const match of matches) {
-      // Extraer solo dígitos
-      let phoneRaw = match[0].replace(/\D/g, '');
+      // Extraer solo los dígitos
+      const phoneRaw = match[0].replace(/\D/g, '');
+      // Si tiene más de 10 dígitos (ej: +52), tomar últimos 10
+      const phone = phoneRaw.length > 10 ? phoneRaw.slice(-10) : phoneRaw;
       
-      // Si tiene +52, removerlo
-      if (phoneRaw.startsWith('52') && phoneRaw.length > 10) {
-        phoneRaw = phoneRaw.substring(2);
-      }
-      
-      // Validar que tenga 10 dígitos y no sea una secuencia obvia
-      if (phoneRaw.length === 10 && 
-          !/^0{10}|1{10}|2{10}/.test(phoneRaw) &&
-          phoneRaw !== data.curp?.substring(4, 14)) { // No es parte del CURP
-        data.telefono = phoneRaw;
-        console.log('✅ Teléfono encontrado:', data.telefono);
-        break;
+      // Validar que sea exactamente 10 dígitos
+      if (phone.length === 10) {
+        const areaCode = phone.substring(0, 3);
+        const firstDigit = parseInt(areaCode[0]);
+        
+        // Validar que el código de área sea válido (2-9, no 0 o 1)
+        if (firstDigit >= 2 && firstDigit <= 9) {
+          // Evitar números con patrones repetitivos obvios
+          const isRepetitive = phone.match(/(\d)\1{9}/) || // todos iguales
+                               phone.match(/0123456789/) || // secuencia
+                               phone.match(/1234567890/);
+          
+          if (!isRepetitive) {
+            const hasLabel = match[0].toLowerCase().match(/tel|phone|celular|móvil|movil/);
+            phoneCandidates.push({ value: phone, priority: hasLabel ? 1 : 2 });
+          }
+        }
       }
     }
-    if (data.telefono) break;
+  }
+  
+  // Ordenar por prioridad y tomar el mejor
+  if (phoneCandidates.length > 0) {
+    phoneCandidates.sort((a, b) => a.priority - b.priority);
+    data.telefono = phoneCandidates[0].value;
+    console.log('✅ Teléfono encontrado:', data.telefono);
   }
 
   // =========================================================================
-  // Nombre completo (patrones mejorados)
+  // Nombre completo (mejorado para evitar falsos positivos)
+  // Ejemplos: Dr. Alfonso Barroso Barajas, Nombre: María García López
   // =========================================================================
+  const excludedWords = [
+    'investigador', 'investigadora', 'profesor', 'profesora', 'doctor', 'doctora',
+    'maestro', 'maestra', 'titular', 'asociado', 'asociada', 'asistente',
+    'universidad', 'instituto', 'centro', 'facultad', 'departamento',
+    'curriculum', 'vitae', 'perfil', 'unico', 'único', 'nacional',
+    'sistema', 'investigadores', 'conacyt', 'cvu', 'curp', 'rfc',
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+    'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo',
+    'enero', 'telefono', 'teléfono', 'celular', 'correo', 'email'
+  ];
+  
   const namePatterns = [
     // Con título académico
-    /(?:Dr\.?|Dra\.?|Prof\.?|Profesora?\.?|Mtro\.?|Mtra\.?|Lic\.?|Ing\.?)\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,4})/g,
-    // Con etiqueta "Nombre:"
-    /(?:Nombre|Name)[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,4})/gi,
-    // Patrón de 2-4 palabras capitalizadas
-    /\b([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,3})\b/g
+    /(?:Dr\.?|Dra\.?|Prof\.?|Profesora?\.?|Mtro\.?|Mtra\.?|Ing\.?|Lic\.?)\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,3})\b/g,
+    // Con etiqueta explícita
+    /(?:Nombre|Name|Nombres?)[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,3})\b/gi,
+    // Patrón general (2-4 palabras capitalizadas)
+    /\b([A-ZÁÉÍÓÚÑ][a-záéíóúñ]{2,}(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{2,}){1,3})\b/g
   ];
 
-  for (const pattern of namePatterns) {
+  const nameCandidates = [];
+
+  for (let i = 0; i < namePatterns.length; i++) {
+    const pattern = namePatterns[i];
     const matches = cleanText.matchAll(pattern);
+    
     for (const match of matches) {
-      let nombre = (match[1] || match[0]).trim();
-      // Limpiar títulos si quedaron
-      nombre = nombre.replace(/^(?:Dr\.?|Dra\.?|Prof\.?|Mtro\.?|Mtra\.?|Lic\.?|Ing\.?)\s+/i, '');
+      const name = (match[1] || match[0]).trim();
+      const words = name.split(/\s+/);
       
-      // Validar que tenga al menos 2 palabras y cada palabra tenga al menos 2 caracteres
-      const palabras = nombre.split(/\s+/);
-      if (palabras.length >= 2 && palabras.length <= 5 &&
-          palabras.every(p => p.length >= 2) &&
-          !/^(Universidad|Instituto|Centro|Facultad|Escuela)/i.test(nombre)) {
-        data.nombre_completo = nombre;
-        console.log('✅ Nombre encontrado:', data.nombre_completo);
-        break;
+      // Validaciones
+      const hasNumbers = /\d/.test(name);
+      const hasAllUppercase = name === name.toUpperCase() && name.length > 5;
+      const hasExcludedWord = words.some(word => 
+        excludedWords.includes(word.toLowerCase())
+      );
+      const hasTooManyWords = words.length > 4;
+      const hasTooFewWords = words.length < 2;
+      const hasValidLength = words.every(w => w.length >= 2 && w.length <= 20);
+      const hasLabel = match[0].match(/nombre|name|dr\.|dra\./i);
+      
+      if (!hasNumbers && !hasAllUppercase && !hasExcludedWord && 
+          !hasTooManyWords && !hasTooFewWords && hasValidLength) {
+        // Prioridad: 1 = con etiqueta/título, 2 = patrón de primeras líneas, 3 = genérico
+        const priority = hasLabel ? 1 : (i === 0 ? 2 : 3);
+        nameCandidates.push({ value: name, priority });
       }
     }
-    if (data.nombre_completo) break;
+  }
+  
+  // Ordenar por prioridad y tomar el mejor
+  if (nameCandidates.length > 0) {
+    nameCandidates.sort((a, b) => a.priority - b.priority);
+    data.nombre_completo = nameCandidates[0].value;
+    console.log('✅ Nombre encontrado:', data.nombre_completo);
   }
 
   // =========================================================================
-  // Fecha de nacimiento (formatos variados)
+  // Fecha de nacimiento (formatos: DD/MM/YYYY, DD-MM-YYYY)
   // =========================================================================
   const datePatterns = [
-    // Con etiqueta
-    /(?:fecha\s+de\s+nacimiento|nacimiento|birth|born)[:\s]*(\d{1,2}[\s\/\-\.]\d{1,2}[\s\/\-\.]\d{4}|\d{4}[\s\/\-\.]\d{1,2}[\s\/\-\.]\d{1,2})/gi,
-    // Sin etiqueta, formato DD/MM/YYYY o YYYY-MM-DD
-    /\b(\d{1,2}[\s\/\-\.]\d{1,2}[\s\/\-\.](19|20)\d{2})\b/g,
-    /\b((19|20)\d{2}[\s\/\-\.]\d{1,2}[\s\/\-\.]\d{1,2})\b/g
+    /(?:fecha\s+de\s+nacimiento|nacimiento|birth|born)[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/gi,
+    /\b(\d{1,2}[\/\-]\d{1,2}[\/\-](19|20)\d{2})\b/g
   ];
 
   for (const pattern of datePatterns) {
     const matches = cleanText.matchAll(pattern);
     for (const match of matches) {
-      let fecha = (match[1] || match[0]).replace(/\s/g, '').trim();
-      // Validar que tenga año entre 1920 y 2010 (razonable para investigadores)
-      if (/19[2-9]\d|20[0-1]\d/.test(fecha)) {
-        data.fecha_nacimiento = fecha;
-        console.log('✅ Fecha nacimiento encontrada:', data.fecha_nacimiento);
-        break;
+      const dateStr = match[1] || match[0].match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/)?.[0];
+      if (dateStr) {
+        const parts = dateStr.split(/[\/\-]/);
+        const day = parseInt(parts[0]);
+        const month = parseInt(parts[1]);
+        const year = parseInt(parts[2]);
+        
+        // Validar que sea una fecha razonable
+        if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && 
+            year >= 1940 && year <= 2010) {
+          data.fecha_nacimiento = dateStr;
+          console.log('✅ Fecha nacimiento encontrada:', data.fecha_nacimiento);
+          break;
+        }
       }
     }
     if (data.fecha_nacimiento) break;
   }
 
   // =========================================================================
-  // Institución (mejorado)
+  // Institución (universidades, institutos, centros de investigación)
   // =========================================================================
   const institutionPatterns = [
-    // Nombres completos de instituciones
-    /(?:Universidad|Instituto|Centro|Facultad|Escuela)[\s\w]+(?:de|del|de\s+la|Autónoma|Nacional|Tecnológico|Politécnico|Tecnológica|Estatal|Federal)[\s\w,]+/gi,
-    // Acrónimos comunes
-    /\b(UACH|UNAM|IPN|ITESM|UAM|UANL|UABC|UDG|BUAP|UV|UJAT|UNACH|UAEH|CINVESTAV|CONACYT|CIBNOR|CICESE|COLMEX|ECOSUR)\b/gi,
-    // Con contexto "Institución:"
-    /(?:Institución|Affiliation|Institution)[:\s]+([^\n,.]{10,100})/gi
+    /(?:Universidad|Instituto|Centro|Facultad|Escuela)\s+[A-ZÁÉÍÓÚÑ][\w\s]+(?:de|del|de\s+la|Autónoma|Nacional|Tecnológico|Politécnico)[\w\s]+/gi,
+    /\b(UACH|UNAM|IPN|ITESM|UANL|UABC|UDG|UAM|CINVESTAV|CONACYT|CIMAV|CICESE)\b/gi
   ];
 
   for (const pattern of institutionPatterns) {
-    const matches = cleanText.matchAll(pattern);
-    for (const match of matches) {
-      let inst = (match[1] || match[0]).trim();
-      if (inst.length >= 4 && inst.length <= 200) {
-        data.institucion = inst;
-        console.log('✅ Institución encontrada:', data.institucion);
-        break;
-      }
+    const match = cleanText.match(pattern);
+    if (match) {
+      data.institucion = match[0].trim();
+      console.log('✅ Institución encontrada:', data.institucion);
+      break;
     }
-    if (data.institucion) break;
   }
 
   // =========================================================================
   // Grado máximo de estudios
   // =========================================================================
   const degreePatterns = [
-    // Grados completos con área
-    /(Doctorado|PhD|D\.?Sc\.?|Maestría|Master|MSc|M\.?A\.?|Licenciatura|Ingeniería|Ing\.?|Lic\.?)[\s\w]*(?:en|de|del|in)[\s\w]{3,50}/gi,
-    // Con etiqueta
-    /(?:Grado|Degree|Título|Education)[:\s]+([^\n,.]{5,100})/gi
+    /(Doctorado|PhD|Doctor|Dra?\.|Maestría|Maestria|Master|MSc|M\.Sc\.|Licenciatura|Licenciado|Ingeniería|Ingeniero|Ing\.|Lic\.)[\s]+(?:en|de|del)[\s]+[\w\sáéíóúñ]+/gi,
+    /(?:Grado|Degree|Título|Estudios)[:\s]+([^\n,.;]{10,80})/gi
   ];
 
   for (const pattern of degreePatterns) {
-    const matches = cleanText.matchAll(pattern);
-    for (const match of matches) {
-      let grado = (match[1] || match[0]).trim();
-      if (grado.length >= 5 && grado.length <= 150) {
-        data.grado_maximo_estudios = grado;
-        console.log('✅ Grado encontrado:', data.grado_maximo_estudios);
-        break;
-      }
+    const match = cleanText.match(pattern);
+    if (match) {
+      data.grado_maximo_estudios = match[0].trim().substring(0, 100);
+      console.log('✅ Grado encontrado:', data.grado_maximo_estudios);
+      break;
     }
-    if (data.grado_maximo_estudios) break;
   }
 
   // =========================================================================
   // Experiencia laboral / Puesto actual
   // =========================================================================
   const jobPatterns = [
-    // Puestos académicos con contexto
-    /(Profesor|Investigador|Docente|Académico|Catedrático|Coordinador|Director|Jefe|Responsable)[\s\w]*(?:de|del|de\s+la|en|at)[\s\w]{3,50}/gi,
-    // Con etiqueta
-    /(?:Puesto|Position|Empleo|Job|Current)[:\s]+([^\n,.]{5,100})/gi
+    /(Profesor|Investigador|Docente|Académico|Catedrático|Coordinador|Director|Jefe|Subdirector)\s+[\w\s]+/gi,
+    /(?:Puesto|Position|Empleo|Cargo)[:\s]+([^\n,.;]{10,80})/gi
   ];
 
   for (const pattern of jobPatterns) {
-    const matches = cleanText.matchAll(pattern);
-    for (const match of matches) {
-      let puesto = (match[1] || match[0]).trim();
-      if (puesto.length >= 5 && puesto.length <= 150) {
-        data.experiencia_laboral = puesto;
-        console.log('✅ Experiencia encontrada:', data.experiencia_laboral);
-        break;
-      }
+    const match = cleanText.match(pattern);
+    if (match) {
+      data.experiencia_laboral = match[0].trim().substring(0, 100);
+      console.log('✅ Experiencia encontrada:', data.experiencia_laboral);
+      break;
     }
-    if (data.experiencia_laboral) break;
   }
 
   return data;
