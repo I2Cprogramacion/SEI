@@ -52,6 +52,7 @@ interface Investigador {
   email: string
   institucion: string
   area: string
+  slug: string
 }
 
 interface NuevaPublicacion {
@@ -908,10 +909,23 @@ export default function PublicacionesPage() {
                       </div>
                     ))}
                   </div>
-                  <div className="text-xs text-blue-500 break-words">
-                    Subido por: {publicacion.uploaderNombre || 'Usuario'}
-                    {user && (user.id === publicacion.clerkUserId || user.clerkUserId === publicacion.clerkUserId) && (
-                      <span className="ml-1 font-medium">(Tú)</span>
+                  {publicacion.autores.length > 3 && (
+                    <span className="text-xs text-blue-600">
+                      +{publicacion.autores.length - 3} más
+                    </span>
+                  )}
+                  <div className="text-xs text-blue-500 break-words mt-2">
+                    {publicacion.uploaderNombre ? (
+                      <>
+                        Subido por: <span className="font-medium">{publicacion.uploaderNombre}</span>
+                        {user && (user.id === publicacion.clerkUserId || user.clerkUserId === publicacion.clerkUserId) && (
+                          <span className="ml-1 font-semibold text-blue-700">(Tú)</span>
+                        )}
+                      </>
+                    ) : (
+                      publicacion.autores.length > 0 && (
+                        <>Publicación de: <span className="font-medium">{publicacion.autores[0]}</span></>
+                      )
                     )}
                   </div>
                     <div className="flex gap-2">
