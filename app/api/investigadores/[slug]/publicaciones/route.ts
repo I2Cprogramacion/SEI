@@ -28,11 +28,15 @@ export async function GET(
 
     const inv = investigadorRows[0]
     
-    // Buscar publicaciones por clerk_user_id (más preciso) o por nombre/correo en el campo autor
+    // Buscar publicaciones
+    // Si tiene clerk_user_id de Clerk (user_*), buscar por ese campo
+    // Si tiene clerk_user_id de Supabase (sua_*) o no tiene, buscar por nombre en autor
     let publicacionesResult
     
-    if (inv.clerk_user_id) {
-      // Si tiene clerk_user_id, buscar por ese campo primero
+    const hasClerkId = inv.clerk_user_id && inv.clerk_user_id.startsWith('user_')
+    
+    if (hasClerkId) {
+      // Tiene Clerk ID válido: buscar por ese campo
       publicacionesResult = await db.query(
         `SELECT 
           id,
@@ -59,7 +63,7 @@ export async function GET(
         [inv.clerk_user_id]
       )
     } else {
-      // Fallback: buscar por nombre o correo en el campo autor
+      // No tiene Clerk ID válido (tiene Supabase ID o null): buscar por nombre en autor
       publicacionesResult = await db.query(
         `SELECT 
           id,
