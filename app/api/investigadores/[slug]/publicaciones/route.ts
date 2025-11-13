@@ -7,6 +7,8 @@ export async function GET(
 ) {
   try {
     const { slug } = await params
+    console.log('📌 [Publicaciones] Buscando publicaciones para slug:', slug)
+    
     const db = await getDatabase()
     
     // Primero obtener el investigador para conseguir su nombre, correo y clerk_user_id
@@ -23,10 +25,16 @@ export async function GET(
       : investigadorResult.rows
 
     if (!investigadorRows || investigadorRows.length === 0) {
+      console.log('❌ [Publicaciones] Investigador no encontrado con slug:', slug)
       return NextResponse.json({ error: "Investigador no encontrado" }, { status: 404 })
     }
 
     const inv = investigadorRows[0]
+    console.log('✅ [Publicaciones] Investigador encontrado:', { 
+      id: inv.id, 
+      nombre: inv.nombre_completo,
+      clerk_id: inv.clerk_user_id 
+    })
     
     // Buscar publicaciones
     // Si tiene clerk_user_id de Clerk (user_*), buscar por ese campo
@@ -97,6 +105,8 @@ export async function GET(
     const publicaciones = Array.isArray(publicacionesResult)
       ? publicacionesResult
       : publicacionesResult.rows
+
+    console.log(`✅ [Publicaciones] Encontradas ${publicaciones?.length || 0} publicaciones para ${inv.nombre_completo}`)
 
     // Transformar datos para el frontend
     const publicacionesFormateadas = (publicaciones || []).map((pub: any) => ({
