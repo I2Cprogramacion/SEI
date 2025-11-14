@@ -107,7 +107,7 @@ export default function VerificarEmailPage() {
           console.log("📤 [VERIFICACIÓN] Enviando solicitud para completar registro...")
           console.log("   Clerk User ID:", clerkUserId)
           
-          // Enviar solicitud para completar el registro
+          // ✅ Intentar primero con tabla BD
           const response = await fetch("/api/completar-registro", {
             method: "POST",
             headers: {
@@ -125,19 +125,33 @@ export default function VerificarEmailPage() {
             console.log("   ID asignado:", result.id)
             console.log("   Datos movidos de tabla temporal → tabla investigadores")
           } else {
-            console.error("❌ [VERIFICACIÓN] Error al completar registro:", result.message || result.error)
+            // ❌ Falló BD, intentar con sessionStorage
+            console.warn("⚠️ [VERIFICACIÓN] No se encontró en BD, intentando sessionStorage...")
             
-            // Si es un error de duplicado, podría ser que el usuario ya completó el registro
-            if (result.duplicado || response.status === 409) {
-              console.log("ℹ️ [VERIFICACIÓN] El registro ya existe, continuando...")
-            } else if (response.status === 404) {
-              console.error("❌ [VERIFICACIÓN] Registro temporal no encontrado o expirado")
-              console.error("   El usuario deberá registrarse nuevamente")
-              setError("Tu registro ha expirado. Por favor, regístrate nuevamente.")
-              return
+            const datosGuardados = sessionStorage.getItem('registro_pendiente')
+            if (datosGuardados) {
+              const datos = JSON.parse(datosGuardados)
+              datos.clerk_user_id = clerkUserId
+              
+              console.log("📤 [VERIFICACIÓN] Guardando desde sessionStorage...")
+              
+              // Intentar guardar directamente con guardarInvestigador
+              const saveResponse = await fetch("/api/registro-directo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(datos),
+              })
+              
+              const saveResult = await saveResponse.json()
+              
+              if (saveResponse.ok && saveResult.success) {
+                console.log("✅ [VERIFICACIÓN] Registro guardado desde sessionStorage")
+                sessionStorage.removeItem('registro_pendiente')
+              } else {
+                console.error("❌ [VERIFICACIÓN] Error al guardar desde sessionStorage:", saveResult.message)
+              }
             } else {
-              // Otros errores no bloquean el inicio de sesión
-              console.warn("⚠️ [VERIFICACIÓN] Error al completar registro, pero continuando...")
+              console.error("❌ [VERIFICACIÓN] No se encontraron datos guardados")
             }
           }
         } catch (dbError: any) {

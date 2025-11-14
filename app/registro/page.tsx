@@ -1121,16 +1121,24 @@ export default function RegistroPage() {
               console.error("❌ [REGISTRO] ERROR AL GUARDAR EN TABLA TEMPORAL")
               console.error("   Status:", response.status)
               console.error("   Mensaje:", responseData.error || responseData.message)
-              throw new Error(`Error al guardar datos temporales: ${responseData.error || responseData.message || 'Error desconocido'}`)
+              
+              // ✅ FALLBACK: Guardar en sessionStorage si falla la BD
+              console.warn("⚠️ [REGISTRO] Usando sessionStorage como respaldo...")
+              sessionStorage.setItem('registro_pendiente', JSON.stringify(dataToSend))
+              console.log("✅ [REGISTRO] Datos guardados en sessionStorage (respaldo)")
+            } else {
+              console.log("✅ [REGISTRO] Datos guardados en tabla temporal")
+              console.log("   ID temporal:", responseData.id)
+              console.log("   Clerk User ID:", clerkUserId)
+              console.log("   Estado: Pendiente de verificación")
             }
-
-            console.log("✅ [REGISTRO] Datos guardados en tabla temporal")
-            console.log("   ID temporal:", responseData.id)
-            console.log("   Clerk User ID:", clerkUserId)
-            console.log("   Estado: Pendiente de verificación")
           } catch (storageError) {
             console.error("❌ [REGISTRO] Error al guardar en tabla temporal:", storageError)
-            throw new Error("Error al preparar registro. Por favor, intenta de nuevo.")
+            
+            // ✅ FALLBACK: Guardar en sessionStorage
+            console.warn("⚠️ [REGISTRO] Usando sessionStorage como respaldo de emergencia...")
+            sessionStorage.setItem('registro_pendiente', JSON.stringify(dataToSend))
+            console.log("✅ [REGISTRO] Datos guardados en sessionStorage (respaldo de emergencia)")
           }
 
           // PASO 4: Redirigir a verificación de email
