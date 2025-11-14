@@ -1354,7 +1354,6 @@ export default function NuevaPublicacionPage() {
                     </div>
                   )}
                 </div>
-                </div>
               </div>
 
               {/* Resumen y Abstract */}
