@@ -78,7 +78,16 @@ export function EditarPublicacionDialog({
       }
       
       const data = await response.json()
-      setFormData(data)
+      // El endpoint devuelve { publicacion: {...} }
+      const publicacion = data.publicacion || data
+      
+      // Convertir palabras_clave de string a string si viene como array
+      if (Array.isArray(publicacion.palabras_clave)) {
+        publicacion.palabras_clave = publicacion.palabras_clave.join(', ')
+      }
+      
+      setFormData(publicacion)
+      console.log('📝 Datos cargados para editar:', publicacion)
     } catch (error) {
       console.error("Error loading publicacion:", error)
       toast({

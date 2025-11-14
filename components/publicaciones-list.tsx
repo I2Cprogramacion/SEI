@@ -418,7 +418,7 @@ export function PublicacionesList({ slug, isOwner = false, showAddButton = true 
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={deleting}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-600 hover:bg-red-700 text-white"
             >
               {deleting ? (
                 <>
