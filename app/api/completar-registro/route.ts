@@ -34,7 +34,19 @@ export async function POST(request: NextRequest) {
     // ✅ PASO 1: Recuperar datos de la tabla registros_pendientes
     console.log("🔵 [COMPLETAR REGISTRO] Paso 1: Recuperando datos de tabla temporal...")
     
-    const registroPendiente = await obtenerRegistroPendiente(data.clerk_user_id)
+    let registroPendiente;
+    try {
+      registroPendiente = await obtenerRegistroPendiente(data.clerk_user_id)
+    } catch (dbError: any) {
+      console.error("❌ [COMPLETAR REGISTRO] Error al consultar BD:", dbError)
+      return NextResponse.json(
+        { 
+          error: "Error al conectar con la base de datos",
+          details: dbError.message || "Error de conexión"
+        },
+        { status: 500 }
+      )
+    }
     
     if (!registroPendiente) {
       console.error("❌ [COMPLETAR REGISTRO] No se encontró registro pendiente")

@@ -140,8 +140,17 @@ export default function VerificarEmailPage() {
               console.warn("⚠️ [VERIFICACIÓN] Error al completar registro, pero continuando...")
             }
           }
-        } catch (dbError) {
+        } catch (dbError: any) {
           console.error("❌ [VERIFICACIÓN] Error al completar registro:", dbError)
+          
+          // Mostrar mensaje al usuario pero permitir continuar
+          const errorMsg = dbError?.message || "Error desconocido"
+          if (errorMsg.includes("no encontró") || errorMsg.includes("expiró")) {
+            console.warn("⚠️ [VERIFICACIÓN] Registro temporal no encontrado. El usuario deberá completar su perfil manualmente.")
+            setError("Tu sesión expiró. Puedes iniciar sesión, pero deberás completar tu perfil manualmente.")
+          } else {
+            console.warn("⚠️ [VERIFICACIÓN] Error no crítico, permitiendo inicio de sesión...")
+          }
           // No bloqueamos el inicio de sesión por errores en la BD
           // El usuario puede completar su perfil después
         }
