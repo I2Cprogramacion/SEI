@@ -361,10 +361,10 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                   <div className="bg-white p-4 rounded-lg border border-slate-200">
                     <p className="text-xs font-semibold text-slate-600 uppercase mb-2">Formato IEEE</p>
                     <p className="text-sm text-slate-800 font-mono leading-relaxed">
-                      {autores.slice(0, 3).map((autor, idx) => {
+                      {autores.slice(0, 3).map((autor: string, idx: number) => {
                         const parts = autor.trim().split(' ')
                         const lastName = parts[parts.length - 1]
-                        const initials = parts.slice(0, -1).map(n => n[0]).join('. ')
+                        const initials = parts.slice(0, -1).map((n: string) => n[0]).join('. ')
                         return `${idx > 0 ? ', ' : ''}${lastName}${initials ? ', ' + initials + '.' : ''}`
                       })}{autores.length > 3 && ', et al.'}, "{publicacion.titulo}," 
                       {publicacion.editorial && <em> {publicacion.editorial}</em>}
