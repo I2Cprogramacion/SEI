@@ -21,7 +21,8 @@ async function getPublicacion(id: string) {
     const db = await getDatabase()
     console.log('✅ [Publicacion Detail] Database connection obtained')
     
-    const result = await db.query(
+    // El método query() ya retorna result.rows (no el result completo)
+    const rows = await db.query(
       `SELECT 
         p.*,
         i.nombre_completo as investigador_nombre,
@@ -34,14 +35,14 @@ async function getPublicacion(id: string) {
     )
     
     console.log('📊 [Publicacion Detail] Query executed successfully')
-    console.log('📊 [Publicacion Detail] Result rows:', result.rows?.length || 0)
+    console.log('📊 [Publicacion Detail] Result rows:', rows?.length || 0)
     
-    if (!result.rows || result.rows.length === 0) {
+    if (!rows || rows.length === 0) {
       console.log('⚠️ [Publicacion Detail] No publication found with ID:', id)
       return null
     }
     
-    const publicacion = result.rows[0]
+    const publicacion = rows[0]
     console.log('✅ [Publicacion Detail] Found publication:', publicacion.titulo)
     console.log('✅ [Publicacion Detail] Publication data keys:', Object.keys(publicacion).join(', '))
     
