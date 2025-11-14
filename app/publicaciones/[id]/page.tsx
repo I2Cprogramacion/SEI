@@ -16,6 +16,7 @@ interface PublicacionPageProps {
 
 async function getPublicacion(id: string) {
   try {
+    console.log('🔍 [Publicacion Detail] Fetching publicacion ID:', id)
     const db = await getDatabase()
     const result = await db.query(
       `SELECT 
@@ -29,19 +30,24 @@ async function getPublicacion(id: string) {
       [id]
     )
     
+    console.log('📊 [Publicacion Detail] Query result rows:', result.rows.length)
+    
     if (result.rows.length === 0) {
+      console.log('⚠️ [Publicacion Detail] No publication found with ID:', id)
       return null
     }
     
+    console.log('✅ [Publicacion Detail] Found publication:', result.rows[0].titulo)
     return result.rows[0]
   } catch (error) {
-    console.error('Error fetching publicacion:', error)
+    console.error('❌ [Publicacion Detail] Error fetching publicacion:', error)
     return null
   }
 }
 
 export async function generateMetadata({ params }: PublicacionPageProps): Promise<Metadata> {
-  const publicacion = await getPublicacion(params.id)
+  const { id } = await params
+  const publicacion = await getPublicacion(id)
   
   if (!publicacion) {
     return {
@@ -56,7 +62,8 @@ export async function generateMetadata({ params }: PublicacionPageProps): Promis
 }
 
 export default async function PublicacionPage({ params }: PublicacionPageProps) {
-  const publicacion = await getPublicacion(params.id)
+  const { id } = await params
+  const publicacion = await getPublicacion(id)
   
   if (!publicacion) {
     notFound()
