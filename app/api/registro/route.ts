@@ -111,40 +111,36 @@ export async function POST(request: NextRequest) {
       data.fecha_registro = new Date().toISOString()
     }
 
-    // ✅ Guardar en tabla temporal registros_pendientes
-    console.log("🔵 [REGISTRO PENDIENTE] Guardando en tabla temporal...")
+    // ✅ SOLUCIÓN TEMPORAL: Guardar directo en investigadores
+    // TODO: Volver a usar registros_pendientes cuando la tabla esté lista
+    console.log("🔵 [REGISTRO] Guardando directamente en investigadores...")
     
     try {
-      const resultado = await guardarRegistroPendiente(
-        data.clerk_user_id,
-        data.correo,
-        data // Todos los datos del formulario
-      )
+      const { guardarInvestigador } = await import("@/lib/db")
+      const resultado = await guardarInvestigador(data)
       
       if (resultado.success) {
-        console.log("✅ [REGISTRO PENDIENTE] Guardado exitosamente")
-        console.log("   ID temporal:", resultado.id)
+        console.log("✅ [REGISTRO] Guardado exitosamente")
+        console.log("   ID:", resultado.id)
         console.log("   Clerk User ID:", data.clerk_user_id)
         console.log("   Correo:", data.correo)
-        console.log("   ⏳ Esperando verificación de email...")
         
         return NextResponse.json({
           success: true,
-          message: "Datos guardados temporalmente. Por favor verifica tu email.",
-          id: resultado.id,
-          pendiente_verificacion: true
+          message: "Registro completado exitosamente",
+          id: resultado.id
         })
       } else {
-        console.error("❌ [REGISTRO PENDIENTE] Error al guardar:", resultado.message)
+        console.error("❌ [REGISTRO] Error al guardar:", resultado.message)
         return NextResponse.json({
           success: false,
           message: resultado.message,
-        }, { status: 500 })
+        }, { status: 409 })
       }
     } catch (dbError) {
-      console.error("❌ [REGISTRO PENDIENTE] Error crítico:", dbError)
+      console.error("❌ [REGISTRO] Error crítico:", dbError)
       return NextResponse.json({
-        error: `Error al guardar datos temporales: ${dbError instanceof Error ? dbError.message : "Error desconocido"}`,
+        error: `Error al guardar: ${dbError instanceof Error ? dbError.message : "Error desconocido"}`,
       }, { status: 500 })
     }
   } catch (error) {

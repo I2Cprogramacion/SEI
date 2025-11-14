@@ -90,84 +90,10 @@ export default function VerificarEmailPage() {
       if (completeSignUp.status === "complete") {
         setSuccess(true)
         
-        // ✅ COMPLETAR REGISTRO: Mover datos de registros_pendientes → investigadores
-        console.log("🔵 [VERIFICACIÓN] Email verificado, completando registro en PostgreSQL...")
-        
-        try {
-          // Obtener el clerk_user_id del usuario verificado
-          const clerkUserId = completeSignUp.createdUserId || 
-                             completeSignUp.id ||
-                             (completeSignUp as any).user?.id
-          
-          if (!clerkUserId) {
-            console.error("❌ [VERIFICACIÓN] No se pudo obtener clerk_user_id")
-            throw new Error("No se pudo obtener el ID del usuario")
-          }
-
-          console.log("📤 [VERIFICACIÓN] Enviando solicitud para completar registro...")
-          console.log("   Clerk User ID:", clerkUserId)
-          
-          // ✅ Intentar primero con tabla BD
-          const response = await fetch("/api/completar-registro", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              clerk_user_id: clerkUserId
-            }),
-          })
-
-          const result = await response.json()
-          
-          if (response.ok && result.success) {
-            console.log("✅ [VERIFICACIÓN] Registro completado en PostgreSQL")
-            console.log("   ID asignado:", result.id)
-            console.log("   Datos movidos de tabla temporal → tabla investigadores")
-          } else {
-            // ❌ Falló BD, intentar con sessionStorage
-            console.warn("⚠️ [VERIFICACIÓN] No se encontró en BD, intentando sessionStorage...")
-            
-            const datosGuardados = sessionStorage.getItem('registro_pendiente')
-            if (datosGuardados) {
-              const datos = JSON.parse(datosGuardados)
-              datos.clerk_user_id = clerkUserId
-              
-              console.log("📤 [VERIFICACIÓN] Guardando desde sessionStorage...")
-              
-              // Intentar guardar directamente con guardarInvestigador
-              const saveResponse = await fetch("/api/registro-directo", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(datos),
-              })
-              
-              const saveResult = await saveResponse.json()
-              
-              if (saveResponse.ok && saveResult.success) {
-                console.log("✅ [VERIFICACIÓN] Registro guardado desde sessionStorage")
-                sessionStorage.removeItem('registro_pendiente')
-              } else {
-                console.error("❌ [VERIFICACIÓN] Error al guardar desde sessionStorage:", saveResult.message)
-              }
-            } else {
-              console.error("❌ [VERIFICACIÓN] No se encontraron datos guardados")
-            }
-          }
-        } catch (dbError: any) {
-          console.error("❌ [VERIFICACIÓN] Error al completar registro:", dbError)
-          
-          // Mostrar mensaje al usuario pero permitir continuar
-          const errorMsg = dbError?.message || "Error desconocido"
-          if (errorMsg.includes("no encontró") || errorMsg.includes("expiró")) {
-            console.warn("⚠️ [VERIFICACIÓN] Registro temporal no encontrado. El usuario deberá completar su perfil manualmente.")
-            setError("Tu sesión expiró. Puedes iniciar sesión, pero deberás completar tu perfil manualmente.")
-          } else {
-            console.warn("⚠️ [VERIFICACIÓN] Error no crítico, permitiendo inicio de sesión...")
-          }
-          // No bloqueamos el inicio de sesión por errores en la BD
-          // El usuario puede completar su perfil después
-        }
+        // ✅ El usuario ya está guardado en investigadores (se guardó al registrarse)
+        // Ya no necesitamos mover datos porque se guardaron directamente
+        console.log("✅ [VERIFICACIÓN] Email verificado exitosamente")
+        console.log("   El usuario ya está registrado en la base de datos")
         
         // Establecer la sesión activa
         if (setActive) {
