@@ -148,11 +148,10 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const db = await getDatabase()
-    // Parse optional query param to filter by uploader (clerk_user_id)
     const url = new URL(request.url)
     const clerkUserId = url.searchParams.get('clerk_user_id')
     
-    console.log('📌 [GET Publicaciones] Solicitadas para clerk_user_id:', clerkUserId)
+    console.log('📌 [GET Publicaciones v2] Solicitadas para clerk_user_id:', clerkUserId)
 
     // Si hay clerk_user_id, obtener los datos del investigador para buscar también por nombre y correo
     let investigador: { nombre_completo?: string; correo?: string } | null = null
