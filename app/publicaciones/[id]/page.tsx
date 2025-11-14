@@ -62,11 +62,15 @@ export async function generateMetadata({ params }: PublicacionPageProps): Promis
 
 export default async function PublicacionPage({ params }: PublicacionPageProps) {
   const { id } = await params
+  console.log('🎯 [Page Component] Rendering publicacion page for ID:', id)
   const publicacion = await getPublicacion(id)
   
   if (!publicacion) {
+    console.log('⚠️ [Page Component] Publication not found, calling notFound()')
     notFound()
   }
+  
+  console.log('✅ [Page Component] Rendering publication:', publicacion.titulo)
 
   const categoriaColors: Record<string, string> = {
     'Artículo': 'bg-blue-100 text-blue-800',
