@@ -80,13 +80,13 @@ export function PublicacionesList({ slug, isOwner = false, showAddButton = true 
         if (slug) {
           const pubs = Array.isArray(data) ? data : []
           console.log('🔵 [CLIENT - Perfil Público] Publicaciones recibidas:', pubs.length)
-          console.log('🔵 [CLIENT - Perfil Público] IDs:', pubs.map(p => p.id).join(', '))
+          console.log('🔵 [CLIENT - Perfil Público] IDs:', pubs.map((p: any) => p.id).join(', '))
           console.log('🔵 [CLIENT - Perfil Público] Detalle primera pub:', pubs[0])
           setPublicaciones(pubs)
         } else {
           const pubs = Array.isArray(data.publicaciones) ? data.publicaciones : []
           console.log('🟢 [CLIENT - Dashboard] Publicaciones recibidas:', pubs.length)
-          console.log('🟢 [CLIENT - Dashboard] IDs:', pubs.map(p => p.id).join(', '))
+          console.log('🟢 [CLIENT - Dashboard] IDs:', pubs.map((p: any) => p.id).join(', '))
           console.log('🟢 [CLIENT - Dashboard] Detalle primera pub:', pubs[0])
           setPublicaciones(pubs)
         }
