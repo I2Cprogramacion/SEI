@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   ArrowLeft, 
   ExternalLink, 
@@ -19,9 +20,12 @@ import {
   Globe,
   Download,
   Share2,
-  Quote
+  Quote,
+  Copy,
+  Check
 } from "lucide-react"
 import { getDatabase } from "@/lib/database-config"
+import { CitationCopyButton } from "@/components/citation-copy-button"
 
 interface PublicacionPageProps {
   params: {
@@ -43,7 +47,8 @@ async function getPublicacion(id: string) {
         p.*,
         i.nombre_completo as investigador_nombre,
         i.slug as investigador_slug,
-        i.institucion as investigador_institucion
+        i.institucion as investigador_institucion,
+        i.fotografia_url as investigador_fotografia
        FROM publicaciones p
        LEFT JOIN investigadores i ON p.clerk_user_id = i.clerk_user_id
        WHERE p.id = $1`,
@@ -160,27 +165,6 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-slate-900">
               {publicacion.titulo}
             </h1>
-
-            {/* Metadatos rápidos */}
-            <div className="flex flex-wrap gap-4 text-sm text-slate-600">
-              {publicacion.editorial && (
-                <div className="flex items-center gap-1">
-                  <BookOpen className="h-4 w-4" />
-                  <span>{publicacion.editorial}</span>
-                </div>
-              )}
-              {publicacion.volumen && (
-                <div className="flex items-center gap-1">
-                  <span>Vol. {publicacion.volumen}</span>
-                  {publicacion.numero && <span>, No. {publicacion.numero}</span>}
-                </div>
-              )}
-              {publicacion.paginas && (
-                <div className="flex items-center gap-1">
-                  <span>pp. {publicacion.paginas}</span>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </div>
@@ -278,24 +262,6 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                     )}
                   </div>
 
-                  {/* DOI */}
-                  {publicacion.doi && (
-                    <div className="flex flex-col gap-1 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                      <span className="text-sm font-semibold text-blue-700 uppercase tracking-wide">
-                        DOI
-                      </span>
-                      <a
-                        href={publicacion.doi.startsWith('http') ? publicacion.doi : `https://doi.org/${publicacion.doi}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-base font-mono text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-2"
-                      >
-                        {publicacion.doi}
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
-                    </div>
-                  )}
-
                   {/* Idioma */}
                   {publicacion.idioma && (
                     <div className="flex flex-col gap-1 p-3 bg-slate-50 rounded-lg">
@@ -335,45 +301,136 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
             )}
 
             {/* Cómo citar */}
-            <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-slate-50">
+            <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-2xl text-slate-800">
                   <Quote className="h-6 w-6 text-blue-600" />
                   Cómo citar
                 </CardTitle>
+                <CardDescription>Selecciona el formato de citación que prefieras</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <Tabs defaultValue="apa" className="w-full">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="apa">APA</TabsTrigger>
+                    <TabsTrigger value="ieee">IEEE</TabsTrigger>
+                    <TabsTrigger value="chicago">Chicago</TabsTrigger>
+                    <TabsTrigger value="mla">MLA</TabsTrigger>
+                  </TabsList>
+                  
                   {/* Formato APA */}
-                  <div className="bg-white p-4 rounded-lg border border-slate-200">
-                    <p className="text-xs font-semibold text-slate-600 uppercase mb-2">Formato APA</p>
-                    <p className="text-sm text-slate-800 font-mono leading-relaxed">
-                      {autores.slice(0, 3).join(', ')}{autores.length > 3 && ', et al.'} ({publicacion.año_creacion || 'n.d.'}). {publicacion.titulo}. 
-                      {publicacion.editorial && <em> {publicacion.editorial}</em>}
-                      {publicacion.volumen && `, ${publicacion.volumen}`}
-                      {publicacion.numero && `(${publicacion.numero})`}
-                      {publicacion.paginas && `, ${publicacion.paginas}`}.
-                      {publicacion.doi && ` https://doi.org/${publicacion.doi.replace('https://doi.org/', '')}`}
-                    </p>
-                  </div>
-
-                  {/* Formato IEEE */}
-                  <div className="bg-white p-4 rounded-lg border border-slate-200">
-                    <p className="text-xs font-semibold text-slate-600 uppercase mb-2">Formato IEEE</p>
-                    <p className="text-sm text-slate-800 font-mono leading-relaxed">
-                      {autores.slice(0, 3).map((autor: string, idx: number) => {
+                  <TabsContent value="apa" className="space-y-3">
+                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                      <p className="text-sm text-slate-800 leading-relaxed">
+                        {autores.slice(0, 7).map((autor: string, idx: number) => {
+                          const parts = autor.trim().split(' ')
+                          const lastName = parts[parts.length - 1]
+                          const initials = parts.slice(0, -1).map((n: string) => n[0]).join('. ')
+                          return `${idx > 0 ? ', ' : ''}${lastName}, ${initials}.`
+                        })}{autores.length > 7 && ', et al.'} ({publicacion.año_creacion || 's.f.'}). {publicacion.titulo}. 
+                        {publicacion.editorial && <em> {publicacion.editorial}</em>}
+                        {publicacion.volumen && `, ${publicacion.volumen}`}
+                        {publicacion.numero && `(${publicacion.numero})`}
+                        {publicacion.paginas && `, ${publicacion.paginas}`}.
+                        {publicacion.doi && ` https://doi.org/${publicacion.doi.replace(/^https?:\/\/(dx\.)?doi\.org\//, '')}`}
+                      </p>
+                    </div>
+                    <CitationCopyButton 
+                      text={`${autores.slice(0, 7).map((autor: string) => {
                         const parts = autor.trim().split(' ')
                         const lastName = parts[parts.length - 1]
                         const initials = parts.slice(0, -1).map((n: string) => n[0]).join('. ')
-                        return `${idx > 0 ? ', ' : ''}${lastName}${initials ? ', ' + initials + '.' : ''}`
-                      })}{autores.length > 3 && ', et al.'}, "{publicacion.titulo}," 
-                      {publicacion.editorial && <em> {publicacion.editorial}</em>}
-                      {publicacion.volumen && `, vol. ${publicacion.volumen}`}
-                      {publicacion.numero && `, no. ${publicacion.numero}`}
-                      {publicacion.paginas && `, pp. ${publicacion.paginas}`}, {publicacion.año_creacion || 'n.d.'}.
-                    </p>
-                  </div>
-                </div>
+                        return `${lastName}, ${initials}.`
+                      }).join(', ')}${autores.length > 7 ? ', et al.' : ''} (${publicacion.año_creacion || 's.f.'}). ${publicacion.titulo}. ${publicacion.editorial ? publicacion.editorial + ',' : ''}${publicacion.volumen ? ` ${publicacion.volumen}` : ''}${publicacion.numero ? `(${publicacion.numero})` : ''}${publicacion.paginas ? `, ${publicacion.paginas}` : ''}.${publicacion.doi ? ` https://doi.org/${publicacion.doi.replace(/^https?:\/\/(dx\.)?doi\.org\//, '')}` : ''}`}
+                      label="Copiar citación APA"
+                    />
+                  </TabsContent>
+
+                  {/* Formato IEEE */}
+                  <TabsContent value="ieee" className="space-y-3">
+                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                      <p className="text-sm text-slate-800 leading-relaxed">
+                        {autores.slice(0, 6).map((autor: string, idx: number) => {
+                          const parts = autor.trim().split(' ')
+                          const lastName = parts[parts.length - 1]
+                          const initials = parts.slice(0, -1).map((n: string) => n[0]).join('. ')
+                          return `${idx > 0 ? ', ' : ''}${initials ? initials + '. ' : ''}${lastName}`
+                        })}{autores.length > 6 && ', et al.'}, "{publicacion.titulo}," 
+                        {publicacion.editorial && <em> {publicacion.editorial}</em>}
+                        {publicacion.volumen && `, vol. ${publicacion.volumen}`}
+                        {publicacion.numero && `, no. ${publicacion.numero}`}
+                        {publicacion.paginas && `, pp. ${publicacion.paginas}`}, {publicacion.año_creacion || 'n.d.'}.
+                      </p>
+                    </div>
+                    <CitationCopyButton 
+                      text={`${autores.slice(0, 6).map((autor: string) => {
+                        const parts = autor.trim().split(' ')
+                        const lastName = parts[parts.length - 1]
+                        const initials = parts.slice(0, -1).map((n: string) => n[0]).join('. ')
+                        return `${initials ? initials + '. ' : ''}${lastName}`
+                      }).join(', ')}${autores.length > 6 ? ', et al.' : ''}, "${publicacion.titulo}," ${publicacion.editorial ? publicacion.editorial + ',' : ''}${publicacion.volumen ? ` vol. ${publicacion.volumen}` : ''}${publicacion.numero ? `, no. ${publicacion.numero}` : ''}${publicacion.paginas ? `, pp. ${publicacion.paginas}` : ''}, ${publicacion.año_creacion || 'n.d.'}.`}
+                      label="Copiar citación IEEE"
+                    />
+                  </TabsContent>
+
+                  {/* Formato Chicago */}
+                  <TabsContent value="chicago" className="space-y-3">
+                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                      <p className="text-sm text-slate-800 leading-relaxed">
+                        {autores.slice(0, 10).map((autor: string, idx: number) => {
+                          const parts = autor.trim().split(' ')
+                          const lastName = parts[parts.length - 1]
+                          const firstName = parts.slice(0, -1).join(' ')
+                          if (idx === 0) return `${lastName}, ${firstName}`
+                          return `, ${firstName} ${lastName}`
+                        })}{autores.length > 10 && ', et al.'}. "{publicacion.titulo}." 
+                        {publicacion.editorial && <em>{publicacion.editorial} </em>}
+                        {publicacion.volumen && `${publicacion.volumen}`}
+                        {publicacion.numero && `, no. ${publicacion.numero}`}
+                        {publicacion.año_creacion && ` (${publicacion.año_creacion})`}
+                        {publicacion.paginas && `: ${publicacion.paginas}`}.
+                      </p>
+                    </div>
+                    <CitationCopyButton 
+                      text={`${autores.slice(0, 10).map((autor: string, idx: number) => {
+                        const parts = autor.trim().split(' ')
+                        const lastName = parts[parts.length - 1]
+                        const firstName = parts.slice(0, -1).join(' ')
+                        if (idx === 0) return `${lastName}, ${firstName}`
+                        return `, ${firstName} ${lastName}`
+                      }).join('')}${autores.length > 10 ? ', et al.' : ''}. "${publicacion.titulo}." ${publicacion.editorial ? publicacion.editorial + ' ' : ''}${publicacion.volumen || ''}${publicacion.numero ? `, no. ${publicacion.numero}` : ''}${publicacion.año_creacion ? ` (${publicacion.año_creacion})` : ''}${publicacion.paginas ? `: ${publicacion.paginas}` : ''}.`}
+                      label="Copiar citación Chicago"
+                    />
+                  </TabsContent>
+
+                  {/* Formato MLA */}
+                  <TabsContent value="mla" className="space-y-3">
+                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                      <p className="text-sm text-slate-800 leading-relaxed">
+                        {autores.slice(0, 1).map((autor: string) => {
+                          const parts = autor.trim().split(' ')
+                          const lastName = parts[parts.length - 1]
+                          const firstName = parts.slice(0, -1).join(' ')
+                          return `${lastName}, ${firstName}`
+                        })}{autores.length > 1 && ', et al.'}. "{publicacion.titulo}." 
+                        {publicacion.editorial && <em>{publicacion.editorial}</em>}
+                        {publicacion.volumen && `, vol. ${publicacion.volumen}`}
+                        {publicacion.numero && `, no. ${publicacion.numero}`}
+                        {publicacion.año_creacion && `, ${publicacion.año_creacion}`}
+                        {publicacion.paginas && `, pp. ${publicacion.paginas}`}.
+                      </p>
+                    </div>
+                    <CitationCopyButton 
+                      text={`${autores.slice(0, 1).map((autor: string) => {
+                        const parts = autor.trim().split(' ')
+                        const lastName = parts[parts.length - 1]
+                        const firstName = parts.slice(0, -1).join(' ')
+                        return `${lastName}, ${firstName}`
+                      }).join('')}${autores.length > 1 ? ', et al.' : ''}. "${publicacion.titulo}." ${publicacion.editorial ? publicacion.editorial : ''}${publicacion.volumen ? `, vol. ${publicacion.volumen}` : ''}${publicacion.numero ? `, no. ${publicacion.numero}` : ''}${publicacion.año_creacion ? `, ${publicacion.año_creacion}` : ''}${publicacion.paginas ? `, pp. ${publicacion.paginas}` : ''}.`}
+                      label="Copiar citación MLA"
+                    />
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </div>
@@ -394,32 +451,39 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {autores.map((autor: string, index: number) => (
-                      <div key={index} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
-                        <Avatar className="h-10 w-10 border-2 border-blue-200">
-                          <AvatarFallback className="bg-gradient-to-br from-blue-400 to-blue-600 text-white font-semibold">
-                            {autor.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-slate-900">{autor}</p>
+                    {autores.map((autor: string, index: number) => {
+                      // Verificar si este autor es el investigador registrado
+                      const esInvestigadorRegistrado = publicacion.investigador_nombre && 
+                        autor.toLowerCase().includes(publicacion.investigador_nombre.toLowerCase().split(' ')[0])
+                      
+                      const contenido = (
+                        <div className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${esInvestigadorRegistrado ? 'hover:bg-blue-50 cursor-pointer' : 'hover:bg-slate-50'}`}>
+                          <Avatar className="h-10 w-10 border-2 border-blue-200">
+                            {esInvestigadorRegistrado && publicacion.investigador_fotografia ? (
+                              <AvatarImage src={publicacion.investigador_fotografia} alt={autor} />
+                            ) : null}
+                            <AvatarFallback className="bg-gradient-to-br from-blue-400 to-blue-600 text-white font-semibold text-xs">
+                              {autor.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-slate-900 truncate">{autor}</p>
+                            {esInvestigadorRegistrado && (
+                              <p className="text-xs text-blue-600">Ver perfil →</p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      )
 
-                  {/* Si hay investigador registrado, mostrar link a perfil */}
-                  {publicacion.investigador_slug && (
-                    <>
-                      <Separator className="my-4" />
-                      <Link href={`/investigadores/${publicacion.investigador_slug}`}>
-                        <Button variant="outline" className="w-full hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-colors">
-                          <User className="mr-2 h-4 w-4" />
-                          Ver perfil del investigador
-                        </Button>
-                      </Link>
-                    </>
-                  )}
+                      return esInvestigadorRegistrado && publicacion.investigador_slug ? (
+                        <Link key={index} href={`/investigadores/${publicacion.investigador_slug}`}>
+                          {contenido}
+                        </Link>
+                      ) : (
+                        <div key={index}>{contenido}</div>
+                      )
+                    })}
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -497,28 +561,28 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
               </CardContent>
             </Card>
 
-            {/* Metadata adicional */}
-            <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-slate-50">
-              <CardHeader>
-                <CardTitle className="text-lg text-slate-800">
-                  Información Adicional
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm">
-                {publicacion.fecha_creacion && (
+            {/* Metadata adicional - sin ID */}
+            {publicacion.fecha_creacion && (
+              <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-slate-50">
+                <CardHeader>
+                  <CardTitle className="text-lg text-slate-800">
+                    Información Adicional
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-slate-600">Fecha de registro:</span>
                     <span className="text-slate-900 font-medium">
-                      {new Date(publicacion.fecha_creacion).toLocaleDateString('es-MX')}
+                      {new Date(publicacion.fecha_creacion).toLocaleDateString('es-MX', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      })}
                     </span>
                   </div>
-                )}
-                <div className="flex justify-between">
-                  <span className="text-slate-600">ID de publicación:</span>
-                  <span className="text-slate-900 font-mono font-medium">#{publicacion.id}</span>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>
