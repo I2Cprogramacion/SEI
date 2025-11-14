@@ -359,6 +359,7 @@ export default function InstitucionesPage() {
           </div>
         )}
       </div>
+      </div>
     </div>
   )
 }
