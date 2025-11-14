@@ -254,7 +254,6 @@ export async function GET(request: NextRequest) {
         console.log('🟢 [Dashboard Publicaciones] Detalles:', 
           pubsRows.map((p: any) => `ID ${p.id}: "${p.titulo?.substring(0, 30)}..." (${p.autor?.substring(0, 50)})`).join(' | ')
         )
-      }
         console.log('📄 [GET Publicaciones] Primeras 3 publicaciones:', 
           pubsRows.slice(0, 3).map((p: any) => ({ 
             id: p.id, 
