@@ -211,6 +211,21 @@ const MUNICIPIOS_CHIHUAHUA = [
   "Valle de Zaragoza",
 ];
 
+// Nacionalidades del continente americano
+const nacionalidadesAmerica = [
+  // América del Norte
+  "Estadounidense", "Canadiense", "Mexicana",
+  // América Central
+  "Beliceña", "Costarricense", "Salvadoreña", "Guatemalteca", "Hondureña", "Nicaragüense", "Panameña",
+  // Caribe
+  "Antiguana", "Bahameña", "Barbadense", "Cubana", "Dominiquesa", "Dominicana", "Granadina", "Haitiana",
+  "Jamaiquina", "Kittiana", "Luciana", "Puertorriqueña", "Santalucense", "Sanvicentina", "Trinitense",
+  "Barbudense", "Arubana", "Curazoleña", "Sintmaartense",
+  // América del Sur
+  "Argentina", "Boliviana", "Brasileña", "Chilena", "Colombiana", "Ecuatoriana", "Guyanesa", "Paraguaya",
+  "Peruana", "Surinamesa", "Uruguaya", "Venezolana"
+];
+
 const initialFormData: FormData = {
   nombres: "",
   apellidos: "",
@@ -660,10 +675,18 @@ export default function RegistroPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [submitAttempts, setSubmitAttempts] = useState(0)
   const [lastAttempt, setLastAttempt] = useState(0)
+  const [nacionalidadOtro, setNacionalidadOtro] = useState(false)
 
   // Hydration fix effect
   useEffect(() => {
     setIsMounted(true)
+  }, [])
+
+  // Inicializar estado de nacionalidad "Otro" basado en el valor inicial
+  useEffect(() => {
+    if (formData.nacionalidad && !nacionalidadesAmerica.includes(formData.nacionalidad)) {
+      setNacionalidadOtro(true)
+    }
   }, [])
 
   // Memoized values
@@ -1402,17 +1425,45 @@ export default function RegistroPage() {
                           <Flag className="h-4 w-4" />
                           Nacionalidad *
                         </Label>
-                        <Input
-                          id="nacionalidad"
-                          name="nacionalidad"
-                          value={formData.nacionalidad}
-                          onChange={handleChange}
-                          className={`bg-white border-blue-200 text-blue-900 ${
+                        <Select
+                          value={nacionalidadOtro ? "Otro" : formData.nacionalidad}
+                          onValueChange={(value) => {
+                            if (value === "Otro") {
+                              setNacionalidadOtro(true)
+                              setFormData(prev => ({ ...prev, nacionalidad: "" }))
+                            } else {
+                              setNacionalidadOtro(false)
+                              setFormData(prev => ({ ...prev, nacionalidad: value }))
+                            }
+                          }}
+                        >
+                          <SelectTrigger className={`bg-white border-blue-200 text-blue-900 ${
                             !formData.nacionalidad.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
+                          }`}>
+                            <SelectValue placeholder="Selecciona una nacionalidad" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {nacionalidadesAmerica.map((nacionalidad) => (
+                              <SelectItem key={nacionalidad} value={nacionalidad}>
+                                {nacionalidad}
+                              </SelectItem>
+                            ))}
+                            <SelectItem value="Otro">Otro</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {nacionalidadOtro && (
+                          <Input
+                            id="nacionalidad-otro"
+                            name="nacionalidad"
+                            value={formData.nacionalidad}
+                            onChange={handleChange}
+                            placeholder="Escribe tu nacionalidad"
+                            className={`bg-white border-blue-200 text-blue-900 mt-2 ${
+                              !formData.nacionalidad.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
+                            }`}
+                            required
+                          />
+                        )}
                       </div>
                     </div>
 
@@ -1509,7 +1560,7 @@ export default function RegistroPage() {
                               <SelectItem value="Investigador estatal nivel II">Investigador estatal nivel II</SelectItem>
                               <SelectItem value="Investigador estatal nivel III">Investigador estatal nivel III</SelectItem>
                               <SelectItem value="Investigador excepcional">Investigador excepcional</SelectItem>
-                              <SelectItem value="Investigador insignia">Investigador insignia</SelectItem>
+                              <SelectItem value="Investigador insigne">Investigador insigne</SelectItem>
                             </SelectContent>
                           </Select>
                           <p className="text-xs text-blue-600 mt-1">

@@ -209,6 +209,20 @@ export default function NuevaInstitucionPage() {
     "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"
   ]
 
+  // Municipios de Chihuahua
+  const municipiosChihuahua = [
+    "Ahumada", "Aldama", "Allende", "Aquiles Serdán", "Ascensión", "Bachíniva", "Balleza", "Batopilas",
+    "Bocoyna", "Buenaventura", "Camargo", "Carichí", "Casas Grandes", "Chihuahua", "Chínipas", "Coronado",
+    "Coyame del Sotol", "Cuauhtémoc", "Cusihuiriachi", "Delicias", "Dr. Belisario Domínguez", "El Tule",
+    "Galeana", "Gómez Farías", "Gran Morelos", "Guachochi", "Guadalupe", "Guadalupe y Calvo", "Guazapares",
+    "Guerrero", "Hidalgo del Parral", "Huejotitán", "Ignacio Zaragoza", "Janos", "Jiménez", "Juárez",
+    "Julimes", "La Cruz", "López", "Madera", "Maguarichi", "Manuel Benavides", "Matachí", "Matamoros",
+    "Meoqui", "Morelos", "Moris", "Namiquipa", "Nonoava", "Nuevo Casas Grandes", "Ocampo", "Ojinaga",
+    "Praxedis G. Guerrero", "Riva Palacio", "Rosales", "Rosario", "San Francisco de Borja", "San Francisco de Conchos",
+    "San Francisco del Oro", "Santa Bárbara", "Santa Isabel", "Satevó", "Saucillo", "Temósachic", "Urique",
+    "Uruachi", "Valle de Zaragoza"
+  ]
+
   // Calcular progreso de secciones
   const sections = [
     {
@@ -1520,13 +1534,21 @@ export default function NuevaInstitucionPage() {
                   <Label htmlFor="municipio" className="text-blue-900">
                     Municipio *
                   </Label>
-                  <Input
-                    id="municipio"
-                    placeholder="Chihuahua"
-                    value={formData.domicilioFiscal.municipio}
-                    onChange={(e) => handleDomicilioChange("municipio", e.target.value)}
-                    className={errors.some(e => e.field === "domicilioFiscal.municipio") ? "border-red-300" : ""}
-                  />
+                  <Select 
+                    value={formData.domicilioFiscal.municipio} 
+                    onValueChange={(value) => handleDomicilioChange("municipio", value)}
+                  >
+                    <SelectTrigger className={errors.some(e => e.field === "domicilioFiscal.municipio") ? "border-red-300" : ""}>
+                      <SelectValue placeholder="Selecciona un municipio" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {municipiosChihuahua.map((municipio) => (
+                        <SelectItem key={municipio} value={municipio}>
+                          {municipio}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {errors.some(e => e.field === "domicilioFiscal.municipio") && (
                     <p className="text-sm text-red-600">
                       {errors.find(e => e.field === "domicilioFiscal.municipio")?.message}
