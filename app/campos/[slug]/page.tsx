@@ -31,6 +31,41 @@ interface Investigador {
   slug: string
 }
 
+interface Proyecto {
+  id: number
+  titulo: string
+  descripcion?: string
+  autor?: string
+  institucion?: string
+  estado?: string
+  categoria?: string
+  fecha_inicio?: string
+  slug: string
+}
+
+interface Publicacion {
+  id: number
+  titulo: string
+  autor?: string
+  institucion?: string
+  editorial?: string
+  anio?: number
+  categoria?: string
+  tipo?: string
+  slug: string
+}
+
+interface Institucion {
+  id: string
+  nombre: string
+  siglas?: string
+  tipo?: string
+  imagen_url?: string
+  sitio_web?: string
+  estado?: string
+  activo?: boolean
+}
+
 interface CampoDetalle {
   nombre: string
   descripcion: string
@@ -45,6 +80,9 @@ interface CampoDetalle {
   slug: string
   instituciones_lista?: string
   investigadores_lista: Investigador[]
+  proyectos_lista?: Proyecto[]
+  publicaciones_lista?: Publicacion[]
+  instituciones_lista_detalle?: Institucion[]
 }
 
 export default function CampoPage() {
@@ -283,6 +321,195 @@ export default function CampoPage() {
                     <Button variant="outline" asChild>
                       <Link href={`/investigadores?area=${encodeURIComponent(campo.nombre)}`}>
                         Ver todos los investigadores ({campo.investigadores})
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Lista de proyectos */}
+            <Card className="bg-white border-blue-100">
+              <CardHeader>
+                <CardTitle className="text-blue-900">Proyectos en este campo</CardTitle>
+                <CardDescription className="text-blue-700">
+                  {campo.proyectos} proyectos relacionados con {campo.nombre}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {!campo.proyectos_lista || campo.proyectos_lista.length === 0 ? (
+                  <div className="text-center py-8">
+                    <FileText className="h-12 w-12 mx-auto text-blue-400 mb-4" />
+                    <p className="text-blue-600">No hay proyectos registrados en este campo</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {campo.proyectos_lista.slice(0, 6).map((proyecto) => (
+                      <Link 
+                        href={`/proyectos/${proyecto.slug}`} 
+                        key={proyecto.id}
+                        className="block"
+                      >
+                        <div className="p-4 bg-blue-50 rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-blue-900 text-sm mb-1 line-clamp-2">{proyecto.titulo}</h4>
+                              {proyecto.descripcion && (
+                                <p className="text-xs text-blue-600 line-clamp-2 mb-2">{proyecto.descripcion}</p>
+                              )}
+                              <div className="flex flex-wrap gap-2 items-center">
+                                {proyecto.autor && (
+                                  <span className="text-xs text-blue-600">Por: {proyecto.autor}</span>
+                                )}
+                                {proyecto.estado && (
+                                  <Badge variant="outline" className="text-xs border-blue-200 text-blue-700">
+                                    {proyecto.estado}
+                                  </Badge>
+                                )}
+                                {proyecto.categoria && (
+                                  <Badge variant="outline" className="text-xs border-blue-200 text-blue-700">
+                                    {proyecto.categoria}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            <ExternalLink className="h-4 w-4 text-blue-400 flex-shrink-0 mt-1" />
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+                
+                {campo.proyectos_lista && campo.proyectos_lista.length > 6 && (
+                  <div className="mt-4 text-center">
+                    <Button variant="outline" asChild>
+                      <Link href={`/proyectos?area=${encodeURIComponent(campo.nombre)}`}>
+                        Ver todos los proyectos ({campo.proyectos})
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Lista de publicaciones */}
+            <Card className="bg-white border-blue-100">
+              <CardHeader>
+                <CardTitle className="text-blue-900">Publicaciones en este campo</CardTitle>
+                <CardDescription className="text-blue-700">
+                  {campo.publicaciones} publicaciones relacionadas con {campo.nombre}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {!campo.publicaciones_lista || campo.publicaciones_lista.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Award className="h-12 w-12 mx-auto text-blue-400 mb-4" />
+                    <p className="text-blue-600">No hay publicaciones registradas en este campo</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {campo.publicaciones_lista.slice(0, 6).map((publicacion) => (
+                      <Link 
+                        href={`/publicaciones/${publicacion.slug}`} 
+                        key={publicacion.id}
+                        className="block"
+                      >
+                        <div className="p-4 bg-blue-50 rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-blue-900 text-sm mb-1 line-clamp-2">{publicacion.titulo}</h4>
+                              <div className="flex flex-wrap gap-2 items-center text-xs text-blue-600">
+                                {publicacion.autor && (
+                                  <span>Por: {publicacion.autor}</span>
+                                )}
+                                {publicacion.editorial && (
+                                  <span>• {publicacion.editorial}</span>
+                                )}
+                                {publicacion.anio && (
+                                  <span>• {publicacion.anio}</span>
+                                )}
+                              </div>
+                              <div className="flex flex-wrap gap-2 mt-2">
+                                {publicacion.categoria && (
+                                  <Badge variant="outline" className="text-xs border-blue-200 text-blue-700">
+                                    {publicacion.categoria}
+                                  </Badge>
+                                )}
+                                {publicacion.tipo && (
+                                  <Badge variant="outline" className="text-xs border-blue-200 text-blue-700">
+                                    {publicacion.tipo}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            <ExternalLink className="h-4 w-4 text-blue-400 flex-shrink-0 mt-1" />
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+                
+                {campo.publicaciones_lista && campo.publicaciones_lista.length > 6 && (
+                  <div className="mt-4 text-center">
+                    <Button variant="outline" asChild>
+                      <Link href={`/publicaciones?area=${encodeURIComponent(campo.nombre)}`}>
+                        Ver todas las publicaciones ({campo.publicaciones})
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Lista de instituciones */}
+            <Card className="bg-white border-blue-100">
+              <CardHeader>
+                <CardTitle className="text-blue-900">Instituciones en este campo</CardTitle>
+                <CardDescription className="text-blue-700">
+                  {campo.instituciones} instituciones con investigadores en {campo.nombre}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {!campo.instituciones_lista_detalle || campo.instituciones_lista_detalle.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Building2 className="h-12 w-12 mx-auto text-blue-400 mb-4" />
+                    <p className="text-blue-600">No hay instituciones registradas en este campo</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {campo.instituciones_lista_detalle.slice(0, 6).map((institucion) => (
+                      <Link 
+                        href={`/instituciones/${institucion.id}`} 
+                        key={institucion.id}
+                        className="block"
+                      >
+                        <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors">
+                          <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center flex-shrink-0">
+                            <Building2 className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-blue-900 text-sm truncate">{institucion.nombre}</h4>
+                            {institucion.siglas && (
+                              <p className="text-xs text-blue-600 truncate">{institucion.siglas}</p>
+                            )}
+                            {institucion.tipo && (
+                              <p className="text-xs text-blue-500 truncate">{institucion.tipo}</p>
+                            )}
+                          </div>
+                          <ExternalLink className="h-4 w-4 text-blue-400 flex-shrink-0" />
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+                
+                {campo.instituciones_lista_detalle && campo.instituciones_lista_detalle.length > 6 && (
+                  <div className="mt-4 text-center">
+                    <Button variant="outline" asChild>
+                      <Link href={`/instituciones`}>
+                        Ver todas las instituciones ({campo.instituciones})
                       </Link>
                     </Button>
                   </div>

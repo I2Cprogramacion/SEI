@@ -90,6 +90,108 @@ export async function GET(
     
     const investigadores = await db.query(investigadoresQuery, [nombreCampo])
     
+    // Obtener proyectos relacionados con este campo
+    const proyectosQuery = `
+      SELECT 
+        id,
+        titulo,
+        descripcion,
+        resumen,
+        investigador_principal AS autor,
+        institucion,
+        fecha_inicio,
+        fecha_fin,
+        estado,
+        categoria,
+        area_investigacion,
+        slug
+      FROM proyectos
+      WHERE LOWER(COALESCE(area_investigacion, '')) = LOWER($1)
+      ORDER BY fecha_creacion DESC
+      LIMIT 10
+    `
+    
+    const proyectos = await db.query(proyectosQuery, [nombreCampo])
+    
+    // Obtener publicaciones relacionadas (a través de investigadores del campo)
+    const investigadoresIds = investigadores.map((inv: any) => inv.id)
+    let publicaciones: any[] = []
+    
+    if (investigadoresIds.length > 0) {
+      // Obtener correos y nombres de los investigadores
+      const investigadoresInfo = investigadores.map((inv: any) => ({
+        email: inv.email?.toLowerCase() || '',
+        nombre: inv.nombre?.toLowerCase() || ''
+      }))
+      
+      // Construir condiciones para buscar publicaciones
+      const condicionesPublicaciones: string[] = []
+      const valoresPublicaciones: any[] = []
+      let paramIndex = 1
+      
+      investigadoresInfo.forEach((inv: any) => {
+        if (inv.email) {
+          condicionesPublicaciones.push(`LOWER(autor) LIKE $${paramIndex}`)
+          valoresPublicaciones.push(`%${inv.email}%`)
+          paramIndex++
+        }
+        if (inv.nombre) {
+          const nombreParts = inv.nombre.split(' ').filter(Boolean)
+          if (nombreParts.length >= 2) {
+            const apellidos = nombreParts.slice(1).join(' ')
+            condicionesPublicaciones.push(`LOWER(autor) LIKE $${paramIndex}`)
+            valoresPublicaciones.push(`%${apellidos}%`)
+            paramIndex++
+          }
+        }
+      })
+      
+      if (condicionesPublicaciones.length > 0) {
+        const publicacionesQuery = `
+          SELECT 
+            id,
+            titulo,
+            autor,
+            institucion,
+            editorial,
+            año_creacion as anio,
+            doi,
+            resumen,
+            palabras_clave,
+            categoria,
+            tipo,
+            slug
+          FROM publicaciones
+          WHERE ${condicionesPublicaciones.join(' OR ')}
+          ORDER BY año_creacion DESC NULLS LAST, fecha_creacion DESC
+          LIMIT 10
+        `
+        
+        publicaciones = await db.query(publicacionesQuery, valoresPublicaciones)
+      }
+    }
+    
+    // Obtener instituciones relacionadas (únicas)
+    const institucionesQuery = `
+      SELECT DISTINCT
+        i.id,
+        i.nombre,
+        i.siglas,
+        i.tipo,
+        i.imagen_url,
+        i.sitio_web,
+        i.estado,
+        i.activo
+      FROM instituciones i
+      INNER JOIN investigadores inv ON LOWER(TRIM(inv.institucion)) = LOWER(TRIM(i.nombre))
+      WHERE LOWER(COALESCE(inv.area, inv.area_investigacion, 'Sin especificar')) = LOWER($1)
+        AND i.activo = true
+      ORDER BY i.nombre ASC
+      LIMIT 10
+    `
+    
+    const instituciones = await db.query(institucionesQuery, [nombreCampo])
+    
     // Procesar subcampos
     const especialidades = subcampos.especialidades ? subcampos.especialidades.split(', ').filter(Boolean) : []
     const disciplinas = subcampos.disciplinas ? subcampos.disciplinas.split(', ').filter(Boolean) : []
@@ -140,6 +242,38 @@ export async function GET(
         fotografia_url: inv.fotografia_url,
         ultimo_grado_estudios: inv.ultimo_grado_estudios,
         slug: inv.slug || `investigador-${inv.id}`
+      })),
+      proyectos_lista: proyectos.map((proj: any) => ({
+        id: proj.id,
+        titulo: proj.titulo,
+        descripcion: proj.descripcion || proj.resumen,
+        autor: proj.autor,
+        institucion: proj.institucion,
+        estado: proj.estado,
+        categoria: proj.categoria,
+        fecha_inicio: proj.fecha_inicio,
+        slug: proj.slug || `proyecto-${proj.id}`
+      })),
+      publicaciones_lista: publicaciones.map((pub: any) => ({
+        id: pub.id,
+        titulo: pub.titulo,
+        autor: pub.autor,
+        institucion: pub.institucion,
+        editorial: pub.editorial,
+        anio: pub.anio,
+        categoria: pub.categoria,
+        tipo: pub.tipo,
+        slug: pub.slug || `publicacion-${pub.id}`
+      })),
+      instituciones_lista_detalle: instituciones.map((inst: any) => ({
+        id: inst.id,
+        nombre: inst.nombre,
+        siglas: inst.siglas,
+        tipo: inst.tipo,
+        imagen_url: inst.imagen_url,
+        sitio_web: inst.sitio_web,
+        estado: inst.estado,
+        activo: inst.activo
       }))
     }
     
