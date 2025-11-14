@@ -166,7 +166,13 @@ export async function GET(request: NextRequest) {
         const invRows = Array.isArray(invResult) ? invResult : invResult.rows
         if (invRows && invRows.length > 0) {
           investigador = invRows[0]
-          console.log('👤 [GET Publicaciones] Investigador encontrado:', investigador?.nombre_completo)
+          console.log('👤 [GET Publicaciones] Investigador encontrado:', {
+            nombre: investigador?.nombre_completo,
+            correo: investigador?.correo,
+            clerk_id: clerkUserId
+          })
+        } else {
+          console.log('⚠️ [GET Publicaciones] No se encontró investigador con clerk_user_id:', clerkUserId)
         }
       } catch (err) {
         console.error('⚠️ Error al buscar investigador:', err)
@@ -221,7 +227,8 @@ export async function GET(request: NextRequest) {
         publicacionesQuery += ` WHERE (${whereConditions.join(' OR ')})`
       }
       
-      console.log('🔍 [GET Publicaciones] Buscando con', whereConditions.length, 'condiciones')
+      console.log('🔍 [GET Publicaciones] Query WHERE:', whereConditions.join(' OR '))
+      console.log('🔍 [GET Publicaciones] Params:', values)
     }
 
     publicacionesQuery += ` ORDER BY p.año_creacion DESC, p.fecha_creacion DESC LIMIT 50`
