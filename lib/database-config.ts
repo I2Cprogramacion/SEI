@@ -24,9 +24,16 @@ if (!dbUrl) throw new Error('DATABASE_URL no definida');
 export const currentDatabaseConfig: DatabaseConfig = parseDatabaseUrl(dbUrl);
 
 // Usa Neon de I2C
+let dbInstance: any = null;
+
 export async function getDatabase() {
   // Siempre usar la configuración de DATABASE_URL (PostgreSQL/Neon)
-  return await DatabaseFactory.create(currentDatabaseConfig)
+  if (!dbInstance) {
+    dbInstance = await DatabaseFactory.create(currentDatabaseConfig)
+    // ✅ CRÍTICO: Inicializar la base de datos (crea tablas si no existen)
+    await dbInstance.inicializar()
+  }
+  return dbInstance
 }
 
 // (Opcional) Para debug
