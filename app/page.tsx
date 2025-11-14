@@ -8,7 +8,8 @@ import { RecentProjects } from "@/components/recent-projects"
 
 export default function Home() {
   return (
-    <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
+    <div className="min-h-screen">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
       {/* Hero Section */}
       <section className="py-8 sm:py-12 md:py-16 lg:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center">
@@ -218,7 +219,7 @@ export default function Home() {
             </AnimatedCard>
           </div>
         </section>
-
       </div>
-    )
-  }
+    </div>
+  )
+}

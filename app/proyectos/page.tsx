@@ -131,7 +131,8 @@ export default function ProyectosPage() {
   const institutions = instituciones
 
   return (
-    <div className="container mx-auto py-4 sm:py-6 md:py-8 px-3 sm:px-4 md:px-6">
+    <div className="min-h-screen">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
       <div className="space-y-4 sm:space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <AnimatedHeader 
@@ -335,7 +336,7 @@ export default function ProyectosPage() {
               ))}
             </div>
           ) : (
-            <AnimatedCard className="glass-effect" delay={500}>
+            <AnimatedCard className="glass-effect card-hover" delay={500}>
               <CardContent className="pt-6 text-center py-12">
                 <FileText className="h-12 w-12 mx-auto text-blue-300 mb-4 animate-float" />
                 <h3 className="text-lg font-semibold mb-2 text-blue-900">No se encontraron proyectos</h3>

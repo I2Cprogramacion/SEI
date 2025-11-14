@@ -152,7 +152,8 @@ export default function CamposPage() {
     )
   }
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="min-h-screen">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
       {/* Breadcrumbs */}
       <Breadcrumbs 
         items={[
@@ -170,7 +171,7 @@ export default function CamposPage() {
         </div>
 
         {/* Barra de búsqueda y filtros */}
-        <Card className="bg-white border-blue-100">
+        <Card className="glass-effect card-hover">
           <CardContent className="pt-6">
             <div className="space-y-4">
               {/* Búsqueda */}
@@ -308,52 +309,52 @@ export default function CamposPage() {
 
         {/* Estadísticas generales */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-white border-blue-100 text-center">
+          <AnimatedCard className="glass-effect card-hover text-center" delay={100}>
             <CardContent className="pt-6">
-              <Lightbulb className="h-8 w-8 mx-auto text-blue-600 mb-2" />
+              <Lightbulb className="h-8 w-8 mx-auto text-blue-600 mb-2 animate-float" />
               <div className="text-2xl font-bold text-blue-900">{estadisticas.totalCampos}</div>
               <p className="text-sm text-blue-600">Campos activos</p>
             </CardContent>
-          </Card>
-          <Card className="bg-white border-blue-100 text-center">
+          </AnimatedCard>
+          <AnimatedCard className="glass-effect card-hover text-center" delay={200}>
             <CardContent className="pt-6">
-              <Users className="h-8 w-8 mx-auto text-blue-600 mb-2" />
+              <Users className="h-8 w-8 mx-auto text-blue-600 mb-2 animate-float" />
               <div className="text-2xl font-bold text-blue-900">{estadisticas.totalInvestigadores}</div>
               <p className="text-sm text-blue-600">Investigadores</p>
             </CardContent>
-          </Card>
-          <Card className="bg-white border-blue-100 text-center">
+          </AnimatedCard>
+          <AnimatedCard className="glass-effect card-hover text-center" delay={300}>
             <CardContent className="pt-6">
-              <FileText className="h-8 w-8 mx-auto text-blue-600 mb-2" />
+              <FileText className="h-8 w-8 mx-auto text-blue-600 mb-2 animate-float" />
               <div className="text-2xl font-bold text-blue-900">{estadisticas.totalProyectos}</div>
               <p className="text-sm text-blue-600">Proyectos</p>
             </CardContent>
-          </Card>
-          <Card className="bg-white border-blue-100 text-center">
+          </AnimatedCard>
+          <AnimatedCard className="glass-effect card-hover text-center" delay={400}>
             <CardContent className="pt-6">
-              <Award className="h-8 w-8 mx-auto text-blue-600 mb-2" />
+              <Award className="h-8 w-8 mx-auto text-blue-600 mb-2 animate-float" />
               <div className="text-2xl font-bold text-blue-900">{estadisticas.totalPublicaciones}</div>
               <p className="text-sm text-blue-600">Publicaciones</p>
             </CardContent>
-          </Card>
+          </AnimatedCard>
         </div>
 
         {/* Lista de campos */}
         {camposEstudio.length === 0 ? (
-          <Card className="bg-blue-50 border-blue-200">
+          <AnimatedCard className="glass-effect card-hover" delay={300}>
             <CardContent className="pt-6 text-center">
               <Lightbulb className="h-12 w-12 mx-auto text-blue-400 mb-4" />
               <h3 className="text-lg font-semibold text-blue-900 mb-2">No hay campos registrados</h3>
               <p className="text-blue-600">
                 Los campos de investigación aparecerán aquí cuando los investigadores registren sus áreas de especialización.
               </p>
-            </CardContent>
-          </Card>
+              </CardContent>
+          </AnimatedCard>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {camposEstudio.map((campo) => (
+            {camposEstudio.map((campo, index) => (
             <Link href={`/campos/${campo.slug}`} key={campo.id}>
-              <Card className="bg-white border-blue-100 hover:shadow-md transition-shadow cursor-pointer h-full">
+              <AnimatedCard className="glass-effect card-hover cursor-pointer h-full" delay={index * 100}>
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
@@ -424,7 +425,7 @@ export default function CamposPage() {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
+              </AnimatedCard>
             </Link>
             ))}
           </div>
@@ -434,7 +435,7 @@ export default function CamposPage() {
         {camposEstudio.length > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Gráfico de barras - Investigadores por campo */}
-            <Card className="bg-white border-blue-100">
+            <AnimatedCard className="glass-effect card-hover" delay={100}>
               <CardHeader>
                 <CardTitle className="text-blue-900 flex items-center gap-2">
                   <BarChart3 className="h-5 w-5" />
@@ -475,10 +476,10 @@ export default function CamposPage() {
                   </ResponsiveContainer>
                 </div>
               </CardContent>
-            </Card>
+            </AnimatedCard>
 
             {/* Gráfico de dona - Distribución de actividad */}
-            <Card className="bg-white border-blue-100">
+            <AnimatedCard className="glass-effect card-hover" delay={200}>
               <CardHeader>
                 <CardTitle className="text-blue-900 flex items-center gap-2">
                   <PieChart className="h-5 w-5" />
@@ -553,7 +554,7 @@ export default function CamposPage() {
 
         {/* Sección de tendencias */}
         {camposEstudio.length > 0 && (
-          <Card className="bg-blue-50 border-blue-200">
+          <AnimatedCard className="glass-effect card-hover" delay={300}>
             <CardHeader>
               <CardTitle className="text-blue-900">Tendencias de Investigación</CardTitle>
               <CardDescription className="text-blue-700">

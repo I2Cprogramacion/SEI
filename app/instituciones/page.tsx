@@ -125,7 +125,8 @@ export default function InstitucionesPage() {
   }, [instituciones])
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="min-h-screen">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <AnimatedHeader
@@ -144,28 +145,28 @@ export default function InstitucionesPage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <AnimatedCard className="bg-white border-blue-100 text-center" delay={100}>
+          <AnimatedCard className="glass-effect card-hover text-center" delay={100}>
             <CardContent className="pt-6">
               <Building className="h-8 w-8 mx-auto text-blue-600 mb-2 animate-float" />
               <div className="text-2xl font-bold text-blue-900">{loading ? "..." : stats.total}</div>
               <p className="text-sm text-blue-600">Instituciones</p>
             </CardContent>
           </AnimatedCard>
-          <AnimatedCard className="bg-white border-blue-100 text-center" delay={200}>
+          <AnimatedCard className="glass-effect card-hover text-center" delay={200}>
             <CardContent className="pt-6">
               <CheckCircle2 className="h-8 w-8 mx-auto text-blue-600 mb-2 animate-float" />
               <div className="text-2xl font-bold text-blue-900">{loading ? "..." : stats.activas}</div>
               <p className="text-sm text-blue-600">Instituciones activas</p>
             </CardContent>
           </AnimatedCard>
-          <AnimatedCard className="bg-white border-blue-100 text-center" delay={300}>
+          <AnimatedCard className="glass-effect card-hover text-center" delay={300}>
             <CardContent className="pt-6">
               <Clock className="h-8 w-8 mx-auto text-blue-600 mb-2 animate-float" />
               <div className="text-2xl font-bold text-blue-900">{loading ? "..." : stats.enRevision}</div>
               <p className="text-sm text-blue-600">En revisión</p>
             </CardContent>
           </AnimatedCard>
-          <AnimatedCard className="bg-white border-blue-100 text-center" delay={400}>
+          <AnimatedCard className="glass-effect card-hover text-center" delay={400}>
             <CardContent className="pt-6">
               <FileText className="h-8 w-8 mx-auto text-blue-600 mb-2 animate-float" />
               <div className="text-2xl font-bold text-blue-900">{loading ? "..." : stats.conDocumentos}</div>
@@ -196,7 +197,7 @@ export default function InstitucionesPage() {
             ))}
           </div>
         ) : instituciones.length === 0 ? (
-          <AnimatedCard className="bg-white border-blue-100" delay={300}>
+          <AnimatedCard className="glass-effect card-hover" delay={300}>
             <CardContent className="pt-6 text-center py-12">
               <Building className="h-12 w-12 mx-auto text-blue-300 mb-4 animate-float" />
               <h3 className="text-lg font-semibold mb-2 text-blue-900">No hay instituciones registradas</h3>
@@ -209,7 +210,7 @@ export default function InstitucionesPage() {
               const estado = estadoConfig(institucion.estado, institucion.activo)
 
               return (
-                <AnimatedCard key={institucion.id} className="bg-white border-blue-100" delay={index * 80}>
+                <AnimatedCard key={institucion.id} className="glass-effect card-hover" delay={index * 80}>
                   <div className="relative flex items-center justify-center h-44 w-full overflow-hidden rounded-t-lg bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200">
                     {institucion.imagenUrl ? (
                       <Image
