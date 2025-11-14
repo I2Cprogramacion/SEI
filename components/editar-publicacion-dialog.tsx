@@ -22,8 +22,18 @@ import {
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2, Save, Plus, X } from "lucide-react"
+import { Loader2, Save, Plus, X, User } from "lucide-react"
 import { toast } from "sonner"
+import { InvestigadorSearch } from "@/components/investigador-search"
+
+interface Investigador {
+  id: number
+  nombre: string
+  email: string
+  institucion: string
+  area: string
+  slug: string
+}
 
 interface EditarPublicacionDialogProps {
   open: boolean
@@ -70,6 +80,11 @@ export function EditarPublicacionDialog({
   const [palabraClave, setPalabraClave] = useState("")
   const [palabrasClave, setPalabrasClave] = useState<string[]>([])
   const [formData, setFormData] = useState<Partial<Publicacion>>({})
+  
+  // Estados para autores
+  const [autoresSeleccionados, setAutoresSeleccionados] = useState<Investigador[]>([])
+  const [autoresManuales, setAutoresManuales] = useState<string[]>([])
+  const [autorManualInput, setAutorManualInput] = useState("")
 
   // Categorías y tipos (mismo que en crear)
   const categorias = [
@@ -121,22 +136,60 @@ export function EditarPublicacionDialog({
       
       const data = await response.json()
       // El endpoint devuelve { publicacion: {...} }
-      const publicacion = data.publicacion || data
+      const pub = data.publicacion || data
+      
+      console.log('📝 Datos RAW recibidos:', pub)
       
       // Convertir palabras_clave a array si viene como string
       let palabrasClaveArray: string[] = []
-      if (publicacion.palabras_clave) {
-        if (Array.isArray(publicacion.palabras_clave)) {
-          palabrasClaveArray = publicacion.palabras_clave
-        } else if (typeof publicacion.palabras_clave === 'string') {
-          palabrasClaveArray = publicacion.palabras_clave.split(',').map((p: string) => p.trim()).filter(Boolean)
+      if (pub.palabras_clave) {
+        if (Array.isArray(pub.palabras_clave)) {
+          palabrasClaveArray = pub.palabras_clave
+        } else if (typeof pub.palabras_clave === 'string') {
+          palabrasClaveArray = pub.palabras_clave.split(',').map((p: string) => p.trim()).filter(Boolean)
         }
       }
       
+      // Separar autores en registrados y manuales
+      const autoresString = pub.autor || ''
+      const autoresArray = autoresString.split(',').map((a: string) => a.trim()).filter(Boolean)
+      
+      // Por ahora, todos los autores como manuales (después podrías implementar lógica para detectar registrados)
+      setAutoresManuales(autoresArray)
+      setAutoresSeleccionados([])
+      
+      // Mapear correctamente todos los campos
+      const mappedData: Partial<Publicacion> = {
+        id: pub.id,
+        titulo: pub.titulo || '',
+        autor: pub.autor || '',
+        institucion: pub.institucion || '',
+        revista: pub.revista || pub.editorial || '',
+        año_creacion: pub.año_creacion || pub.año || new Date().getFullYear(),
+        volumen: pub.volumen || '',
+        numero: pub.numero || '',
+        paginas: pub.paginas || '',
+        doi: pub.doi || '',
+        issn: pub.issn || '',
+        isbn: pub.isbn || '',
+        url: pub.url || '',
+        resumen: pub.resumen || '',
+        abstract: pub.abstract || '',
+        categoria: pub.categoria || '',
+        tipo: pub.tipo || '',
+        acceso: pub.acceso || 'Abierto',
+        idioma: pub.idioma || 'Español',
+        revista_indexada: pub.revista_indexada || '',
+        archivo_url: pub.archivo_url || '',
+        enlace_externo: pub.enlace_externo || ''
+      }
+      
       setPalabrasClave(palabrasClaveArray)
-      setFormData(publicacion)
-      console.log('📝 Datos cargados para editar:', publicacion)
+      setFormData(mappedData)
+      
+      console.log('📝 Datos mapeados:', mappedData)
       console.log('📝 Palabras clave:', palabrasClaveArray)
+      console.log('📝 Autores manuales:', autoresArray)
     } catch (error) {
       console.error("Error loading publicacion:", error)
       toast.error("Error", {
@@ -146,6 +199,28 @@ export function EditarPublicacionDialog({
       setLoadingData(false)
     }
   }
+
+  // Funciones de manejo de autores
+  const handleAddAutorManual = () => {
+    if (autorManualInput.trim() && !autoresManuales.includes(autorManualInput.trim())) {
+      setAutoresManuales(prev => [...prev, autorManualInput.trim()])
+      setAutorManualInput("")
+    }
+  }
+
+  const handleRemoveAutorManual = (nombre: string) => {
+    setAutoresManuales(prev => prev.filter(a => a !== nombre))
+  }
+
+  // Combinar autores registrados y manuales
+  useEffect(() => {
+    const nombresRegistrados = autoresSeleccionados.map(inv => inv.nombre)
+    const todosAutores = [...nombresRegistrados, ...autoresManuales]
+    setFormData(prev => ({
+      ...prev,
+      autor: todosAutores.join(', ')
+    }))
+  }, [autoresSeleccionados, autoresManuales])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -271,24 +346,95 @@ export function EditarPublicacionDialog({
 
             {/* Autores */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-blue-900">Autores</h3>
-              <div className="space-y-2">
-                <Label htmlFor="autor">Autores *</Label>
-                <p className="text-sm text-blue-600">
-                  Lista de autores separados por comas
-                </p>
-                <Textarea
-                  id="autor"
-                  value={formData.autor || ""}
-                  onChange={(e) => handleChange("autor", e.target.value)}
-                  placeholder="Ejemplo: Juan Pérez García, María López Rodríguez, Carlos Sánchez Martínez"
-                  rows={3}
-                  className="resize-none"
-                  required
-                />
-                <p className="text-xs text-blue-500">
-                  {formData.autor ? `${formData.autor.split(',').filter(a => a.trim()).length} autor(es)` : '0 autores'}
-                </p>
+              <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Autores
+              </h3>
+              
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-blue-900">
+                    Buscar y Agregar Autores Registrados *
+                  </Label>
+                  <p className="text-sm text-blue-600 mb-2">
+                    Busca investigadores registrados en el sistema
+                  </p>
+                  <InvestigadorSearch
+                    selectedInvestigadores={autoresSeleccionados}
+                    onSelectionChange={setAutoresSeleccionados}
+                    placeholder="Buscar autores registrados..."
+                  />
+                </div>
+
+                {/* Método alternativo manual */}
+                <div className="pt-2 border-t border-blue-100">
+                  <Label htmlFor="autorManual" className="text-blue-900 mb-1 block">
+                    O escribe el nombre manualmente (si no están registrados):
+                  </Label>
+                  <p className="text-xs text-blue-600 mb-2">
+                    Agrega autores por nombre completo y/o email si no están en el sistema
+                  </p>
+                  <div className="flex gap-2">
+                    <Input
+                      id="autorManual"
+                      placeholder="Nombre completo o email del autor..."
+                      value={autorManualInput}
+                      onChange={(e) => setAutorManualInput(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault()
+                          handleAddAutorManual()
+                        }
+                      }}
+                      className="flex-1 text-sm"
+                    />
+                    <Button 
+                      type="button" 
+                      onClick={handleAddAutorManual} 
+                      variant="outline"
+                      size="sm"
+                      className="px-3"
+                      disabled={!autorManualInput.trim()}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Lista de autores manuales */}
+                {autoresManuales.length > 0 && (
+                  <div className="space-y-2">
+                    <span className="text-sm font-medium text-blue-900">
+                      Autores manuales ({autoresManuales.length})
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {autoresManuales.map((nombre, index) => (
+                        <Badge 
+                          key={index} 
+                          variant="secondary" 
+                          className="bg-blue-100 text-blue-800 border-blue-300 flex items-center gap-1 px-2 py-1"
+                        >
+                          {nombre}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAutorManual(nombre)}
+                            className="ml-1 hover:text-red-600 transition-colors"
+                            title={`Eliminar "${nombre}"`}
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Contador total de autores */}
+                <div className="text-xs text-blue-500 pt-2 border-t border-blue-100">
+                  Total: {autoresSeleccionados.length + autoresManuales.length} autor(es)
+                  {autoresSeleccionados.length > 0 && ` (${autoresSeleccionados.length} registrado${autoresSeleccionados.length !== 1 ? 's' : ''})`}
+                  {autoresManuales.length > 0 && ` (${autoresManuales.length} manual${autoresManuales.length !== 1 ? 'es' : ''})`}
+                </div>
               </div>
             </div>
 
