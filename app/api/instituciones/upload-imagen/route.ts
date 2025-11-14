@@ -37,8 +37,7 @@ export async function POST(request: NextRequest) {
             folder: "sei/instituciones",
             resource_type: "image",
             transformation: [
-              { width: 1200, height: 675, crop: "fill", gravity: "auto" },
-              { quality: "auto", fetch_format: "auto" }
+              { width: 500, height: 500, crop: "limit", quality: "auto", fetch_format: "auto" }
             ]
           },
           (error, result) => {

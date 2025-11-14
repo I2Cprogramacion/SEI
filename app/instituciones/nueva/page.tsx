@@ -954,18 +954,19 @@ export default function NuevaInstitucionPage() {
                     Imagen o logotipo de la institución
                   </Label>
                   <div className="flex flex-col md:flex-row gap-4">
-                    <div className="relative w-full md:w-64 h-40 border border-dashed border-blue-200 rounded-lg flex items-center justify-center overflow-hidden bg-blue-50/50">
+                    <div className="relative w-full md:w-[500px] h-[500px] aspect-square border border-dashed border-blue-200 rounded-lg flex items-center justify-center overflow-hidden bg-blue-50/50">
                       {imagenMostrada ? (
                         <Image
                           src={imagenMostrada}
                           alt={`Imagen de ${formData.nombre || 'la institución'}`}
                           fill
-                          className="object-cover"
+                          className="object-contain p-4"
                         />
                       ) : (
                         <div className="text-center text-blue-500 text-sm px-4">
                           <Upload className="mx-auto h-8 w-8 mb-2 opacity-70" />
                           <p>Sube una imagen en formato JPG, PNG o WEBP (máx. 5MB)</p>
+                          <p className="text-xs mt-1">Recomendado: 500x500px</p>
                         </div>
                       )}
                     </div>
