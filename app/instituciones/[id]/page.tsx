@@ -404,7 +404,6 @@ export default function InstitucionDetallePage({ params }: { params: { id: strin
           <AnimatedButton variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50" onClick={() => router.back()}>
             <ArrowLeft className="h-4 w-4 mr-2" /> Volver
           </AnimatedButton>
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs uppercase">ID: {institucion.id}</Badge>
         </div>
 
         <AnimatedCard className="overflow-hidden bg-white border-blue-100">
