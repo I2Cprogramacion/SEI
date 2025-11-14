@@ -587,7 +587,7 @@ export default function CamposPage() {
                   ))}
               </div>
             </CardContent>
-          </Card>
+          </AnimatedCard>
         )}
       </div>
     </div>
