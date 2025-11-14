@@ -224,7 +224,7 @@ export async function GET(request: NextRequest) {
       console.log('🔍 [GET Publicaciones] Buscando con', whereConditions.length, 'condiciones')
     }
 
-    publicacionesQuery += ` ORDER BY p.fecha_creacion DESC LIMIT 200`
+    publicacionesQuery += ` ORDER BY p.año_creacion DESC, p.fecha_creacion DESC LIMIT 50`
 
     let publicaciones: any[] = []
     let categorias: string[] = []
@@ -249,23 +249,30 @@ export async function GET(request: NextRequest) {
         )
       }
 
-      // Transformar campos (autor, palabras_clave) que están guardados como CSV en el esquema actual
+      // Transformar campos para consistencia con el endpoint de perfil público
       publicaciones = (pubsRows || []).map((r: any) => ({
         id: r.id,
         titulo: r.titulo,
-        autores: r.autor ? String(r.autor).split(/,\s*/).filter(Boolean) : [],
+        autor: r.autor || null,  // Mantener como string para consistencia
+        autores: r.autor ? String(r.autor).split(/,\s*/).filter(Boolean) : [], // También como array para backward compatibility
+        institucion: r.institucion || null,
         revista: r.editorial || null,
         año: r.año || null,
+        volumen: r.volumen || null,
+        numero: r.numero || null,
+        paginas: r.paginas || null,
         doi: r.doi || null,
         resumen: r.resumen || null,
         palabrasClave: r.palabras_clave ? String(r.palabras_clave).split(/,\s*/).filter(Boolean) : [],
         categoria: r.categoria || 'Otros',
-        institucion: r.institucion || null,
         tipo: r.tipo || null,
         acceso: r.acceso || 'Abierto',
-        volumen: r.volumen || null,
-        numero: r.numero || null,
-        paginas: r.paginas || null,
+        archivoUrl: r.archivo_url || null,
+        fecha_creacion: r.fecha_creacion || null,
+        fechaCreacion: r.fecha_creacion || null,
+        clerkUserId: r.clerk_user_id || null,
+        uploaderNombre: r.uploader_nombre || null
+      }))
         archivoUrl: r.archivo_url || null,
         fecha_creacion: r.fecha_creacion || null,
         clerkUserId: r.clerk_user_id || null,
