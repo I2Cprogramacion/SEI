@@ -4,7 +4,23 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, ExternalLink, FileText, Building2, Tag } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { 
+  ArrowLeft, 
+  ExternalLink, 
+  FileText, 
+  Building2, 
+  Tag, 
+  Calendar,
+  BookOpen,
+  Users,
+  User,
+  Globe,
+  Download,
+  Share2,
+  Quote
+} from "lucide-react"
 import { getDatabase } from "@/lib/database-config"
 
 interface PublicacionPageProps {
@@ -84,130 +100,221 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
   console.log('✅ [Page Component] Rendering publication:', publicacion.titulo)
 
   const categoriaColors: Record<string, string> = {
-    'Artículo': 'bg-blue-100 text-blue-800',
-    'Libro': 'bg-purple-100 text-purple-800',
-    'Capítulo': 'bg-green-100 text-green-800',
-    'Conferencia': 'bg-orange-100 text-orange-800',
-    'Tesis': 'bg-pink-100 text-pink-800',
+    'Artículo': 'bg-blue-500 text-white',
+    'Libro': 'bg-purple-500 text-white',
+    'Capítulo': 'bg-green-500 text-white',
+    'Conferencia': 'bg-orange-500 text-white',
+    'Tesis': 'bg-pink-500 text-white',
   }
 
   const accesoColors: Record<string, string> = {
-    'Abierto': 'bg-green-100 text-green-800',
-    'Cerrado': 'bg-red-100 text-red-800',
-    'Restringido': 'bg-yellow-100 text-yellow-800',
+    'Abierto': 'bg-emerald-500 text-white',
+    'Cerrado': 'bg-red-500 text-white',
+    'Restringido': 'bg-amber-500 text-white',
   }
 
+  // Procesar autores para extraer información
+  const autores = publicacion.autor ? publicacion.autor.split(/[,;]/).map((a: string) => a.trim()) : []
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-8">
-        <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Header con gradiente mejorado */}
+      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white shadow-xl">
+        <div className="container mx-auto px-4 py-6">
           <Link href="/publicaciones">
-            <Button variant="ghost" className="text-white hover:bg-blue-500 mb-4">
+            <Button variant="ghost" className="text-white hover:bg-white/20 mb-4 -ml-2">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Volver a publicaciones
             </Button>
           </Link>
           
           <div className="space-y-4">
+            {/* Badges */}
             <div className="flex flex-wrap gap-2">
               {publicacion.categoria && (
-                <Badge className={categoriaColors[publicacion.categoria] || 'bg-blue-100 text-blue-800'}>
+                <Badge className={`${categoriaColors[publicacion.categoria] || 'bg-blue-500 text-white'} px-3 py-1 text-sm font-medium`}>
+                  <BookOpen className="mr-1 h-3 w-3" />
                   {publicacion.categoria}
                 </Badge>
               )}
+              {publicacion.tipo && (
+                <Badge className="bg-white/20 text-white px-3 py-1 text-sm font-medium backdrop-blur-sm">
+                  {publicacion.tipo}
+                </Badge>
+              )}
               {publicacion.acceso && (
-                <Badge className={accesoColors[publicacion.acceso] || 'bg-blue-100 text-blue-800'}>
+                <Badge className={`${accesoColors[publicacion.acceso] || 'bg-blue-500 text-white'} px-3 py-1 text-sm font-medium`}>
+                  <Globe className="mr-1 h-3 w-3" />
                   {publicacion.acceso}
                 </Badge>
               )}
               {publicacion.año_creacion && (
-                <Badge variant="secondary" className="bg-white/20 text-white">
+                <Badge className="bg-white/20 text-white px-3 py-1 text-sm font-medium backdrop-blur-sm">
+                  <Calendar className="mr-1 h-3 w-3" />
                   {publicacion.año_creacion}
                 </Badge>
               )}
             </div>
             
-            <h1 className="text-3xl md:text-4xl font-bold leading-tight">
+            {/* Título */}
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
               {publicacion.titulo}
             </h1>
+
+            {/* Metadatos rápidos */}
+            <div className="flex flex-wrap gap-4 text-sm text-blue-100">
+              {publicacion.editorial && (
+                <div className="flex items-center gap-1">
+                  <BookOpen className="h-4 w-4" />
+                  <span>{publicacion.editorial}</span>
+                </div>
+              )}
+              {publicacion.volumen && (
+                <div className="flex items-center gap-1">
+                  <span>Vol. {publicacion.volumen}</span>
+                  {publicacion.numero && <span>, No. {publicacion.numero}</span>}
+                </div>
+              )}
+              {publicacion.paginas && (
+                <div className="flex items-center gap-1">
+                  <span>pp. {publicacion.paginas}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Columna Principal (2/3) */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Detalles Bibliográficos */}
-            <Card className="animate-in slide-in-from-left duration-500">
+            {/* Resumen/Abstract */}
+            {(publicacion.resumen || publicacion.abstract) && (
+              <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-2xl text-slate-800">
+                    <Quote className="h-6 w-6 text-blue-600" />
+                    {publicacion.abstract ? 'Abstract' : 'Resumen'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-base leading-relaxed text-slate-700">
+                    {publicacion.abstract || publicacion.resumen}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Detalles Bibliográficos Completos */}
+            <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-blue-600" />
-                  Detalles Bibliográficos
+                <CardTitle className="flex items-center gap-2 text-2xl text-slate-800">
+                  <FileText className="h-6 w-6 text-blue-600" />
+                  Información Bibliográfica
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
+                  {/* Editorial/Revista */}
                   {publicacion.editorial && (
-                    <div>
-                      <p className="text-sm text-blue-600 font-semibold mb-1">Revista/Editorial</p>
-                      <p className="text-base">{publicacion.editorial}</p>
+                    <div className="flex flex-col gap-1 p-3 bg-slate-50 rounded-lg">
+                      <span className="text-sm font-semibold text-blue-600 uppercase tracking-wide">
+                        Revista/Editorial
+                      </span>
+                      <span className="text-base text-slate-900">{publicacion.editorial}</span>
                     </div>
                   )}
-                  
-                  {publicacion.volumen && (
-                    <div>
-                      <p className="text-sm text-blue-600 font-semibold mb-1">Volumen</p>
-                      <p className="text-base">{publicacion.volumen}</p>
+
+                  {/* Volumen, Número y Páginas */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {publicacion.volumen && (
+                      <div className="flex flex-col gap-1 p-3 bg-slate-50 rounded-lg">
+                        <span className="text-sm font-semibold text-blue-600 uppercase tracking-wide">
+                          Volumen
+                        </span>
+                        <span className="text-base text-slate-900">{publicacion.volumen}</span>
+                      </div>
+                    )}
+                    
+                    {publicacion.numero && (
+                      <div className="flex flex-col gap-1 p-3 bg-slate-50 rounded-lg">
+                        <span className="text-sm font-semibold text-blue-600 uppercase tracking-wide">
+                          Número
+                        </span>
+                        <span className="text-base text-slate-900">{publicacion.numero}</span>
+                      </div>
+                    )}
+                    
+                    {publicacion.paginas && (
+                      <div className="flex flex-col gap-1 p-3 bg-slate-50 rounded-lg">
+                        <span className="text-sm font-semibold text-blue-600 uppercase tracking-wide">
+                          Páginas
+                        </span>
+                        <span className="text-base text-slate-900">{publicacion.paginas}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Identificadores */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {publicacion.issn && (
+                      <div className="flex flex-col gap-1 p-3 bg-slate-50 rounded-lg">
+                        <span className="text-sm font-semibold text-blue-600 uppercase tracking-wide">
+                          ISSN
+                        </span>
+                        <span className="text-base font-mono text-slate-900">{publicacion.issn}</span>
+                      </div>
+                    )}
+                    
+                    {publicacion.isbn && (
+                      <div className="flex flex-col gap-1 p-3 bg-slate-50 rounded-lg">
+                        <span className="text-sm font-semibold text-blue-600 uppercase tracking-wide">
+                          ISBN
+                        </span>
+                        <span className="text-base font-mono text-slate-900">{publicacion.isbn}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* DOI */}
+                  {publicacion.doi && (
+                    <div className="flex flex-col gap-1 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <span className="text-sm font-semibold text-blue-700 uppercase tracking-wide">
+                        DOI
+                      </span>
+                      <a
+                        href={publicacion.doi.startsWith('http') ? publicacion.doi : `https://doi.org/${publicacion.doi}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-base font-mono text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-2"
+                      >
+                        {publicacion.doi}
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
                     </div>
                   )}
-                  
-                  {publicacion.paginas && (
-                    <div>
-                      <p className="text-sm text-blue-600 font-semibold mb-1">Páginas</p>
-                      <p className="text-base">{publicacion.paginas}</p>
-                    </div>
-                  )}
-                  
-                  {publicacion.issn && (
-                    <div>
-                      <p className="text-sm text-blue-600 font-semibold mb-1">ISSN</p>
-                      <p className="text-base font-mono">{publicacion.issn}</p>
-                    </div>
-                  )}
-                  
-                  {publicacion.isbn && (
-                    <div>
-                      <p className="text-sm text-blue-600 font-semibold mb-1">ISBN</p>
-                      <p className="text-base font-mono">{publicacion.isbn}</p>
+
+                  {/* Idioma */}
+                  {publicacion.idioma && (
+                    <div className="flex flex-col gap-1 p-3 bg-slate-50 rounded-lg">
+                      <span className="text-sm font-semibold text-blue-600 uppercase tracking-wide">
+                        Idioma
+                      </span>
+                      <span className="text-base text-slate-900">{publicacion.idioma}</span>
                     </div>
                   )}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Abstract/Resumen */}
-            {publicacion.resumen && (
-              <Card className="animate-in slide-in-from-left duration-500 delay-100">
-                <CardHeader>
-                  <CardTitle>Resumen</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-base leading-relaxed text-blue-900/80">
-                    {publicacion.resumen}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
             {/* Palabras Clave */}
             {publicacion.palabras_clave && (
-              <Card className="animate-in slide-in-from-left duration-500 delay-150">
+              <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Tag className="h-5 w-5 text-blue-600" />
+                  <CardTitle className="flex items-center gap-2 text-2xl text-slate-800">
+                    <Tag className="h-6 w-6 text-blue-600" />
                     Palabras Clave
                   </CardTitle>
                 </CardHeader>
@@ -217,7 +324,7 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                       <Badge 
                         key={index} 
                         variant="outline" 
-                        className="bg-blue-50 text-blue-700 border-blue-200"
+                        className="bg-blue-50 text-blue-700 border-blue-300 px-3 py-1 text-sm hover:bg-blue-100 transition-colors"
                       >
                         {keyword.trim()}
                       </Badge>
@@ -228,61 +335,88 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
             )}
           </div>
 
-          {/* Right Column - Sidebar */}
+          {/* Columna Lateral (1/3) */}
           <div className="space-y-6">
-            {/* Autores */}
-            {publicacion.autor && (
-              <Card className="animate-in slide-in-from-right duration-500">
+            {/* Autores con avatares */}
+            {autores.length > 0 && (
+              <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
                 <CardHeader>
-                  <CardTitle>Autores</CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-xl text-slate-800">
+                    <Users className="h-5 w-5 text-blue-600" />
+                    Autores
+                  </CardTitle>
                   <CardDescription>
-                    Investigadores que contribuyeron a esta publicación
+                    {autores.length} {autores.length === 1 ? 'autor' : 'autores'}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    {publicacion.autor.split(/[,;]/).map((autor: string, index: number) => (
-                      <p key={index} className="text-sm text-blue-700">
-                        {autor.trim()}
-                      </p>
+                  <div className="space-y-3">
+                    {autores.map((autor: string, index: number) => (
+                      <div key={index} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                        <Avatar className="h-10 w-10 border-2 border-blue-200">
+                          <AvatarFallback className="bg-gradient-to-br from-blue-400 to-blue-600 text-white font-semibold">
+                            {autor.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-slate-900">{autor}</p>
+                        </div>
+                      </div>
                     ))}
                   </div>
+
+                  {/* Si hay investigador registrado, mostrar link a perfil */}
+                  {publicacion.investigador_slug && (
+                    <>
+                      <Separator className="my-4" />
+                      <Link href={`/investigadores/${publicacion.investigador_slug}`}>
+                        <Button variant="outline" className="w-full hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-colors">
+                          <User className="mr-2 h-4 w-4" />
+                          Ver perfil del investigador
+                        </Button>
+                      </Link>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             )}
 
             {/* Institución */}
             {(publicacion.investigador_institucion || publicacion.institucion) && (
-              <Card className="animate-in slide-in-from-right duration-500 delay-100">
+              <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-xl text-slate-800">
                     <Building2 className="h-5 w-5 text-blue-600" />
                     Institución
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-base">
+                  <p className="text-base text-slate-700">
                     {publicacion.investigador_institucion || publicacion.institucion}
                   </p>
                 </CardContent>
               </Card>
             )}
 
-            {/* Enlaces */}
-            <Card className="animate-in slide-in-from-right duration-500 delay-150">
+            {/* Enlaces y Acciones */}
+            <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
               <CardHeader>
-                <CardTitle>Enlaces</CardTitle>
+                <CardTitle className="flex items-center gap-2 text-xl text-slate-800">
+                  <Share2 className="h-5 w-5 text-blue-600" />
+                  Enlaces y Recursos
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2">
                 {publicacion.doi && (
                   <a
                     href={publicacion.doi.startsWith('http') ? publicacion.doi : `https://doi.org/${publicacion.doi}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:underline"
                   >
-                    <ExternalLink className="h-4 w-4" />
-                    <span>Ver DOI</span>
+                    <Button variant="outline" className="w-full justify-start hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-colors">
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Ver en DOI
+                    </Button>
                   </a>
                 )}
                 
@@ -291,10 +425,11 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                     href={publicacion.archivo_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:underline"
                   >
-                    <FileText className="h-4 w-4" />
-                    <span>Ver PDF</span>
+                    <Button variant="outline" className="w-full justify-start hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-colors">
+                      <Download className="mr-2 h-4 w-4" />
+                      Descargar PDF
+                    </Button>
                   </a>
                 )}
                 
@@ -303,26 +438,42 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                     href={publicacion.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:underline"
                   >
-                    <ExternalLink className="h-4 w-4" />
-                    <span>Enlace externo</span>
+                    <Button variant="outline" className="w-full justify-start hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-colors">
+                      <Globe className="mr-2 h-4 w-4" />
+                      Sitio web externo
+                    </Button>
                   </a>
                 )}
-
-                {publicacion.investigador_slug && (
-                  <Link
-                    href={`/investigadores/${publicacion.investigador_slug}`}
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:underline"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    <span>Perfil del investigador</span>
-                  </Link>
-                )}
                 
-                {!publicacion.doi && !publicacion.archivo_url && !publicacion.url && !publicacion.investigador_slug && (
-                  <p className="text-sm text-blue-600/60">No hay enlaces disponibles</p>
+                {!publicacion.doi && !publicacion.archivo_url && !publicacion.url && (
+                  <p className="text-sm text-slate-500 text-center py-4">
+                    No hay recursos disponibles
+                  </p>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* Metadata adicional */}
+            <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-slate-50">
+              <CardHeader>
+                <CardTitle className="text-lg text-slate-800">
+                  Información Adicional
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                {publicacion.fecha_creacion && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Fecha de registro:</span>
+                    <span className="text-slate-900 font-medium">
+                      {new Date(publicacion.fecha_creacion).toLocaleDateString('es-MX')}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-slate-600">ID de publicación:</span>
+                  <span className="text-slate-900 font-mono font-medium">#{publicacion.id}</span>
+                </div>
               </CardContent>
             </Card>
           </div>
