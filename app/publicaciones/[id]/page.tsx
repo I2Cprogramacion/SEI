@@ -41,7 +41,7 @@ async function getPublicacion(id: string) {
     const db = await getDatabase()
     console.log('✅ [Publicacion Detail] Database connection obtained')
     
-    // El método query() ya retorna result.rows (no el result completo)
+    // Primero obtenemos la publicación
     const rows = await db.query(
       `SELECT 
         p.*,
@@ -66,6 +66,35 @@ async function getPublicacion(id: string) {
     const publicacion = rows[0]
     console.log('✅ [Publicacion Detail] Found publication:', publicacion.titulo)
     console.log('✅ [Publicacion Detail] Publication data keys:', Object.keys(publicacion).join(', '))
+    
+    // Ahora buscamos información de TODOS los autores registrados
+    if (publicacion.autor) {
+      const autoresNombres = publicacion.autor.split(/[,;]/).map((a: string) => a.trim())
+      
+      // Buscar investigadores que coincidan con los nombres de autores
+      const investigadoresRows = await db.query(
+        `SELECT nombre_completo, slug, fotografia_url, institucion
+         FROM investigadores
+         WHERE LOWER(nombre_completo) = ANY($1::text[])`,
+        [autoresNombres.map((nombre: string) => nombre.toLowerCase())]
+      )
+      
+      // Crear un mapa de autores con su información
+      const autoresInfoMap: Record<string, any> = {}
+      if (investigadoresRows && investigadoresRows.length > 0) {
+        investigadoresRows.forEach((inv: any) => {
+          autoresInfoMap[inv.nombre_completo.toLowerCase()] = {
+            nombre: inv.nombre_completo,
+            slug: inv.slug,
+            fotografia_url: inv.fotografia_url,
+            institucion: inv.institucion
+          }
+        })
+      }
+      
+      publicacion.autores_info = autoresInfoMap
+      console.log('✅ [Publicacion Detail] Found author info for:', Object.keys(autoresInfoMap).length, 'authors')
+    }
     
     return publicacion
   } catch (error) {
@@ -452,31 +481,40 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                 <CardContent>
                   <div className="space-y-3">
                     {autores.map((autor: string, index: number) => {
-                      // Verificar si este autor es el investigador registrado
-                      const esInvestigadorRegistrado = publicacion.investigador_nombre && 
-                        autor.toLowerCase().includes(publicacion.investigador_nombre.toLowerCase().split(' ')[0])
+                      // Buscar si este autor está registrado en el sistema
+                      const autorInfo = publicacion.autores_info?.[autor.toLowerCase()]
+                      const esRegistrado = !!autorInfo
                       
                       const contenido = (
-                        <div className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${esInvestigadorRegistrado ? 'hover:bg-blue-50 cursor-pointer' : 'hover:bg-slate-50'}`}>
-                          <Avatar className="h-10 w-10 border-2 border-blue-200">
-                            {esInvestigadorRegistrado && publicacion.investigador_fotografia ? (
-                              <AvatarImage src={publicacion.investigador_fotografia} alt={autor} />
+                        <div className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${esRegistrado ? 'hover:bg-blue-50 cursor-pointer border border-transparent hover:border-blue-200' : 'hover:bg-slate-50'}`}>
+                          <Avatar className="h-12 w-12 border-2 border-blue-200">
+                            {esRegistrado && autorInfo.fotografia_url ? (
+                              <AvatarImage 
+                                src={autorInfo.fotografia_url} 
+                                alt={autor}
+                                className="object-cover"
+                              />
                             ) : null}
-                            <AvatarFallback className="bg-gradient-to-br from-blue-400 to-blue-600 text-white font-semibold text-xs">
+                            <AvatarFallback className="bg-gradient-to-br from-blue-400 to-blue-600 text-white font-semibold text-sm">
                               {autor.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-slate-900 truncate">{autor}</p>
-                            {esInvestigadorRegistrado && (
-                              <p className="text-xs text-blue-600">Ver perfil →</p>
+                            {esRegistrado && autorInfo.institucion && (
+                              <p className="text-xs text-slate-600 truncate">{autorInfo.institucion}</p>
+                            )}
+                            {esRegistrado && (
+                              <p className="text-xs text-blue-600 font-medium mt-0.5">
+                                Ver perfil →
+                              </p>
                             )}
                           </div>
                         </div>
                       )
 
-                      return esInvestigadorRegistrado && publicacion.investigador_slug ? (
-                        <Link key={index} href={`/investigadores/${publicacion.investigador_slug}`}>
+                      return esRegistrado ? (
+                        <Link key={index} href={`/investigadores/${autorInfo.slug}`} className="block">
                           {contenido}
                         </Link>
                       ) : (
