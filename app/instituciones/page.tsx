@@ -125,21 +125,21 @@ export default function InstitucionesPage() {
   }, [instituciones])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8 lg:py-10">
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-slate-800 via-blue-700 to-indigo-700 bg-clip-text text-transparent">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-2">
               Instituciones de Investigación
             </h1>
-            <p className="text-slate-600 text-sm sm:text-base">
+            <p className="text-gray-500 text-sm">
               Explora las instituciones registradas y conoce sus áreas de especialidad
             </p>
           </div>
           <AnimatedButton
             asChild
-            className="bg-gradient-to-r from-blue-500/90 to-indigo-500/90 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg shadow-blue-500/25 border-0"
+            className="bg-gray-900 hover:bg-gray-800 text-white border-0"
           >
             <Link href="/instituciones/nueva">
               <Building className="mr-2 h-4 w-4" />
@@ -149,40 +149,32 @@ export default function InstitucionesPage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <AnimatedCard className="bg-white/70 backdrop-blur-sm border border-slate-200/50 shadow-sm hover:shadow-md transition-all duration-300 text-center" delay={100}>
+          <AnimatedCard className="bg-white border border-gray-200 hover:border-gray-300 transition-colors text-center" delay={100}>
             <CardContent className="pt-6">
-              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
-                <Building className="h-6 w-6 text-blue-500/80" />
-              </div>
-              <div className="text-2xl font-bold bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">{loading ? "..." : stats.total}</div>
-              <p className="text-sm text-slate-500 mt-1">Instituciones</p>
+              <Building className="h-6 w-6 mx-auto mb-2 text-gray-600" />
+              <div className="text-2xl font-semibold text-gray-900">{loading ? "..." : stats.total}</div>
+              <p className="text-sm text-gray-500 mt-1">Instituciones</p>
             </CardContent>
           </AnimatedCard>
-          <AnimatedCard className="bg-white/70 backdrop-blur-sm border border-slate-200/50 shadow-sm hover:shadow-md transition-all duration-300 text-center" delay={200}>
+          <AnimatedCard className="bg-white border border-gray-200 hover:border-gray-300 transition-colors text-center" delay={200}>
             <CardContent className="pt-6">
-              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
-                <CheckCircle2 className="h-6 w-6 text-emerald-500/80" />
-              </div>
-              <div className="text-2xl font-bold bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">{loading ? "..." : stats.activas}</div>
-              <p className="text-sm text-slate-500 mt-1">Instituciones activas</p>
+              <CheckCircle2 className="h-6 w-6 mx-auto mb-2 text-gray-600" />
+              <div className="text-2xl font-semibold text-gray-900">{loading ? "..." : stats.activas}</div>
+              <p className="text-sm text-gray-500 mt-1">Instituciones activas</p>
             </CardContent>
           </AnimatedCard>
-          <AnimatedCard className="bg-white/70 backdrop-blur-sm border border-slate-200/50 shadow-sm hover:shadow-md transition-all duration-300 text-center" delay={300}>
+          <AnimatedCard className="bg-white border border-gray-200 hover:border-gray-300 transition-colors text-center" delay={300}>
             <CardContent className="pt-6">
-              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center">
-                <Clock className="h-6 w-6 text-amber-500/80" />
-              </div>
-              <div className="text-2xl font-bold bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">{loading ? "..." : stats.enRevision}</div>
-              <p className="text-sm text-slate-500 mt-1">En revisión</p>
+              <Clock className="h-6 w-6 mx-auto mb-2 text-gray-600" />
+              <div className="text-2xl font-semibold text-gray-900">{loading ? "..." : stats.enRevision}</div>
+              <p className="text-sm text-gray-500 mt-1">En revisión</p>
             </CardContent>
           </AnimatedCard>
-          <AnimatedCard className="bg-white/70 backdrop-blur-sm border border-slate-200/50 shadow-sm hover:shadow-md transition-all duration-300 text-center" delay={400}>
+          <AnimatedCard className="bg-white border border-gray-200 hover:border-gray-300 transition-colors text-center" delay={400}>
             <CardContent className="pt-6">
-              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
-                <FileText className="h-6 w-6 text-purple-500/80" />
-              </div>
-              <div className="text-2xl font-bold bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">{loading ? "..." : stats.conDocumentos}</div>
-              <p className="text-sm text-slate-500 mt-1">Con documentación</p>
+              <FileText className="h-6 w-6 mx-auto mb-2 text-gray-600" />
+              <div className="text-2xl font-semibold text-gray-900">{loading ? "..." : stats.conDocumentos}</div>
+              <p className="text-sm text-gray-500 mt-1">Con documentación</p>
             </CardContent>
           </AnimatedCard>
         </div>
@@ -209,46 +201,33 @@ export default function InstitucionesPage() {
             ))}
           </div>
         ) : instituciones.length === 0 ? (
-          <AnimatedCard className="bg-white/70 backdrop-blur-sm border border-slate-200/50 shadow-sm" delay={300}>
+          <AnimatedCard className="bg-white border border-gray-200" delay={300}>
             <CardContent className="pt-6 text-center py-12">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-slate-100 to-blue-100 flex items-center justify-center">
-                <Building className="h-8 w-8 text-slate-400" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2 text-slate-700">No hay instituciones registradas</h3>
-              <p className="text-sm text-slate-500">En cuanto se registre la primera institución aparecerá aquí.</p>
+              <Building className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <h3 className="text-lg font-medium mb-2 text-gray-700">No hay instituciones registradas</h3>
+              <p className="text-sm text-gray-500">En cuanto se registre la primera institución aparecerá aquí.</p>
             </CardContent>
           </AnimatedCard>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {instituciones.map((institucion, index) => {
               const estado = estadoConfig(institucion.estado, institucion.activo)
 
               return (
                 <Link href={`/instituciones/${institucion.id}`} key={institucion.id}>
-                  <AnimatedCard className="h-full bg-white/80 backdrop-blur-sm border border-slate-200/60 shadow-sm hover:shadow-xl hover:border-slate-300/80 cursor-pointer overflow-hidden group relative transition-all duration-500" delay={index * 100}>
-                    {/* Gradiente decorativo superior sutil */}
-                    <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-br from-blue-50/40 via-indigo-50/20 to-purple-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    
-                    <CardContent className="pt-6 sm:pt-8 md:pt-10 px-4 sm:px-5 md:px-6 pb-4 sm:pb-5 relative z-10">
-                      <div className="flex flex-col items-center text-center w-full max-w-full">
-                        {/* Imagen/Logo de la institución con efecto mejorado */}
-                        <div className="relative mb-4 sm:mb-5 md:mb-6 w-full">
-                          <div className="absolute inset-0 bg-gradient-to-br from-blue-200/30 via-indigo-200/20 to-purple-200/30 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                          <div className="relative flex items-center justify-center w-full rounded-2xl bg-gradient-to-br from-slate-50/80 via-blue-50/60 to-indigo-50/40 backdrop-blur-sm border border-slate-200/40 group-hover:border-slate-300/60 transition-all duration-500 shadow-sm group-hover:shadow-md p-4 sm:p-6 md:p-8 min-h-[200px] sm:min-h-[240px] md:min-h-[280px]">
+                  <AnimatedCard className="h-full bg-white border border-gray-200 hover:border-gray-300 hover:shadow-md cursor-pointer transition-all duration-200" delay={index * 100}>
+                    <CardContent className="p-6">
+                      <div className="flex flex-col gap-4">
+                        {/* Imagen y nombre en la misma línea */}
+                        <div className="flex items-start gap-4">
+                          {/* Imagen pequeña integrada */}
+                          <div className="flex-shrink-0">
                             {institucion.imagenUrl ? (
-                              <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: '180px', maxHeight: '260px' }}>
+                              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
                                 <img
                                   src={institucion.imagenUrl}
                                   alt={`Imagen de ${institucion.nombre}`}
-                                  className="w-auto h-auto object-contain transition-transform duration-500 group-hover:scale-105"
-                                  style={{ 
-                                    maxWidth: '100%', 
-                                    maxHeight: '100%',
-                                    width: 'auto',
-                                    height: 'auto',
-                                    objectFit: 'contain',
-                                    display: 'block'
-                                  }}
+                                  className="w-full h-full object-contain p-2"
                                   onError={(e) => {
                                     const target = e.target as HTMLImageElement
                                     target.style.display = 'none'
@@ -256,58 +235,50 @@ export default function InstitucionesPage() {
                                 />
                               </div>
                             ) : (
-                              <div className="flex flex-col items-center justify-center text-slate-400/70 w-full" style={{ minHeight: '180px' }}>
-                                <span className="text-2xl sm:text-3xl md:text-4xl font-bold uppercase tracking-wide leading-tight">
+                              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center">
+                                <span className="text-lg sm:text-xl font-semibold text-gray-400 uppercase">
                                   {getInitials(institucion.siglas || institucion.nombre)}
                                 </span>
-                                {institucion.siglas && (
-                                  <span className="text-[10px] sm:text-xs md:text-sm mt-1 sm:mt-2 font-semibold">{institucion.siglas}</span>
-                                )}
                               </div>
                             )}
                           </div>
+                          
+                          {/* Nombre y badges */}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-gray-900 text-base sm:text-lg mb-2 line-clamp-2 leading-tight">
+                              {institucion.nombre || 'Sin nombre'}
+                            </h3>
+                            <div className="flex flex-wrap gap-2">
+                              {institucion.tipo && (
+                                <Badge variant="secondary" className="bg-gray-100 text-gray-700 text-xs border-0">
+                                  {institucion.tipo}
+                                </Badge>
+                              )}
+                              <Badge variant="outline" className={`text-xs ${estado.className} border`}>
+                                {estado.label}
+                              </Badge>
+                            </div>
+                          </div>
                         </div>
 
-                        {/* Nombre con mejor tipografía */}
-                        <h3 className="font-semibold text-slate-800 mb-2 sm:mb-3 text-base sm:text-lg md:text-xl w-full px-2 sm:px-3 line-clamp-2 leading-tight group-hover:text-slate-900 transition-colors">
-                          {institucion.nombre || 'Sin nombre'}
-                        </h3>
-
-                        {/* Tipo y estado con estilo mejorado */}
-                        <div className="mb-3 sm:mb-4 w-full px-2 sm:px-3 space-y-1.5 sm:space-y-2">
-                          {institucion.tipo && (
-                            <AnimatedBadge 
-                              variant="secondary" 
-                              className="bg-gradient-to-r from-blue-400/80 to-indigo-400/80 text-white text-[10px] sm:text-xs md:text-sm font-medium px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm hover:shadow-md transition-all duration-300 border-0"
-                            >
-                              {institucion.tipo}
-                            </AnimatedBadge>
-                          )}
-                          <Badge variant="outline" className={`text-[10px] sm:text-xs ${estado.className} border border-opacity-50`}>
-                            {estado.label}
-                          </Badge>
-                        </div>
-
-                        {/* Información básica - Rediseñada con colores suaves */}
-                        <div className="w-full space-y-2 sm:space-y-2.5 md:space-y-3 text-[11px] sm:text-xs md:text-sm mb-3 sm:mb-4 px-2 sm:px-3">
+                        {/* Información básica */}
+                        <div className="space-y-2 text-sm text-gray-600">
                           {institucion.añoFundacion && (
-                            <div className="flex items-center justify-center gap-1.5 sm:gap-2 text-slate-600 max-w-full bg-slate-50/60 rounded-xl px-2 sm:px-3 py-1.5 sm:py-2 border border-slate-200/50 backdrop-blur-sm">
-                              <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 text-slate-400" />
-                              <span className="text-[11px] sm:text-xs font-medium text-center truncate min-w-0 flex-1">Fundada en {institucion.añoFundacion}</span>
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                              <span className="text-sm">Fundada en {institucion.añoFundacion}</span>
                             </div>
                           )}
-
                           {institucion.ubicacion && institucion.ubicacion.trim() !== '' && (
-                            <div className="flex items-center justify-center gap-1.5 sm:gap-2 text-slate-600 max-w-full bg-slate-50/60 rounded-xl px-2 sm:px-3 py-1.5 sm:py-2 border border-slate-200/50 backdrop-blur-sm">
-                              <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 text-slate-400" />
-                              <span className="text-[11px] sm:text-xs font-medium text-center truncate min-w-0 flex-1 line-clamp-2">{institucion.ubicacion}</span>
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                              <span className="text-sm line-clamp-1">{institucion.ubicacion}</span>
                             </div>
                           )}
-
                           {institucion.contacto?.telefono && (
-                            <div className="flex items-center justify-center gap-1.5 sm:gap-2 text-slate-600 max-w-full bg-slate-50/60 rounded-xl px-2 sm:px-3 py-1.5 sm:py-2 border border-slate-200/50 backdrop-blur-sm">
-                              <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 text-slate-400" />
-                              <span className="text-[11px] sm:text-xs font-medium text-center truncate min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <Phone className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                              <span className="text-sm">
                                 {institucion.contacto.telefono}
                                 {institucion.contacto.extension ? ` ext. ${institucion.contacto.extension}` : ""}
                               </span>
@@ -315,55 +286,46 @@ export default function InstitucionesPage() {
                           )}
                         </div>
 
-                        {/* Áreas de investigación - Rediseñado */}
+                        {/* Áreas de investigación */}
                         {institucion.areasInvestigacion.length > 0 && (
-                          <div className="w-full mt-1 sm:mt-2 px-2 sm:px-3">
-                            <div className="inline-block w-full">
-                              <AnimatedBadge 
-                                variant="outline" 
-                                interactive 
-                                className="border border-indigo-200/60 text-indigo-600 bg-indigo-50/50 px-3 sm:px-4 py-1.5 sm:py-2 w-full overflow-hidden hover:bg-indigo-50/80 transition-all duration-300 shadow-sm backdrop-blur-sm"
-                              >
-                                <span className="block truncate text-[10px] sm:text-[11px] md:text-xs font-medium uppercase tracking-wide">
-                                  {institucion.areasInvestigacion.slice(0, 2).join(', ')}
-                                  {institucion.areasInvestigacion.length > 2 && ` +${institucion.areasInvestigacion.length - 2} más`}
-                                </span>
-                              </AnimatedBadge>
-                            </div>
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1">Áreas de investigación</p>
+                            <p className="text-sm text-gray-700 line-clamp-2">
+                              {institucion.areasInvestigacion.slice(0, 2).join(', ')}
+                              {institucion.areasInvestigacion.length > 2 && ` +${institucion.areasInvestigacion.length - 2} más`}
+                            </p>
                           </div>
                         )}
                       </div>
                     </CardContent>
                     
-                    {/* Footer con email y acciones - Rediseñado */}
-                    <CardFooter className="border-t border-slate-200/50 flex flex-col gap-1.5 sm:gap-2 py-3 sm:py-4 md:py-5 px-4 sm:px-5 md:px-6 bg-gradient-to-r from-slate-50/40 via-blue-50/20 to-indigo-50/20 relative overflow-hidden backdrop-blur-sm">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                      <div className="text-center w-full max-w-full overflow-hidden relative z-10">
+                    {/* Footer minimalista */}
+                    <CardFooter className="border-t border-gray-100 pt-4 px-6 pb-6">
+                      <div className="w-full">
                         {institucion.contacto?.email && (
-                          <p className="text-[11px] sm:text-xs md:text-sm text-slate-600 px-1 sm:px-2 truncate font-medium flex items-center justify-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
-                            <Mail className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-slate-400" />
-                            <span>{institucion.contacto.email}</span>
-                          </p>
+                          <div className="flex items-center gap-2 mb-3 text-sm text-gray-600">
+                            <Mail className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                            <span className="truncate">{institucion.contacto.email}</span>
+                          </div>
                         )}
-                        <div className="flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap">
+                        <div className="flex items-center gap-2">
                           <AnimatedButton
                             variant="outline"
                             size="sm"
-                            className="border-slate-200/60 text-slate-600 hover:bg-slate-50/80 hover:border-slate-300/80 bg-white/50 backdrop-blur-sm text-[10px] sm:text-xs shadow-sm px-2 sm:px-3 py-1.5 sm:py-2"
+                            className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 text-sm"
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
                               window.location.href = `/instituciones/${institucion.id}`
                             }}
                           >
-                            <GraduationCap className="mr-1 sm:mr-1.5 h-3 w-3 sm:h-3.5 sm:w-3.5" />
                             Ver detalles
                           </AnimatedButton>
                           {institucion.sitioWeb && (
                             <AnimatedButton
                               variant="outline"
                               size="sm"
-                              className="border-slate-200/60 text-slate-600 hover:bg-slate-50/80 hover:border-slate-300/80 bg-white/50 backdrop-blur-sm text-[10px] sm:text-xs shadow-sm px-2 sm:px-3 py-1.5 sm:py-2"
+                              className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 text-sm"
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
@@ -372,7 +334,6 @@ export default function InstitucionesPage() {
                               }
                             }}
                             >
-                              <Globe2 className="mr-1 sm:mr-1.5 h-3 w-3 sm:h-3.5 sm:w-3.5" />
                               Sitio web
                             </AnimatedButton>
                           )}
