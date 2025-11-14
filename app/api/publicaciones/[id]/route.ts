@@ -115,3 +115,42 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
+
+// DELETE - eliminar publicación (solo autor)
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const user = await currentUser()
+    if (!user) return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+
+    const { id } = params
+    const db = await getDatabase()
+
+    // Comprobar que la publicación existe y pertenece al usuario
+    const existQ = `SELECT clerk_user_id FROM publicaciones WHERE id = $1 LIMIT 1`
+    const existRes = await db.query(existQ, [id])
+    const existRow = Array.isArray(existRes) ? existRes[0] : existRes.rows[0]
+    
+    if (!existRow) {
+      return NextResponse.json({ error: 'Publicación no encontrada' }, { status: 404 })
+    }
+    
+    if (existRow.clerk_user_id !== user.id) {
+      return NextResponse.json({ error: 'No autorizado para eliminar esta publicación' }, { status: 403 })
+    }
+
+    // Eliminar la publicación
+    const deleteQ = `DELETE FROM publicaciones WHERE id = $1`
+    await db.query(deleteQ, [id])
+
+    console.log(`🗑️ Publicación ${id} eliminada por usuario ${user.id}`)
+
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Publicación eliminada correctamente' 
+    })
+
+  } catch (error) {
+    console.error('Error DELETE /api/publicaciones/[id]:', error)
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
+  }
+}
