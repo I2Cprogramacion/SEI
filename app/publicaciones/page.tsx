@@ -888,32 +888,19 @@ export default function PublicacionesPage() {
                   </div>
                 </CardContent>
                 <CardFooter className="border-t border-blue-100 flex flex-col sm:flex-row justify-between gap-3 sm:gap-4 py-3 sm:py-4 px-3 sm:px-6">
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs sm:text-sm text-blue-600 font-medium flex-shrink-0">Autores:</span>
                     {publicacion.autores.slice(0, 3).map((autor, index) => (
-                      <div key={index} className="flex items-center gap-2">
-                        <Avatar className="h-6 w-6 flex-shrink-0">
-                          <AvatarImage src="/placeholder.svg" alt={autor} />
-                          <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
-                            {autor
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <Link
-                          href={`/investigadores/${autor.toLowerCase().replace(/\s+/g, "-").replace(/\./g, "")}`}
-                          className="text-xs sm:text-sm text-blue-700 hover:underline break-words"
-                        >
-                          {autor}
-                        </Link>
-                      </div>
+                      <span key={index} className="text-xs sm:text-sm text-blue-700 break-words">
+                        {autor}{index < Math.min(publicacion.autores.length, 3) - 1 && ", "}
+                      </span>
                     ))}
+                    {publicacion.autores.length > 3 && (
+                      <span className="text-xs sm:text-sm text-blue-600">
+                        +{publicacion.autores.length - 3} más
+                      </span>
+                    )}
                   </div>
-                  {publicacion.autores.length > 3 && (
-                    <span className="text-xs text-blue-600">
-                      +{publicacion.autores.length - 3} más
-                    </span>
-                  )}
                   <div className="text-xs text-blue-500 break-words mt-2">
                     {publicacion.uploaderNombre ? (
                       <>
