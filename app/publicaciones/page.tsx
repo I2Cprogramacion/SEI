@@ -20,8 +20,9 @@ import { Switch } from "@/components/ui/switch"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { InvestigadorSearch } from "@/components/investigador-search"
-import { Search, Filter, ExternalLink, FileText, Calendar, User, Building, Plus, Edit, Trash2, Upload, Settings } from "lucide-react"
+import { Search, Filter, ExternalLink, FileText, Calendar, User, Building, Plus, Edit, Trash2, Upload, Settings, Eye } from "lucide-react"
 import Link from "next/link"
+import { AuthorAvatarGroup } from "@/components/author-avatar-group"
 
 // Interfaces para tipos de datos
 interface AutorInfo {
@@ -856,9 +857,15 @@ export default function PublicacionesPage() {
                       <CardTitle className="text-lg sm:text-xl text-blue-900 mb-2 break-words">{publicacion.titulo}</CardTitle>
                       <CardDescription className="text-blue-600 text-xs sm:text-sm">
                         <div className="space-y-1">
-                          <div className="flex items-center gap-2 break-words">
-                            <User className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                            <span className="break-words">{publicacion.autores.join(", ")}</span>
+                          <div className="flex items-start gap-2 break-words">
+                            <User className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 mt-1" />
+                            <div className="min-w-0 flex-1">
+                              <AuthorAvatarGroup 
+                                authors={publicacion.autores}
+                                maxVisible={3}
+                                size="sm"
+                              />
+                            </div>
                           </div>
                           <div className="flex items-center gap-2 break-words">
                             <FileText className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
@@ -896,116 +903,73 @@ export default function PublicacionesPage() {
                   </div>
                 </CardContent>
                 <CardFooter className="border-t border-blue-100 flex flex-col sm:flex-row justify-between gap-3 sm:gap-4 py-3 sm:py-4 px-3 sm:px-6">
-                  <div className="flex flex-wrap gap-2">
-                    {/* Mostrar autores con avatares si hay información disponible */}
-                    {publicacion.autoresInfo && publicacion.autoresInfo.length > 0 ? (
-                      <>
-                        {publicacion.autoresInfo.slice(0, 3).map((autor, index) => (
-                          <div key={index} className="flex items-center gap-2">
-                            <Avatar className="h-8 w-8 flex-shrink-0 border-2 border-blue-100">
-                              {autor.fotografia_url ? (
-                                <AvatarImage src={autor.fotografia_url} alt={autor.nombre} />
-                              ) : null}
-                              <AvatarFallback className="bg-blue-100 text-blue-700 text-xs font-semibold">
-                                {autor.nombre
-                                  .split(" ")
-                                  .map((n) => n[0])
-                                  .join("")
-                                  .substring(0, 2)
-                                  .toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            {autor.slug ? (
-                              <Link
-                                href={`/investigadores/${autor.slug}`}
-                                className="text-xs sm:text-sm text-blue-700 hover:underline hover:text-blue-900 font-medium break-words transition-colors"
-                              >
-                                {autor.nombre}
-                              </Link>
-                            ) : (
-                              <span className="text-xs sm:text-sm text-blue-700 font-medium break-words">
-                                {autor.nombre}
-                              </span>
-                            )}
-                          </div>
-                        ))}
-                        {publicacion.autoresInfo.length > 3 && (
-                          <span className="text-xs sm:text-sm text-blue-600 self-center">
-                            +{publicacion.autoresInfo.length - 3} más
-                          </span>
-                        )}
-                      </>
-                    ) : (
-                      // Fallback si no hay información detallada
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-xs sm:text-sm text-blue-600 font-medium flex-shrink-0">Autores:</span>
-                        {publicacion.autores.slice(0, 3).map((autor, index) => (
-                          <span key={index} className="text-xs sm:text-sm text-blue-700 break-words">
-                            {autor}{index < Math.min(publicacion.autores.length, 3) - 1 && ", "}
-                          </span>
-                        ))}
-                        {publicacion.autores.length > 3 && (
-                          <span className="text-xs sm:text-sm text-blue-600">
-                            +{publicacion.autores.length - 3} más
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-xs text-blue-500 break-words mt-2">
-                    {publicacion.uploaderNombre ? (
-                      <>
-                        Subido por: <span className="font-medium">{publicacion.uploaderNombre}</span>
-                        {user && (user.id === publicacion.clerkUserId || user.clerkUserId === publicacion.clerkUserId) && (
-                          <span className="ml-1 font-semibold text-blue-700">(Tú)</span>
-                        )}
-                      </>
-                    ) : (
-                      publicacion.autores.length > 0 && (
-                        <>Publicación de: <span className="font-medium">{publicacion.autores[0]}</span></>
-                      )
-                    )}
-                  </div>
-                    <div className="flex gap-2">
-                      <AnimatedButton
-                        variant="outline"
-                        size="sm"
-                        className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
-                        onClick={() => {
-                          if (publicacion.archivoUrl) {
-                            window.open(publicacion.archivoUrl, "_blank")
-                          } else if (publicacion.doi) {
-                            window.open(`https://doi.org/${publicacion.doi}`, "_blank")
-                          } else {
-                            toast({ title: 'Sin recurso', description: 'No hay archivo ni DOI disponible para esta publicación.' })
-                          }
-                        }}
-                      >
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        Ver publicación
-                      </AnimatedButton>
-
-                      <AnimatedButton
-                        variant="outline"
-                        size="sm"
-                        className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
-                        onClick={() => {
-                          const citation = formatCitation(publicacion)
-                          setCitationText(citation)
-                          setCitationOpen(true)
-                        }}
-                      >
-                        Citar
-                      </AnimatedButton>
-
-                      {/* If the current user is the uploader, show a small Edit link */}
-                      {user && (user.id === publicacion.clerkUserId || user.clerkUserId === publicacion.clerkUserId) && (
-                        <Link href={`/publicaciones/nueva?id=${publicacion.id}`} className="text-sm text-blue-700 hover:underline flex items-center gap-2">
-                          <Edit className="h-4 w-4" />
-                          Editar
-                        </Link>
+                  <div className="flex flex-wrap gap-2 items-center">
+                    <div className="text-xs text-blue-500 break-words">
+                      {publicacion.uploaderNombre ? (
+                        <>
+                          Subido por: <span className="font-medium">{publicacion.uploaderNombre}</span>
+                          {user && (user.id === publicacion.clerkUserId || user.clerkUserId === publicacion.clerkUserId) && (
+                            <span className="ml-1 font-semibold text-blue-700">(Tú)</span>
+                          )}
+                        </>
+                      ) : (
+                        publicacion.autores.length > 0 && (
+                          <>Publicación de: <span className="font-medium">{publicacion.autores[0]}</span></>
+                        )
                       )}
                     </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Link href={`/publicaciones/${publicacion.id}`}>
+                      <AnimatedButton
+                        variant="outline"
+                        size="sm"
+                        className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
+                      >
+                        <Eye className="mr-2 h-4 w-4" />
+                        Ver detalles
+                      </AnimatedButton>
+                    </Link>
+
+                    <AnimatedButton
+                      variant="outline"
+                      size="sm"
+                      className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
+                      onClick={() => {
+                        if (publicacion.archivoUrl) {
+                          window.open(publicacion.archivoUrl, "_blank")
+                        } else if (publicacion.doi) {
+                          window.open(`https://doi.org/${publicacion.doi}`, "_blank")
+                        } else {
+                          toast({ title: 'Sin recurso', description: 'No hay archivo ni DOI disponible para esta publicación.' })
+                        }
+                      }}
+                    >
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Abrir publicación
+                    </AnimatedButton>
+
+                    <AnimatedButton
+                      variant="outline"
+                      size="sm"
+                      className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
+                      onClick={() => {
+                        const citation = formatCitation(publicacion)
+                        setCitationText(citation)
+                        setCitationOpen(true)
+                      }}
+                    >
+                      Citar
+                    </AnimatedButton>
+
+                    {/* If the current user is the uploader, show a small Edit link */}
+                    {user && (user.id === publicacion.clerkUserId || user.clerkUserId === publicacion.clerkUserId) && (
+                      <Link href={`/publicaciones/nueva?id=${publicacion.id}`} className="text-sm text-blue-700 hover:underline flex items-center gap-2">
+                        <Edit className="h-4 w-4" />
+                        Editar
+                      </Link>
+                    )}
+                  </div>
                 </CardFooter>
               </AnimatedCard>
             ))

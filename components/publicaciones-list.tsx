@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import { LoadingCard } from "@/components/ui/loading-card"
-import { FileText, Plus, Calendar, ExternalLink, BookOpen, Loader2, Pencil, Trash2 } from "lucide-react"
+import { FileText, Plus, Calendar, ExternalLink, BookOpen, Loader2, Pencil, Trash2, Eye } from "lucide-react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { EditarPublicacionDialog } from "@/components/editar-publicacion-dialog"
+import { AuthorAvatarGroup } from "@/components/author-avatar-group"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -292,9 +294,13 @@ export function PublicacionesList({ slug, isOwner = false, showAddButton = true 
                   </div>
 
                   {pub.autor && (
-                    <p className="text-sm text-blue-700 mb-3 font-medium">
-                      <span className="text-blue-500">Autores:</span> {pub.autor}
-                    </p>
+                    <div className="mb-3">
+                      <AuthorAvatarGroup 
+                        authors={pub.autor}
+                        maxVisible={3}
+                        size="sm"
+                      />
+                    </div>
                   )}
 
                   <div className="flex flex-wrap gap-4 text-sm text-blue-600 mb-3">
@@ -339,6 +345,16 @@ export function PublicacionesList({ slug, isOwner = false, showAddButton = true 
 
                   <div className="flex flex-wrap gap-2 items-center justify-between">
                     <div className="flex flex-wrap gap-2">
+                      <Link href={`/publicaciones/${pub.id}`}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-xs hover:bg-blue-50 hover:border-blue-300"
+                        >
+                          <Eye className="mr-1.5 h-3.5 w-3.5" />
+                          Ver detalles
+                        </Button>
+                      </Link>
                       {pub.doi && (
                         <Button
                           variant="outline"
