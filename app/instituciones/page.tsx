@@ -220,29 +220,28 @@ export default function InstitucionesPage() {
                         {/* Imagen/Logo de la institución con efecto mejorado */}
                         <div className="relative mb-5 sm:mb-6 w-full">
                           <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl blur-lg opacity-20 group-hover:opacity-30 transition-opacity"></div>
-                          <div className="relative flex items-center justify-center w-full rounded-xl bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 ring-4 ring-blue-100 group-hover:ring-blue-200 transition-all duration-300 shadow-lg p-4 sm:p-6 min-h-[200px] sm:min-h-[240px]">
+                          <div className="relative flex items-center justify-center w-full rounded-xl bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 ring-4 ring-blue-100 group-hover:ring-blue-200 transition-all duration-300 shadow-lg p-6 sm:p-8 min-h-[240px] sm:min-h-[280px]">
                             {institucion.imagenUrl ? (
-                              <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: '180px', maxHeight: '220px' }}>
-                                <div className="relative w-full h-full flex items-center justify-center">
-                                  <img
-                                    src={institucion.imagenUrl}
-                                    alt={`Imagen de ${institucion.nombre}`}
-                                    className="max-w-full max-h-full w-auto h-auto object-contain"
-                                    style={{ 
-                                      maxWidth: '100%', 
-                                      maxHeight: '200px',
-                                      width: 'auto',
-                                      height: 'auto'
-                                    }}
-                                    onError={(e) => {
-                                      const target = e.target as HTMLImageElement
-                                      target.style.display = 'none'
-                                    }}
-                                  />
-                                </div>
+                              <div className="relative w-full flex items-center justify-center overflow-visible" style={{ minHeight: '200px' }}>
+                                <img
+                                  src={institucion.imagenUrl}
+                                  alt={`Imagen de ${institucion.nombre}`}
+                                  className="w-auto h-auto object-contain"
+                                  style={{ 
+                                    maxWidth: 'calc(100% - 32px)', 
+                                    maxHeight: '240px',
+                                    width: 'auto',
+                                    height: 'auto',
+                                    objectFit: 'contain'
+                                  }}
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement
+                                    target.style.display = 'none'
+                                  }}
+                                />
                               </div>
                             ) : (
-                              <div className="flex flex-col items-center justify-center text-blue-900/60 w-full" style={{ minHeight: '180px' }}>
+                              <div className="flex flex-col items-center justify-center text-blue-900/60 w-full" style={{ minHeight: '200px' }}>
                                 <span className="text-3xl sm:text-4xl font-bold uppercase tracking-wide leading-tight">
                                   {getInitials(institucion.siglas || institucion.nombre)}
                                 </span>
