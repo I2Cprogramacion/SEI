@@ -139,7 +139,7 @@ export default function InstitucionesPage() {
           </div>
           <AnimatedButton
             asChild
-            className="bg-gray-900 hover:bg-gray-800 text-white border-0"
+            className="bg-blue-600 hover:bg-blue-700 text-white border-0"
           >
             <Link href="/instituciones/nueva">
               <Building className="mr-2 h-4 w-4" />
@@ -220,14 +220,21 @@ export default function InstitucionesPage() {
                       <div className="flex flex-col gap-4">
                         {/* Imagen y nombre en la misma línea */}
                         <div className="flex items-start gap-4">
-                          {/* Imagen pequeña integrada */}
+                          {/* Imagen pequeña integrada con relación de aspecto 1:1 */}
                           <div className="flex-shrink-0">
                             {institucion.imagenUrl ? (
-                              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
+                              <div className="w-24 h-24 sm:w-28 sm:h-28 aspect-square rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden p-3">
                                 <img
                                   src={institucion.imagenUrl}
                                   alt={`Imagen de ${institucion.nombre}`}
-                                  className="w-full h-full object-contain p-2"
+                                  className="w-full h-full object-contain"
+                                  style={{
+                                    maxWidth: '100%',
+                                    maxHeight: '100%',
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain'
+                                  }}
                                   onError={(e) => {
                                     const target = e.target as HTMLImageElement
                                     target.style.display = 'none'
@@ -235,7 +242,7 @@ export default function InstitucionesPage() {
                                 />
                               </div>
                             ) : (
-                              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center">
+                              <div className="w-24 h-24 sm:w-28 sm:h-28 aspect-square rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center">
                                 <span className="text-lg sm:text-xl font-semibold text-gray-400 uppercase">
                                   {getInitials(institucion.siglas || institucion.nombre)}
                                 </span>
