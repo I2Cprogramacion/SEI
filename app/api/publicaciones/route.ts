@@ -228,9 +228,10 @@ export async function GET(request: NextRequest) {
       
       console.log('🔍 [GET Publicaciones] Query WHERE:', whereConditions.join(' OR '))
       console.log('🔍 [GET Publicaciones] Params:', values)
+      console.log('🔍 [GET Publicaciones] Total condiciones:', whereConditions.length)
     }
 
-    publicacionesQuery += ` ORDER BY p.año_creacion DESC, p.fecha_creacion DESC LIMIT 50`
+    publicacionesQuery += ` ORDER BY p.año_creacion DESC NULLS LAST, p.fecha_creacion DESC LIMIT 50`
 
     let publicaciones: any[] = []
     let categorias: string[] = []
