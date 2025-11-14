@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, ExternalLink, FileText, Building2, Tag } from "lucide-react"
-import { AuthorAvatarGroup } from "@/components/author-avatar-group"
 import { getDatabase } from "@/lib/database-config"
 
 interface PublicacionPageProps {
@@ -16,6 +15,7 @@ interface PublicacionPageProps {
 
 async function getPublicacion(id: string) {
   try {
+    console.log('🔍 [Publicacion Detail] Fetching publicacion ID:', id)
     const db = await getDatabase()
     const result = await db.query(
       `SELECT 
@@ -29,19 +29,24 @@ async function getPublicacion(id: string) {
       [id]
     )
     
+    console.log('📊 [Publicacion Detail] Query result rows:', result.rows.length)
+    
     if (result.rows.length === 0) {
+      console.log('⚠️ [Publicacion Detail] No publication found with ID:', id)
       return null
     }
     
+    console.log('✅ [Publicacion Detail] Found publication:', result.rows[0].titulo)
     return result.rows[0]
   } catch (error) {
-    console.error('Error fetching publicacion:', error)
+    console.error('❌ [Publicacion Detail] Error fetching publicacion:', error)
     return null
   }
 }
 
 export async function generateMetadata({ params }: PublicacionPageProps): Promise<Metadata> {
-  const publicacion = await getPublicacion(params.id)
+  const { id } = await params
+  const publicacion = await getPublicacion(id)
   
   if (!publicacion) {
     return {
@@ -56,7 +61,8 @@ export async function generateMetadata({ params }: PublicacionPageProps): Promis
 }
 
 export default async function PublicacionPage({ params }: PublicacionPageProps) {
-  const publicacion = await getPublicacion(params.id)
+  const { id } = await params
+  const publicacion = await getPublicacion(id)
   
   if (!publicacion) {
     notFound()
@@ -95,9 +101,9 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                   {publicacion.categoria}
                 </Badge>
               )}
-              {publicacion.tipo_acceso && (
-                <Badge className={accesoColors[publicacion.tipo_acceso] || 'bg-blue-100 text-blue-800'}>
-                  {publicacion.tipo_acceso}
+              {publicacion.acceso && (
+                <Badge className={accesoColors[publicacion.acceso] || 'bg-blue-100 text-blue-800'}>
+                  {publicacion.acceso}
                 </Badge>
               )}
               {publicacion.año_creacion && (
@@ -129,16 +135,9 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {publicacion.revista && (
-                    <div>
-                      <p className="text-sm text-blue-600 font-semibold mb-1">Revista</p>
-                      <p className="text-base">{publicacion.revista}</p>
-                    </div>
-                  )}
-                  
                   {publicacion.editorial && (
                     <div>
-                      <p className="text-sm text-blue-600 font-semibold mb-1">Editorial</p>
+                      <p className="text-sm text-blue-600 font-semibold mb-1">Revista/Editorial</p>
                       <p className="text-base">{publicacion.editorial}</p>
                     </div>
                   )}
@@ -226,12 +225,13 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <AuthorAvatarGroup 
-                    authors={publicacion.autor}
-                    maxVisible={5}
-                    size="md"
-                    showNames={true}
-                  />
+                  <div className="space-y-2">
+                    {publicacion.autor.split(/[,;]/).map((autor: string, index: number) => (
+                      <p key={index} className="text-sm text-blue-700">
+                        {autor.trim()}
+                      </p>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -271,9 +271,9 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                   </a>
                 )}
                 
-                {publicacion.url_pdf && (
+                {publicacion.archivo_url && (
                   <a
-                    href={publicacion.url_pdf}
+                    href={publicacion.archivo_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:underline"
@@ -305,7 +305,7 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                   </Link>
                 )}
                 
-                {!publicacion.doi && !publicacion.url_pdf && !publicacion.url && !publicacion.investigador_slug && (
+                {!publicacion.doi && !publicacion.archivo_url && !publicacion.url && !publicacion.investigador_slug && (
                   <p className="text-sm text-blue-600/60">No hay enlaces disponibles</p>
                 )}
               </CardContent>

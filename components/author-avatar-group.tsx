@@ -57,6 +57,13 @@ export function AuthorAvatarGroup({
           authorArray.map(async (author) => {
             try {
               const response = await fetch(`/api/buscar-investigador-por-nombre?nombre=${encodeURIComponent(author)}`)
+              
+              if (!response.ok) {
+                console.warn(`Failed to fetch profile for ${author}`)
+                profiles.set(author, { nombreCompleto: author })
+                return
+              }
+              
               const data = await response.json()
               
               if (data.investigadores && data.investigadores.length > 0) {
@@ -70,7 +77,8 @@ export function AuthorAvatarGroup({
               } else {
                 profiles.set(author, { nombreCompleto: author })
               }
-            } catch {
+            } catch (error) {
+              console.warn(`Error fetching profile for ${author}:`, error)
               profiles.set(author, { nombreCompleto: author })
             }
           })
