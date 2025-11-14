@@ -215,22 +215,34 @@ export default function InstitucionesPage() {
                     {/* Gradiente decorativo superior */}
                     <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     
-                    <CardContent className="pt-8 sm:pt-10 px-5 sm:px-6 pb-5 overflow-hidden relative z-10">
+                    <CardContent className="pt-8 sm:pt-10 px-5 sm:px-6 pb-5 relative z-10">
                       <div className="flex flex-col items-center text-center w-full max-w-full">
                         {/* Imagen/Logo de la institución con efecto mejorado */}
                         <div className="relative mb-5 sm:mb-6 w-full">
                           <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl blur-lg opacity-20 group-hover:opacity-30 transition-opacity"></div>
-                          <div className="relative flex items-center justify-center h-40 sm:h-44 w-full rounded-xl bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 ring-4 ring-blue-100 group-hover:ring-blue-200 transition-all duration-300 shadow-lg overflow-hidden">
+                          <div className="relative flex items-center justify-center w-full rounded-xl bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 ring-4 ring-blue-100 group-hover:ring-blue-200 transition-all duration-300 shadow-lg p-4 sm:p-6 min-h-[200px] sm:min-h-[240px]">
                             {institucion.imagenUrl ? (
-                              <Image
-                                src={institucion.imagenUrl}
-                                alt={`Imagen de ${institucion.nombre}`}
-                                fill
-                                className="object-contain p-4"
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                              />
+                              <div className="relative w-full h-full flex items-center justify-center" style={{ minHeight: '180px', maxHeight: '220px' }}>
+                                <div className="relative w-full h-full flex items-center justify-center">
+                                  <img
+                                    src={institucion.imagenUrl}
+                                    alt={`Imagen de ${institucion.nombre}`}
+                                    className="max-w-full max-h-full w-auto h-auto object-contain"
+                                    style={{ 
+                                      maxWidth: '100%', 
+                                      maxHeight: '200px',
+                                      width: 'auto',
+                                      height: 'auto'
+                                    }}
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement
+                                      target.style.display = 'none'
+                                    }}
+                                  />
+                                </div>
+                              </div>
                             ) : (
-                              <div className="absolute inset-0 flex flex-col items-center justify-center text-blue-900/60 p-4">
+                              <div className="flex flex-col items-center justify-center text-blue-900/60 w-full" style={{ minHeight: '180px' }}>
                                 <span className="text-3xl sm:text-4xl font-bold uppercase tracking-wide leading-tight">
                                   {getInitials(institucion.siglas || institucion.nombre)}
                                 </span>
