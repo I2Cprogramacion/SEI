@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, ExternalLink, FileText, Building2, Tag } from "lucide-react"
-import { AuthorAvatarGroup } from "@/components/author-avatar-group"
 import { getDatabase } from "@/lib/database-config"
 
 interface PublicacionPageProps {
