@@ -270,15 +270,26 @@ export function EditarPublicacionDialog({
             </div>
 
             {/* Autores */}
-            <div className="space-y-2">
-              <Label htmlFor="autor">Autores *</Label>
-              <Input
-                id="autor"
-                value={formData.autor || ""}
-                onChange={(e) => handleChange("autor", e.target.value)}
-                placeholder="Separados por comas"
-                required
-              />
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-blue-900">Autores</h3>
+              <div className="space-y-2">
+                <Label htmlFor="autor">Autores *</Label>
+                <p className="text-sm text-blue-600">
+                  Lista de autores separados por comas
+                </p>
+                <Textarea
+                  id="autor"
+                  value={formData.autor || ""}
+                  onChange={(e) => handleChange("autor", e.target.value)}
+                  placeholder="Ejemplo: Juan Pérez García, María López Rodríguez, Carlos Sánchez Martínez"
+                  rows={3}
+                  className="resize-none"
+                  required
+                />
+                <p className="text-xs text-blue-500">
+                  {formData.autor ? `${formData.autor.split(',').filter(a => a.trim()).length} autor(es)` : '0 autores'}
+                </p>
+              </div>
             </div>
 
             {/* Revista e Institución */}
