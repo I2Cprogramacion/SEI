@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Upload, Plus, X, FileText, Calendar, User, Building, Globe, BookOpen, Users, Link as LinkIcon, CheckCircle2 } from "lucide-react"
@@ -82,6 +83,13 @@ export default function NuevaPublicacionPage() {
   const [autoresSeleccionados, setAutoresSeleccionados] = useState<Investigador[]>([])
   const [coautoresSeleccionados, setCoautoresSeleccionados] = useState<Investigador[]>([])
   const [emailCoautor, setEmailCoautor] = useState<Record<number, string>>({})
+  const [institucionesDisponibles, setInstitucionesDisponibles] = useState<string[]>([])
+  const [identificadoresActivos, setIdentificadoresActivos] = useState({
+    doi: true,
+    issn: true,
+    isbn: true,
+    url: true
+  })
 
   const [formData, setFormData] = useState<FormData>({
     titulo: "",
@@ -112,6 +120,24 @@ export default function NuevaPublicacionPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const searchParams = useSearchParams()
+  
+  // Cargar instituciones disponibles
+  useEffect(() => {
+    const fetchInstituciones = async () => {
+      try {
+        const response = await fetch('/api/instituciones')
+        if (response.ok) {
+          const data = await response.json()
+          const instituciones = data.institutions?.map((inst: any) => inst.nombre || inst.name) || []
+          setInstitucionesDisponibles(instituciones)
+        }
+      } catch (error) {
+        console.error('Error al cargar instituciones:', error)
+      }
+    }
+    fetchInstituciones()
+  }, [])
+  
   // Si hay query param `id`, cargamos la publicación existente para editar
   useEffect(() => {
     const id = searchParams?.get('id')
@@ -1058,13 +1084,39 @@ export default function NuevaPublicacionPage() {
                     <Label htmlFor="institucion" className="text-blue-900">
                       Institución *
                     </Label>
-                    <Input
-                      id="institucion"
-                      placeholder="Institución de afiliación..."
+                    <Select
                       value={formData.institucion}
-                      onChange={(e) => handleInputChange("institucion", e.target.value)}
-                      className={errors.some(e => e.field === "institucion") ? "border-red-300" : ""}
-                    />
+                      onValueChange={(value) => handleInputChange("institucion", value)}
+                    >
+                      <SelectTrigger className={errors.some(e => e.field === "institucion") ? "border-red-300" : ""}>
+                        <SelectValue placeholder="Selecciona una institución..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {institucionesDisponibles.length > 0 ? (
+                          institucionesDisponibles.map((inst, idx) => (
+                            <SelectItem key={idx} value={inst}>
+                              {inst}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="loading" disabled>
+                            Cargando instituciones...
+                          </SelectItem>
+                        )}
+                        <SelectItem value="otra">Otra (escribir manualmente)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    {/* Campo manual si selecciona "Otra" */}
+                    {formData.institucion === "otra" && (
+                      <Input
+                        placeholder="Escribe el nombre de la institución..."
+                        value={formData.institucion === "otra" ? "" : formData.institucion}
+                        onChange={(e) => handleInputChange("institucion", e.target.value)}
+                        className="mt-2"
+                      />
+                    )}
+                    
                     {errors.some(e => e.field === "institucion") && (
                       <p className="text-sm text-red-600">
                         {errors.find(e => e.field === "institucion")?.message}
@@ -1162,80 +1214,145 @@ export default function NuevaPublicacionPage() {
                   <Globe className="h-4 w-4" />
                   Identificadores y Enlaces
                 </h3>
+
+                {/* Selector de identificadores */}
+                <div className="bg-blue-50 p-4 rounded-lg space-y-3">
+                  <p className="text-sm text-blue-900 font-medium">
+                    Selecciona los identificadores que aplican a tu publicación:
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="check-doi"
+                        checked={identificadoresActivos.doi}
+                        onCheckedChange={(checked) => 
+                          setIdentificadoresActivos(prev => ({ ...prev, doi: !!checked }))
+                        }
+                      />
+                      <label htmlFor="check-doi" className="text-sm font-medium text-blue-900 cursor-pointer">
+                        DOI
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="check-issn"
+                        checked={identificadoresActivos.issn}
+                        onCheckedChange={(checked) => 
+                          setIdentificadoresActivos(prev => ({ ...prev, issn: !!checked }))
+                        }
+                      />
+                      <label htmlFor="check-issn" className="text-sm font-medium text-blue-900 cursor-pointer">
+                        ISSN
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="check-isbn"
+                        checked={identificadoresActivos.isbn}
+                        onCheckedChange={(checked) => 
+                          setIdentificadoresActivos(prev => ({ ...prev, isbn: !!checked }))
+                        }
+                      />
+                      <label htmlFor="check-isbn" className="text-sm font-medium text-blue-900 cursor-pointer">
+                        ISBN
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="check-url"
+                        checked={identificadoresActivos.url}
+                        onCheckedChange={(checked) => 
+                          setIdentificadoresActivos(prev => ({ ...prev, url: !!checked }))
+                        }
+                      />
+                      <label htmlFor="check-url" className="text-sm font-medium text-blue-900 cursor-pointer">
+                        URL
+                      </label>
+                    </div>
+                  </div>
+                </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                    <Label htmlFor="doi" className="text-blue-900">
-                      DOI (Digital Object Identifier)
-                    </Label>
-                    <Input
-                      id="doi"
-                      placeholder="10.1234/example"
-                      value={formData.doi}
-                      onChange={(e) => handleInputChange("doi", e.target.value)}
-                      className={errors.some(e => e.field === "doi") ? "border-red-300" : ""}
-                    />
-                    {errors.some(e => e.field === "doi") && (
-                      <p className="text-sm text-red-600">
-                        {errors.find(e => e.field === "doi")?.message}
-                      </p>
-                    )}
-              </div>
+                  {identificadoresActivos.doi && (
+                    <div className="space-y-2">
+                      <Label htmlFor="doi" className="text-blue-900">
+                        DOI (Digital Object Identifier)
+                      </Label>
+                      <Input
+                        id="doi"
+                        placeholder="10.1234/example"
+                        value={formData.doi}
+                        onChange={(e) => handleInputChange("doi", e.target.value)}
+                        className={errors.some(e => e.field === "doi") ? "border-red-300" : ""}
+                      />
+                      {errors.some(e => e.field === "doi") && (
+                        <p className="text-sm text-red-600">
+                          {errors.find(e => e.field === "doi")?.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
 
-                  <div className="space-y-2">
-                    <Label htmlFor="issn" className="text-blue-900">
-                      ISSN (para revistas)
-                    </Label>
-                    <Input
-                      id="issn"
-                      placeholder="1234-5678"
-                      value={formData.issn}
-                      onChange={(e) => handleInputChange("issn", e.target.value)}
-                      className={errors.some(e => e.field === "issn") ? "border-red-300" : ""}
-                    />
-                    {errors.some(e => e.field === "issn") && (
-                      <p className="text-sm text-red-600">
-                        {errors.find(e => e.field === "issn")?.message}
-                      </p>
-                    )}
-                  </div>
+                  {identificadoresActivos.issn && (
+                    <div className="space-y-2">
+                      <Label htmlFor="issn" className="text-blue-900">
+                        ISSN (para revistas)
+                      </Label>
+                      <Input
+                        id="issn"
+                        placeholder="1234-5678"
+                        value={formData.issn}
+                        onChange={(e) => handleInputChange("issn", e.target.value)}
+                        className={errors.some(e => e.field === "issn") ? "border-red-300" : ""}
+                      />
+                      {errors.some(e => e.field === "issn") && (
+                        <p className="text-sm text-red-600">
+                          {errors.find(e => e.field === "issn")?.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
 
-                  <div className="space-y-2">
-                    <Label htmlFor="isbn" className="text-blue-900">
-                      ISBN (para libros)
-                    </Label>
-                    <Input
-                      id="isbn"
-                      placeholder="978-3-16-148410-0"
-                      value={formData.isbn}
-                      onChange={(e) => handleInputChange("isbn", e.target.value)}
-                      className={errors.some(e => e.field === "isbn") ? "border-red-300" : ""}
-                    />
-                    {errors.some(e => e.field === "isbn") && (
-                      <p className="text-sm text-red-600">
-                        {errors.find(e => e.field === "isbn")?.message}
-                      </p>
-                    )}
-                  </div>
+                  {identificadoresActivos.isbn && (
+                    <div className="space-y-2">
+                      <Label htmlFor="isbn" className="text-blue-900">
+                        ISBN (para libros)
+                      </Label>
+                      <Input
+                        id="isbn"
+                        placeholder="978-3-16-148410-0"
+                        value={formData.isbn}
+                        onChange={(e) => handleInputChange("isbn", e.target.value)}
+                        className={errors.some(e => e.field === "isbn") ? "border-red-300" : ""}
+                      />
+                      {errors.some(e => e.field === "isbn") && (
+                        <p className="text-sm text-red-600">
+                          {errors.find(e => e.field === "isbn")?.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
 
-                  <div className="space-y-2">
-                    <Label htmlFor="url" className="text-blue-900">
-                      URL de la Publicación
-                    </Label>
-                    <Input
-                      id="url"
-                      type="url"
-                      placeholder="https://..."
-                      value={formData.url}
-                      onChange={(e) => handleInputChange("url", e.target.value)}
-                      className={errors.some(e => e.field === "url") ? "border-red-300" : ""}
-                    />
-                    {errors.some(e => e.field === "url") && (
-                      <p className="text-sm text-red-600">
-                        {errors.find(e => e.field === "url")?.message}
-                      </p>
-                    )}
-                  </div>
+                  {identificadoresActivos.url && (
+                    <div className="space-y-2">
+                      <Label htmlFor="url" className="text-blue-900">
+                        URL de la Publicación
+                      </Label>
+                      <Input
+                        id="url"
+                        type="url"
+                        placeholder="https://..."
+                        value={formData.url}
+                        onChange={(e) => handleInputChange("url", e.target.value)}
+                        className={errors.some(e => e.field === "url") ? "border-red-300" : ""}
+                      />
+                      {errors.some(e => e.field === "url") && (
+                        <p className="text-sm text-red-600">
+                          {errors.find(e => e.field === "url")?.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
