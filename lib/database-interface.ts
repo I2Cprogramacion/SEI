@@ -40,6 +40,29 @@ export interface DatabaseInterface {
   obtenerProyectos?(): Promise<any[]>
   obtenerPublicaciones?(): Promise<any[]>
   insertarPublicacion?(datos: any): Promise<any>
+  
+  // ✅ Métodos para gestión de registros pendientes de verificación
+  guardarRegistroPendiente?(clerkUserId: string, correo: string, datosRegistro: any): Promise<{
+    success: boolean
+    message: string
+    id?: number
+  }>
+  
+  obtenerRegistroPendiente?(clerkUserId: string): Promise<any | null>
+  
+  eliminarRegistroPendiente?(clerkUserId: string): Promise<boolean>
+  
+  limpiarRegistrosExpirados?(): Promise<{
+    success: boolean
+    eliminados: number
+    detalles: string[]
+  }>
+  
+  obtenerEstadisticasRegistrosPendientes?(): Promise<{
+    total: number
+    proximos_a_expirar: number
+    expirados: number
+  }>
 }
 
 // Tipos de base de datos soportados

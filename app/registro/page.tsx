@@ -832,6 +832,7 @@ export default function RegistroPage() {
       const formDataPDF = new FormData()
       formDataPDF.append("file", selectedFile)
 
+      console.log("📤 [OCR] Enviando PDF para procesamiento...")
       const response = await fetch("/api/ocr", {
         method: "POST",
         body: formDataPDF,
@@ -843,46 +844,63 @@ export default function RegistroPage() {
       let result = null
       try {
         result = await response.json()
+        console.log("📥 [OCR] Respuesta recibida:", result)
       } catch (jsonErr) {
+        console.error("❌ [OCR] Error al parsear respuesta JSON:", jsonErr)
         setError("Error inesperado procesando el PDF. Intenta de nuevo.")
         setIsProcessingPDF(false)
         return
       }
 
-      const ocrData = result.ocr || result
+      // ✅ El OCR ahora solo retorna datos extraídos, no guarda en BD
+      // Extraer los datos de la respuesta (pueden estar en result directamente o en result.data)
+      const ocrData = result.data || result
+      
+      // Limpiar y sanitizar los datos recibidos
       const sanitizedData = sanitizeOcrData(ocrData)
 
-      if (sanitizedData.curp || sanitizedData.rfc || sanitizedData.no_cvu || sanitizedData.telefono) {
+      console.log("🔍 [OCR] Datos sanitizados:", sanitizedData)
+
+      // Verificar si se extrajeron datos útiles
+      if (sanitizedData.curp || sanitizedData.rfc || sanitizedData.no_cvu || sanitizedData.telefono || sanitizedData.correo) {
+        console.log("✅ [OCR] Datos extraídos exitosamente, actualizando formulario...")
+        
+        // Actualizar el formulario con los datos extraídos
         setFormData((prev) => ({
           ...prev,
           ...sanitizedData,
         }))
+        
         setOcrCompleted(true)
         setError(null)
         setIsProcessingPDF(false)
-        console.log("PDF procesado exitosamente. Campos extraídos:", sanitizedData)
         
         // Guardar el PDF como Perfil Único automáticamente
         await handleSavePDFAsCV()
+        
+        console.log("✅ [OCR] Proceso completado. El usuario debe completar los campos faltantes.")
         return
       } else {
-        setError("No se pudieron extraer datos clave del PDF (CURP, RFC, CVU, Teléfono)")
-        setOcrCompleted(true)
+        console.warn("⚠️ [OCR] No se extrajeron suficientes datos del PDF")
+        setError("No se pudieron extraer suficientes datos del PDF. Por favor, completa los campos manualmente.")
+        setOcrCompleted(true) // Permitir continuar con captura manual
         setIsProcessingPDF(false)
         return
       }
     } catch (error: any) {
       clearTimeout(timeoutId)
+      console.error("❌ [OCR] Error durante el procesamiento:", error)
+      
       if (error.name === "AbortError") {
         setError("La solicitud tardó demasiado tiempo. Por favor intenta de nuevo.")
       } else {
-        console.error("Error procesando PDF:", error)
-        setError("No se pudieron extraer datos clave del PDF (CURP, RFC, CVU, Teléfono)")
+        setError("Error al procesar el PDF. Por favor, completa los campos manualmente.")
       }
-      setOcrCompleted(true)
+      
+      setOcrCompleted(true) // Permitir continuar con captura manual
       setIsProcessingPDF(false)
     }
-  }, [selectedFile])
+  }, [selectedFile, handleSavePDFAsCV])
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -1011,7 +1029,9 @@ export default function RegistroPage() {
 
           console.log("✅ [REGISTRO] Verificación de email preparada")
 
-          // PASO 2: Mapear y enviar todos los campos requeridos a PostgreSQL
+          // PASO 2: Guardar datos en tabla temporal registros_pendientes
+          // ✅ IMPORTANTE: Los datos se guardan en la BD temporal (no en sessionStorage)
+          // y se moverán a la tabla investigadores DESPUÉS de verificar el email
           const dataToSend = {
             // Datos personales
             nombre_completo: formData.nombre_completo || `${formData.nombres || ''} ${formData.apellidos || ''}`.trim(),
@@ -1081,40 +1101,43 @@ export default function RegistroPage() {
             es_admin: false
           };
 
-          // PASO 3: Guardar en PostgreSQL (sin password, está en Clerk)
-          console.log("🔵 [REGISTRO] Paso 3: Guardando en PostgreSQL/Neon...")
-          console.log("📊 [REGISTRO] Total de campos a enviar:", Object.keys(dataToSend).length)
-          console.log("📋 [REGISTRO] Datos a enviar (primeros 5):", Object.keys(dataToSend).slice(0, 5))
+          // ✅ PASO 3: Guardar en tabla temporal registros_pendientes (PostgreSQL)
+          // Estos datos permanecerán en la BD hasta que el usuario verifique su email
+          console.log("🔵 [REGISTRO] Paso 3: Guardando en tabla temporal (registros_pendientes)...")
+          console.log("📊 [REGISTRO] Total de campos preparados:", Object.keys(dataToSend).length)
           
-          const response = await fetch("/api/registro", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(dataToSend),
-          });
+          try {
+            const response = await fetch("/api/registro", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(dataToSend),
+            });
 
-          console.log("📡 [REGISTRO] Respuesta del servidor:", response.status, response.statusText)
+            const responseData = await response.json();
 
-          const responseData = await response.json();
+            if (!response.ok || !responseData.success) {
+              console.error("❌ [REGISTRO] ERROR AL GUARDAR EN TABLA TEMPORAL")
+              console.error("   Status:", response.status)
+              console.error("   Mensaje:", responseData.error || responseData.message)
+              throw new Error(`Error al guardar datos temporales: ${responseData.error || responseData.message || 'Error desconocido'}`)
+            }
 
-          if (!response.ok) {
-            console.error("❌ [REGISTRO] ERROR AL GUARDAR EN POSTGRESQL")
-            console.error("   Status:", response.status)
-            console.error("   Mensaje:", responseData.error || responseData.message)
-            console.error("   Respuesta completa:", responseData)
-            
-            // ERROR CRÍTICO: No permitir continuar si no se guardó en la BD
-            throw new Error(`Error al guardar datos: ${responseData.error || responseData.message || 'Error desconocido'}`)
+            console.log("✅ [REGISTRO] Datos guardados en tabla temporal")
+            console.log("   ID temporal:", responseData.id)
+            console.log("   Clerk User ID:", clerkUserId)
+            console.log("   Estado: Pendiente de verificación")
+          } catch (storageError) {
+            console.error("❌ [REGISTRO] Error al guardar en tabla temporal:", storageError)
+            throw new Error("Error al preparar registro. Por favor, intenta de nuevo.")
           }
 
-          console.log("✅ [REGISTRO] Datos guardados exitosamente en PostgreSQL")
-          console.log("   ID asignado:", responseData.id)
-          console.log("   Mensaje:", responseData.message)
-
-          // PASO 4: Verificar el estado del registro y redirigir
-          console.log("🔵 [REGISTRO] Paso 4: Verificando estado y redirigiendo...")
+          // PASO 4: Redirigir a verificación de email
+          // El guardado en tabla 'investigadores' ocurrirá DESPUÉS de verificar el código
+          console.log("🔵 [REGISTRO] Paso 4: Redirigiendo a verificación de email...")
           console.log("   Status de signUp:", signUpAttempt.status)
+          console.log("   ⚠️  IMPORTANTE: Los datos se moverán a tabla 'investigadores' después de verificar")
           
           if (signUpAttempt.status === "complete") {
             console.log("✅ [REGISTRO] Registro completo, activando sesión...")

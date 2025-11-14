@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { guardarInvestigador } from "@/lib/db"
+import { guardarRegistroPendiente } from "@/lib/db"
 import { verifyJWT } from "@/lib/auth/verify-jwt"
 
 /**
- * Verifica el token de reCAPTCHA con Google
+ * API para guardar un registro PENDIENTE de verificación
+ * 
+ * Este endpoint guarda los datos en una tabla temporal después de crear
+ * el usuario en Clerk, pero ANTES de que verifique su email.
+ * 
+ * El registro completo en la tabla 'investigadores' ocurre en /api/completar-registro
+ * después de que el usuario verifique su email.
  */
 async function verificarCaptcha(token: string): Promise<boolean> {
   const secretKey = process.env.RECAPTCHA_SECRET
@@ -60,138 +66,89 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Token inválido o expirado" }, { status: 401 })
     }
   }
+  
   try {
     const data = await request.json()
     console.log("==================================================")
-    console.log("📥 DATOS RECIBIDOS PARA REGISTRO:")
-    console.log(JSON.stringify(data, null, 2))
+    console.log("📥 [REGISTRO PENDIENTE] DATOS RECIBIDOS:")
+    console.log("   Clerk User ID:", data.clerk_user_id)
+    console.log("   Correo:", data.correo)
+    console.log("   Total campos:", Object.keys(data).length)
     console.log("==================================================")
-    // Validar y normalizar nombres de variables
-    const camposTabla = [
-      "nombre_completo", "nombres", "apellidos", "correo", "clerk_user_id",
-      "linea_investigacion", "area_investigacion", "institucion", "fotografia_url",
-      "slug", "curp", "rfc", "no_cvu", "telefono", "nacionalidad", "fecha_nacimiento",
-      "genero", "tipo_perfil", "nivel_investigador", "nivel_tecnologo", "municipio",
-      "cv_url", "fecha_registro", "origen", "es_admin", "estado_nacimiento",
-      "entidad_federativa", "orcid", "empleo_actual", "nivel_actual", "institucion_id", "activo",
-      "departamento", "ubicacion", "sitio_web", "grado_maximo_estudios", "especialidad",
-      "disciplina", "nivel_actual_id", "fecha_asignacion_nivel", "puntaje_total", "estado_evaluacion",
-      "articulos", "libros", "capitulos_libros", "proyectos_investigacion", "proyectos_vinculacion",
-      "experiencia_docente", "experiencia_laboral", "premios_distinciones", "idiomas",
-      "colaboracion_internacional", "colaboracion_nacional", "sni", "anio_sni", "archivo_procesado"
-    ];
-    // Eliminar campos no válidos y asegurar que todos los obligatorios estén presentes
-    const datosRegistro: any = {};
-    for (const campo of camposTabla) {
-      datosRegistro[campo] = data[campo] !== undefined ? data[campo] : null;
-    }
-    // Guardar el PDF subido para el OCR como cv_url si existe
-    if (data.fotografia_url && !datosRegistro.cv_url && data.archivo_procesado) {
-      datosRegistro.cv_url = data.archivo_procesado;
-    }
-    // Asignar valores por defecto a activo y es_admin si no se reciben
-    if (datosRegistro.activo === null || datosRegistro.activo === undefined) {
-      datosRegistro.activo = true;
-    }
-    if (datosRegistro.es_admin === null || datosRegistro.es_admin === undefined) {
-      datosRegistro.es_admin = false;
-    }
-    // LOG DETALLADO DE CAMPOS REQUERIDOS
-    const camposCriticos = ["correo", "ultimo_grado_estudios", "nombre_completo"];
-    for (const campo of camposCriticos) {
-      if (!datosRegistro[campo] || (typeof datosRegistro[campo] === 'string' && datosRegistro[campo].trim() === '')) {
-        console.warn(`⚠️ Campo crítico vacío o faltante: ${campo}`);
-      }
-    }
-    if (!datosRegistro.nombre_completo && datosRegistro.nombres && datosRegistro.apellidos) {
-      datosRegistro.nombre_completo = `${datosRegistro.nombres} ${datosRegistro.apellidos}`.trim();
-      console.log("✅ nombre_completo construido desde nombres + apellidos:", datosRegistro.nombre_completo);
-    }
-    if (!datosRegistro.fecha_registro) {
-      datosRegistro.fecha_registro = new Date().toISOString();
-    }
-    // Permitir guardar aunque falte algún campo, solo loguear advertencia
-    // Mostrar los datos finales que se enviarán a la base
-    console.log("Datos normalizados para guardar en la base:", JSON.stringify(datosRegistro, null, 2))
-
-    // 🔒 VERIFICACIÓN DE CAPTCHA DESHABILITADA TEMPORALMENTE
-    // const captchaToken = data.captchaToken || data.recaptcha
     
-    // if (!captchaToken) {
-    //   console.error("❌ No se recibió token de CAPTCHA")
-    //   return NextResponse.json(
-    //     { 
-    //       error: "Token de CAPTCHA no proporcionado",
-    //       message: "Por favor, completa el CAPTCHA para continuar"
-    //     },
-    //     { status: 400 }
-    //   )
-    // }
+    // VALIDACIÓN CRÍTICA: Debe tener clerk_user_id
+    if (!data.clerk_user_id) {
+      console.error("❌ [REGISTRO PENDIENTE] Falta clerk_user_id")
+      return NextResponse.json(
+        { 
+          error: "No se recibió el ID de usuario de Clerk",
+          details: "El usuario debe ser creado en Clerk primero"
+        },
+        { status: 400 }
+      )
+    }
 
-    // const captchaValido = await verificarCaptcha(captchaToken)
-    
-    // if (!captchaValido) {
-    //   console.error("❌ CAPTCHA inválido o expirado")
-    //   return NextResponse.json(
-    //     {
-    //       error: "CAPTCHA inválido o expirado",
-    //       message: "Por favor, marca el CAPTCHA nuevamente e intenta de nuevo"
-    //     },
-    //     { status: 400 }
-    //   )
-    // }
-
-    // console.log("✅ CAPTCHA verificado correctamente, continuando con el registro...")
-    console.log("⚠️ CAPTCHA DESHABILITADO - Continuando sin verificación...")
-    
-    // Validar datos obligatorios
+    // VALIDACIÓN: Debe tener correo
     if (!data.correo) {
-      console.error("Falta el correo electrónico")
+      console.error("❌ [REGISTRO PENDIENTE] Falta correo electrónico")
       return NextResponse.json({ error: "El correo electrónico es obligatorio" }, { status: 400 })
     }
     
-    // Si no hay nombre_completo pero sí nombres y apellidos, construirlo
+    // Construir nombre_completo si no existe
     if (!data.nombre_completo && data.nombres && data.apellidos) {
       data.nombre_completo = `${data.nombres} ${data.apellidos}`.trim()
-      console.log("✅ nombre_completo construido desde nombres + apellidos:", data.nombre_completo)
+      console.log("✅ [REGISTRO PENDIENTE] nombre_completo construido:", data.nombre_completo)
     }
     
     // Validar que ahora sí tengamos nombre_completo
     if (!data.nombre_completo) {
-      console.error("Falta el nombre completo (no se pudo construir)")
+      console.error("❌ [REGISTRO PENDIENTE] Falta nombre completo")
       return NextResponse.json({ error: "El nombre completo es obligatorio" }, { status: 400 })
     }
+
     // Añadir fecha de registro si no existe
     if (!data.fecha_registro) {
       data.fecha_registro = new Date().toISOString()
     }
-    // NOTA: El hash de password se hace en postgresql-database.ts (guardarInvestigador)
-    // NO hashear aquí para evitar doble hash
+
+    // ✅ Guardar en tabla temporal registros_pendientes
+    console.log("🔵 [REGISTRO PENDIENTE] Guardando en tabla temporal...")
+    
     try {
-      const resultado = await guardarInvestigador(datosRegistro)
-      console.log("Resultado del guardado:", resultado)
+      const resultado = await guardarRegistroPendiente(
+        data.clerk_user_id,
+        data.correo,
+        data // Todos los datos del formulario
+      )
+      
       if (resultado.success) {
+        console.log("✅ [REGISTRO PENDIENTE] Guardado exitosamente")
+        console.log("   ID temporal:", resultado.id)
+        console.log("   Clerk User ID:", data.clerk_user_id)
+        console.log("   Correo:", data.correo)
+        console.log("   ⏳ Esperando verificación de email...")
+        
         return NextResponse.json({
           success: true,
-          message: resultado.message,
+          message: "Datos guardados temporalmente. Por favor verifica tu email.",
           id: resultado.id,
+          pendiente_verificacion: true
         })
       } else {
-        // Error de duplicado o validación
+        console.error("❌ [REGISTRO PENDIENTE] Error al guardar:", resultado.message)
         return NextResponse.json({
           success: false,
           message: resultado.message,
-          duplicado: !resultado.success,
-        }, { status: 409 }) // 409 Conflict para duplicados
+        }, { status: 500 })
       }
     } catch (dbError) {
-      console.error("Error al guardar en la base de datos:", dbError)
+      console.error("❌ [REGISTRO PENDIENTE] Error crítico:", dbError)
       return NextResponse.json({
-        error: `Error al guardar en la base de datos: ${dbError instanceof Error ? dbError.message : "Error desconocido"}`,
+        error: `Error al guardar datos temporales: ${dbError instanceof Error ? dbError.message : "Error desconocido"}`,
       }, { status: 500 })
     }
   } catch (error) {
-    console.error("Error al procesar el registro:", error)
+    console.error("❌ [REGISTRO PENDIENTE] Error al procesar solicitud:", error)
     return NextResponse.json({
       error: `Error al procesar el registro: ${error instanceof Error ? error.message : "Error desconocido"}`,
     }, { status: 500 })

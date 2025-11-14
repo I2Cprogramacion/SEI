@@ -5,5 +5,11 @@
     "app/api/ocr/route.ts": {
       "maxDuration": 30
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/limpiar-registros",
+      "schedule": "0 2 * * *"
+    }
+  ]
 }

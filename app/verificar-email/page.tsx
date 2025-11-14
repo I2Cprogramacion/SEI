@@ -90,6 +90,62 @@ export default function VerificarEmailPage() {
       if (completeSignUp.status === "complete") {
         setSuccess(true)
         
+        // ✅ COMPLETAR REGISTRO: Mover datos de registros_pendientes → investigadores
+        console.log("🔵 [VERIFICACIÓN] Email verificado, completando registro en PostgreSQL...")
+        
+        try {
+          // Obtener el clerk_user_id del usuario verificado
+          const clerkUserId = completeSignUp.createdUserId || 
+                             completeSignUp.id ||
+                             (completeSignUp as any).user?.id
+          
+          if (!clerkUserId) {
+            console.error("❌ [VERIFICACIÓN] No se pudo obtener clerk_user_id")
+            throw new Error("No se pudo obtener el ID del usuario")
+          }
+
+          console.log("📤 [VERIFICACIÓN] Enviando solicitud para completar registro...")
+          console.log("   Clerk User ID:", clerkUserId)
+          
+          // Enviar solicitud para completar el registro
+          const response = await fetch("/api/completar-registro", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              clerk_user_id: clerkUserId
+            }),
+          })
+
+          const result = await response.json()
+          
+          if (response.ok && result.success) {
+            console.log("✅ [VERIFICACIÓN] Registro completado en PostgreSQL")
+            console.log("   ID asignado:", result.id)
+            console.log("   Datos movidos de tabla temporal → tabla investigadores")
+          } else {
+            console.error("❌ [VERIFICACIÓN] Error al completar registro:", result.message || result.error)
+            
+            // Si es un error de duplicado, podría ser que el usuario ya completó el registro
+            if (result.duplicado || response.status === 409) {
+              console.log("ℹ️ [VERIFICACIÓN] El registro ya existe, continuando...")
+            } else if (response.status === 404) {
+              console.error("❌ [VERIFICACIÓN] Registro temporal no encontrado o expirado")
+              console.error("   El usuario deberá registrarse nuevamente")
+              setError("Tu registro ha expirado. Por favor, regístrate nuevamente.")
+              return
+            } else {
+              // Otros errores no bloquean el inicio de sesión
+              console.warn("⚠️ [VERIFICACIÓN] Error al completar registro, pero continuando...")
+            }
+          }
+        } catch (dbError) {
+          console.error("❌ [VERIFICACIÓN] Error al completar registro:", dbError)
+          // No bloqueamos el inicio de sesión por errores en la BD
+          // El usuario puede completar su perfil después
+        }
+        
         // Establecer la sesión activa
         if (setActive) {
           await setActive({ session: completeSignUp.createdSessionId })

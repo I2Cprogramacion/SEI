@@ -103,6 +103,50 @@ export async function insertarPublicacion(datos: any) {
   throw new Error('Método insertarPublicacion no implementado en la base de datos actual');
 }
 
+// ============================================================
+// FUNCIONES PARA GESTIÓN DE REGISTROS PENDIENTES
+// ============================================================
+
+export async function guardarRegistroPendiente(clerkUserId: string, correo: string, datosRegistro: any) {
+  const db = await getDatabase();
+  if (typeof db.guardarRegistroPendiente === 'function') {
+    return await db.guardarRegistroPendiente(clerkUserId, correo, datosRegistro);
+  }
+  throw new Error('Método guardarRegistroPendiente no implementado en la base de datos actual');
+}
+
+export async function obtenerRegistroPendiente(clerkUserId: string) {
+  const db = await getDatabase();
+  if (typeof db.obtenerRegistroPendiente === 'function') {
+    return await db.obtenerRegistroPendiente(clerkUserId);
+  }
+  throw new Error('Método obtenerRegistroPendiente no implementado en la base de datos actual');
+}
+
+export async function eliminarRegistroPendiente(clerkUserId: string) {
+  const db = await getDatabase();
+  if (typeof db.eliminarRegistroPendiente === 'function') {
+    return await db.eliminarRegistroPendiente(clerkUserId);
+  }
+  throw new Error('Método eliminarRegistroPendiente no implementado en la base de datos actual');
+}
+
+export async function limpiarRegistrosExpirados() {
+  const db = await getDatabase();
+  if (typeof db.limpiarRegistrosExpirados === 'function') {
+    return await db.limpiarRegistrosExpirados();
+  }
+  throw new Error('Método limpiarRegistrosExpirados no implementado en la base de datos actual');
+}
+
+export async function obtenerEstadisticasRegistrosPendientes() {
+  const db = await getDatabase();
+  if (typeof db.obtenerEstadisticasRegistrosPendientes === 'function') {
+    return await db.obtenerEstadisticasRegistrosPendientes();
+  }
+  throw new Error('Método obtenerEstadisticasRegistrosPendientes no implementado en la base de datos actual');
+}
+
 // Exportar también las nuevas funciones para uso avanzado
 export { getDatabase } from './database-config'
 export type { DatabaseInterface, DatabaseConfig } from './database-interface'

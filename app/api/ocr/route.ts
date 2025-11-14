@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { guardarInvestigador } from '@/lib/db';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic'; // evita prerender/edge accidental
@@ -94,87 +93,50 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    if (!fields || (!fields.curp && !fields.rfc && !fields.no_cvu)) {
-      // Siempre devolver los campos clave en la raíz, aunque falte alguno
-      return NextResponse.json(
-        {
-          error: 'No se extrajeron datos suficientes del PDF.',
-          curp: fields?.curp || null,
-          rfc: fields?.rfc || null,
-          no_cvu: fields?.no_cvu || null,
-          correo: fields?.correo || null,
-          telefono: fields?.telefono || null,
-          origen: 'ocr',
-          filename: file.name
-        },
-        { status: 400 }
-      );
-    }
-
-
-    // Extraer nombre_completo del texto si es posible
-
-    // Solo enviar los campos clave al frontend
-    const datosAGuardar: any = {
+    // ✅ CORRECCIÓN: El OCR solo debe extraer y retornar datos, NO guardar en la BD
+    // El guardado completo se hace en /api/registro después de que el usuario complete todo el formulario
+    
+    // Preparar los datos extraídos para retornar al frontend
+    const datosExtraidos: any = {
       curp: fields.curp || null,
       rfc: fields.rfc || null,
       no_cvu: fields.no_cvu || null,
       correo: fields.correo || null,
       telefono: fields.telefono || null,
-      origen: 'ocr',
-      fecha_registro: new Date().toISOString(),
+      nombre_completo: fields.nombre_completo || null,
+      fecha_nacimiento: fields.fecha_nacimiento || null,
     };
 
-    if (!datosAGuardar.curp && !datosAGuardar.rfc && !datosAGuardar.no_cvu) {
+    // Validar que al menos tengamos algunos datos útiles
+    if (!datosExtraidos.curp && !datosExtraidos.rfc && !datosExtraidos.no_cvu) {
       return NextResponse.json(
         {
-          error: 'No se detectó CURP, RFC ni CVU para guardar.',
-          curp: fields?.curp || null,
-          rfc: fields?.rfc || null,
-          no_cvu: fields?.no_cvu || null,
-          correo: fields?.correo || null,
-          telefono: fields?.telefono || null,
-          origen: 'ocr',
-          filename: file.name
+          error: 'No se extrajeron datos suficientes del PDF. Por favor, completa los datos manualmente.',
+          curp: datosExtraidos.curp,
+          rfc: datosExtraidos.rfc,
+          no_cvu: datosExtraidos.no_cvu,
+          correo: datosExtraidos.correo,
+          telefono: datosExtraidos.telefono,
+          nombre_completo: datosExtraidos.nombre_completo,
+          fecha_nacimiento: datosExtraidos.fecha_nacimiento,
         },
-        { status: 400 }
+        { status: 200 } // Cambiar a 200 porque no es un error crítico
       );
     }
 
-    // Validar que el correo esté presente antes de guardar
-    if (!datosAGuardar.correo) {
-      // Devolver los campos clave en la raíz aunque falte el correo
-      return NextResponse.json(
-        {
-          error: 'Falta el correo electrónico. Por favor complétalo manualmente antes de guardar.',
-          curp: datosAGuardar.curp || null,
-          rfc: datosAGuardar.rfc || null,
-          no_cvu: datosAGuardar.no_cvu || null,
-          correo: null,
-          telefono: datosAGuardar.telefono || null,
-          origen: 'ocr',
-          filename: file.name
-        },
-        { status: 400 }
-      );
-    }
-
-    const resultado = await guardarInvestigador(datosAGuardar);
-    if (resultado?.success) {
-      // Responder solo los campos clave al frontend
-      return NextResponse.json({
-        curp: datosAGuardar.curp,
-        rfc: datosAGuardar.rfc,
-        no_cvu: datosAGuardar.no_cvu,
-        correo: datosAGuardar.correo,
-        telefono: datosAGuardar.telefono
-      });
-    }
-
-    return NextResponse.json(
-      { error: resultado?.message || 'Fallo al guardar', ocr: fields, filename: file.name },
-      { status: 400 }
-    );
+    // ✅ Retornar solo los datos extraídos sin guardar en BD
+    console.log('✅ [OCR] Datos extraídos exitosamente, retornando al frontend...')
+    return NextResponse.json({
+      success: true,
+      message: 'Datos extraídos exitosamente',
+      curp: datosExtraidos.curp,
+      rfc: datosExtraidos.rfc,
+      no_cvu: datosExtraidos.no_cvu,
+      correo: datosExtraidos.correo,
+      telefono: datosExtraidos.telefono,
+      nombre_completo: datosExtraidos.nombre_completo,
+      fecha_nacimiento: datosExtraidos.fecha_nacimiento,
+    });
   } catch (err: any) {
     console.error('OCR proxy error', { PDF_PROCESSOR_URL: process.env.PDF_PROCESSOR_URL, message: err?.message });
     return NextResponse.json({ error: `Proxy failed: ${err?.message}` }, { status: 500 });
