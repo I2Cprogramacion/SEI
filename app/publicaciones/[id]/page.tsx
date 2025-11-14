@@ -95,9 +95,9 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                   {publicacion.categoria}
                 </Badge>
               )}
-              {publicacion.tipo_acceso && (
-                <Badge className={accesoColors[publicacion.tipo_acceso] || 'bg-blue-100 text-blue-800'}>
-                  {publicacion.tipo_acceso}
+              {publicacion.acceso && (
+                <Badge className={accesoColors[publicacion.acceso] || 'bg-blue-100 text-blue-800'}>
+                  {publicacion.acceso}
                 </Badge>
               )}
               {publicacion.año_creacion && (
@@ -129,16 +129,9 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {publicacion.revista && (
-                    <div>
-                      <p className="text-sm text-blue-600 font-semibold mb-1">Revista</p>
-                      <p className="text-base">{publicacion.revista}</p>
-                    </div>
-                  )}
-                  
                   {publicacion.editorial && (
                     <div>
-                      <p className="text-sm text-blue-600 font-semibold mb-1">Editorial</p>
+                      <p className="text-sm text-blue-600 font-semibold mb-1">Revista/Editorial</p>
                       <p className="text-base">{publicacion.editorial}</p>
                     </div>
                   )}
@@ -271,9 +264,9 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                   </a>
                 )}
                 
-                {publicacion.url_pdf && (
+                {publicacion.archivo_url && (
                   <a
-                    href={publicacion.url_pdf}
+                    href={publicacion.archivo_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:underline"
