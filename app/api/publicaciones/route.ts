@@ -273,11 +273,6 @@ export async function GET(request: NextRequest) {
         clerkUserId: r.clerk_user_id || null,
         uploaderNombre: r.uploader_nombre || null
       }))
-        archivoUrl: r.archivo_url || null,
-        fecha_creacion: r.fecha_creacion || null,
-        clerkUserId: r.clerk_user_id || null,
-        uploaderNombre: r.uploader_nombre || null
-      }))
 
       // Construir filtros (categorias y años) a partir de los resultados
       categorias = Array.from(new Set(publicaciones.map((p: any) => p.categoria).filter(Boolean)))
