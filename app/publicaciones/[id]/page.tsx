@@ -100,17 +100,17 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
   console.log('✅ [Page Component] Rendering publication:', publicacion.titulo)
 
   const categoriaColors: Record<string, string> = {
-    'Artículo': 'bg-blue-500 text-white',
-    'Libro': 'bg-purple-500 text-white',
-    'Capítulo': 'bg-green-500 text-white',
-    'Conferencia': 'bg-orange-500 text-white',
-    'Tesis': 'bg-pink-500 text-white',
+    'Artículo': 'bg-blue-600 text-white',
+    'Libro': 'bg-purple-600 text-white',
+    'Capítulo': 'bg-green-600 text-white',
+    'Conferencia': 'bg-orange-600 text-white',
+    'Tesis': 'bg-pink-600 text-white',
   }
 
   const accesoColors: Record<string, string> = {
-    'Abierto': 'bg-emerald-500 text-white',
-    'Cerrado': 'bg-red-500 text-white',
-    'Restringido': 'bg-amber-500 text-white',
+    'Abierto': 'bg-emerald-600 text-white',
+    'Cerrado': 'bg-red-600 text-white',
+    'Restringido': 'bg-amber-600 text-white',
   }
 
   // Procesar autores para extraer información
@@ -118,11 +118,11 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Header con gradiente mejorado */}
-      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white shadow-xl">
+      {/* Header con diseño consistente */}
+      <div className="bg-white border-b border-slate-200 shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <Link href="/publicaciones">
-            <Button variant="ghost" className="text-white hover:bg-white/20 mb-4 -ml-2">
+            <Button variant="ghost" className="text-slate-700 hover:bg-slate-100 mb-4 -ml-2">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Volver a publicaciones
             </Button>
@@ -132,24 +132,24 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
             {/* Badges */}
             <div className="flex flex-wrap gap-2">
               {publicacion.categoria && (
-                <Badge className={`${categoriaColors[publicacion.categoria] || 'bg-blue-500 text-white'} px-3 py-1 text-sm font-medium`}>
+                <Badge className={`${categoriaColors[publicacion.categoria] || 'bg-blue-600 text-white'} px-3 py-1 text-sm font-medium shadow-sm`}>
                   <BookOpen className="mr-1 h-3 w-3" />
                   {publicacion.categoria}
                 </Badge>
               )}
               {publicacion.tipo && (
-                <Badge className="bg-white/20 text-white px-3 py-1 text-sm font-medium backdrop-blur-sm">
+                <Badge className="bg-slate-100 text-slate-700 px-3 py-1 text-sm font-medium border border-slate-300">
                   {publicacion.tipo}
                 </Badge>
               )}
               {publicacion.acceso && (
-                <Badge className={`${accesoColors[publicacion.acceso] || 'bg-blue-500 text-white'} px-3 py-1 text-sm font-medium`}>
+                <Badge className={`${accesoColors[publicacion.acceso] || 'bg-blue-600 text-white'} px-3 py-1 text-sm font-medium shadow-sm`}>
                   <Globe className="mr-1 h-3 w-3" />
                   {publicacion.acceso}
                 </Badge>
               )}
               {publicacion.año_creacion && (
-                <Badge className="bg-white/20 text-white px-3 py-1 text-sm font-medium backdrop-blur-sm">
+                <Badge className="bg-blue-600 text-white px-3 py-1 text-sm font-medium shadow-sm">
                   <Calendar className="mr-1 h-3 w-3" />
                   {publicacion.año_creacion}
                 </Badge>
@@ -157,12 +157,12 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
             </div>
             
             {/* Título */}
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-slate-900">
               {publicacion.titulo}
             </h1>
 
             {/* Metadatos rápidos */}
-            <div className="flex flex-wrap gap-4 text-sm text-blue-100">
+            <div className="flex flex-wrap gap-4 text-sm text-slate-600">
               {publicacion.editorial && (
                 <div className="flex items-center gap-1">
                   <BookOpen className="h-4 w-4" />
@@ -333,6 +333,49 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                 </CardContent>
               </Card>
             )}
+
+            {/* Cómo citar */}
+            <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-slate-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-2xl text-slate-800">
+                  <Quote className="h-6 w-6 text-blue-600" />
+                  Cómo citar
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {/* Formato APA */}
+                  <div className="bg-white p-4 rounded-lg border border-slate-200">
+                    <p className="text-xs font-semibold text-slate-600 uppercase mb-2">Formato APA</p>
+                    <p className="text-sm text-slate-800 font-mono leading-relaxed">
+                      {autores.slice(0, 3).join(', ')}{autores.length > 3 && ', et al.'} ({publicacion.año_creacion || 'n.d.'}). {publicacion.titulo}. 
+                      {publicacion.editorial && <em> {publicacion.editorial}</em>}
+                      {publicacion.volumen && `, ${publicacion.volumen}`}
+                      {publicacion.numero && `(${publicacion.numero})`}
+                      {publicacion.paginas && `, ${publicacion.paginas}`}.
+                      {publicacion.doi && ` https://doi.org/${publicacion.doi.replace('https://doi.org/', '')}`}
+                    </p>
+                  </div>
+
+                  {/* Formato IEEE */}
+                  <div className="bg-white p-4 rounded-lg border border-slate-200">
+                    <p className="text-xs font-semibold text-slate-600 uppercase mb-2">Formato IEEE</p>
+                    <p className="text-sm text-slate-800 font-mono leading-relaxed">
+                      {autores.slice(0, 3).map((autor: string, idx: number) => {
+                        const parts = autor.trim().split(' ')
+                        const lastName = parts[parts.length - 1]
+                        const initials = parts.slice(0, -1).map((n: string) => n[0]).join('. ')
+                        return `${idx > 0 ? ', ' : ''}${lastName}${initials ? ', ' + initials + '.' : ''}`
+                      })}{autores.length > 3 && ', et al.'}, "{publicacion.titulo}," 
+                      {publicacion.editorial && <em> {publicacion.editorial}</em>}
+                      {publicacion.volumen && `, vol. ${publicacion.volumen}`}
+                      {publicacion.numero && `, no. ${publicacion.numero}`}
+                      {publicacion.paginas && `, pp. ${publicacion.paginas}`}, {publicacion.año_creacion || 'n.d.'}.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Columna Lateral (1/3) */}
