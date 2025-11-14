@@ -226,9 +226,14 @@ export async function GET(request: NextRequest) {
         publicacionesQuery += ` WHERE (${whereConditions.join(' OR ')})`
       }
       
-      console.log('🔍 [GET Publicaciones] Query WHERE:', whereConditions.join(' OR '))
-      console.log('🔍 [GET Publicaciones] Params:', values)
-      console.log('🔍 [GET Publicaciones] Total condiciones:', whereConditions.length)
+      console.log('🟢 [Dashboard Publicaciones] Investigador:', {
+        nombre: investigador?.nombre_completo,
+        correo: investigador?.correo,
+        clerk_id: clerkUserId
+      })
+      console.log('🟢 [Dashboard Publicaciones] Query WHERE:', whereConditions.join(' OR '))
+      console.log('🟢 [Dashboard Publicaciones] Params:', values)
+      console.log('🟢 [Dashboard Publicaciones] Total condiciones:', whereConditions.length)
     }
 
     publicacionesQuery += ` ORDER BY p.año_creacion DESC NULLS LAST, p.fecha_creacion DESC LIMIT 50`
@@ -241,11 +246,15 @@ export async function GET(request: NextRequest) {
       const pubsResult = await db.query(publicacionesQuery, values)
       const pubsRows = Array.isArray(pubsResult) ? pubsResult : pubsResult.rows
       
-      console.log(`✅ [GET Publicaciones] Encontradas ${pubsRows?.length || 0} publicaciones`)
+      console.log(`✅ [Dashboard Publicaciones] Encontradas ${pubsRows?.length || 0} publicaciones`)
       if (pubsRows?.length > 0) {
-        console.log('📄 [GET Publicaciones] IDs de publicaciones encontradas:', 
+        console.log('🟢 [Dashboard Publicaciones] IDs encontradas:', 
           pubsRows.map((p: any) => p.id).join(', ')
         )
+        console.log('🟢 [Dashboard Publicaciones] Detalles:', 
+          pubsRows.map((p: any) => `ID ${p.id}: "${p.titulo?.substring(0, 30)}..." (${p.autor?.substring(0, 50)})`).join(' | ')
+        )
+      }
         console.log('📄 [GET Publicaciones] Primeras 3 publicaciones:', 
           pubsRows.slice(0, 3).map((p: any) => ({ 
             id: p.id, 

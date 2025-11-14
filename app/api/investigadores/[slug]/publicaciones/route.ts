@@ -108,8 +108,14 @@ export async function GET(
     
     const whereClause = whereConditions.join(' OR ')
     
-    console.log('� [Publicaciones] Query WHERE:', whereClause)
-    console.log('📝 [Publicaciones] Params:', queryParams)
+    console.log('🔵 [Publicaciones Perfil] Investigador:', {
+      nombre: inv.nombre_completo,
+      correo: inv.correo,
+      clerk_id: inv.clerk_user_id
+    })
+    console.log('🔵 [Publicaciones Perfil] Query WHERE:', whereClause)
+    console.log('🔵 [Publicaciones Perfil] Params:', queryParams)
+    console.log('🔵 [Publicaciones Perfil] Total condiciones:', whereConditions.length)
     
     const publicacionesResult = await db.query(
       `SELECT 
@@ -132,7 +138,7 @@ export async function GET(
         fecha_creacion
       FROM publicaciones 
       WHERE ${whereClause}
-      ORDER BY año_creacion DESC, fecha_creacion DESC
+      ORDER BY año_creacion DESC NULLS LAST, fecha_creacion DESC
       LIMIT 50`,
       queryParams
     )
@@ -141,11 +147,14 @@ export async function GET(
       ? publicacionesResult
       : publicacionesResult.rows
 
-    console.log(`✅ [Publicaciones] Encontradas ${publicaciones?.length || 0} publicaciones para ${inv.nombre_completo}`)
+    console.log(`✅ [Publicaciones Perfil] Encontradas ${publicaciones?.length || 0} publicaciones para ${inv.nombre_completo}`)
     
     if (publicaciones?.length > 0) {
-      console.log('📄 [Publicaciones Perfil] IDs encontradas:', 
+      console.log('🔵 [Publicaciones Perfil] IDs encontradas:', 
         publicaciones.map((p: any) => p.id).join(', ')
+      )
+      console.log('🔵 [Publicaciones Perfil] Detalles:', 
+        publicaciones.map((p: any) => `ID ${p.id}: "${p.titulo?.substring(0, 30)}..." (${p.autor?.substring(0, 50)})`).join(' | ')
       )
     }
 
