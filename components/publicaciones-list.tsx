@@ -7,8 +7,19 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import { LoadingCard } from "@/components/ui/loading-card"
-import { FileText, Plus, Calendar, ExternalLink, BookOpen, Loader2 } from "lucide-react"
+import { FileText, Plus, Calendar, ExternalLink, BookOpen, Loader2, Pencil, Trash2 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { EditarPublicacionDialog } from "@/components/editar-publicacion-dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface Publicacion {
   id: number
@@ -42,6 +53,11 @@ export function PublicacionesList({ slug, isOwner = false, showAddButton = true 
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [selectedPublicacionId, setSelectedPublicacionId] = useState<number | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     // Esperar a que Clerk cargue el usuario
@@ -100,6 +116,77 @@ export function PublicacionesList({ slug, isOwner = false, showAddButton = true 
 
     fetchPublicaciones()
   }, [slug, user?.id, isLoaded])
+
+  const handleEdit = (publicacionId: number) => {
+    setSelectedPublicacionId(publicacionId)
+    setEditDialogOpen(true)
+  }
+
+  const handleDeleteClick = (publicacionId: number) => {
+    setDeletingId(publicacionId)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingId) return
+
+    setDeleting(true)
+    try {
+      const response = await fetch(`/api/publicaciones/${deletingId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Error al eliminar la publicación')
+      }
+
+      // Actualizar lista de publicaciones
+      setPublicaciones(prev => prev.filter(p => p.id !== deletingId))
+      setDeleteDialogOpen(false)
+      setDeletingId(null)
+    } catch (error) {
+      console.error('Error deleting publicacion:', error)
+      alert('Error al eliminar la publicación')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  const handlePublicacionUpdated = () => {
+    // Recargar publicaciones después de editar
+    const fetchPublicaciones = async () => {
+      try {
+        setLoading(true)
+        let url: string
+        
+        if (slug) {
+          url = `/api/investigadores/${slug}/publicaciones`
+        } else if (user?.id) {
+          url = `/api/publicaciones?clerk_user_id=${user.id}`
+        } else {
+          return
+        }
+        
+        const response = await fetch(url)
+        if (!response.ok) {
+          throw new Error('Error al cargar publicaciones')
+        }
+        
+        const data = await response.json()
+        if (slug) {
+          setPublicaciones(Array.isArray(data) ? data : [])
+        } else {
+          setPublicaciones(Array.isArray(data.publicaciones) ? data.publicaciones : [])
+        }
+      } catch (err) {
+        console.error('Error fetching publicaciones:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPublicaciones()
+  }
 
   if (loading) {
     return (
@@ -250,28 +337,54 @@ export function PublicacionesList({ slug, isOwner = false, showAddButton = true 
                     </div>
                   )}
 
-                  <div className="flex flex-wrap gap-2">
-                    {pub.doi && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-xs hover:bg-blue-50 hover:border-blue-300"
-                        onClick={() => window.open(`https://doi.org/${pub.doi}`, '_blank')}
-                      >
-                        <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
-                        Ver DOI
-                      </Button>
-                    )}
-                    {pub.archivoUrl && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-xs hover:bg-blue-50 hover:border-blue-300"
-                        onClick={() => window.open(pub.archivoUrl, '_blank')}
-                      >
-                        <FileText className="mr-1.5 h-3.5 w-3.5" />
-                        Ver PDF
-                      </Button>
+                  <div className="flex flex-wrap gap-2 items-center justify-between">
+                    <div className="flex flex-wrap gap-2">
+                      {pub.doi && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-xs hover:bg-blue-50 hover:border-blue-300"
+                          onClick={() => window.open(`https://doi.org/${pub.doi}`, '_blank')}
+                        >
+                          <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                          Ver DOI
+                        </Button>
+                      )}
+                      {pub.archivoUrl && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-xs hover:bg-blue-50 hover:border-blue-300"
+                          onClick={() => window.open(pub.archivoUrl, '_blank')}
+                        >
+                          <FileText className="mr-1.5 h-3.5 w-3.5" />
+                          Ver PDF
+                        </Button>
+                      )}
+                    </div>
+                    
+                    {/* Botones de editar y eliminar solo para el dueño */}
+                    {isOwner && (
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-xs hover:bg-blue-50 hover:border-blue-300"
+                          onClick={() => handleEdit(pub.id)}
+                        >
+                          <Pencil className="mr-1.5 h-3.5 w-3.5" />
+                          Editar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-xs hover:bg-red-50 hover:border-red-300 text-red-600"
+                          onClick={() => handleDeleteClick(pub.id)}
+                        >
+                          <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                          Eliminar
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -280,6 +393,45 @@ export function PublicacionesList({ slug, isOwner = false, showAddButton = true 
           </div>
         )}
       </CardContent>
+
+      {/* Dialog para editar publicación */}
+      {selectedPublicacionId && (
+        <EditarPublicacionDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          publicacionId={selectedPublicacionId}
+          onPublicacionUpdated={handlePublicacionUpdated}
+        />
+      )}
+
+      {/* Dialog para confirmar eliminación */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Se eliminará permanentemente esta publicación.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Eliminando...
+                </>
+              ) : (
+                'Eliminar'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   )
 }
