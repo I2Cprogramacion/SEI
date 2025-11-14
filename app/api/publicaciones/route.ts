@@ -201,9 +201,20 @@ export async function GET(request: NextRequest) {
       }
       
       if (investigador?.nombre_completo) {
+        const nombreParts = investigador.nombre_completo.toLowerCase().split(' ').filter(Boolean)
+        
+        // Buscar el nombre completo
         whereConditions.push(`LOWER(p.autor) LIKE $${paramIndex}`)
         values.push(`%${investigador.nombre_completo.toLowerCase()}%`)
         paramIndex++
+        
+        // Si el nombre tiene al menos 2 partes (nombre + apellido), buscar también por apellidos
+        if (nombreParts.length >= 2) {
+          const apellidos = nombreParts.slice(1).join(' ')
+          whereConditions.push(`LOWER(p.autor) LIKE $${paramIndex}`)
+          values.push(`%${apellidos}%`)
+          paramIndex++
+        }
       }
       
       if (whereConditions.length > 0) {

@@ -84,9 +84,21 @@ export async function GET(
     }
     
     if (inv.nombre_completo) {
+      // Buscar por nombre completo Y también por variaciones (nombre, apellidos separados)
+      const nombreParts = inv.nombre_completo.toLowerCase().split(' ').filter(Boolean)
+      
+      // Buscar el nombre completo
       whereConditions.push(`LOWER(autor) LIKE $${paramIndex}`)
       queryParams.push(`%${inv.nombre_completo.toLowerCase()}%`)
       paramIndex++
+      
+      // Si el nombre tiene al menos 2 partes (nombre + apellido), buscar también por apellidos
+      if (nombreParts.length >= 2) {
+        const apellidos = nombreParts.slice(1).join(' ') // Todo excepto el primer nombre
+        whereConditions.push(`LOWER(autor) LIKE $${paramIndex}`)
+        queryParams.push(`%${apellidos}%`)
+        paramIndex++
+      }
     }
     
     if (whereConditions.length === 0) {
