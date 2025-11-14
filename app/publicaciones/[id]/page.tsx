@@ -16,7 +16,11 @@ interface PublicacionPageProps {
 async function getPublicacion(id: string) {
   try {
     console.log('🔍 [Publicacion Detail] Fetching publicacion ID:', id)
+    console.log('🔍 [Publicacion Detail] ID type:', typeof id)
+    
     const db = await getDatabase()
+    console.log('✅ [Publicacion Detail] Database connection obtained')
+    
     const result = await db.query(
       `SELECT 
         p.*,
@@ -26,20 +30,26 @@ async function getPublicacion(id: string) {
        FROM publicaciones p
        LEFT JOIN investigadores i ON p.clerk_user_id = i.clerk_user_id
        WHERE p.id = $1`,
-      [id]
+      [parseInt(id)]
     )
     
-    console.log('📊 [Publicacion Detail] Query result rows:', result.rows.length)
+    console.log('📊 [Publicacion Detail] Query executed successfully')
+    console.log('📊 [Publicacion Detail] Result rows:', result.rows?.length || 0)
     
-    if (result.rows.length === 0) {
+    if (!result.rows || result.rows.length === 0) {
       console.log('⚠️ [Publicacion Detail] No publication found with ID:', id)
       return null
     }
     
-    console.log('✅ [Publicacion Detail] Found publication:', result.rows[0].titulo)
-    return result.rows[0]
+    const publicacion = result.rows[0]
+    console.log('✅ [Publicacion Detail] Found publication:', publicacion.titulo)
+    console.log('✅ [Publicacion Detail] Publication data keys:', Object.keys(publicacion).join(', '))
+    
+    return publicacion
   } catch (error) {
     console.error('❌ [Publicacion Detail] Error fetching publicacion:', error)
+    console.error('❌ [Publicacion Detail] Error details:', error instanceof Error ? error.message : 'Unknown error')
+    console.error('❌ [Publicacion Detail] Error stack:', error instanceof Error ? error.stack : 'No stack')
     return null
   }
 }
