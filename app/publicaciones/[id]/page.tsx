@@ -226,12 +226,13 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <AuthorAvatarGroup 
-                    authors={publicacion.autor}
-                    maxVisible={5}
-                    size="md"
-                    showNames={true}
-                  />
+                  <div className="space-y-2">
+                    {publicacion.autor.split(/[,;]/).map((autor: string, index: number) => (
+                      <p key={index} className="text-sm text-blue-700">
+                        {autor.trim()}
+                      </p>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -305,7 +306,7 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                   </Link>
                 )}
                 
-                {!publicacion.doi && !publicacion.url_pdf && !publicacion.url && !publicacion.investigador_slug && (
+                {!publicacion.doi && !publicacion.archivo_url && !publicacion.url && !publicacion.investigador_slug && (
                   <p className="text-sm text-blue-600/60">No hay enlaces disponibles</p>
                 )}
               </CardContent>
