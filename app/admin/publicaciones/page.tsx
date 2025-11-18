@@ -232,8 +232,7 @@ export default function PublicacionesAdmin() {
           </div>
 
           {/* Vista de tabla para desktop */}
-          <div className="hidden lg:block rounded-md border border-blue-100 overflow-x-auto w-full -mx-3 sm:mx-0">
-            <div className="min-w-full inline-block align-middle">
+          <div className="hidden lg:block rounded-md border border-blue-100 overflow-x-auto w-full">
             <Table className="w-full">
               <TableHeader className="bg-blue-50">
                 <TableRow className="hover:bg-blue-50 border-b border-blue-100">
@@ -340,7 +339,6 @@ export default function PublicacionesAdmin() {
                 )}
               </TableBody>
             </Table>
-            </div>
           </div>
 
           {/* Vista de cards para móvil/tablet */}
