@@ -34,11 +34,18 @@ export async function GET() {
     // Buscar con email en minúsculas para evitar problemas de case sensitivity
     const emailLower = email.toLowerCase().trim()
     console.log('🔍 [API] Buscando usuario en la BD con email:', emailLower)
-    const result = await sql`
-      SELECT id, nombre_completo, correo, es_admin 
-      FROM investigadores 
-      WHERE LOWER(TRIM(correo)) = ${emailLower}
-    `
+    
+    let result
+    try {
+      result = await sql`
+        SELECT id, nombre_completo, correo, es_admin 
+        FROM investigadores 
+        WHERE LOWER(correo) = ${emailLower}
+      `
+    } catch (sqlError) {
+      console.error('❌ [API] Error en la consulta SQL:', sqlError)
+      throw sqlError
+    }
 
     console.log('📊 [API] Resultado de la consulta:', {
       rowsCount: result.rows.length,
@@ -102,8 +109,17 @@ export async function GET() {
     })
   } catch (error) {
     console.error('❌ [API] Error al verificar admin:', error)
+    console.error('❌ [API] Detalles del error:', {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    })
     return NextResponse.json(
-      { esAdmin: false, error: 'Error al verificar permisos' },
+      { 
+        esAdmin: false, 
+        error: 'Error al verificar permisos',
+        details: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     )
   }
