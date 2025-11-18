@@ -42,13 +42,25 @@ export function CrearConvocatoriaDialog({ onConvocatoriaCreada }: CrearConvocato
 
     const checkAdmin = async () => {
       try {
+        console.log('🔍 Verificando si el usuario es admin...')
         const response = await fetch('/api/admin/verificar', {
           method: 'GET',
           credentials: 'include',
           cache: 'no-store',
         })
 
+        console.log('📡 Respuesta de /api/admin/verificar:', {
+          status: response.status,
+          statusText: response.statusText,
+          ok: response.ok
+        })
+
         if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          console.error('❌ Error al verificar admin:', {
+            status: response.status,
+            error: errorData
+          })
           if (isMounted) {
             setIsAdmin(false)
           }
@@ -56,13 +68,16 @@ export function CrearConvocatoriaDialog({ onConvocatoriaCreada }: CrearConvocato
         }
 
         const data = await response.json().catch(() => ({}))
+        console.log('📦 Datos recibidos de la API:', data)
+        
         const esAdminFlag = Boolean(data?.esAdmin ?? data?.es_admin)
+        console.log('✅ Resultado de verificación admin:', esAdminFlag)
 
         if (isMounted) {
           setIsAdmin(esAdminFlag)
         }
       } catch (error) {
-        console.error('Error al verificar admin:', error)
+        console.error('❌ Error al verificar admin:', error)
         if (isMounted) {
           setIsAdmin(false)
         }
@@ -223,31 +238,71 @@ export function CrearConvocatoriaDialog({ onConvocatoriaCreada }: CrearConvocato
     }
   }
 
-  // Si no es admin, no mostrar el botón
-  if (isCheckingAdmin) {
-    return null
-  }
-
-  if (!isAdmin) {
-    return null
-  }
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-700 text-white hover:bg-blue-800">
-          <Plus className="mr-2 h-4 w-4" />
-          Nueva Convocatoria
+        <Button 
+          className="bg-blue-700 text-white hover:bg-blue-800"
+          disabled={isCheckingAdmin}
+        >
+          {isCheckingAdmin ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Verificando...
+            </>
+          ) : (
+            <>
+              <Plus className="mr-2 h-4 w-4" />
+              Nueva Convocatoria
+            </>
+          )}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Crear Nueva Convocatoria</DialogTitle>
-          <DialogDescription>
-            Completa los datos de la convocatoria y adjunta el archivo PDF con las bases
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
+        {isCheckingAdmin ? (
+          <div className="flex flex-col items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" />
+            <p className="text-gray-600">Verificando permisos...</p>
+          </div>
+        ) : !isAdmin ? (
+          <div className="flex flex-col items-center justify-center py-8">
+            <div className="rounded-full bg-red-100 p-4 mb-4">
+              <svg
+                className="h-12 w-12 text-red-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+            <DialogTitle className="text-center mb-2">Acceso Denegado</DialogTitle>
+            <DialogDescription className="text-center text-base">
+              No tiene acceso para crear convocatorias. Solo los administradores pueden crear nuevas convocatorias.
+            </DialogDescription>
+            <div className="mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
+                Cerrar
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle>Crear Nueva Convocatoria</DialogTitle>
+              <DialogDescription>
+                Completa los datos de la convocatoria y adjunta el archivo PDF con las bases
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="titulo">
@@ -383,6 +438,8 @@ export function CrearConvocatoriaDialog({ onConvocatoriaCreada }: CrearConvocato
             </Button>
           </DialogFooter>
         </form>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   )
