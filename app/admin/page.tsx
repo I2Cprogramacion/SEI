@@ -130,20 +130,22 @@ export default function AdminDashboard() {
   }, [])
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden">
-      <div className="container mx-auto py-4 md:py-8 px-3 sm:px-4 md:px-6">
-      <div className="space-y-6 md:space-y-8">
+    <div className="w-full">
+      <div className="w-full py-6 md:py-8 px-4 md:px-8">
+      <div className="space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-blue-900">Panel de Administración</h1>
-            <p className="text-sm md:text-base text-blue-600">Gestiona la plataforma SECCTI desde aquí</p>
+            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+              Panel de Administración
+            </h1>
+            <p className="text-sm md:text-base text-gray-600 mt-1">Gestiona la plataforma SECCTI desde aquí</p>
           </div>
-          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <div className="flex flex-wrap gap-3 w-full sm:w-auto">
             <Button 
               variant="outline" 
               size="sm"
-              className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent flex-1 sm:flex-initial" 
+              className="border-gray-200 text-gray-700 hover:bg-gray-50 bg-white shadow-sm hover:shadow-md transition-all flex-1 sm:flex-initial" 
               asChild
             >
               <Link href="/">
@@ -155,7 +157,7 @@ export default function AdminDashboard() {
             <Button 
               variant="outline" 
               size="sm"
-              className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent flex-1 sm:flex-initial"
+              className="border-gray-200 text-gray-700 hover:bg-gray-50 bg-white shadow-sm hover:shadow-md transition-all flex-1 sm:flex-initial"
               onClick={() => window.location.reload()}
             >
               <TrendingUp className="mr-2 h-4 w-4" />
@@ -170,12 +172,14 @@ export default function AdminDashboard() {
           {loading ? (
             <>
               {[...Array(4)].map((_, i) => (
-                <Card key={i} className="bg-white border-blue-100">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <div className="animate-pulse bg-blue-100 h-4 w-32 rounded"></div>
+                <Card key={i} className="bg-white border-0 shadow-md">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <div className="animate-pulse bg-gray-200 h-4 w-32 rounded"></div>
+                    <div className="animate-pulse bg-gray-200 h-12 w-12 rounded-xl"></div>
                   </CardHeader>
                   <CardContent>
-                    <div className="animate-pulse bg-blue-100 h-8 w-16 rounded"></div>
+                    <div className="animate-pulse bg-gray-200 h-8 w-16 rounded mb-2"></div>
+                    <div className="animate-pulse bg-gray-200 h-2 w-full rounded"></div>
                   </CardContent>
                 </Card>
               ))}
@@ -237,57 +241,77 @@ export default function AdminDashboard() {
         {/* Alertas y acciones rápidas */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <Card className="bg-white border-blue-100">
-              <CardHeader>
-                <CardTitle className="text-blue-900">Acciones Rápidas</CardTitle>
-                <CardDescription className="text-blue-600">
+            <Card className="bg-white border-0 shadow-md">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-bold text-gray-900">Acciones Rápidas</CardTitle>
+                <CardDescription className="text-gray-500">
                   Gestiona los elementos principales de la plataforma
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Button
                     variant="outline"
-                    size="sm"
-                    className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent justify-start"
+                    size="lg"
+                    className="border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 bg-white justify-start h-auto py-4 px-4 shadow-sm hover:shadow-md transition-all group"
                     asChild
                   >
                     <Link href="/admin/investigadores">
-                      <Users className="mr-2 h-4 w-4" />
-                      Gestionar Investigadores
+                      <div className="h-10 w-10 rounded-lg bg-blue-100 group-hover:bg-blue-600 flex items-center justify-center mr-3 transition-colors">
+                        <Users className="h-5 w-5 text-blue-600 group-hover:text-white transition-colors" />
+                      </div>
+                      <div className="text-left">
+                        <div className="font-semibold">Investigadores</div>
+                        <div className="text-xs text-gray-500">Gestionar perfiles</div>
+                      </div>
                     </Link>
                   </Button>
                   <Button
                     variant="outline"
-                    size="sm"
-                    className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent justify-start"
+                    size="lg"
+                    className="border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 bg-white justify-start h-auto py-4 px-4 shadow-sm hover:shadow-md transition-all group"
                     asChild
                   >
                     <Link href="/admin/proyectos">
-                      <FileText className="mr-2 h-4 w-4" />
-                      Gestionar Proyectos
+                      <div className="h-10 w-10 rounded-lg bg-blue-100 group-hover:bg-blue-600 flex items-center justify-center mr-3 transition-colors">
+                        <FileText className="h-5 w-5 text-blue-600 group-hover:text-white transition-colors" />
+                      </div>
+                      <div className="text-left">
+                        <div className="font-semibold">Proyectos</div>
+                        <div className="text-xs text-gray-500">Gestionar proyectos</div>
+                      </div>
                     </Link>
                   </Button>
                   <Button
                     variant="outline"
-                    size="sm"
-                    className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent justify-start"
+                    size="lg"
+                    className="border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 bg-white justify-start h-auto py-4 px-4 shadow-sm hover:shadow-md transition-all group"
                     asChild
                   >
                     <Link href="/admin/publicaciones">
-                      <Award className="mr-2 h-4 w-4" />
-                      Gestionar Publicaciones
+                      <div className="h-10 w-10 rounded-lg bg-blue-100 group-hover:bg-blue-600 flex items-center justify-center mr-3 transition-colors">
+                        <Award className="h-5 w-5 text-blue-600 group-hover:text-white transition-colors" />
+                      </div>
+                      <div className="text-left">
+                        <div className="font-semibold">Publicaciones</div>
+                        <div className="text-xs text-gray-500">Gestionar publicaciones</div>
+                      </div>
                     </Link>
                   </Button>
                   <Button
                     variant="outline"
-                    size="sm"
-                    className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent justify-start"
+                    size="lg"
+                    className="border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 bg-white justify-start h-auto py-4 px-4 shadow-sm hover:shadow-md transition-all group"
                     asChild
                   >
                     <Link href="/admin/instituciones">
-                      <Building className="mr-2 h-4 w-4" />
-                      Gestionar Instituciones
+                      <div className="h-10 w-10 rounded-lg bg-blue-100 group-hover:bg-blue-600 flex items-center justify-center mr-3 transition-colors">
+                        <Building className="h-5 w-5 text-blue-600 group-hover:text-white transition-colors" />
+                      </div>
+                      <div className="text-left">
+                        <div className="font-semibold">Instituciones</div>
+                        <div className="text-xs text-gray-500">Gestionar instituciones</div>
+                      </div>
                     </Link>
                   </Button>
                 </div>
@@ -295,38 +319,42 @@ export default function AdminDashboard() {
             </Card>
           </div>
 
-          <Card className="bg-white border-blue-100">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-blue-900">
-                <AlertTriangle className="h-5 w-5" />
-                Alertas
+          <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-0 shadow-md">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-gray-900">
+                <div className="h-10 w-10 rounded-lg bg-amber-100 flex items-center justify-center">
+                  <AlertTriangle className="h-5 w-5 text-amber-600" />
+                </div>
+                <span className="text-xl font-bold">Alertas</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <div className="space-y-2">
-                  <div className="h-4 bg-blue-100 rounded animate-pulse"></div>
-                  <div className="h-4 bg-blue-100 rounded animate-pulse"></div>
+                  <div className="h-4 bg-amber-100 rounded animate-pulse"></div>
+                  <div className="h-4 bg-amber-100 rounded animate-pulse"></div>
                 </div>
               ) : stats.alertas > 0 ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-blue-600">Perfiles incompletos</span>
-                    <Badge variant="outline" className="border-amber-200 text-amber-700">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+                    <span className="text-sm font-medium text-gray-700">Perfiles incompletos</span>
+                    <Badge className="bg-amber-500 text-white border-0 font-semibold">
                       {stats.alertas}
                     </Badge>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
+                    className="w-full border-amber-300 text-amber-700 hover:bg-amber-100 bg-white shadow-sm"
                     asChild
                   >
                     <Link href="/admin/investigadores/incompletos">Ver detalles</Link>
                   </Button>
                 </div>
               ) : (
-                <p className="text-sm text-blue-600">No hay alertas pendientes</p>
+                <div className="p-4 bg-white rounded-lg shadow-sm">
+                  <p className="text-sm text-gray-600 text-center">✨ No hay alertas pendientes</p>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -339,37 +367,41 @@ export default function AdminDashboard() {
         </div>
 
         {/* Métricas de crecimiento */}
-        <Card className="bg-white border-blue-100">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-blue-900">
-              <TrendingUp className="h-5 w-5" />
-              Métricas de Crecimiento
+        <Card className="bg-white border-0 shadow-md">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-gray-900">
+              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg shadow-green-500/30">
+                <TrendingUp className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <div className="text-xl font-bold">Métricas de Crecimiento</div>
+                <CardDescription className="text-gray-500 mt-0">Estadísticas de crecimiento de la plataforma</CardDescription>
+              </div>
             </CardTitle>
-            <CardDescription className="text-blue-600">Estadísticas de crecimiento de la plataforma</CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[...Array(3)].map((_, i) => (
                   <div key={i} className="text-center animate-pulse">
-                    <div className="h-8 bg-blue-100 rounded mb-2"></div>
-                    <div className="h-4 bg-blue-100 rounded"></div>
+                    <div className="h-10 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded"></div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-900">{stats.investigadoresNuevos}</div>
-                  <p className="text-sm text-blue-600">Nuevos investigadores este mes</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+                  <div className="text-3xl font-bold text-blue-700 mb-1">{stats.investigadoresNuevos}</div>
+                  <p className="text-sm text-gray-600 font-medium">Nuevos investigadores este mes</p>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-900">{stats.publicacionesRecientes}</div>
-                  <p className="text-sm text-blue-600">Publicaciones recientes</p>
+                <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
+                  <div className="text-3xl font-bold text-purple-700 mb-1">{stats.publicacionesRecientes}</div>
+                  <p className="text-sm text-gray-600 font-medium">Publicaciones recientes</p>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-900">{stats.proyectosActivos}</div>
-                  <p className="text-sm text-blue-600">Proyectos activos</p>
+                <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
+                  <div className="text-3xl font-bold text-green-700 mb-1">{stats.proyectosActivos}</div>
+                  <p className="text-sm text-gray-600 font-medium">Proyectos activos</p>
                 </div>
               </div>
             )}

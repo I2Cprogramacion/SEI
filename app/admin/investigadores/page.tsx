@@ -123,16 +123,21 @@ export default function InvestigadoresAdmin() {
 
   return (
     <div className="w-full">
-      <div className="w-full py-4 md:py-8 px-4 md:px-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-        <Button variant="ghost" size="sm" asChild className="text-blue-700 hover:bg-blue-50">
+      <div className="w-full py-6 md:py-8 px-4 md:px-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
+        <Button variant="ghost" size="sm" asChild className="text-gray-700 hover:bg-gray-100 hover:text-blue-600">
           <Link href="/admin">
             <ArrowLeft className="mr-2 h-4 w-4" />
             <span className="hidden sm:inline">Volver al panel</span>
             <span className="sm:hidden">Volver</span>
           </Link>
         </Button>
-        <h1 className="text-xl sm:text-2xl font-bold text-blue-900">Administración de Investigadores</h1>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+            Administración de Investigadores
+          </h1>
+          <p className="text-sm text-gray-600 mt-1">Gestiona los perfiles de investigadores registrados</p>
+        </div>
       </div>
 
       {error && (
@@ -141,10 +146,10 @@ export default function InvestigadoresAdmin() {
         </div>
       )}
 
-      <Card className="bg-white border-blue-100 mb-8 w-full">
-        <CardHeader>
-          <CardTitle className="text-blue-900">Investigadores Registrados</CardTitle>
-          <CardDescription className="text-blue-600">
+      <Card className="bg-white border-0 shadow-md mb-8 w-full">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl font-bold text-gray-900">Investigadores Registrados</CardTitle>
+          <CardDescription className="text-gray-500">
             Gestiona los perfiles de investigadores registrados en la plataforma SECCTI
           </CardDescription>
         </CardHeader>
@@ -152,11 +157,11 @@ export default function InvestigadoresAdmin() {
           <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-6 px-4 md:px-0 pt-4 md:pt-0">
             <div className="flex-1 flex flex-col sm:flex-row gap-2">
               <div className="relative flex-grow">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-4 w-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   type="text"
                   placeholder="Buscar por nombre, correo..."
-                  className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 text-sm"
+                  className="pl-10 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 text-sm focus:border-blue-500 focus:ring-blue-500"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -165,7 +170,7 @@ export default function InvestigadoresAdmin() {
               <Button 
                 onClick={handleSearch} 
                 size="sm"
-                className="bg-blue-700 text-white hover:bg-blue-800"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all"
               >
                 <Search className="mr-2 h-4 w-4 sm:hidden" />
                 <span className="sm:inline">Buscar</span>
@@ -179,7 +184,7 @@ export default function InvestigadoresAdmin() {
                     setFilteredData(investigadores)
                     setCurrentPage(1)
                   }}
-                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                  className="border-gray-200 text-gray-700 hover:bg-gray-50"
                 >
                   Limpiar
                 </Button>
@@ -189,7 +194,7 @@ export default function InvestigadoresAdmin() {
               <Button 
                 variant="outline" 
                 size="sm"
-                className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent flex-1 sm:flex-initial"
+                className="border-gray-200 text-gray-700 hover:bg-gray-50 bg-white shadow-sm hover:shadow-md transition-all flex-1 sm:flex-initial"
               >
                 <Filter className="mr-2 h-4 w-4" />
                 <span className="hidden sm:inline">Filtros</span>
@@ -197,7 +202,7 @@ export default function InvestigadoresAdmin() {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent flex-1 sm:flex-initial"
+                className="border-gray-200 text-gray-700 hover:bg-gray-50 bg-white shadow-sm hover:shadow-md transition-all flex-1 sm:flex-initial"
                 onClick={() => setExportDialogOpen(true)}
               >
                 <Download className="mr-2 h-4 w-4" />
@@ -205,7 +210,7 @@ export default function InvestigadoresAdmin() {
               </Button>
               <Button 
                 size="sm"
-                className="bg-blue-700 text-white hover:bg-blue-800 flex-1 sm:flex-initial" 
+                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all flex-1 sm:flex-initial" 
                 asChild
               >
                 <Link href="/investigadores/nuevo-perfil">
@@ -219,19 +224,19 @@ export default function InvestigadoresAdmin() {
 
           {/* Vista de tabla para desktop */}
           <div className="hidden lg:block w-full -mx-4 md:mx-0">
-            <div className="rounded-md border border-blue-100 overflow-x-auto w-full">
-            <Table className="w-full min-w-full">
-              <TableHeader className="bg-blue-50">
-                <TableRow className="hover:bg-blue-50 border-b border-blue-100">
-                  <TableHead className="text-blue-700">Foto</TableHead>
-                  <TableHead className="text-blue-700">ID</TableHead>
-                  <TableHead className="text-blue-700">Nombre Completo</TableHead>
-                  <TableHead className="text-blue-700">Correo</TableHead>
-                  <TableHead className="text-blue-700">Institución</TableHead>
-                  <TableHead className="text-blue-700">Teléfono</TableHead>
-                  <TableHead className="text-blue-700">Rol</TableHead>
-                  <TableHead className="text-blue-700">Fecha Registro</TableHead>
-                  <TableHead className="text-blue-700 text-right">Acciones</TableHead>
+            <div className="rounded-lg border border-gray-200 overflow-x-auto w-full shadow-sm">
+              <Table className="w-full min-w-full">
+                <TableHeader className="bg-gradient-to-r from-gray-50 to-gray-100">
+                  <TableRow className="hover:bg-gray-50 border-b border-gray-200">
+                  <TableHead className="text-gray-700 font-semibold">Foto</TableHead>
+                  <TableHead className="text-gray-700 font-semibold">ID</TableHead>
+                  <TableHead className="text-gray-700 font-semibold">Nombre Completo</TableHead>
+                  <TableHead className="text-gray-700 font-semibold">Correo</TableHead>
+                  <TableHead className="text-gray-700 font-semibold">Institución</TableHead>
+                  <TableHead className="text-gray-700 font-semibold">Teléfono</TableHead>
+                  <TableHead className="text-gray-700 font-semibold">Rol</TableHead>
+                  <TableHead className="text-gray-700 font-semibold">Fecha Registro</TableHead>
+                  <TableHead className="text-gray-700 font-semibold text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -252,11 +257,11 @@ export default function InvestigadoresAdmin() {
                   </TableRow>
                 ) : currentItems.length > 0 ? (
                   currentItems.map((investigador) => (
-                    <TableRow key={investigador.id} className="hover:bg-blue-50 border-b border-blue-100">
+                    <TableRow key={investigador.id} className="hover:bg-gray-50 border-b border-gray-100 transition-colors">
                       <TableCell>
                         <Avatar className="h-10 w-10">
                           <AvatarImage src={(investigador.fotografiaUrl || investigador.fotografia_url) || "/placeholder-user.jpg"} alt={investigador.nombre || investigador.nombre_completo} />
-                          <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">
+                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white text-sm">
                             {(investigador.nombre || investigador.nombre_completo)
                               ?.split(" ")
                               .map((n) => n[0])
@@ -266,25 +271,25 @@ export default function InvestigadoresAdmin() {
                           </AvatarFallback>
                         </Avatar>
                       </TableCell>
-                      <TableCell className="text-blue-900">{investigador.id}</TableCell>
-                      <TableCell className="text-blue-900 font-medium">
+                      <TableCell className="text-gray-900">{investigador.id}</TableCell>
+                      <TableCell className="text-gray-900 font-medium">
                         {investigador.nombre || investigador.nombre_completo || "N/A"}
                       </TableCell>
-                      <TableCell className="text-blue-900">{investigador.email || investigador.correo || "N/A"}</TableCell>
-                      <TableCell className="text-blue-900">{investigador.institucion || "N/A"}</TableCell>
-                      <TableCell className="text-blue-900">{investigador.telefono || "N/A"}</TableCell>
-                      <TableCell className="text-blue-900">
+                      <TableCell className="text-gray-700">{investigador.email || investigador.correo || "N/A"}</TableCell>
+                      <TableCell className="text-gray-700">{investigador.institucion || "N/A"}</TableCell>
+                      <TableCell className="text-gray-700">{investigador.telefono || "N/A"}</TableCell>
+                      <TableCell>
                         {investigador.is_admin ? (
-                          <Badge className="bg-red-600 text-white">
+                          <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white border-0">
                             Admin
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="border-blue-200 text-blue-700">
+                          <Badge variant="outline" className="border-gray-200 text-gray-700">
                             Usuario
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-blue-900">
+                      <TableCell className="text-gray-700">
                         {investigador.fecha_registro 
                           ? new Date(investigador.fecha_registro).toLocaleDateString('es-ES')
                           : "N/A"

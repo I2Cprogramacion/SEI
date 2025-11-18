@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { LucideIcon } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface MetricCardProps {
   title: string
@@ -26,25 +27,31 @@ export function MetricCard({
   description
 }: MetricCardProps) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">
+    <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-white group cursor-pointer hover:-translate-y-1">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+        <CardTitle className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
           {title}
         </CardTitle>
-        <Icon className={`h-4 w-4 ${iconColor}`} />
+        <div className={`h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-blue-500/30`}>
+          <Icon className={`h-6 w-6 text-white`} />
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value.toLocaleString()}</div>
+        <div className="text-3xl font-bold text-gray-900 mb-2">{value.toLocaleString()}</div>
         {change && (
           <Badge 
-            variant={change.isPositive ? "default" : "secondary"}
-            className="mt-2"
+            className={cn(
+              "mt-2 text-xs font-semibold",
+              change.isPositive 
+                ? "bg-green-100 text-green-700 hover:bg-green-100 border-green-200" 
+                : "bg-red-100 text-red-700 hover:bg-red-100 border-red-200"
+            )}
           >
-            {change.isPositive ? "+" : ""}{change.value}% {change.label}
+            {change.isPositive ? "+" : ""}{change.value} {change.label}
           </Badge>
         )}
         {description && (
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-xs text-gray-500 mt-2">
             {description}
           </p>
         )}
@@ -71,22 +78,24 @@ export function ProgressCard({
   const percentage = total > 0 ? Math.round((current / total) * 100) : 0
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">
+    <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-white group cursor-pointer hover:-translate-y-1">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+        <CardTitle className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
           {title}
         </CardTitle>
-        <Icon className={`h-4 w-4 ${iconColor}`} />
+        <div className={`h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-blue-500/30`}>
+          <Icon className={`h-6 w-6 text-white`} />
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{current.toLocaleString()}</div>
-        <div className="mt-2 w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+        <div className="text-3xl font-bold text-gray-900 mb-3">{current.toLocaleString()}</div>
+        <div className="mt-2 w-full bg-gray-100 rounded-full h-3 overflow-hidden">
           <div
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 shadow-sm"
             style={{ width: `${percentage}%` }}
           />
         </div>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-xs text-gray-500 mt-2 font-medium">
           {percentage}% de {total.toLocaleString()} total
         </p>
       </CardContent>

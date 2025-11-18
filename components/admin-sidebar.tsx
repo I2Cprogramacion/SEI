@@ -58,34 +58,51 @@ export function AdminSidebar() {
 
   const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => (
     <>
-      <div className="p-4 border-b border-blue-100">
-        <Link href="/admin" className="flex items-center" onClick={onItemClick}>
-          <span className="text-xl font-bold text-blue-900">SECCTI Admin</span>
+      <div className="p-6 border-b border-gray-200 bg-gradient-to-br from-blue-600 to-blue-700">
+        <Link href="/admin" className="flex items-center gap-3" onClick={onItemClick}>
+          <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center">
+            <LayoutDashboard className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <span className="text-lg font-bold text-white block">SECCTI</span>
+            <span className="text-xs text-blue-100">Panel Admin</span>
+          </div>
         </Link>
       </div>
-      <div className="flex-1 py-6 px-4 space-y-1">
-        {sidebarItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={onItemClick}
-            className={cn(
-              "flex items-center py-2 px-3 rounded-md text-sm font-medium transition-colors",
-              pathname === item.href ? "bg-blue-700 text-white" : "text-blue-700 hover:bg-blue-50",
-            )}
-          >
-            <item.icon className="mr-3 h-5 w-5" />
-            {item.title}
-          </Link>
-        ))}
+      <div className="flex-1 py-4 px-3 space-y-1">
+        {sidebarItems.map((item) => {
+          const isActive = pathname === item.href
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={onItemClick}
+              className={cn(
+                "flex items-center py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 group",
+                isActive
+                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/30"
+                  : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+              )}
+            >
+              <item.icon className={cn(
+                "mr-3 h-5 w-5 transition-transform group-hover:scale-110",
+                isActive ? "text-white" : "text-gray-500 group-hover:text-blue-600"
+              )} />
+              <span className={isActive ? "font-semibold" : ""}>{item.title}</span>
+              {isActive && (
+                <div className="ml-auto h-2 w-2 rounded-full bg-white"></div>
+              )}
+            </Link>
+          )
+        })}
       </div>
-      <div className="p-4 border-t border-blue-100 space-y-1">
+      <div className="p-3 border-t border-gray-200 space-y-1 bg-gray-50">
         <Link
           href="/"
           onClick={onItemClick}
-          className="flex items-center py-2 px-3 rounded-md text-sm font-medium text-blue-700 hover:bg-blue-50 transition-colors"
+          className="flex items-center py-2.5 px-4 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-all duration-200"
         >
-          <Home className="mr-3 h-5 w-5" />
+          <Home className="mr-3 h-5 w-5 text-gray-500" />
           Volver al sitio
         </Link>
         <button
@@ -93,7 +110,7 @@ export function AdminSidebar() {
             onItemClick?.()
             handleLogout()
           }}
-          className="w-full flex items-center py-2 px-3 rounded-md text-sm font-medium text-blue-700 hover:bg-blue-50 transition-colors"
+          className="w-full flex items-center py-2.5 px-4 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
         >
           <LogOut className="mr-3 h-5 w-5" />
           Cerrar sesión
@@ -109,7 +126,7 @@ export function AdminSidebar() {
         <Button
           variant="outline"
           size="icon"
-          className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50 h-10 w-10"
+          className="bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-lg h-10 w-10"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -125,14 +142,14 @@ export function AdminSidebar() {
       )}
 
       {/* Sidebar Desktop */}
-      <div className="hidden md:flex flex-col w-64 bg-white border-r border-blue-100 min-h-screen fixed left-0 top-0">
+      <div className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 shadow-sm min-h-screen fixed left-0 top-0">
         <SidebarContent />
       </div>
 
       {/* Sidebar Móvil */}
       <div
         className={cn(
-          "md:hidden fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-blue-100 transform transition-transform duration-300 ease-in-out",
+          "md:hidden fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-200 shadow-xl transform transition-transform duration-300 ease-in-out",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
