@@ -135,14 +135,14 @@ export default function InstitucionesAdmin() {
         </div>
       )}
 
-      <Card className="bg-white border-blue-100 mb-8">
+      <Card className="bg-white border-blue-100 mb-8 w-full">
         <CardHeader>
           <CardTitle className="text-blue-900">Instituciones Registradas</CardTitle>
           <CardDescription className="text-blue-600">
             Gestiona todas las instituciones educativas y de investigación registradas
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="w-full">
           <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-6">
             <div className="flex-1 flex flex-col sm:flex-row gap-2">
               <div className="relative flex-grow">
@@ -326,7 +326,7 @@ export default function InstitucionesAdmin() {
           </div>
 
           {/* Vista de cards para móvil/tablet */}
-          <div className="lg:hidden space-y-4">
+          <div className="lg:hidden space-y-4 w-full">
             {isLoading ? (
               <div className="text-center py-8 text-blue-600">
                 <div className="flex items-center justify-center">
@@ -340,7 +340,7 @@ export default function InstitucionesAdmin() {
               </div>
             ) : currentItems.length > 0 ? (
               currentItems.map((institucion) => (
-                <Card key={institucion.id} className="bg-white border-blue-100">
+                <Card key={institucion.id} className="bg-white border-blue-100 w-full">
                   <CardContent className="p-4">
                     <div className="space-y-3">
                       <div className="flex items-start justify-between gap-2">
