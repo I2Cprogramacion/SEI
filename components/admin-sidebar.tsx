@@ -105,11 +105,11 @@ export function AdminSidebar() {
   return (
     <>
       {/* Botón de menú móvil */}
-      <div className="md:hidden fixed top-4 left-4 z-50">
+      <div className="md:hidden fixed top-4 left-4 z-50 shadow-lg">
         <Button
           variant="outline"
           size="icon"
-          className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50"
+          className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50 h-10 w-10"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}

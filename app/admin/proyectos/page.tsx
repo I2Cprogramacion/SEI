@@ -117,7 +117,8 @@ export default function ProyectosAdmin() {
   }
 
   return (
-    <div className="container mx-auto py-4 md:py-8 px-4 md:px-6">
+    <div className="w-full max-w-full overflow-x-hidden">
+      <div className="container mx-auto py-4 md:py-8 px-3 sm:px-4 md:px-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
         <Button variant="ghost" size="sm" asChild className="text-blue-700 hover:bg-blue-50">
           <Link href="/admin">
@@ -212,8 +213,9 @@ export default function ProyectosAdmin() {
           </div>
 
           {/* Vista de tabla para desktop */}
-          <div className="hidden lg:block rounded-md border border-blue-100 overflow-x-auto">
-            <Table>
+          <div className="hidden lg:block rounded-md border border-blue-100 overflow-x-auto w-full -mx-3 sm:mx-0">
+            <div className="min-w-full inline-block align-middle">
+            <Table className="w-full">
               <TableHeader className="bg-blue-50">
                 <TableRow className="hover:bg-blue-50 border-b border-blue-100">
                   <TableHead className="text-blue-700">ID</TableHead>
@@ -301,6 +303,7 @@ export default function ProyectosAdmin() {
                 )}
               </TableBody>
             </Table>
+            </div>
           </div>
 
           {/* Vista de cards para móvil/tablet */}
@@ -478,6 +481,7 @@ export default function ProyectosAdmin() {
         title="Exportar Proyectos"
         description="Selecciona los campos que deseas incluir en la exportación"
       />
+      </div>
     </div>
   )
 }

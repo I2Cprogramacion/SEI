@@ -130,7 +130,8 @@ export default function AdminDashboard() {
   }, [])
 
   return (
-    <div className="container mx-auto py-4 md:py-8 px-4 md:px-6">
+    <div className="w-full max-w-full overflow-x-hidden">
+      <div className="container mx-auto py-4 md:py-8 px-3 sm:px-4 md:px-6">
       <div className="space-y-6 md:space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -374,6 +375,7 @@ export default function AdminDashboard() {
             )}
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   )
