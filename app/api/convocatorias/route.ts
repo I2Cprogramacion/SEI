@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { PrismaClient } from "@prisma/client"
+import { verificarAdmin } from "@/lib/auth/verificar-admin"
 
 const prisma = new PrismaClient()
 
@@ -50,6 +51,16 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Verificar que el usuario es admin
+    const adminCheck = await verificarAdmin()
+    
+    if (!adminCheck.esAdmin) {
+      return NextResponse.json(
+        { error: "No tienes permisos para crear convocatorias. Solo los administradores pueden hacerlo." },
+        { status: 403 }
+      )
+    }
+
     const body = await request.json()
     
     const { titulo, organizacion, descripcion, fechaInicio, fechaCierre, montoMaximo, categoria, pdfUrl } = body

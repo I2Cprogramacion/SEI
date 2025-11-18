@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -32,7 +32,31 @@ export function CrearConvocatoriaDialog({ onConvocatoriaCreada }: CrearConvocato
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [pdfFile, setPdfFile] = useState<File | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(true)
   const { toast } = useToast()
+
+  // Verificar si el usuario es admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const response = await fetch('/api/admin/verificar')
+        if (response.ok) {
+          const data = await response.json()
+          setIsAdmin(data.esAdmin || false)
+        } else {
+          setIsAdmin(false)
+        }
+      } catch (error) {
+        console.error('Error al verificar admin:', error)
+        setIsAdmin(false)
+      } finally {
+        setIsCheckingAdmin(false)
+      }
+    }
+
+    checkAdmin()
+  }, [])
 
   const [formData, setFormData] = useState({
     titulo: "",
@@ -109,13 +133,14 @@ export function CrearConvocatoriaDialog({ onConvocatoriaCreada }: CrearConvocato
         const pdfFormData = new FormData()
         pdfFormData.append("file", pdfFile)
 
-        const uploadResponse = await fetch("/api/upload", {
+        const uploadResponse = await fetch("/api/convocatorias/upload", {
           method: "POST",
           body: pdfFormData,
         })
 
         if (!uploadResponse.ok) {
-          throw new Error("Error al subir el PDF")
+          const errorData = await uploadResponse.json().catch(() => ({}))
+          throw new Error(errorData.error || "Error al subir el PDF")
         }
 
         const uploadData = await uploadResponse.json()
@@ -138,7 +163,8 @@ export function CrearConvocatoriaDialog({ onConvocatoriaCreada }: CrearConvocato
       })
 
       if (!response.ok) {
-        throw new Error("Error al crear la convocatoria")
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Error al crear la convocatoria")
       }
 
       toast({
@@ -173,6 +199,15 @@ export function CrearConvocatoriaDialog({ onConvocatoriaCreada }: CrearConvocato
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  // Si no es admin, no mostrar el botón
+  if (isCheckingAdmin) {
+    return null
+  }
+
+  if (!isAdmin) {
+    return null
   }
 
   return (

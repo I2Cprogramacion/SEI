@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { AnimatedCard } from "@/components/ui/animated-card"
 import { AnimatedButton } from "@/components/ui/animated-button"
 import { AnimatedBadge } from "@/components/ui/animated-badge"
 import { AnimatedHeader } from "@/components/ui/animated-header"
 import { Badge } from "@/components/ui/badge"
-import { Building, Users, FileText, MapPin, Globe2, GraduationCap, Mail, Phone, CheckCircle2, Clock, Calendar } from "lucide-react"
+import { Building, Users, FileText, MapPin, Globe2, GraduationCap, Mail, Phone, CheckCircle2, Clock, Calendar, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -91,6 +92,10 @@ function estadoConfig(estado: string, activo: boolean) {
 export default function InstitucionesPage() {
   const [instituciones, setInstituciones] = useState<Institucion[]>([])
   const [loading, setLoading] = useState(true)
+  
+  // Estado para paginación
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 9
 
   useEffect(() => {
     const fetchInstituciones = async () => {
@@ -123,6 +128,32 @@ export default function InstitucionesPage() {
 
     return { total, activas, enRevision, conDocumentos }
   }, [instituciones])
+
+  // Calcular paginación
+  const totalPages = Math.ceil(instituciones.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedInstituciones = instituciones.slice(startIndex, endIndex)
+
+  // Funciones de navegación
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      goToPage(currentPage - 1)
+    }
+  }
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      goToPage(currentPage + 1)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
@@ -209,8 +240,9 @@ export default function InstitucionesPage() {
             </CardContent>
           </AnimatedCard>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {instituciones.map((institucion, index) => {
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginatedInstituciones.map((institucion, index) => {
               const estado = estadoConfig(institucion.estado, institucion.activo)
 
               return (
@@ -355,7 +387,98 @@ export default function InstitucionesPage() {
                 </Link>
               )
             })}
-          </div>
+            </div>
+
+            {/* Controles de paginación */}
+            {totalPages > 1 && (
+              <div className="flex flex-col items-center justify-center gap-4 mt-8 sm:mt-10">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goToPreviousPage}
+                    disabled={currentPage === 1}
+                    className="flex items-center gap-1"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    <span className="hidden sm:inline">Anterior</span>
+                  </Button>
+
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                      // Mostrar todas las páginas si son 7 o menos
+                      if (totalPages <= 7) {
+                        return (
+                          <Button
+                            key={page}
+                            variant={currentPage === page ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => goToPage(page)}
+                            className={`min-w-[40px] ${
+                              currentPage === page
+                                ? "bg-blue-600 hover:bg-blue-700 text-white"
+                                : ""
+                            }`}
+                          >
+                            {page}
+                          </Button>
+                        )
+                      }
+
+                      // Si hay más de 7 páginas, mostrar lógica de elipsis
+                      if (
+                        page === 1 ||
+                        page === totalPages ||
+                        (page >= currentPage - 1 && page <= currentPage + 1)
+                      ) {
+                        return (
+                          <Button
+                            key={page}
+                            variant={currentPage === page ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => goToPage(page)}
+                            className={`min-w-[40px] ${
+                              currentPage === page
+                                ? "bg-blue-600 hover:bg-blue-700 text-white"
+                                : ""
+                            }`}
+                          >
+                            {page}
+                          </Button>
+                        )
+                      }
+
+                      // Mostrar elipsis
+                      if (page === currentPage - 2 || page === currentPage + 2) {
+                        return (
+                          <span key={page} className="px-2 text-blue-600">
+                            ...
+                          </span>
+                        )
+                      }
+
+                      return null
+                    })}
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages}
+                    className="flex items-center gap-1"
+                  >
+                    <span className="hidden sm:inline">Siguiente</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <p className="text-sm text-blue-600">
+                  Mostrando {startIndex + 1} - {Math.min(endIndex, instituciones.length)} de {instituciones.length} instituciones
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
       </div>

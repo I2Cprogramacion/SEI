@@ -20,7 +20,7 @@ import { Switch } from "@/components/ui/switch"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { InvestigadorSearch } from "@/components/investigador-search"
-import { Search, Filter, ExternalLink, FileText, Calendar, User, Building, Plus, Edit, Trash2, Upload, Settings, Eye } from "lucide-react"
+import { Search, Filter, ExternalLink, FileText, Calendar, User, Building, Plus, Edit, Trash2, Upload, Settings, Eye, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { AuthorAvatarGroup } from "@/components/author-avatar-group"
 
@@ -113,6 +113,10 @@ export default function PublicacionesPage() {
   const [selectedAccess, setSelectedAccess] = useState("all")
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([])
   const [loading, setLoading] = useState(true)
+  
+  // Estado para paginación
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 9
   
   // Estados para gestión de publicaciones
   const [nuevasPublicaciones, setNuevasPublicaciones] = useState<NuevaPublicacion[]>([])
@@ -247,6 +251,37 @@ export default function PublicacionesPage() {
   // Estados para filtros
   const [categorias, setCategorias] = useState<string[]>([])
   const [años, setAños] = useState<number[]>([])
+
+  // Calcular paginación
+  const totalPages = Math.ceil(filteredPublicaciones.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedPublicaciones = filteredPublicaciones.slice(startIndex, endIndex)
+
+  // Resetear a página 1 cuando cambian los filtros
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, selectedCategory, selectedYear, selectedAccess])
+
+  // Funciones de navegación
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      goToPage(currentPage - 1)
+    }
+  }
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      goToPage(currentPage + 1)
+    }
+  }
 
   // Cargar opciones de filtros
   useEffect(() => {
@@ -833,7 +868,8 @@ export default function PublicacionesPage() {
               ))}
             </div>
           ) : filteredPublicaciones.length > 0 ? (
-            filteredPublicaciones.map((publicacion, index) => (
+            <>
+              {paginatedPublicaciones.map((publicacion, index) => (
               <AnimatedCard key={publicacion.id} className="bg-white border-blue-100" delay={index * 100}>
                 <CardHeader className="px-3 sm:px-6 pt-4 sm:pt-6">
                   <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
@@ -972,7 +1008,98 @@ export default function PublicacionesPage() {
                   </div>
                 </CardFooter>
               </AnimatedCard>
-            ))
+              ))}
+
+              {/* Controles de paginación */}
+              {totalPages > 1 && (
+                <div className="flex flex-col items-center justify-center gap-4 mt-8 sm:mt-10">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={goToPreviousPage}
+                      disabled={currentPage === 1}
+                      className="flex items-center gap-1"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      <span className="hidden sm:inline">Anterior</span>
+                    </Button>
+
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                        // Mostrar todas las páginas si son 7 o menos
+                        if (totalPages <= 7) {
+                          return (
+                            <Button
+                              key={page}
+                              variant={currentPage === page ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => goToPage(page)}
+                              className={`min-w-[40px] ${
+                                currentPage === page
+                                  ? "bg-blue-600 hover:bg-blue-700 text-white"
+                                  : ""
+                              }`}
+                            >
+                              {page}
+                            </Button>
+                          )
+                        }
+
+                        // Si hay más de 7 páginas, mostrar lógica de elipsis
+                        if (
+                          page === 1 ||
+                          page === totalPages ||
+                          (page >= currentPage - 1 && page <= currentPage + 1)
+                        ) {
+                          return (
+                            <Button
+                              key={page}
+                              variant={currentPage === page ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => goToPage(page)}
+                              className={`min-w-[40px] ${
+                                currentPage === page
+                                  ? "bg-blue-600 hover:bg-blue-700 text-white"
+                                  : ""
+                              }`}
+                            >
+                              {page}
+                            </Button>
+                          )
+                        }
+
+                        // Mostrar elipsis
+                        if (page === currentPage - 2 || page === currentPage + 2) {
+                          return (
+                            <span key={page} className="px-2 text-blue-600">
+                              ...
+                            </span>
+                          )
+                        }
+
+                        return null
+                      })}
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={goToNextPage}
+                      disabled={currentPage === totalPages}
+                      className="flex items-center gap-1"
+                    >
+                      <span className="hidden sm:inline">Siguiente</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <p className="text-sm text-blue-600">
+                    Mostrando {startIndex + 1} - {Math.min(endIndex, filteredPublicaciones.length)} de {filteredPublicaciones.length} publicaciones
+                  </p>
+                </div>
+              )}
+            </>
           ) : (
             <AnimatedCard className="bg-white border-blue-100" delay={500}>
               <CardContent className="pt-6 text-center py-12">
