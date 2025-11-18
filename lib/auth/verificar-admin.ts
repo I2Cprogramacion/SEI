@@ -30,13 +30,13 @@ export async function verificarAdmin() {
 
     // Verificar si el usuario es admin en la BD
     // Buscar con email en minúsculas para evitar problemas de case sensitivity
-    const emailLower = email.toLowerCase()
+    const emailLower = email.toLowerCase().trim()
     console.log('🔍 [verificarAdmin] Buscando usuario con email:', emailLower)
     
     const result = await sql`
       SELECT id, nombre_completo, correo, es_admin 
       FROM investigadores 
-      WHERE LOWER(correo) = ${emailLower}
+      WHERE LOWER(TRIM(correo)) = ${emailLower}
     `
 
     console.log('📊 [verificarAdmin] Resultado de la consulta:', {
@@ -45,12 +45,13 @@ export async function verificarAdmin() {
         id: r.id,
         correo: r.correo,
         es_admin: r.es_admin,
-        tipo_es_admin: typeof r.es_admin
+        tipo_es_admin: typeof r.es_admin,
+        es_admin_es_true: r.es_admin === true
       }))
     })
 
     if (result.rows.length === 0) {
-      console.log('❌ [verificarAdmin] Usuario no encontrado en la base de datos')
+      console.log('❌ [verificarAdmin] Usuario no encontrado en la base de datos con email:', emailLower)
       return {
         esAdmin: false,
         usuario: null,
@@ -64,22 +65,32 @@ export async function verificarAdmin() {
       nombre: usuario.nombre_completo,
       correo: usuario.correo,
       es_admin: usuario.es_admin,
-      tipo_es_admin: typeof usuario.es_admin
+      tipo_es_admin: typeof usuario.es_admin,
+      es_admin_es_true: usuario.es_admin === true,
+      es_admin_es_false: usuario.es_admin === false,
+      es_admin_es_null: usuario.es_admin === null
     })
 
-    // Verificar si es_admin es true (puede ser boolean, string 'true', o número 1)
-    const esAdmin = usuario.es_admin === true || usuario.es_admin === 'true' || usuario.es_admin === 1 || usuario.es_admin === '1'
+    // Verificar directamente si es_admin es true (boolean)
+    // El campo es BOOLEAN en la BD, así que verificamos directamente
+    const esAdmin = usuario.es_admin === true
     
-    console.log('✅ [verificarAdmin] Resultado de verificación:', esAdmin)
+    console.log('✅ [verificarAdmin] Verificación final:', {
+      es_admin_valor: usuario.es_admin,
+      es_admin_tipo: typeof usuario.es_admin,
+      esAdmin_resultado: esAdmin
+    })
 
     if (!esAdmin) {
-      console.log('❌ [verificarAdmin] Usuario no es administrador. es_admin =', usuario.es_admin)
+      console.log('❌ [verificarAdmin] Usuario NO es administrador. es_admin =', usuario.es_admin, '(tipo:', typeof usuario.es_admin, ')')
       return {
         esAdmin: false,
         usuario: usuario,
         redirect: '/dashboard'
       }
     }
+
+    console.log('✅ [verificarAdmin] Usuario ES administrador')
 
     return {
       esAdmin: true,
