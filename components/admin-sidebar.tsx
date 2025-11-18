@@ -155,9 +155,6 @@ export function AdminSidebar() {
       >
         <SidebarContent onItemClick={() => setMobileMenuOpen(false)} />
       </div>
-
-      {/* Espaciador para contenido cuando sidebar está fijo */}
-      <div className="hidden md:block w-64 flex-shrink-0" />
     </>
   )
 }
