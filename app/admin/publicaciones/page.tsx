@@ -136,8 +136,8 @@ export default function PublicacionesAdmin() {
   }
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden">
-      <div className="container mx-auto py-4 md:py-8 px-3 sm:px-4 md:px-6">
+    <div className="w-full">
+      <div className="w-full py-4 md:py-8 px-4 md:px-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
         <Button variant="ghost" size="sm" asChild className="text-blue-700 hover:bg-blue-50">
           <Link href="/admin">
@@ -162,8 +162,8 @@ export default function PublicacionesAdmin() {
             Gestiona todas las publicaciones académicas registradas en la plataforma
           </CardDescription>
         </CardHeader>
-        <CardContent className="w-full">
-          <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-6">
+        <CardContent className="w-full p-0 md:p-6">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-6 px-4 md:px-0 pt-4 md:pt-0">
             <div className="flex-1 flex flex-col sm:flex-row gap-2">
               <div className="relative flex-grow">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-4 w-4" />
@@ -232,8 +232,9 @@ export default function PublicacionesAdmin() {
           </div>
 
           {/* Vista de tabla para desktop */}
-          <div className="hidden lg:block rounded-md border border-blue-100 overflow-x-auto w-full">
-            <Table className="w-full">
+          <div className="hidden lg:block w-full -mx-4 md:mx-0">
+            <div className="rounded-md border border-blue-100 overflow-x-auto w-full">
+            <Table className="w-full min-w-full">
               <TableHeader className="bg-blue-50">
                 <TableRow className="hover:bg-blue-50 border-b border-blue-100">
                   <TableHead className="text-blue-700">ID</TableHead>
@@ -339,10 +340,11 @@ export default function PublicacionesAdmin() {
                 )}
               </TableBody>
             </Table>
+            </div>
           </div>
 
           {/* Vista de cards para móvil/tablet */}
-          <div className="lg:hidden space-y-4 w-full">
+          <div className="lg:hidden space-y-4 w-full px-4 md:px-0 pb-4 md:pb-0">
             {isLoading ? (
               <div className="text-center py-8 text-blue-600">
                 <div className="flex items-center justify-center">

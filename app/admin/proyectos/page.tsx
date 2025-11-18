@@ -117,8 +117,8 @@ export default function ProyectosAdmin() {
   }
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden">
-      <div className="container mx-auto py-4 md:py-8 px-3 sm:px-4 md:px-6">
+    <div className="w-full">
+      <div className="w-full py-4 md:py-8 px-4 md:px-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
         <Button variant="ghost" size="sm" asChild className="text-blue-700 hover:bg-blue-50">
           <Link href="/admin">
@@ -143,8 +143,8 @@ export default function ProyectosAdmin() {
             Gestiona todos los proyectos de investigación registrados en la plataforma
           </CardDescription>
         </CardHeader>
-        <CardContent className="w-full">
-          <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-6">
+        <CardContent className="w-full p-0 md:p-6">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-6 px-4 md:px-0 pt-4 md:pt-0">
             <div className="flex-1 flex flex-col sm:flex-row gap-2">
               <div className="relative flex-grow">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-4 w-4" />
@@ -213,99 +213,101 @@ export default function ProyectosAdmin() {
           </div>
 
           {/* Vista de tabla para desktop */}
-          <div className="hidden lg:block rounded-md border border-blue-100 overflow-x-auto w-full">
-            <Table className="w-full">
-              <TableHeader className="bg-blue-50">
-                <TableRow className="hover:bg-blue-50 border-b border-blue-100">
-                  <TableHead className="text-blue-700">ID</TableHead>
-                  <TableHead className="text-blue-700">Título</TableHead>
-                  <TableHead className="text-blue-700">Investigador Principal</TableHead>
-                  <TableHead className="text-blue-700">Institución</TableHead>
-                  <TableHead className="text-blue-700">Estado</TableHead>
-                  <TableHead className="text-blue-700">Fecha Inicio</TableHead>
-                  <TableHead className="text-blue-700">Presupuesto</TableHead>
-                  <TableHead className="text-blue-700 text-right">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-blue-600">
-                      <div className="flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
-                        Cargando proyectos...
-                      </div>
-                    </TableCell>
+          <div className="hidden lg:block w-full -mx-4 md:mx-0">
+            <div className="rounded-md border border-blue-100 overflow-x-auto w-full">
+              <Table className="w-full min-w-full">
+                <TableHeader className="bg-blue-50">
+                  <TableRow className="hover:bg-blue-50 border-b border-blue-100">
+                    <TableHead className="text-blue-700">ID</TableHead>
+                    <TableHead className="text-blue-700">Título</TableHead>
+                    <TableHead className="text-blue-700">Investigador Principal</TableHead>
+                    <TableHead className="text-blue-700">Institución</TableHead>
+                    <TableHead className="text-blue-700">Estado</TableHead>
+                    <TableHead className="text-blue-700">Fecha Inicio</TableHead>
+                    <TableHead className="text-blue-700">Presupuesto</TableHead>
+                    <TableHead className="text-blue-700 text-right">Acciones</TableHead>
                   </TableRow>
-                ) : !Array.isArray(filteredData) || filteredData.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-blue-600">
-                      {error ? "Error al cargar los datos" : "No se encontraron proyectos"}
-                    </TableCell>
-                  </TableRow>
-                ) : currentItems.length > 0 ? (
-                  currentItems.map((proyecto) => (
-                    <TableRow key={proyecto.id} className="hover:bg-blue-50 border-b border-blue-100">
-                      <TableCell className="text-blue-900">{proyecto.id}</TableCell>
-                      <TableCell className="text-blue-900 font-medium">
-                        <div className="max-w-xs truncate" title={proyecto.titulo}>
-                          {proyecto.titulo || "N/A"}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-blue-900">{proyecto.investigador_principal || "N/A"}</TableCell>
-                      <TableCell className="text-blue-900">{proyecto.institucion || "N/A"}</TableCell>
-                      <TableCell>
-                        <Badge className={getEstadoBadge(proyecto.estado || "activo")}>
-                          {proyecto.estado || "Activo"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-blue-900">
-                        {proyecto.fecha_inicio ? new Date(proyecto.fecha_inicio).toLocaleDateString() : "N/A"}
-                      </TableCell>
-                      <TableCell className="text-blue-900">
-                        {proyecto.presupuesto ? `$${proyecto.presupuesto.toLocaleString()}` : "N/A"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-blue-200 text-blue-700 hover:bg-blue-50"
-                            asChild
-                          >
-                            <Link href={`/proyectos/${proyecto.id}`}>
-                              <Eye className="mr-1 h-3 w-3" />
-                              Ver
-                            </Link>
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-blue-200 text-blue-700 hover:bg-blue-50"
-                            asChild
-                          >
-                            <Link href={`/admin/proyectos/editar/${proyecto.id}`}>
-                              <FileText className="mr-1 h-3 w-3" />
-                              Editar
-                            </Link>
-                          </Button>
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8 text-blue-600">
+                        <div className="flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
+                          Cargando proyectos...
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-blue-600">
-                      No hay proyectos en esta página
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                  ) : !Array.isArray(filteredData) || filteredData.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8 text-blue-600">
+                        {error ? "Error al cargar los datos" : "No se encontraron proyectos"}
+                      </TableCell>
+                    </TableRow>
+                  ) : currentItems.length > 0 ? (
+                    currentItems.map((proyecto) => (
+                      <TableRow key={proyecto.id} className="hover:bg-blue-50 border-b border-blue-100">
+                        <TableCell className="text-blue-900">{proyecto.id}</TableCell>
+                        <TableCell className="text-blue-900 font-medium">
+                          <div className="max-w-xs truncate" title={proyecto.titulo}>
+                            {proyecto.titulo || "N/A"}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-blue-900">{proyecto.investigador_principal || "N/A"}</TableCell>
+                        <TableCell className="text-blue-900">{proyecto.institucion || "N/A"}</TableCell>
+                        <TableCell>
+                          <Badge className={getEstadoBadge(proyecto.estado || "activo")}>
+                            {proyecto.estado || "Activo"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-blue-900">
+                          {proyecto.fecha_inicio ? new Date(proyecto.fecha_inicio).toLocaleDateString() : "N/A"}
+                        </TableCell>
+                        <TableCell className="text-blue-900">
+                          {proyecto.presupuesto ? `$${proyecto.presupuesto.toLocaleString()}` : "N/A"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                              asChild
+                            >
+                              <Link href={`/proyectos/${proyecto.id}`}>
+                                <Eye className="mr-1 h-3 w-3" />
+                                Ver
+                              </Link>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                              asChild
+                            >
+                              <Link href={`/admin/proyectos/editar/${proyecto.id}`}>
+                                <FileText className="mr-1 h-3 w-3" />
+                                Editar
+                              </Link>
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8 text-blue-600">
+                        No hay proyectos en esta página
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </div>
 
           {/* Vista de cards para móvil/tablet */}
-          <div className="lg:hidden space-y-4 w-full">
+          <div className="lg:hidden space-y-4 w-full px-4 md:px-0 pb-4 md:pb-0">
             {isLoading ? (
               <div className="text-center py-8 text-blue-600">
                 <div className="flex items-center justify-center">
