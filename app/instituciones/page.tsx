@@ -125,15 +125,15 @@ export default function InstitucionesPage() {
   }, [instituciones])
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-blue-900 mb-2">
               Instituciones de Investigación
             </h1>
-            <p className="text-gray-500 text-sm">
+            <p className="text-blue-600 text-sm">
               Explora las instituciones registradas y conoce sus áreas de especialidad
             </p>
           </div>
@@ -149,32 +149,32 @@ export default function InstitucionesPage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <AnimatedCard className="bg-white border border-gray-200 hover:border-gray-300 transition-colors text-center" delay={100}>
+          <AnimatedCard className="glass-effect card-hover text-center" delay={100}>
             <CardContent className="pt-6">
-              <Building className="h-6 w-6 mx-auto mb-2 text-gray-600" />
-              <div className="text-2xl font-semibold text-gray-900">{loading ? "..." : stats.total}</div>
-              <p className="text-sm text-gray-500 mt-1">Instituciones</p>
+              <Building className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+              <div className="text-2xl font-semibold text-blue-900">{loading ? "..." : stats.total}</div>
+              <p className="text-sm text-blue-600 mt-1">Instituciones</p>
             </CardContent>
           </AnimatedCard>
-          <AnimatedCard className="bg-white border border-gray-200 hover:border-gray-300 transition-colors text-center" delay={200}>
+          <AnimatedCard className="glass-effect card-hover text-center" delay={200}>
             <CardContent className="pt-6">
-              <CheckCircle2 className="h-6 w-6 mx-auto mb-2 text-gray-600" />
-              <div className="text-2xl font-semibold text-gray-900">{loading ? "..." : stats.activas}</div>
-              <p className="text-sm text-gray-500 mt-1">Instituciones activas</p>
+              <CheckCircle2 className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+              <div className="text-2xl font-semibold text-blue-900">{loading ? "..." : stats.activas}</div>
+              <p className="text-sm text-blue-600 mt-1">Instituciones activas</p>
             </CardContent>
           </AnimatedCard>
-          <AnimatedCard className="bg-white border border-gray-200 hover:border-gray-300 transition-colors text-center" delay={300}>
+          <AnimatedCard className="glass-effect card-hover text-center" delay={300}>
             <CardContent className="pt-6">
-              <Clock className="h-6 w-6 mx-auto mb-2 text-gray-600" />
-              <div className="text-2xl font-semibold text-gray-900">{loading ? "..." : stats.enRevision}</div>
-              <p className="text-sm text-gray-500 mt-1">En revisión</p>
+              <Clock className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+              <div className="text-2xl font-semibold text-blue-900">{loading ? "..." : stats.enRevision}</div>
+              <p className="text-sm text-blue-600 mt-1">En revisión</p>
             </CardContent>
           </AnimatedCard>
-          <AnimatedCard className="bg-white border border-gray-200 hover:border-gray-300 transition-colors text-center" delay={400}>
+          <AnimatedCard className="glass-effect card-hover text-center" delay={400}>
             <CardContent className="pt-6">
-              <FileText className="h-6 w-6 mx-auto mb-2 text-gray-600" />
-              <div className="text-2xl font-semibold text-gray-900">{loading ? "..." : stats.conDocumentos}</div>
-              <p className="text-sm text-gray-500 mt-1">Con documentación</p>
+              <FileText className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+              <div className="text-2xl font-semibold text-blue-900">{loading ? "..." : stats.conDocumentos}</div>
+              <p className="text-sm text-blue-600 mt-1">Con documentación</p>
             </CardContent>
           </AnimatedCard>
         </div>
@@ -182,7 +182,7 @@ export default function InstitucionesPage() {
         {loading ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {[...Array(4)].map((_, i) => (
-              <Card key={i} className="bg-white border-blue-100">
+              <Card key={i} className="glass-effect">
                 <div className="relative h-44 w-full bg-blue-100 animate-pulse"></div>
                 <CardHeader>
                   <div className="animate-pulse space-y-2">
@@ -201,11 +201,11 @@ export default function InstitucionesPage() {
             ))}
           </div>
         ) : instituciones.length === 0 ? (
-          <AnimatedCard className="bg-white border border-gray-200" delay={300}>
+          <AnimatedCard className="glass-effect" delay={300}>
             <CardContent className="pt-6 text-center py-12">
-              <Building className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <h3 className="text-lg font-medium mb-2 text-gray-700">No hay instituciones registradas</h3>
-              <p className="text-sm text-gray-500">En cuanto se registre la primera institución aparecerá aquí.</p>
+              <Building className="h-12 w-12 mx-auto mb-4 text-blue-300" />
+              <h3 className="text-lg font-medium mb-2 text-blue-900">No hay instituciones registradas</h3>
+              <p className="text-sm text-blue-600">En cuanto se registre la primera institución aparecerá aquí.</p>
             </CardContent>
           </AnimatedCard>
         ) : (
@@ -215,15 +215,18 @@ export default function InstitucionesPage() {
 
               return (
                 <Link href={`/instituciones/${institucion.id}`} key={institucion.id}>
-                  <AnimatedCard className="h-full bg-white border border-gray-200 hover:border-gray-300 hover:shadow-md cursor-pointer transition-all duration-200" delay={index * 100}>
-                    <CardContent className="p-6">
+                  <AnimatedCard className="h-full glass-effect card-hover cursor-pointer overflow-hidden group relative" delay={index * 100}>
+                    {/* Gradiente decorativo superior */}
+                    <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    
+                    <CardContent className="p-6 relative z-10">
                       <div className="flex flex-col gap-4">
                         {/* Imagen y nombre en la misma línea */}
                         <div className="flex items-start gap-4">
                           {/* Imagen pequeña integrada con relación de aspecto 1:1 */}
                           <div className="flex-shrink-0">
                             {institucion.imagenUrl ? (
-                              <div className="w-24 h-24 sm:w-28 sm:h-28 aspect-square rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden p-3">
+                              <div className="w-24 h-24 sm:w-28 sm:h-28 aspect-square rounded-lg border border-blue-200 bg-blue-50 flex items-center justify-center overflow-hidden p-3">
                                 <img
                                   src={institucion.imagenUrl}
                                   alt={`Imagen de ${institucion.nombre}`}
@@ -242,8 +245,8 @@ export default function InstitucionesPage() {
                                 />
                               </div>
                             ) : (
-                              <div className="w-24 h-24 sm:w-28 sm:h-28 aspect-square rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center">
-                                <span className="text-lg sm:text-xl font-semibold text-gray-400 uppercase">
+                              <div className="w-24 h-24 sm:w-28 sm:h-28 aspect-square rounded-lg border border-blue-200 bg-blue-50 flex items-center justify-center">
+                                <span className="text-lg sm:text-xl font-semibold text-blue-400 uppercase">
                                   {getInitials(institucion.siglas || institucion.nombre)}
                                 </span>
                               </div>
@@ -252,12 +255,12 @@ export default function InstitucionesPage() {
                           
                           {/* Nombre y badges */}
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-gray-900 text-base sm:text-lg mb-2 line-clamp-2 leading-tight">
+                            <h3 className="font-semibold text-blue-900 text-base sm:text-lg mb-2 line-clamp-2 leading-tight group-hover:text-blue-700 transition-colors">
                               {institucion.nombre || 'Sin nombre'}
                             </h3>
                             <div className="flex flex-wrap gap-2">
                               {institucion.tipo && (
-                                <Badge variant="secondary" className="bg-gray-100 text-gray-700 text-xs border-0">
+                                <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs border-0">
                                   {institucion.tipo}
                                 </Badge>
                               )}
@@ -269,22 +272,22 @@ export default function InstitucionesPage() {
                         </div>
 
                         {/* Información básica */}
-                        <div className="space-y-2 text-sm text-gray-600">
+                        <div className="space-y-2 text-sm text-blue-600">
                           {institucion.añoFundacion && (
                             <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                              <Calendar className="h-4 w-4 text-blue-400 flex-shrink-0" />
                               <span className="text-sm">Fundada en {institucion.añoFundacion}</span>
                             </div>
                           )}
                           {institucion.ubicacion && institucion.ubicacion.trim() !== '' && (
                             <div className="flex items-center gap-2">
-                              <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                              <MapPin className="h-4 w-4 text-blue-400 flex-shrink-0" />
                               <span className="text-sm line-clamp-1">{institucion.ubicacion}</span>
                             </div>
                           )}
                           {institucion.contacto?.telefono && (
                             <div className="flex items-center gap-2">
-                              <Phone className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                              <Phone className="h-4 w-4 text-blue-400 flex-shrink-0" />
                               <span className="text-sm">
                                 {institucion.contacto.telefono}
                                 {institucion.contacto.extension ? ` ext. ${institucion.contacto.extension}` : ""}
@@ -296,8 +299,8 @@ export default function InstitucionesPage() {
                         {/* Áreas de investigación */}
                         {institucion.areasInvestigacion.length > 0 && (
                           <div>
-                            <p className="text-xs text-gray-500 mb-1">Áreas de investigación</p>
-                            <p className="text-sm text-gray-700 line-clamp-2">
+                            <p className="text-xs text-blue-600 mb-1">Áreas de investigación</p>
+                            <p className="text-sm text-blue-700 line-clamp-2">
                               {institucion.areasInvestigacion.slice(0, 2).join(', ')}
                               {institucion.areasInvestigacion.length > 2 && ` +${institucion.areasInvestigacion.length - 2} más`}
                             </p>
@@ -307,11 +310,12 @@ export default function InstitucionesPage() {
                     </CardContent>
                     
                     {/* Footer minimalista */}
-                    <CardFooter className="border-t border-gray-100 pt-4 px-6 pb-6">
-                      <div className="w-full">
+                    <CardFooter className="border-t-2 border-blue-100 flex justify-center py-4 px-6 bg-gradient-to-r from-blue-50/50 via-indigo-50/30 to-blue-50/50 relative overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div className="w-full relative z-10">
                         {institucion.contacto?.email && (
-                          <div className="flex items-center gap-2 mb-3 text-sm text-gray-600">
-                            <Mail className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                          <div className="flex items-center gap-2 mb-3 text-sm text-blue-600">
+                            <Mail className="h-4 w-4 text-blue-400 flex-shrink-0" />
                             <span className="truncate">{institucion.contacto.email}</span>
                           </div>
                         )}
@@ -319,7 +323,7 @@ export default function InstitucionesPage() {
                           <AnimatedButton
                             variant="outline"
                             size="sm"
-                            className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 text-sm"
+                            className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50 text-sm"
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
@@ -332,7 +336,7 @@ export default function InstitucionesPage() {
                             <AnimatedButton
                               variant="outline"
                               size="sm"
-                              className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 text-sm"
+                              className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50 text-sm"
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
