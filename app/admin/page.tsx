@@ -130,28 +130,36 @@ export default function AdminDashboard() {
   }, [])
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="space-y-8">
+    <div className="container mx-auto py-4 md:py-8 px-4 md:px-6">
+      <div className="space-y-6 md:space-y-8">
         {/* Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-blue-900">Panel de Administración</h1>
-            <p className="text-blue-600">Gestiona la plataforma SECCTI desde aquí</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-blue-900">Panel de Administración</h1>
+            <p className="text-sm md:text-base text-blue-600">Gestiona la plataforma SECCTI desde aquí</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent" asChild>
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent flex-1 sm:flex-initial" 
+              asChild
+            >
               <Link href="/">
                 <Eye className="mr-2 h-4 w-4" />
-                Ver sitio público
+                <span className="hidden sm:inline">Ver sitio público</span>
+                <span className="sm:hidden">Sitio público</span>
               </Link>
             </Button>
             <Button 
               variant="outline" 
-              className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
+              size="sm"
+              className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent flex-1 sm:flex-initial"
               onClick={() => window.location.reload()}
             >
               <TrendingUp className="mr-2 h-4 w-4" />
-              Actualizar
+              <span className="hidden sm:inline">Actualizar</span>
+              <span className="sm:hidden">Actualizar</span>
             </Button>
           </div>
         </div>
@@ -236,10 +244,11 @@ export default function AdminDashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                   <Button
                     variant="outline"
-                    className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
+                    size="sm"
+                    className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent justify-start"
                     asChild
                   >
                     <Link href="/admin/investigadores">
@@ -249,7 +258,8 @@ export default function AdminDashboard() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
+                    size="sm"
+                    className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent justify-start"
                     asChild
                   >
                     <Link href="/admin/proyectos">
@@ -259,7 +269,8 @@ export default function AdminDashboard() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
+                    size="sm"
+                    className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent justify-start"
                     asChild
                   >
                     <Link href="/admin/publicaciones">
@@ -269,7 +280,8 @@ export default function AdminDashboard() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
+                    size="sm"
+                    className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent justify-start"
                     asChild
                   >
                     <Link href="/admin/instituciones">

@@ -122,15 +122,16 @@ export default function InvestigadoresAdmin() {
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex items-center mb-6">
-        <Button variant="ghost" asChild className="mr-4 text-blue-700 hover:bg-blue-50">
+    <div className="container mx-auto py-4 md:py-8 px-4 md:px-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
+        <Button variant="ghost" size="sm" asChild className="text-blue-700 hover:bg-blue-50">
           <Link href="/admin">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver al panel
+            <span className="hidden sm:inline">Volver al panel</span>
+            <span className="sm:hidden">Volver</span>
           </Link>
         </Button>
-        <h1 className="text-2xl font-bold text-blue-900">Administración de Investigadores</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-blue-900">Administración de Investigadores</h1>
       </div>
 
       {error && (
@@ -147,25 +148,31 @@ export default function InvestigadoresAdmin() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1 flex gap-2">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-6">
+            <div className="flex-1 flex flex-col sm:flex-row gap-2">
               <div className="relative flex-grow">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-4 w-4" />
                 <Input
                   type="text"
-                  placeholder="Buscar por nombre, correo, institución o teléfono..."
-                  className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400"
+                  placeholder="Buscar por nombre, correo..."
+                  className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 text-sm"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 />
               </div>
-              <Button onClick={handleSearch} className="bg-blue-700 text-white hover:bg-blue-800">
-                Buscar
+              <Button 
+                onClick={handleSearch} 
+                size="sm"
+                className="bg-blue-700 text-white hover:bg-blue-800"
+              >
+                <Search className="mr-2 h-4 w-4 sm:hidden" />
+                <span className="sm:inline">Buscar</span>
               </Button>
               {searchTerm && (
                 <Button 
                   variant="outline" 
+                  size="sm"
                   onClick={() => {
                     setSearchTerm("")
                     setFilteredData(investigadores)
@@ -177,29 +184,40 @@ export default function InvestigadoresAdmin() {
                 </Button>
               )}
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent">
+            <div className="flex flex-wrap gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent flex-1 sm:flex-initial"
+              >
                 <Filter className="mr-2 h-4 w-4" />
-                Filtros
+                <span className="hidden sm:inline">Filtros</span>
               </Button>
               <Button
                 variant="outline"
-                className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
+                size="sm"
+                className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent flex-1 sm:flex-initial"
                 onClick={() => setExportDialogOpen(true)}
               >
                 <Download className="mr-2 h-4 w-4" />
-                Exportar
+                <span className="hidden sm:inline">Exportar</span>
               </Button>
-              <Button className="bg-blue-700 text-white hover:bg-blue-800" asChild>
+              <Button 
+                size="sm"
+                className="bg-blue-700 text-white hover:bg-blue-800 flex-1 sm:flex-initial" 
+                asChild
+              >
                 <Link href="/investigadores/nuevo-perfil">
                   <UserCog className="mr-2 h-4 w-4" />
-                  Nuevo Investigador
+                  <span className="hidden sm:inline">Nuevo Investigador</span>
+                  <span className="sm:hidden">Nuevo</span>
                 </Link>
               </Button>
             </div>
           </div>
 
-          <div className="rounded-md border border-blue-100 overflow-hidden">
+          {/* Vista de tabla para desktop */}
+          <div className="hidden lg:block rounded-md border border-blue-100 overflow-x-auto">
             <Table>
               <TableHeader className="bg-blue-50">
                 <TableRow className="hover:bg-blue-50 border-b border-blue-100">
@@ -278,7 +296,7 @@ export default function InvestigadoresAdmin() {
                             className="h-8 w-8 text-blue-700 hover:bg-blue-50"
                             asChild
                           >
-                            <Link href={`/investigadores/${investigador.id}`}>
+                            <Link href={`/investigadores/${investigador.slug || investigador.id}`}>
                               <Eye className="h-4 w-4" />
                               <span className="sr-only">Ver perfil</span>
                             </Link>
@@ -300,7 +318,7 @@ export default function InvestigadoresAdmin() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-blue-600">
+                    <TableCell colSpan={9} className="text-center py-8 text-blue-600">
                       {investigadores.length === 0
                         ? "No hay investigadores registrados en la plataforma."
                         : "No se encontraron investigadores con los criterios de búsqueda."}
@@ -311,9 +329,103 @@ export default function InvestigadoresAdmin() {
             </Table>
           </div>
 
-          <div className="flex items-center justify-between mt-6">
-            <div className="flex items-center gap-2">
-              <p className="text-sm text-blue-600">Mostrar</p>
+          {/* Vista de cards para móvil/tablet */}
+          <div className="lg:hidden space-y-4">
+            {isLoading ? (
+              <div className="text-center py-8 text-blue-600">
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
+                  Cargando investigadores...
+                </div>
+              </div>
+            ) : !Array.isArray(filteredData) || filteredData.length === 0 ? (
+              <div className="text-center py-8 text-blue-600">
+                {error ? "Error al cargar los datos" : "No se encontraron investigadores"}
+              </div>
+            ) : currentItems.length > 0 ? (
+              currentItems.map((investigador) => (
+                <Card key={investigador.id} className="bg-white border-blue-100">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={(investigador.fotografiaUrl || investigador.fotografia_url) || "/placeholder-user.jpg"} alt={investigador.nombre || investigador.nombre_completo} />
+                        <AvatarFallback className="bg-blue-100 text-blue-700">
+                          {(investigador.nombre || investigador.nombre_completo)
+                            ?.split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .toUpperCase()
+                            .slice(0, 2) || "IN"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-blue-900 truncate">
+                              {investigador.nombre || investigador.nombre_completo || "N/A"}
+                            </h3>
+                            <p className="text-sm text-blue-600 truncate">{investigador.email || investigador.correo || "N/A"}</p>
+                          </div>
+                          {investigador.is_admin ? (
+                            <Badge className="bg-red-600 text-white flex-shrink-0">
+                              Admin
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="border-blue-200 text-blue-700 flex-shrink-0">
+                              Usuario
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="space-y-1 text-sm text-blue-700">
+                          <p><span className="font-medium">Institución:</span> {investigador.institucion || "N/A"}</p>
+                          {investigador.telefono && (
+                            <p><span className="font-medium">Teléfono:</span> {investigador.telefono}</p>
+                          )}
+                          {investigador.fecha_registro && (
+                            <p><span className="font-medium">Registro:</span> {new Date(investigador.fecha_registro).toLocaleDateString('es-ES')}</p>
+                          )}
+                        </div>
+                        <div className="flex gap-2 mt-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50"
+                            asChild
+                          >
+                            <Link href={`/investigadores/${investigador.slug || investigador.id}`}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              Ver
+                            </Link>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50"
+                            asChild
+                          >
+                            <Link href={`/admin/investigadores/editar/${investigador.id}`}>
+                              <UserCog className="mr-2 h-4 w-4" />
+                              Editar
+                            </Link>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="text-center py-8 text-blue-600">
+                {investigadores.length === 0
+                  ? "No hay investigadores registrados en la plataforma."
+                  : "No se encontraron investigadores con los criterios de búsqueda."}
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-sm text-blue-600 hidden sm:inline">Mostrar</p>
               <Select
                 value={itemsPerPage.toString()}
                 onValueChange={(value) => {
@@ -331,7 +443,12 @@ export default function InvestigadoresAdmin() {
                   <SelectItem value="50">50</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-sm text-blue-600">por página</p>
+              <p className="text-sm text-blue-600 hidden sm:inline">por página</p>
+              {Array.isArray(filteredData) && filteredData.length > 0 && (
+                <p className="text-xs sm:text-sm text-blue-600 ml-2">
+                  Mostrando {indexOfFirstItem + 1} - {Math.min(indexOfLastItem, filteredData.length)} de {filteredData.length}
+                </p>
+              )}
             </div>
 
             {Array.isArray(filteredData) && filteredData.length > 0 && (
