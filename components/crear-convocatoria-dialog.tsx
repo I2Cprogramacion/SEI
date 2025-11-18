@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -36,9 +36,19 @@ export function CrearConvocatoriaDialog({ onConvocatoriaCreada }: CrearConvocato
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true)
   const { toast } = useToast()
 
+  // Ref para prevenir múltiples ejecuciones
+  const hasCheckedRef = useRef(false)
+
   // Verificar si el usuario es admin
   useEffect(() => {
+    // Prevenir múltiples ejecuciones
+    if (hasCheckedRef.current) {
+      console.log('⚠️ [checkAdmin] Ya se verificó, evitando ejecución duplicada')
+      return
+    }
+
     let isMounted = true
+    hasCheckedRef.current = true
 
     const checkAdmin = async () => {
       try {
@@ -63,6 +73,7 @@ export function CrearConvocatoriaDialog({ onConvocatoriaCreada }: CrearConvocato
           })
           if (isMounted) {
             setIsAdmin(false)
+            setIsCheckingAdmin(false)
           }
           return
         }
@@ -75,14 +86,12 @@ export function CrearConvocatoriaDialog({ onConvocatoriaCreada }: CrearConvocato
 
         if (isMounted) {
           setIsAdmin(esAdminFlag)
+          setIsCheckingAdmin(false)
         }
       } catch (error) {
         console.error('❌ Error al verificar admin:', error)
         if (isMounted) {
           setIsAdmin(false)
-        }
-      } finally {
-        if (isMounted) {
           setIsCheckingAdmin(false)
         }
       }
