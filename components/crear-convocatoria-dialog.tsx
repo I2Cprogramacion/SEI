@@ -38,24 +38,46 @@ export function CrearConvocatoriaDialog({ onConvocatoriaCreada }: CrearConvocato
 
   // Verificar si el usuario es admin
   useEffect(() => {
+    let isMounted = true
+
     const checkAdmin = async () => {
       try {
-        const response = await fetch('/api/admin/verificar')
-        if (response.ok) {
-          const data = await response.json()
-          setIsAdmin(data.esAdmin || false)
-        } else {
-          setIsAdmin(false)
+        const response = await fetch('/api/admin/verificar', {
+          method: 'GET',
+          credentials: 'include',
+          cache: 'no-store',
+        })
+
+        if (!response.ok) {
+          if (isMounted) {
+            setIsAdmin(false)
+          }
+          return
+        }
+
+        const data = await response.json().catch(() => ({}))
+        const esAdminFlag = Boolean(data?.esAdmin ?? data?.es_admin)
+
+        if (isMounted) {
+          setIsAdmin(esAdminFlag)
         }
       } catch (error) {
         console.error('Error al verificar admin:', error)
-        setIsAdmin(false)
+        if (isMounted) {
+          setIsAdmin(false)
+        }
       } finally {
-        setIsCheckingAdmin(false)
+        if (isMounted) {
+          setIsCheckingAdmin(false)
+        }
       }
     }
 
     checkAdmin()
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const [formData, setFormData] = useState({
