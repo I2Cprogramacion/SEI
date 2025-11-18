@@ -31,11 +31,13 @@ export async function GET() {
     }
 
     // Verificar si el usuario es admin en la BD
-    console.log('🔍 [API] Buscando usuario en la BD con email:', email)
+    // Buscar con email en minúsculas para evitar problemas de case sensitivity
+    const emailLower = email.toLowerCase()
+    console.log('🔍 [API] Buscando usuario en la BD con email:', emailLower)
     const result = await sql`
       SELECT id, nombre_completo, correo, es_admin 
       FROM investigadores 
-      WHERE correo = ${email}
+      WHERE LOWER(correo) = ${emailLower}
     `
 
     console.log('📊 [API] Resultado de la consulta:', {
@@ -60,8 +62,8 @@ export async function GET() {
       tipo_es_admin: typeof usuario.es_admin
     })
 
-    // Verificar si es_admin es true (puede ser boolean o string 'true')
-    const esAdmin = usuario.es_admin === true || usuario.es_admin === 'true' || usuario.es_admin === 1
+    // Verificar si es_admin es true (puede ser boolean, string 'true', o número 1)
+    const esAdmin = usuario.es_admin === true || usuario.es_admin === 'true' || usuario.es_admin === 1 || usuario.es_admin === '1'
 
     if (!esAdmin) {
       console.log('❌ [API] Usuario no es administrador. es_admin =', usuario.es_admin)

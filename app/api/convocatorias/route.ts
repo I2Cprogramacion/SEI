@@ -51,15 +51,28 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('📝 [API] Intentando crear convocatoria...')
     // Verificar que el usuario es admin
     const adminCheck = await verificarAdmin()
     
+    console.log('🔍 [API] Resultado de verificación admin:', {
+      esAdmin: adminCheck.esAdmin,
+      usuario: adminCheck.usuario ? {
+        id: adminCheck.usuario.id,
+        correo: adminCheck.usuario.correo,
+        es_admin: adminCheck.usuario.es_admin
+      } : null
+    })
+    
     if (!adminCheck.esAdmin) {
+      console.log('❌ [API] Usuario no tiene permisos para crear convocatorias')
       return NextResponse.json(
         { error: "No tienes permisos para crear convocatorias. Solo los administradores pueden hacerlo." },
         { status: 403 }
       )
     }
+    
+    console.log('✅ [API] Usuario tiene permisos, procediendo a crear convocatoria...')
 
     const body = await request.json()
     
