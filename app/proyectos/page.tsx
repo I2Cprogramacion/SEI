@@ -364,7 +364,7 @@ export default function ProyectosPage() {
                               authors={nombreInvestigador}
                               maxVisible={1}
                               size="sm"
-                              showNames={true}
+                              showNames={false}
                             />
                           )
                         }
