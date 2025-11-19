@@ -59,20 +59,20 @@ export default function ConexionesPage() {
     }
   }
 
-  const handleRespuesta = async (conexionId: number, estado: "aceptada" | "rechazada") => {
+  const handleRespuesta = async (conexionId: string, accion: "aceptar" | "rechazar") => {
     try {
       setProcessingId(conexionId)
       const response = await fetch("/api/conexiones", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ conexionId, estado }),
+        body: JSON.stringify({ conexionId, accion }),
       })
 
       if (response.ok) {
         toast({
-          title: estado === "aceptada" ? "¡Conexión aceptada!" : "Solicitud rechazada",
+          title: accion === "aceptar" ? "¡Conexión aceptada!" : "Solicitud rechazada",
           description:
-            estado === "aceptada"
+            accion === "aceptar"
               ? "Ahora estás conectado con este investigador"
               : "Has rechazado esta solicitud de conexión",
         })
@@ -288,9 +288,9 @@ export default function ConexionesPage() {
                           <div className="flex gap-2">
                             <Button
                               size="sm"
-                              onClick={() => handleRespuesta(conexion.id, "aceptada")}
+                              onClick={() => handleRespuesta(conexion.id, "aceptar")}
                               disabled={processingId === conexion.id}
-                              className="flex-1 bg-green-600 hover:bg-green-700"
+                              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                             >
                               <Check className="h-4 w-4 mr-1" />
                               Aceptar
@@ -298,7 +298,7 @@ export default function ConexionesPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleRespuesta(conexion.id, "rechazada")}
+                              onClick={() => handleRespuesta(conexion.id, "rechazar")}
                               disabled={processingId === conexion.id}
                               className="flex-1 text-red-600 border-red-300 hover:bg-red-50"
                             >
