@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     
     // Obtener datos del investigador actual
     const miPerfil = await sql`
-      SELECT id, area, linea_investigacion 
+      SELECT id, area_investigacion, linea_investigacion 
       FROM investigadores 
       WHERE correo = ${email}
     `
@@ -67,12 +67,12 @@ export async function GET(request: NextRequest) {
         nombre_completo,
         correo,
         institucion,
-        area,
+        area_investigacion,
         linea_investigacion,
         ultimo_grado_estudios,
         fotografia_url,
         (
-          CASE WHEN area = ${perfil.area || ''} THEN 10 ELSE 0 END +
+          CASE WHEN area_investigacion = ${perfil.area_investigacion || ''} THEN 10 ELSE 0 END +
           CASE WHEN LOWER(linea_investigacion) LIKE ${patronBusqueda} THEN 8 ELSE 0 END +
           CASE WHEN ultimo_grado_estudios ILIKE '%doctorado%' THEN 3 ELSE 0 END
         ) as relevancia_score
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
       WHERE id != ${perfil.id}
         AND id NOT IN (SELECT id_conexion FROM conexiones_existentes)
         AND (
-          area = ${perfil.area || ''} OR 
+          area_investigacion = ${perfil.area_investigacion || ''} OR 
           LOWER(linea_investigacion) LIKE ${patronBusqueda}
         )
       ORDER BY relevancia_score DESC, RANDOM()
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
       name: inv.nombre_completo,
       email: inv.correo,
       institution: inv.institucion,
-      area: inv.area,
+      area: inv.area_investigacion,
       lineaInvestigacion: inv.linea_investigacion,
       fotografiaUrl: inv.fotografia_url || null,
       title: inv.ultimo_grado_estudios,
@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
         .replace(/[^a-z0-9\s]/g, '')
         .replace(/\s+/g, '-')
         .trim() || `investigador-${inv.id}`,
-      razonSugerencia: inv.area === perfil.area ? 'Área similar' : 'Intereses relacionados',
+      razonSugerencia: inv.area_investigacion === perfil.area_investigacion ? 'Área similar' : 'Intereses relacionados',
       relevanciaScore: inv.relevancia_score || 0
     }))
 
