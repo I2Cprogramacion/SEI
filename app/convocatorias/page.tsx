@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -25,6 +25,9 @@ interface Convocatoria {
 export default function ConvocatoriasPage() {
   const [convocatorias, setConvocatorias] = useState<Convocatoria[]>([])
   const [loading, setLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(true)
+  const hasCheckedRef = useRef(false)
 
   const fetchConvocatorias = async () => {
     try {
@@ -38,6 +41,61 @@ export default function ConvocatoriasPage() {
       setLoading(false)
     }
   }
+
+  // Verificar si el usuario es admin (solo usuarios con es_admin === true pueden ver el botón)
+  useEffect(() => {
+    if (hasCheckedRef.current) {
+      return
+    }
+
+    let isMounted = true
+    hasCheckedRef.current = true
+
+    const checkAdmin = async () => {
+      try {
+        const response = await fetch('/api/admin/verificar', {
+          method: 'GET',
+          credentials: 'include',
+          cache: 'no-store',
+        })
+
+        if (!response.ok) {
+          console.log('❌ [Convocatorias] Usuario no es admin o no autenticado')
+          if (isMounted) {
+            setIsAdmin(false)
+            setIsCheckingAdmin(false)
+          }
+          return
+        }
+
+        const data = await response.json().catch(() => ({}))
+        // Verificar explícitamente que esAdmin sea true (solo usuarios con es_admin === true)
+        const esAdminFlag = data?.esAdmin === true
+
+        console.log('✅ [Convocatorias] Verificación admin:', {
+          esAdmin: esAdminFlag,
+          data: data
+        })
+
+        if (isMounted) {
+          setIsAdmin(esAdminFlag)
+          setIsCheckingAdmin(false)
+        }
+      } catch (error) {
+        console.error('❌ [Convocatorias] Error al verificar admin:', error)
+        if (isMounted) {
+          setIsAdmin(false)
+          setIsCheckingAdmin(false)
+        }
+      }
+    }
+
+    checkAdmin()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   useEffect(() => {
     fetchConvocatorias()
@@ -77,7 +135,10 @@ export default function ConvocatoriasPage() {
               Encuentra las convocatorias abiertas para financiamiento de proyectos de investigación en Chihuahua
             </p>
           </div>
-          <CrearConvocatoriaDialog onConvocatoriaCreada={fetchConvocatorias} />
+          {/* Solo mostrar el botón de crear convocatoria para usuarios con es_admin === true */}
+          {!isCheckingAdmin && isAdmin === true && (
+            <CrearConvocatoriaDialog onConvocatoriaCreada={fetchConvocatorias} />
+          )}
         </div>
 
         {loading ? (
