@@ -324,17 +324,21 @@ export async function GET(request: NextRequest) {
         titulo: row.titulo || '',
         descripcion: row.descripcion || '',
         resumen: row.resumen || '',
+        investigador_principal: row.autor || row.investigador_principal || '',
         autor: row.autor ? {
           nombre: row.autor,
           institucion: row.institucion || ''
         } : { nombre: '', institucion: '' },
         institucion: row.institucion || '',
+        fecha_inicio: row.fecha_inicio || null,
+        fecha_fin: row.fecha_fin || null,
         fechaInicio: row.fecha_inicio || null,
         fechaFin: row.fecha_fin || null,
         estado: row.estado || '',
         categoria: row.categoria || '',
+        area_investigacion: row.area_investigacion || '',
         areaInvestigacion: row.area_investigacion || '',
-        presupuesto: row.presupuesto || null,
+        presupuesto: row.presupuesto ? (typeof row.presupuesto === 'string' ? parseFloat(row.presupuesto) || null : Number(row.presupuesto) || null) : null,
         financiamiento: row.fuente_financiamiento || null,
         palabrasClave: formatArray(row.palabras_clave),
         objetivos: formatArray(row.objetivos),
@@ -344,6 +348,7 @@ export async function GET(request: NextRequest) {
         colaboradores: colaboradoresFormateados,
         archivoUrl: row.archivo_url || null,
         slug: row.slug || '',
+        fecha_registro: row.fecha_creacion || null,
         fechaCreacion: row.fecha_creacion || null
       }
     })

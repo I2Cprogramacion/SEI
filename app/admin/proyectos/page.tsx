@@ -19,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Download, Eye, Filter, Search, FileText, Calendar, User } from "lucide-react"
 import { ExportDialog } from "@/components/export-dialog"
+import { AuthorAvatarGroup } from "@/components/author-avatar-group"
 
 // Interfaz para los datos de proyectos
 interface Proyecto {
@@ -26,10 +27,14 @@ interface Proyecto {
   titulo: string
   descripcion?: string
   investigador_principal?: string
+  autor?: string | {
+    nombre: string
+    institucion?: string
+  }
   fecha_inicio?: string
   fecha_fin?: string
   estado?: string
-  presupuesto?: number
+  presupuesto?: number | string | null
   institucion?: string
   area_investigacion?: string
   archivo_proyecto?: string
@@ -253,7 +258,16 @@ export default function ProyectosAdmin() {
                             {proyecto.titulo || "N/A"}
                           </div>
                         </TableCell>
-                        <TableCell className="text-blue-900">{proyecto.investigador_principal || "N/A"}</TableCell>
+                        <TableCell className="text-blue-900">
+                          {proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre) ? (
+                            <AuthorAvatarGroup 
+                              authors={proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre || '')}
+                              maxVisible={1}
+                              size="sm"
+                              showNames={true}
+                            />
+                          ) : "N/A"}
+                        </TableCell>
                         <TableCell className="text-blue-900">{proyecto.institucion || "N/A"}</TableCell>
                         <TableCell>
                           <Badge className={getEstadoBadge(proyecto.estado || "activo")}>
@@ -264,7 +278,15 @@ export default function ProyectosAdmin() {
                           {proyecto.fecha_inicio ? new Date(proyecto.fecha_inicio).toLocaleDateString() : "N/A"}
                         </TableCell>
                         <TableCell className="text-blue-900">
-                          {proyecto.presupuesto ? `$${proyecto.presupuesto.toLocaleString()}` : "N/A"}
+                          {(() => {
+                            const presupuesto = proyecto.presupuesto
+                            if (!presupuesto || presupuesto === null || presupuesto === undefined) return "N/A"
+                            const numPresupuesto = typeof presupuesto === 'string' 
+                              ? parseFloat(presupuesto.replace(/[^0-9.-]/g, '')) 
+                              : Number(presupuesto)
+                            if (isNaN(numPresupuesto)) return "N/A"
+                            return `$${numPresupuesto.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+                          })()}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
@@ -331,8 +353,18 @@ export default function ProyectosAdmin() {
                         </Badge>
                       </div>
                       <div className="space-y-1 text-sm text-blue-700">
-                        {proyecto.investigador_principal && (
-                          <p><span className="font-medium">Investigador:</span> {proyecto.investigador_principal}</p>
+                        {(proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre)) && (
+                          <div>
+                            <span className="font-medium">Investigador:</span>
+                            <div className="mt-1">
+                              <AuthorAvatarGroup 
+                                authors={proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre || '')}
+                                maxVisible={1}
+                                size="sm"
+                                showNames={true}
+                              />
+                            </div>
+                          </div>
                         )}
                         {proyecto.institucion && (
                           <p><span className="font-medium">Institución:</span> {proyecto.institucion}</p>
@@ -340,9 +372,17 @@ export default function ProyectosAdmin() {
                         {proyecto.fecha_inicio && (
                           <p><span className="font-medium">Inicio:</span> {new Date(proyecto.fecha_inicio).toLocaleDateString()}</p>
                         )}
-                        {proyecto.presupuesto && (
-                          <p><span className="font-medium">Presupuesto:</span> ${proyecto.presupuesto.toLocaleString()}</p>
-                        )}
+                        {(() => {
+                          const presupuesto = proyecto.presupuesto
+                          if (!presupuesto || presupuesto === null || presupuesto === undefined) return null
+                          const numPresupuesto = typeof presupuesto === 'string' 
+                            ? parseFloat(presupuesto.replace(/[^0-9.-]/g, '')) 
+                            : Number(presupuesto)
+                          if (isNaN(numPresupuesto)) return null
+                          return (
+                            <p><span className="font-medium">Presupuesto:</span> ${numPresupuesto.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+                          )
+                        })()}
                       </div>
                       <div className="flex gap-2 mt-4">
                         <Button
