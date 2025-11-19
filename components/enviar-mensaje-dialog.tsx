@@ -75,8 +75,10 @@ export function EnviarMensajeDialog({
         }),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error("Error al enviar mensaje")
+        throw new Error(data.error || data.details || "Error al enviar mensaje")
       }
 
       setSuccess(true)
@@ -92,9 +94,10 @@ export function EnviarMensajeDialog({
         setMensaje("")
       }, 2000)
     } catch (error) {
+      console.error('Error enviando mensaje:', error)
       toast({
         title: "Error",
-        description: "No se pudo enviar el mensaje. Intenta de nuevo.",
+        description: error instanceof Error ? error.message : "No se pudo enviar el mensaje. Intenta de nuevo.",
         variant: "destructive",
       })
     } finally {

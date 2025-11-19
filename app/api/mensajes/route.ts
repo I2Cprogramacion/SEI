@@ -12,8 +12,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    const clerkUserId = user.id
+    const userEmail = user.emailAddresses[0]?.emailAddress
     const { destinatarioId, asunto, mensaje } = await request.json()
+
+    console.log('📧 POST /api/mensajes:', { userEmail, destinatarioId, asunto })
 
     if (!destinatarioId || !asunto || !mensaje) {
       return NextResponse.json(
@@ -22,16 +24,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Obtener ID del remitente desde clerk_user_id
+    // Obtener ID del remitente desde su email (sin usar clerk_user_id)
     const remitenteQuery = await sql`
-      SELECT id, correo, nombre_completo FROM investigadores 
-      WHERE clerk_user_id = ${clerkUserId} 
+      SELECT id, correo, nombre_completo, slug FROM investigadores 
+      WHERE correo = ${userEmail} 
       LIMIT 1
     `
 
+    console.log('🔍 Remitente query result:', remitenteQuery.rows)
+
     if (remitenteQuery.rows.length === 0) {
+      console.error('❌ Usuario no encontrado con email:', userEmail)
       return NextResponse.json(
-        { error: "Usuario no encontrado en el sistema" },
+        { 
+          error: "Tu cuenta no está registrada en el sistema. Por favor completa tu perfil primero.",
+          details: "No se encontró un investigador asociado a tu email"
+        },
         { status: 404 }
       )
     }
@@ -110,12 +118,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    const clerkUserId = user.id
+    const userEmail = user.emailAddresses[0]?.emailAddress
 
-    // Obtener ID del investigador actual
+    // Obtener ID del investigador actual por email
     const investigadorQuery = await sql`
       SELECT id FROM investigadores 
-      WHERE clerk_user_id = ${clerkUserId} 
+      WHERE correo = ${userEmail} 
       LIMIT 1
     `
 
@@ -176,7 +184,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    const clerkUserId = user.id
+    const userEmail = user.emailAddresses[0]?.emailAddress
     const { mensajeId } = await request.json()
 
     if (!mensajeId) {
@@ -186,10 +194,10 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    // Obtener ID del investigador actual
+    // Obtener ID del investigador actual por email
     const investigadorQuery = await sql`
       SELECT id FROM investigadores 
-      WHERE clerk_user_id = ${clerkUserId} 
+      WHERE correo = ${userEmail} 
       LIMIT 1
     `
 

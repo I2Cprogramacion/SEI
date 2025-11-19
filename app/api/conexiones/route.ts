@@ -135,11 +135,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    const clerkUserId = user.id
+    const userEmail = user.emailAddresses[0]?.emailAddress
 
-    // Obtener ID numérico del investigador actual
+    // Obtener ID del investigador actual por email
     const investigadorQuery = await sql`
-      SELECT id FROM investigadores WHERE clerk_user_id = ${clerkUserId} LIMIT 1
+      SELECT id FROM investigadores WHERE correo = ${userEmail} LIMIT 1
     `
 
     if (investigadorQuery.rows.length === 0) {
@@ -210,7 +210,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    const clerkUserId = user.id
+    const userEmail = user.emailAddresses[0]?.emailAddress
     const { conexionId, accion } = await request.json()
 
     if (!conexionId || !accion) {
@@ -227,9 +227,9 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    // Obtener ID numérico del investigador actual
+    // Obtener ID del investigador actual por email
     const investigadorQuery = await sql`
-      SELECT id FROM investigadores WHERE clerk_user_id = ${clerkUserId} LIMIT 1
+      SELECT id FROM investigadores WHERE correo = ${userEmail} LIMIT 1
     `
 
     if (investigadorQuery.rows.length === 0) {
@@ -241,7 +241,7 @@ export async function PATCH(request: NextRequest) {
 
     // Obtener datos de la conexión antes de actualizar
     const conexion = await sql`
-      SELECT c.investigador_id, i.clerk_user_id as origen_clerk_id
+      SELECT c.investigador_id, i.slug as origen_slug
       FROM conexiones c
       LEFT JOIN investigadores i ON c.investigador_id = i.id
       WHERE c.id = ${conexionId} 
