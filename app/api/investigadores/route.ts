@@ -58,6 +58,7 @@ export async function GET(request: NextRequest) {
         nivel: inv.nivel_investigador || inv.nivel || null,
         estadoNacimiento: inv.estado_nacimiento || null,
         entidadFederativa: inv.entidad_federativa || null,
+        municipio: inv.municipio || null,
         telefono: inv.telefono || null,
         lineaInvestigacion: inv.linea_investigacion || null,
         slug: slug
@@ -79,7 +80,7 @@ export async function GET(request: NextRequest) {
 
     const ubicaciones = Array.from(new Set(
       investigadores
-        .flatMap((inv: any) => [inv.estadoNacimiento, inv.entidadFederativa])
+        .map((inv: any) => inv.municipio)
         .filter((ubic: any) => ubic && ubic.trim() !== '')
     )).sort()
 

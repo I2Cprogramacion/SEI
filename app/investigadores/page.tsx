@@ -22,6 +22,7 @@ interface Investigador {
   nivel?: string
   estadoNacimiento?: string
   entidadFederativa?: string
+  municipio?: string
   telefono?: string
   lineaInvestigacion?: string
   slug: string
@@ -131,8 +132,8 @@ export default function InvestigadoresPage() {
     }
 
     if (selectedLocation !== "all") {
-      const hasLocation = investigador.estadoNacimiento === selectedLocation || investigador.entidadFederativa === selectedLocation
-      if (!hasLocation) {
+      // Filtrar por municipio
+      if (!investigador.municipio || investigador.municipio !== selectedLocation) {
         return false
       }
     }
