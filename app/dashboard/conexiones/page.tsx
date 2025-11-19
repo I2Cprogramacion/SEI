@@ -22,11 +22,11 @@ import { es } from "date-fns/locale"
 import { useToast } from "@/hooks/use-toast"
 
 interface Conexion {
-  id: number
+  id: string
   estado: "pendiente" | "aceptada" | "rechazada"
   fecha_solicitud: string
   fecha_respuesta?: string
-  id_conexion: number
+  id_conexion: string
   nombre: string
   email: string
   fotografia_url?: string
@@ -37,7 +37,7 @@ interface Conexion {
 export default function ConexionesPage() {
   const [conexiones, setConexiones] = useState<Conexion[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [processingId, setProcessingId] = useState<number | null>(null)
+  const [processingId, setProcessingId] = useState<string | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {

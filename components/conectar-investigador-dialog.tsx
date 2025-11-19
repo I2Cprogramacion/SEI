@@ -19,7 +19,7 @@ import { Loader2, UserPlus, CheckCircle } from "lucide-react"
 interface ConectarInvestigadorDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  investigadorId: number
+  investigadorId: string
   investigadorClerkId: string
   investigadorNombre: string
 }

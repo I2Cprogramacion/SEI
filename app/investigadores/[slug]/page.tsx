@@ -39,7 +39,7 @@ import { PublicacionesList } from "@/components/publicaciones-list"
 import ErrorBoundary from '@/components/error-boundary'
 
 interface InvestigadorData {
-  id: number
+  id: string
   clerkUserId?: string
   name: string
   email: string

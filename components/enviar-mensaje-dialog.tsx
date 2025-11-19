@@ -20,7 +20,7 @@ import { Loader2, MessageCircle, Send, CheckCircle } from "lucide-react"
 interface EnviarMensajeDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  investigadorId: number
+  investigadorId: string
   investigadorClerkId: string
   investigadorNombre: string
   investigadorEmail: string

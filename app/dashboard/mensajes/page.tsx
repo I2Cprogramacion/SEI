@@ -35,7 +35,7 @@ import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 
 interface Mensaje {
-  id: number
+  id: string
   asunto: string
   mensaje: string
   fecha_envio: string
@@ -44,8 +44,8 @@ interface Mensaje {
   otro_usuario: string
   otro_email: string
   otro_foto?: string
-  remitente_id?: number
-  destinatario_id?: number
+  remitente_id?: string
+  destinatario_id?: string
 }
 
 export default function MensajesPage() {
@@ -77,7 +77,7 @@ export default function MensajesPage() {
     }
   }
 
-  const marcarComoLeido = async (mensajeId: number) => {
+  const marcarComoLeido = async (mensajeId: string) => {
     try {
       const response = await fetch("/api/mensajes", {
         method: "PATCH",
@@ -128,7 +128,7 @@ export default function MensajesPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          destinatarioId: selectedMensaje.remitente_id,
+          destinatarioClerkId: selectedMensaje.remitente_id,
           asunto: replyAsunto,
           mensaje: replyMensaje,
         }),
