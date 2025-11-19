@@ -87,29 +87,36 @@ export async function POST(request: NextRequest) {
     `
 
     if (existente.rows.length > 0) {
+      console.log('⚠️ Ya existe conexión:', existente.rows[0])
       return NextResponse.json(
         { error: "Ya existe una solicitud de conexión" },
         { status: 400 }
       )
     }
 
-    // Crear solicitud de conexión
+    console.log('✅ No hay conexión existente, creando nueva...')
+
+    // Crear solicitud de conexión (similar a mensajes)
     const result = await sql`
       INSERT INTO conexiones (
         investigador_id,
         conectado_con_id,
         investigador_destino_id,
         estado,
-        mensaje
+        mensaje,
+        created_at
       ) VALUES (
         ${origenId},
         ${destinoId},
         ${destinoId},
         'pendiente',
-        ${mensaje || null}
+        ${mensaje || null},
+        NOW()
       )
       RETURNING id
     `
+
+    console.log('✅ Conexión creada con ID:', result.rows[0]?.id)
 
     // Enviar notificación por correo (no bloquear si falla)
     try {
@@ -117,6 +124,7 @@ export async function POST(request: NextRequest) {
         await notifyNewConnectionRequest(destinoEmail, origenNombre || 'Un investigador', origenEmail || '')
       }
     } catch (emailError) {
+      console.error('⚠️ Error enviando email de notificación:', emailError)
     }
 
     return NextResponse.json({
