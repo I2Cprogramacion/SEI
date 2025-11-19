@@ -263,7 +263,7 @@ export default function ProyectosAdmin() {
                             const nombreInvestigador = proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre) || null
                             if (!nombreInvestigador) return "N/A"
                             return (
-                              <div className="max-w-xs truncate" title={nombreInvestigador}>
+                              <div className="max-w-xs" title={nombreInvestigador}>
                                 <ResearcherLink nombre={nombreInvestigador} />
                               </div>
                             )
@@ -281,12 +281,24 @@ export default function ProyectosAdmin() {
                         <TableCell className="text-blue-900">
                           {(() => {
                             const presupuesto = proyecto.presupuesto
-                            if (!presupuesto || presupuesto === null || presupuesto === undefined) return "N/A"
-                            const numPresupuesto = typeof presupuesto === 'string' 
-                              ? parseFloat(presupuesto.replace(/[^0-9.-]/g, '')) 
-                              : Number(presupuesto)
-                            if (isNaN(numPresupuesto)) return "N/A"
-                            return `$${numPresupuesto.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+                            if (presupuesto === null || presupuesto === undefined || presupuesto === '' || presupuesto === 0) return "N/A"
+                            
+                            let numPresupuesto: number
+                            if (typeof presupuesto === 'string') {
+                              const cleaned = presupuesto.replace(/[^0-9.-]/g, '')
+                              if (!cleaned) return "N/A"
+                              numPresupuesto = parseFloat(cleaned)
+                            } else {
+                              numPresupuesto = Number(presupuesto)
+                            }
+                            
+                            if (isNaN(numPresupuesto) || numPresupuesto === 0) return "N/A"
+                            
+                            try {
+                              return `$${numPresupuesto.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+                            } catch {
+                              return "N/A"
+                            }
                           })()}
                         </TableCell>
                         <TableCell className="text-right">
@@ -372,14 +384,26 @@ export default function ProyectosAdmin() {
                         )}
                         {(() => {
                           const presupuesto = proyecto.presupuesto
-                          if (!presupuesto || presupuesto === null || presupuesto === undefined) return null
-                          const numPresupuesto = typeof presupuesto === 'string' 
-                            ? parseFloat(presupuesto.replace(/[^0-9.-]/g, '')) 
-                            : Number(presupuesto)
-                          if (isNaN(numPresupuesto)) return null
-                          return (
-                            <p><span className="font-medium">Presupuesto:</span> ${numPresupuesto.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
-                          )
+                          if (presupuesto === null || presupuesto === undefined || presupuesto === '' || presupuesto === 0) return null
+                          
+                          let numPresupuesto: number
+                          if (typeof presupuesto === 'string') {
+                            const cleaned = presupuesto.replace(/[^0-9.-]/g, '')
+                            if (!cleaned) return null
+                            numPresupuesto = parseFloat(cleaned)
+                          } else {
+                            numPresupuesto = Number(presupuesto)
+                          }
+                          
+                          if (isNaN(numPresupuesto) || numPresupuesto === 0) return null
+                          
+                          try {
+                            return (
+                              <p><span className="font-medium">Presupuesto:</span> ${numPresupuesto.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+                            )
+                          } catch {
+                            return null
+                          }
                         })()}
                       </div>
                       <div className="flex gap-2 mt-4">

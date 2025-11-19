@@ -338,7 +338,17 @@ export async function GET(request: NextRequest) {
         categoria: row.categoria || '',
         area_investigacion: row.area_investigacion || '',
         areaInvestigacion: row.area_investigacion || '',
-        presupuesto: row.presupuesto ? (typeof row.presupuesto === 'string' ? parseFloat(row.presupuesto) || null : Number(row.presupuesto) || null) : null,
+        presupuesto: (() => {
+          const presup = row.presupuesto
+          if (!presup || presup === null || presup === undefined || presup === '') return null
+          if (typeof presup === 'string') {
+            const cleaned = presup.replace(/[^0-9.-]/g, '')
+            const parsed = parseFloat(cleaned)
+            return isNaN(parsed) ? null : parsed
+          }
+          const num = Number(presup)
+          return isNaN(num) ? null : num
+        })(),
         financiamiento: row.fuente_financiamiento || null,
         palabrasClave: formatArray(row.palabras_clave),
         objetivos: formatArray(row.objetivos),

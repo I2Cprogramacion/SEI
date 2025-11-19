@@ -25,7 +25,7 @@ export function ResearcherLink({ nombre, className = "" }: ResearcherLinkProps) 
 
     const buscarInvestigador = async () => {
       try {
-        const response = await fetch(`/api/buscar-investigador-por-nombre?nombre=${encodeURIComponent(nombre)}`)
+        const response = await fetch(`/api/buscar-investigador-por-nombre?nombre=${encodeURIComponent(nombre.trim())}`)
         if (!response.ok) {
           setLoading(false)
           return
@@ -34,10 +34,12 @@ export function ResearcherLink({ nombre, className = "" }: ResearcherLinkProps) 
         const data = await response.json()
         if (data.investigadores && data.investigadores.length > 0) {
           const investigador = data.investigadores[0]
-          setProfile({
-            slug: investigador.slug,
-            nombreCompleto: investigador.nombreCompleto
-          })
+          if (investigador.slug) {
+            setProfile({
+              slug: investigador.slug,
+              nombreCompleto: investigador.nombreCompleto || nombre
+            })
+          }
         }
       } catch (error) {
         console.warn(`Error al buscar investigador "${nombre}":`, error)
@@ -57,7 +59,10 @@ export function ResearcherLink({ nombre, className = "" }: ResearcherLinkProps) 
     return (
       <Link 
         href={`/investigadores/${profile.slug}`}
-        className={`text-blue-600 hover:text-blue-800 hover:underline ${className}`}
+        className={`text-blue-600 hover:text-blue-800 hover:underline cursor-pointer inline-block ${className}`}
+        onClick={(e) => {
+          e.stopPropagation()
+        }}
       >
         {profile.nombreCompleto || nombre}
       </Link>
