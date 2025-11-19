@@ -128,7 +128,7 @@ export default function MensajesPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          destinatarioClerkId: selectedMensaje.remitente_id,
+          destinatarioId: selectedMensaje.remitente_id,
           asunto: replyAsunto,
           mensaje: replyMensaje,
         }),

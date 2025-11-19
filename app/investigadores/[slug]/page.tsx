@@ -380,7 +380,6 @@ export default function InvestigadorPage() {
                       variant="outline" 
                       className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 text-xs sm:text-sm"
                       onClick={() => setMensajeDialogOpen(true)}
-                      disabled={!investigador?.clerkUserId}
                     >
                       <MessageCircle className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                       Mensaje Interno
@@ -389,7 +388,6 @@ export default function InvestigadorPage() {
                       variant="outline" 
                       className="w-full border-green-300 text-green-700 hover:bg-green-50 text-xs sm:text-sm"
                       onClick={() => setConectarDialogOpen(true)}
-                      disabled={!investigador?.clerkUserId}
                     >
                       <UserPlus className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                       Conectar

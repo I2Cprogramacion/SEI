@@ -15,40 +15,57 @@ export async function POST(request: NextRequest) {
     console.log('🔵 POST /api/conexiones - Usuario:', user.id)
 
     const clerkUserId = user.id
-    const { destinatarioClerkId, mensaje } = await request.json()
+    const { destinatarioId, mensaje } = await request.json()
 
-    console.log('🔵 Datos recibidos:', { destinatarioClerkId, mensaje: mensaje?.substring(0, 50) })
+    console.log('🔵 Datos recibidos:', { destinatarioId, mensaje: mensaje?.substring(0, 50) })
 
-    if (!destinatarioClerkId) {
+    if (!destinatarioId) {
       return NextResponse.json(
         { error: "Destinatario requerido" },
         { status: 400 }
       )
     }
 
-    // Obtener IDs numéricos de investigadores desde clerk_user_id
+    // Obtener ID del investigador origen desde clerk_user_id
     console.log('🔵 Buscando investigador origen con clerk_user_id:', clerkUserId)
     const origenQuery = await sql`
-      SELECT id FROM investigadores WHERE clerk_user_id = ${clerkUserId} LIMIT 1
+      SELECT id, nombre_completo, correo FROM investigadores 
+      WHERE clerk_user_id = ${clerkUserId} 
+      LIMIT 1
     `
     console.log('🔵 Resultado origen:', origenQuery.rows)
-    
-    console.log('🔵 Buscando investigador destino con clerk_user_id:', destinatarioClerkId)
-    const destinoQuery = await sql`
-      SELECT id FROM investigadores WHERE clerk_user_id = ${destinatarioClerkId} LIMIT 1
-    `
-    console.log('🔵 Resultado destino:', destinoQuery.rows)
 
-    if (origenQuery.rows.length === 0 || destinoQuery.rows.length === 0) {
-      console.log('❌ Usuario no encontrado - origen:', origenQuery.rows.length, 'destino:', destinoQuery.rows.length)
+    if (origenQuery.rows.length === 0) {
+      console.log('❌ Usuario origen no encontrado')
       return NextResponse.json(
-        { error: "Usuario no encontrado en el sistema", debug: { origenFound: origenQuery.rows.length > 0, destinoFound: destinoQuery.rows.length > 0 } },
+        { error: "Usuario no encontrado en el sistema" },
         { status: 404 }
       )
     }
 
     const origenId = origenQuery.rows[0].id
+    const origenNombre = origenQuery.rows[0].nombre_completo
+    const origenEmail = origenQuery.rows[0].correo
+
+    // Verificar que el destinatario existe
+    console.log('🔵 Verificando destinatario con id:', destinatarioId)
+    const destinoQuery = await sql`
+      SELECT id, correo FROM investigadores 
+      WHERE id = ${destinatarioId} 
+      LIMIT 1
+    `
+    console.log('🔵 Resultado destino:', destinoQuery.rows)
+
+    if (destinoQuery.rows.length === 0) {
+      console.log('❌ Destinatario no encontrado')
+      return NextResponse.json(
+        { error: "Destinatario no encontrado" },
+        { status: 404 }
+      )
+    }
+
     const destinoId = destinoQuery.rows[0].id
+    const destinoEmail = destinoQuery.rows[0].correo
 
     console.log('🔵 IDs obtenidos:', { origenId, destinoId })
 
@@ -90,14 +107,8 @@ export async function POST(request: NextRequest) {
 
     // Enviar notificación por correo (no bloquear si falla)
     try {
-      const senderName = user.fullName || user.firstName || 'Un investigador'
-      const senderEmail = user.emailAddresses[0]?.emailAddress || ''
-
-      const recipient = await (await clerkClient()).users.getUser(destinatarioClerkId)
-      const recipientEmail = recipient.emailAddresses[0]?.emailAddress
-
-      if (recipientEmail) {
-        await notifyNewConnectionRequest(recipientEmail, senderName, senderEmail)
+      if (destinoEmail) {
+        await notifyNewConnectionRequest(destinoEmail, origenNombre || 'Un investigador', origenEmail || '')
       }
     } catch (emailError) {
     }

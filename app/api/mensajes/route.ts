@@ -13,16 +13,50 @@ export async function POST(request: NextRequest) {
     }
 
     const clerkUserId = user.id
-    const { destinatarioClerkId, asunto, mensaje } = await request.json()
+    const { destinatarioId, asunto, mensaje } = await request.json()
 
-    if (!destinatarioClerkId || !asunto || !mensaje) {
+    if (!destinatarioId || !asunto || !mensaje) {
       return NextResponse.json(
         { error: "Faltan campos requeridos" },
         { status: 400 }
       )
     }
 
-    // Guardar el mensaje usando Clerk IDs directamente
+    // Obtener ID del remitente desde clerk_user_id
+    const remitenteQuery = await sql`
+      SELECT id, correo, nombre_completo FROM investigadores 
+      WHERE clerk_user_id = ${clerkUserId} 
+      LIMIT 1
+    `
+
+    if (remitenteQuery.rows.length === 0) {
+      return NextResponse.json(
+        { error: "Usuario no encontrado en el sistema" },
+        { status: 404 }
+      )
+    }
+
+    const remitenteId = remitenteQuery.rows[0].id
+    const remitenteNombre = remitenteQuery.rows[0].nombre_completo
+    const remitenteEmail = remitenteQuery.rows[0].correo
+
+    // Obtener datos del destinatario
+    const destinatarioQuery = await sql`
+      SELECT id, correo, nombre_completo FROM investigadores 
+      WHERE id = ${destinatarioId} 
+      LIMIT 1
+    `
+
+    if (destinatarioQuery.rows.length === 0) {
+      return NextResponse.json(
+        { error: "Destinatario no encontrado" },
+        { status: 404 }
+      )
+    }
+
+    const destinatarioEmail = destinatarioQuery.rows[0].correo
+
+    // Guardar el mensaje usando IDs de investigadores
     const result = await sql`
       INSERT INTO mensajes (
         remitente_id,
@@ -31,8 +65,8 @@ export async function POST(request: NextRequest) {
         contenido,
         leido
       ) VALUES (
-        ${clerkUserId},
-        ${destinatarioClerkId},
+        ${remitenteId},
+        ${destinatarioId},
         ${asunto},
         ${mensaje},
         false
@@ -42,21 +76,13 @@ export async function POST(request: NextRequest) {
 
     // Enviar notificación por correo (no bloquear si falla)
     try {
-      // Obtener datos del remitente
-      const senderName = user.fullName || user.firstName || 'Un investigador'
-      const senderEmail = user.emailAddresses[0]?.emailAddress || ''
-
-      // Obtener datos del destinatario desde Clerk
-      const recipient = await (await clerkClient()).users.getUser(destinatarioClerkId)
-      const recipientEmail = recipient.emailAddresses[0]?.emailAddress
-
-      if (recipientEmail) {
+      if (destinatarioEmail) {
         await notifyNewMessage(
-          recipientEmail,
-          senderName,
-          senderEmail,
+          destinatarioEmail,
+          remitenteNombre || 'Un investigador',
+          remitenteEmail || '',
           asunto,
-          mensaje.substring(0, 100) // Preview de 100 caracteres
+          mensaje.substring(0, 100)
         )
       }
     } catch (emailError) {
@@ -86,7 +112,20 @@ export async function GET(request: NextRequest) {
 
     const clerkUserId = user.id
 
-    // Obtener todos los mensajes (enviados y recibidos) usando Clerk ID directamente
+    // Obtener ID del investigador actual
+    const investigadorQuery = await sql`
+      SELECT id FROM investigadores 
+      WHERE clerk_user_id = ${clerkUserId} 
+      LIMIT 1
+    `
+
+    if (investigadorQuery.rows.length === 0) {
+      return NextResponse.json([])
+    }
+
+    const investigadorId = investigadorQuery.rows[0].id
+
+    // Obtener todos los mensajes (enviados y recibidos) usando IDs de investigadores
     const mensajes = await sql`
       SELECT 
         m.id,
@@ -97,25 +136,25 @@ export async function GET(request: NextRequest) {
         m.remitente_id,
         m.destinatario_id,
         CASE 
-          WHEN m.remitente_id = ${clerkUserId} THEN 'enviado'
+          WHEN m.remitente_id = ${investigadorId} THEN 'enviado'
           ELSE 'recibido'
         END as tipo,
         CASE 
-          WHEN m.remitente_id = ${clerkUserId} THEN i_dest.nombre_completo
+          WHEN m.remitente_id = ${investigadorId} THEN i_dest.nombre_completo
           ELSE i_rem.nombre_completo
         END as otro_usuario,
         CASE 
-          WHEN m.remitente_id = ${clerkUserId} THEN i_dest.correo
+          WHEN m.remitente_id = ${investigadorId} THEN i_dest.correo
           ELSE i_rem.correo
         END as otro_email,
         CASE 
-          WHEN m.remitente_id = ${clerkUserId} THEN i_dest.fotografia_url
+          WHEN m.remitente_id = ${investigadorId} THEN i_dest.fotografia_url
           ELSE i_rem.fotografia_url
         END as otro_foto
       FROM mensajes m
-      LEFT JOIN investigadores i_rem ON m.remitente_id = i_rem.clerk_user_id
-      LEFT JOIN investigadores i_dest ON m.destinatario_id = i_dest.clerk_user_id
-      WHERE m.remitente_id = ${clerkUserId} OR m.destinatario_id = ${clerkUserId}
+      LEFT JOIN investigadores i_rem ON m.remitente_id = i_rem.id
+      LEFT JOIN investigadores i_dest ON m.destinatario_id = i_dest.id
+      WHERE m.remitente_id = ${investigadorId} OR m.destinatario_id = ${investigadorId}
       ORDER BY m.created_at DESC
     `
 
@@ -147,12 +186,25 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
+    // Obtener ID del investigador actual
+    const investigadorQuery = await sql`
+      SELECT id FROM investigadores 
+      WHERE clerk_user_id = ${clerkUserId} 
+      LIMIT 1
+    `
+
+    if (investigadorQuery.rows.length === 0) {
+      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
+    }
+
+    const investigadorId = investigadorQuery.rows[0].id
+
     // Marcar como leído solo si el usuario es el destinatario
     await sql`
       UPDATE mensajes 
       SET leido = true 
       WHERE id = ${mensajeId} 
-      AND destinatario_id = ${clerkUserId}
+      AND destinatario_id = ${investigadorId}
     `
 
     return NextResponse.json({ success: true })

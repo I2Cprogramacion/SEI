@@ -47,15 +47,6 @@ export function ConectarInvestigadorDialog({
       return
     }
 
-    if (!investigadorClerkId || investigadorClerkId.trim() === '') {
-      toast({
-        title: "No disponible",
-        description: "Este investigador no tiene una cuenta activa en el sistema para recibir solicitudes",
-        variant: "destructive",
-      })
-      return
-    }
-
     setIsLoading(true)
 
     try {
@@ -65,7 +56,7 @@ export function ConectarInvestigadorDialog({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          destinatarioClerkId: investigadorClerkId,
+          destinatarioId: investigadorId,
           mensaje: mensaje || `Hola ${investigadorNombre}, me gustaría conectar contigo.`,
         }),
       })
