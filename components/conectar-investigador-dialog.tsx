@@ -61,8 +61,10 @@ export function ConectarInvestigadorDialog({
         }),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error("Error al enviar solicitud")
+        throw new Error(data.error || data.details || "Error al enviar solicitud")
       }
 
       setSuccess(true)
@@ -77,9 +79,10 @@ export function ConectarInvestigadorDialog({
         setMensaje("")
       }, 2000)
     } catch (error) {
+      console.error('Error enviando conexión:', error)
       toast({
         title: "Error",
-        description: "No se pudo enviar la solicitud. Intenta de nuevo.",
+        description: error instanceof Error ? error.message : "No se pudo enviar la solicitud. Intenta de nuevo.",
         variant: "destructive",
       })
     } finally {
@@ -141,7 +144,7 @@ export function ConectarInvestigadorDialog({
               <Button
                 onClick={handleConectar}
                 disabled={isLoading}
-                className="bg-blue-700 hover:bg-blue-800"
+                className="bg-blue-700 hover:bg-blue-800 text-white"
               >
                 {isLoading ? (
                   <>
