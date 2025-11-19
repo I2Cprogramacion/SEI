@@ -11,8 +11,9 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Search, Filter, Calendar, Users, ExternalLink, FileText, Upload, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, Filter, Calendar, Users, ExternalLink, FileText, Upload, ChevronLeft, ChevronRight, DollarSign } from "lucide-react"
 import Link from "next/link"
+import { AuthorAvatarGroup } from "@/components/author-avatar-group"
 
 // Interfaces para tipos de datos
 interface Proyecto {
@@ -25,11 +26,15 @@ interface Proyecto {
     email?: string
     telefono?: string
   }
+  investigador_principal?: string
+  institucion?: string
   categoria: string
   estado: string
   fechaInicio?: string
   fechaFin?: string
-  presupuesto?: string
+  fecha_inicio?: string
+  fecha_fin?: string
+  presupuesto?: number | string | null
   palabrasClave: string[]
   objetivos?: string[]
   resultados?: string[]
@@ -111,6 +116,7 @@ export default function ProyectosPage() {
     const autorNombre = typeof proyecto.autor === 'string' 
       ? proyecto.autor 
       : (proyecto.autor?.nombre || '')
+    const investigadorPrincipal = proyecto.investigador_principal || autorNombre
     const autorInstitucion = typeof proyecto.autor === 'string' 
       ? (proyecto.institucion || '') 
       : (proyecto.autor?.institucion || proyecto.institucion || '')
@@ -120,7 +126,8 @@ export default function ProyectosPage() {
       (proyecto.titulo || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (proyecto.descripcion || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       palabrasClave.some((keyword) => (keyword || '').toLowerCase().includes(searchTerm.toLowerCase())) ||
-      autorNombre.toLowerCase().includes(searchTerm.toLowerCase())
+      autorNombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      investigadorPrincipal.toLowerCase().includes(searchTerm.toLowerCase())
 
     const matchesCategory = selectedCategory === "all" || proyecto.categoria === selectedCategory
     const matchesStatus = selectedStatus === "all" || proyecto.estado === selectedStatus
@@ -300,11 +307,32 @@ export default function ProyectosPage() {
                   <CardContent className="px-3 sm:px-6">
                     <p className="text-blue-600 mb-4 text-sm sm:text-base break-words line-clamp-3">{proyecto.descripcion || 'Sin descripción'}</p>
                     <div className="space-y-2">
-                      {(proyecto.fechaInicio || proyecto.fechaFin) && (
+                      {(proyecto.fechaInicio || proyecto.fechaFin || proyecto.fecha_inicio || proyecto.fecha_fin) && (
                         <div className="flex items-center text-sm text-blue-600">
                           <Calendar className="mr-2 h-4 w-4" />
                           <span>
-                            {proyecto.fechaInicio || 'N/A'} - {proyecto.fechaFin || 'N/A'}
+                            {proyecto.fecha_inicio || proyecto.fechaInicio || 'N/A'} - {proyecto.fecha_fin || proyecto.fechaFin || 'N/A'}
+                          </span>
+                        </div>
+                      )}
+                      {proyecto.presupuesto && (
+                        <div className="flex items-center text-sm text-blue-600">
+                          <DollarSign className="mr-2 h-4 w-4" />
+                          <span>
+                            {(() => {
+                              const presup = proyecto.presupuesto
+                              if (typeof presup === 'number') {
+                                return `$${presup.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+                              }
+                              if (typeof presup === 'string') {
+                                const num = parseFloat(presup.replace(/[^0-9.-]/g, ''))
+                                if (!isNaN(num) && num > 0) {
+                                  return `$${num.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+                                }
+                                return presup
+                              }
+                              return String(presup)
+                            })()}
                           </span>
                         </div>
                       )}
@@ -327,32 +355,43 @@ export default function ProyectosPage() {
                     </div>
                   </CardContent>
                   <CardFooter className="border-t border-blue-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 py-3 sm:py-4 px-3 sm:px-6">
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8 ring-2 ring-blue-100">
-                        <AvatarImage src="/placeholder.svg" alt={typeof proyecto.autor === 'string' ? proyecto.autor : (proyecto.autor?.nombre || '')} />
-                        <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
-                          {(() => {
-                            const nombre = typeof proyecto.autor === 'string' ? proyecto.autor : (proyecto.autor?.nombre || '')
-                            return nombre ? nombre.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) : '??'
-                          })()}
-                        </AvatarFallback>
-                      </Avatar>
-                      {Array.isArray(proyecto.colaboradores) && proyecto.colaboradores.slice(0, 2).map((colaborador: any, colabIndex: number) => {
-                        const colaboradorNombre = typeof colaborador === 'string' 
-                          ? colaborador.split(' - ')[0] || colaborador
-                          : (colaborador?.nombre || '')
-                        return (
-                          <Avatar key={colabIndex} className="h-8 w-8 ring-2 ring-blue-100 -ml-2">
-                            <AvatarImage src="/placeholder.svg" alt={colaboradorNombre} />
-                            <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
-                              {colaboradorNombre ? colaboradorNombre.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) : '??'}
-                            </AvatarFallback>
-                          </Avatar>
-                        )
-                      })}
-                      {Array.isArray(proyecto.colaboradores) && proyecto.colaboradores.length > 2 && (
-                        <div className="h-8 w-8 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-medium ring-2 ring-blue-100 -ml-2">
-                          +{proyecto.colaboradores.length - 2}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {(() => {
+                        const nombreInvestigador = proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre) || null
+                        if (nombreInvestigador) {
+                          return (
+                            <AuthorAvatarGroup 
+                              authors={nombreInvestigador}
+                              maxVisible={1}
+                              size="sm"
+                              showNames={true}
+                            />
+                          )
+                        }
+                        return null
+                      })()}
+                      {Array.isArray(proyecto.colaboradores) && proyecto.colaboradores.length > 0 && (
+                        <div className="flex items-center gap-1">
+                          {proyecto.colaboradores.slice(0, 2).map((colaborador: any, colabIndex: number) => {
+                            const colaboradorNombre = typeof colaborador === 'string' 
+                              ? colaborador.split(' - ')[0] || colaborador
+                              : (colaborador?.nombre || '')
+                            if (!colaboradorNombre) return null
+                            return (
+                              <AuthorAvatarGroup 
+                                key={colabIndex}
+                                authors={colaboradorNombre}
+                                maxVisible={1}
+                                size="sm"
+                                showNames={false}
+                              />
+                            )
+                          })}
+                          {proyecto.colaboradores.length > 2 && (
+                            <div className="h-8 w-8 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-medium ring-2 ring-blue-100">
+                              +{proyecto.colaboradores.length - 2}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
