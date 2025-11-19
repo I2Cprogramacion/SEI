@@ -59,23 +59,28 @@ export default function Navbar() {
   useEffect(() => {
     if (isSignedIn) {
       const cargarContadores = async () => {
+        // Intentar cargar mensajes no leídos - fallar silenciosamente si no existe la tabla
         try {
-          const [mensajesRes, conexionesRes] = await Promise.all([
-            fetch("/api/mensajes/no-leidos"),
-            fetch("/api/conexiones/pendientes"),
-          ])
-
+          const mensajesRes = await fetch("/api/mensajes/no-leidos")
           if (mensajesRes.ok) {
             const data = await mensajesRes.json()
             setMensajesNoLeidos(data.count || 0)
           }
+        } catch (mensajesError) {
+          // Tabla mensajes no existe aún - no mostrar error
+          setMensajesNoLeidos(0)
+        }
 
+        // Intentar cargar conexiones pendientes - fallar silenciosamente si no existe la tabla
+        try {
+          const conexionesRes = await fetch("/api/conexiones/pendientes")
           if (conexionesRes.ok) {
             const data = await conexionesRes.json()
             setConexionesPendientes(data.count || 0)
           }
-        } catch (error) {
-          console.error("Error al cargar contadores:", error)
+        } catch (conexionesError) {
+          // Tabla conexiones no existe aún - no mostrar error
+          setConexionesPendientes(0)
         }
       }
 
