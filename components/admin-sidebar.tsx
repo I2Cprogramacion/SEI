@@ -122,7 +122,7 @@ export function AdminSidebar() {
   return (
     <>
       {/* Botón de menú móvil */}
-      <div className="md:hidden fixed top-4 left-4 z-50 shadow-lg">
+      <div className="md:hidden fixed top-20 left-4 z-50 shadow-lg">
         <Button
           variant="outline"
           size="icon"
@@ -142,14 +142,14 @@ export function AdminSidebar() {
       )}
 
       {/* Sidebar Desktop */}
-      <div className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 shadow-sm min-h-screen fixed left-0 top-0">
+      <div className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 shadow-sm min-h-screen fixed left-0 top-16">
         <SidebarContent />
       </div>
 
       {/* Sidebar Móvil */}
       <div
         className={cn(
-          "md:hidden fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-200 shadow-xl transform transition-transform duration-300 ease-in-out",
+          "md:hidden fixed top-16 left-0 z-50 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 shadow-xl transform transition-transform duration-300 ease-in-out",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
