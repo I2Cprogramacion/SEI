@@ -14,10 +14,10 @@ export async function POST(request: NextRequest) {
 
     console.log('🔵 POST /api/conexiones - Usuario:', user.id)
 
-    const clerkUserId = user.id
+    const userEmail = user.emailAddresses[0]?.emailAddress
     const { destinatarioId, mensaje } = await request.json()
 
-    console.log('🔵 Datos recibidos:', { destinatarioId, mensaje: mensaje?.substring(0, 50) })
+    console.log('🔵 Datos recibidos:', { userEmail, destinatarioId, mensaje: mensaje?.substring(0, 50) })
 
     if (!destinatarioId) {
       return NextResponse.json(
@@ -26,19 +26,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Obtener ID del investigador origen desde clerk_user_id
-    console.log('🔵 Buscando investigador origen con clerk_user_id:', clerkUserId)
+    // Obtener ID del investigador origen por email
+    console.log('🔵 Buscando investigador origen con email:', userEmail)
     const origenQuery = await sql`
       SELECT id, nombre_completo, correo FROM investigadores 
-      WHERE clerk_user_id = ${clerkUserId} 
+      WHERE correo = ${userEmail} 
       LIMIT 1
     `
     console.log('🔵 Resultado origen:', origenQuery.rows)
 
     if (origenQuery.rows.length === 0) {
-      console.log('❌ Usuario origen no encontrado')
+      console.log('❌ Usuario origen no encontrado con email:', userEmail)
       return NextResponse.json(
-        { error: "Usuario no encontrado en el sistema" },
+        { 
+          error: "Tu cuenta no está registrada en el sistema. Por favor completa tu perfil primero.",
+          details: "No se encontró un investigador asociado a tu email"
+        },
         { status: 404 }
       )
     }
