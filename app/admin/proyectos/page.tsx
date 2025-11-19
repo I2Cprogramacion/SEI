@@ -19,7 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Download, Eye, Filter, Search, FileText, Calendar, User } from "lucide-react"
 import { ExportDialog } from "@/components/export-dialog"
-import { ResearcherLink } from "@/components/researcher-link"
+import { AuthorAvatarGroup } from "@/components/author-avatar-group"
 
 // Interfaz para los datos de proyectos
 interface Proyecto {
@@ -61,9 +61,17 @@ export default function ProyectosAdmin() {
           throw new Error("Error al cargar los proyectos")
         }
         const data = await response.json()
-        console.log("Datos recibidos de la API:", data)
+        console.log("📊 [Proyectos] Datos recibidos de la API:", data)
         const proyectosData = data.proyectos || data || []
-        console.log("Datos procesados:", proyectosData)
+        console.log("📊 [Proyectos] Datos procesados:", proyectosData)
+        console.log("📊 [Proyectos] Primer proyecto ejemplo:", proyectosData[0])
+        if (proyectosData[0]) {
+          console.log("📊 [Proyectos] Presupuesto ejemplo:", {
+            raw: proyectosData[0].presupuesto,
+            tipo: typeof proyectosData[0].presupuesto,
+            investigador: proyectosData[0].investigador_principal || proyectosData[0].autor
+          })
+        }
         setProyectos(proyectosData)
         setFilteredData(proyectosData)
       } catch (error) {
@@ -263,8 +271,13 @@ export default function ProyectosAdmin() {
                             const nombreInvestigador = proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre) || null
                             if (!nombreInvestigador) return "N/A"
                             return (
-                              <div className="max-w-xs" title={nombreInvestigador}>
-                                <ResearcherLink nombre={nombreInvestigador} />
+                              <div className="max-w-xs">
+                                <AuthorAvatarGroup 
+                                  authors={nombreInvestigador}
+                                  maxVisible={1}
+                                  size="sm"
+                                  showNames={true}
+                                />
                               </div>
                             )
                           })()}
@@ -281,21 +294,36 @@ export default function ProyectosAdmin() {
                         <TableCell className="text-blue-900">
                           {(() => {
                             const presupuesto = proyecto.presupuesto
-                            if (presupuesto === null || presupuesto === undefined || presupuesto === '' || presupuesto === 0) return "N/A"
                             
+                            // Si no hay presupuesto, mostrar N/A
+                            if (presupuesto === null || presupuesto === undefined || presupuesto === '' || presupuesto === 0) {
+                              return "N/A"
+                            }
+                            
+                            // Convertir a número
                             let numPresupuesto: number
                             if (typeof presupuesto === 'string') {
-                              const cleaned = presupuesto.replace(/[^0-9.-]/g, '')
-                              if (!cleaned) return "N/A"
+                              // Limpiar string y convertir
+                              const cleaned = presupuesto.trim().replace(/[^0-9.-]/g, '')
+                              if (!cleaned || cleaned === '-') {
+                                return "N/A"
+                              }
                               numPresupuesto = parseFloat(cleaned)
                             } else {
                               numPresupuesto = Number(presupuesto)
                             }
                             
-                            if (isNaN(numPresupuesto) || numPresupuesto === 0) return "N/A"
+                            // Validar que sea un número válido y mayor a 0
+                            if (isNaN(numPresupuesto) || !isFinite(numPresupuesto) || numPresupuesto <= 0) {
+                              return "N/A"
+                            }
                             
+                            // Formatear como moneda
                             try {
-                              return `$${numPresupuesto.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+                              return `$${numPresupuesto.toLocaleString('es-MX', { 
+                                minimumFractionDigits: 0, 
+                                maximumFractionDigits: 0 
+                              })}`
                             } catch {
                               return "N/A"
                             }
@@ -370,10 +398,17 @@ export default function ProyectosAdmin() {
                           const nombreInvestigador = proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre)
                           if (!nombreInvestigador) return null
                           return (
-                            <p>
-                              <span className="font-medium">Investigador:</span>{" "}
-                              <ResearcherLink nombre={nombreInvestigador} />
-                            </p>
+                            <div>
+                              <span className="font-medium">Investigador:</span>
+                              <div className="mt-1">
+                                <AuthorAvatarGroup 
+                                  authors={nombreInvestigador}
+                                  maxVisible={1}
+                                  size="sm"
+                                  showNames={true}
+                                />
+                              </div>
+                            </div>
                           )
                         })()}
                         {proyecto.institucion && (
