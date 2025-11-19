@@ -269,9 +269,7 @@ export default function Navbar() {
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-semibold text-gray-900 truncate">{getDisplayName()}</p>
-                        {nombreCompleto && user.fullName && nombreCompleto !== user.fullName && (
-                          <p className="text-xs text-gray-500 truncate">{user.fullName}</p>
-                        )}
+                        <p className="text-xs text-gray-500 truncate">{user.primaryEmailAddress?.emailAddress}</p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
@@ -373,9 +371,7 @@ export default function Navbar() {
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-semibold text-gray-900">{getDisplayName()}</p>
-                        {nombreCompleto && user.fullName && nombreCompleto !== user.fullName && (
-                          <p className="text-xs text-gray-500">{user.fullName}</p>
-                        )}
+                        <p className="text-xs text-gray-500">{user.primaryEmailAddress?.emailAddress}</p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
@@ -579,11 +575,9 @@ export default function Navbar() {
                             <div className="text-sm font-semibold text-gray-900 truncate">
                               {getDisplayName()}
                             </div>
-                            {nombreCompleto && user.fullName && nombreCompleto !== user.fullName && (
-                              <div className="text-xs text-gray-600 truncate">
-                                {user.fullName}
-                              </div>
-                            )}
+                            <div className="text-xs text-gray-600 truncate">
+                              {user.primaryEmailAddress?.emailAddress}
+                            </div>
                           </div>
                         </div>
                         <Button 
