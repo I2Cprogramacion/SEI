@@ -19,7 +19,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Download, Eye, Filter, Search, FileText, Calendar, User } from "lucide-react"
 import { ExportDialog } from "@/components/export-dialog"
-import { AuthorAvatarGroup } from "@/components/author-avatar-group"
 
 // Interfaz para los datos de proyectos
 interface Proyecto {
@@ -259,14 +258,9 @@ export default function ProyectosAdmin() {
                           </div>
                         </TableCell>
                         <TableCell className="text-blue-900">
-                          {proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre) ? (
-                            <AuthorAvatarGroup 
-                              authors={proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre || '')}
-                              maxVisible={1}
-                              size="sm"
-                              showNames={true}
-                            />
-                          ) : "N/A"}
+                          <div className="max-w-xs truncate" title={proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre) || ''}>
+                            {proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre) || "N/A"}
+                          </div>
                         </TableCell>
                         <TableCell className="text-blue-900">{proyecto.institucion || "N/A"}</TableCell>
                         <TableCell>
@@ -354,17 +348,7 @@ export default function ProyectosAdmin() {
                       </div>
                       <div className="space-y-1 text-sm text-blue-700">
                         {(proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre)) && (
-                          <div>
-                            <span className="font-medium">Investigador:</span>
-                            <div className="mt-1">
-                              <AuthorAvatarGroup 
-                                authors={proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre || '')}
-                                maxVisible={1}
-                                size="sm"
-                                showNames={true}
-                              />
-                            </div>
-                          </div>
+                          <p><span className="font-medium">Investigador:</span> {proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre)}</p>
                         )}
                         {proyecto.institucion && (
                           <p><span className="font-medium">Institución:</span> {proyecto.institucion}</p>
