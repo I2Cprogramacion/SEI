@@ -221,6 +221,7 @@ export async function GET(request: NextRequest) {
       email: row.otro_email,
       fotografia_url: row.otro_foto,
       institucion: row.otro_institucion,
+      mensaje: row.mensaje,
       es_destinatario: row.tipo === 'recibida' && row.estado === 'pendiente'
     }))
 

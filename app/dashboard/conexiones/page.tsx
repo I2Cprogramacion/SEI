@@ -32,6 +32,7 @@ interface Conexion {
   fotografia_url?: string
   institucion?: string
   es_destinatario?: boolean
+  mensaje?: string
 }
 
 export default function ConexionesPage() {
@@ -284,6 +285,12 @@ export default function ConexionesPage() {
                             locale: es,
                           })}
                         </p>
+                        {conexion.mensaje && (
+                          <div className="mb-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <p className="text-xs font-medium text-blue-900 mb-1">Mensaje:</p>
+                            <p className="text-sm text-blue-700 italic">"{conexion.mensaje}"</p>
+                          </div>
+                        )}
                         {conexion.es_destinatario && (
                           <div className="flex gap-2">
                             <Button
