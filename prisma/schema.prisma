@@ -460,9 +460,9 @@ model VerificacionCertificado {
   // ========================================
 
 model Mensaje {
-  id              Int      @id @default(autoincrement())
-  remitenteId     Int      @map("remitente_id")
-  destinatarioId  Int      @map("destinatario_id")
+  id              String   @id @default(cuid())
+  remitenteId     String   @map("remitente_id")
+  destinatarioId  String   @map("destinatario_id")
   asunto          String?  @db.VarChar(255)
   contenido       String   @db.Text
   leido           Boolean  @default(false)
@@ -478,10 +478,10 @@ model Mensaje {
 }
 
 model Conexion {
-  id                    Int      @id @default(autoincrement())
-  investigadorId        Int      @map("investigador_id")
-  conectadoConId        Int      @map("conectado_con_id")
-  investigadorDestinoId Int      @map("investigador_destino_id")
+  id                    String   @id @default(cuid())
+  investigadorId        String   @map("investigador_id")
+  conectadoConId        String   @map("conectado_con_id")
+  investigadorDestinoId String   @map("investigador_destino_id")
   estado                String   @default("pendiente") @db.VarChar(50)
   mensaje               String?  @db.Text
   createdAt             DateTime @default(now()) @map("created_at")
