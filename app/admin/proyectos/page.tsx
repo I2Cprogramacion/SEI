@@ -419,19 +419,30 @@ export default function ProyectosAdmin() {
                         )}
                         {(() => {
                           const presupuesto = proyecto.presupuesto
-                          if (presupuesto === null || presupuesto === undefined || presupuesto === '' || presupuesto === 0) return null
                           
+                          // Si no hay presupuesto, no mostrar nada
+                          if (presupuesto === null || presupuesto === undefined || presupuesto === '' || presupuesto === 0) {
+                            return null
+                          }
+                          
+                          // Convertir a número
                           let numPresupuesto: number
                           if (typeof presupuesto === 'string') {
-                            const cleaned = presupuesto.replace(/[^0-9.-]/g, '')
-                            if (!cleaned) return null
+                            const cleaned = presupuesto.trim().replace(/[^0-9.-]/g, '')
+                            if (!cleaned || cleaned === '-') {
+                              return null
+                            }
                             numPresupuesto = parseFloat(cleaned)
                           } else {
                             numPresupuesto = Number(presupuesto)
                           }
                           
-                          if (isNaN(numPresupuesto) || numPresupuesto === 0) return null
+                          // Validar que sea un número válido y mayor a 0
+                          if (isNaN(numPresupuesto) || !isFinite(numPresupuesto) || numPresupuesto <= 0) {
+                            return null
+                          }
                           
+                          // Formatear como moneda
                           try {
                             return (
                               <p><span className="font-medium">Presupuesto:</span> ${numPresupuesto.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
