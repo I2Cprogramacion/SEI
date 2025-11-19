@@ -19,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Download, Eye, Filter, Search, FileText, Calendar, User } from "lucide-react"
 import { ExportDialog } from "@/components/export-dialog"
+import { ResearcherLink } from "@/components/researcher-link"
 
 // Interfaz para los datos de proyectos
 interface Proyecto {
@@ -258,9 +259,15 @@ export default function ProyectosAdmin() {
                           </div>
                         </TableCell>
                         <TableCell className="text-blue-900">
-                          <div className="max-w-xs truncate" title={proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre) || ''}>
-                            {proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre) || "N/A"}
-                          </div>
+                          {(() => {
+                            const nombreInvestigador = proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre) || null
+                            if (!nombreInvestigador) return "N/A"
+                            return (
+                              <div className="max-w-xs truncate" title={nombreInvestigador}>
+                                <ResearcherLink nombre={nombreInvestigador} />
+                              </div>
+                            )
+                          })()}
                         </TableCell>
                         <TableCell className="text-blue-900">{proyecto.institucion || "N/A"}</TableCell>
                         <TableCell>
@@ -347,9 +354,16 @@ export default function ProyectosAdmin() {
                         </Badge>
                       </div>
                       <div className="space-y-1 text-sm text-blue-700">
-                        {(proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre)) && (
-                          <p><span className="font-medium">Investigador:</span> {proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre)}</p>
-                        )}
+                        {(() => {
+                          const nombreInvestigador = proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre)
+                          if (!nombreInvestigador) return null
+                          return (
+                            <p>
+                              <span className="font-medium">Investigador:</span>{" "}
+                              <ResearcherLink nombre={nombreInvestigador} />
+                            </p>
+                          )
+                        })()}
                         {proyecto.institucion && (
                           <p><span className="font-medium">Institución:</span> {proyecto.institucion}</p>
                         )}
