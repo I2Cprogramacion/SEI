@@ -51,6 +51,15 @@ export function EnviarMensajeDialog({
       return
     }
 
+    if (!investigadorClerkId || investigadorClerkId.trim() === '') {
+      toast({
+        title: "No disponible",
+        description: "Este investigador no tiene una cuenta activa en el sistema para recibir mensajes",
+        variant: "destructive",
+      })
+      return
+    }
+
     if (!asunto.trim() || !mensaje.trim()) {
       toast({
         title: "Campos incompletos",
