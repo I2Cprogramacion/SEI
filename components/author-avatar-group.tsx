@@ -139,7 +139,11 @@ export function AuthorAvatarGroup({
   }
 
   if (visibleAuthors.length === 0) {
-    console.log("⚠️ [AuthorAvatarGroup] No hay autores visibles, retornando null")
+    console.log("⚠️ [AuthorAvatarGroup] No hay autores visibles")
+    // Si showNames está activado y hay un autor original, mostrar al menos el nombre
+    if (showNames && typeof authors === 'string' && authors.trim()) {
+      return <span className="text-blue-600">{authors.trim()}</span>
+    }
     return null
   }
 

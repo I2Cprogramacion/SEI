@@ -306,39 +306,35 @@ export default function ProyectosAdmin() {
                         <TableCell className="text-blue-900">
                           {(() => {
                             const presupuesto = proyecto.presupuesto
+                            console.log("💰 [Presupuesto Desktop] Valor:", presupuesto, "Tipo:", typeof presupuesto)
                             
-                            // Si no hay presupuesto, mostrar N/A
-                            if (presupuesto === null || presupuesto === undefined || presupuesto === '' || presupuesto === 0) {
+                            // Si es null o undefined, mostrar N/A
+                            if (presupuesto === null || presupuesto === undefined) {
                               return "N/A"
                             }
                             
-                            // Convertir a número
-                            let numPresupuesto: number
+                            // Si es string vacío, mostrar N/A
+                            if (typeof presupuesto === 'string' && presupuesto.trim() === '') {
+                              return "N/A"
+                            }
+                            
+                            // Si es número, formatearlo directamente
+                            if (typeof presupuesto === 'number') {
+                              return `$${presupuesto.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+                            }
+                            
+                            // Si es string, intentar convertirlo
                             if (typeof presupuesto === 'string') {
-                              // Limpiar string y convertir
-                              const cleaned = presupuesto.trim().replace(/[^0-9.-]/g, '')
-                              if (!cleaned || cleaned === '-') {
-                                return "N/A"
+                              const num = parseFloat(presupuesto.replace(/[^0-9.-]/g, ''))
+                              if (!isNaN(num) && num > 0) {
+                                return `$${num.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
                               }
-                              numPresupuesto = parseFloat(cleaned)
-                            } else {
-                              numPresupuesto = Number(presupuesto)
+                              // Si no se puede convertir, mostrar el string tal cual
+                              return presupuesto
                             }
                             
-                            // Validar que sea un número válido y mayor a 0
-                            if (isNaN(numPresupuesto) || !isFinite(numPresupuesto) || numPresupuesto <= 0) {
-                              return "N/A"
-                            }
-                            
-                            // Formatear como moneda
-                            try {
-                              return `$${numPresupuesto.toLocaleString('es-MX', { 
-                                minimumFractionDigits: 0, 
-                                maximumFractionDigits: 0 
-                              })}`
-                            } catch {
-                              return "N/A"
-                            }
+                            // Si no se puede formatear, mostrar el valor tal cual
+                            return String(presupuesto)
                           })()}
                         </TableCell>
                         <TableCell className="text-right">
@@ -441,37 +437,43 @@ export default function ProyectosAdmin() {
                         )}
                         {(() => {
                           const presupuesto = proyecto.presupuesto
+                          console.log("💰 [Presupuesto Mobile] Valor:", presupuesto, "Tipo:", typeof presupuesto)
                           
-                          // Si no hay presupuesto, no mostrar nada
-                          if (presupuesto === null || presupuesto === undefined || presupuesto === '' || presupuesto === 0) {
+                          // Si es null o undefined, no mostrar nada
+                          if (presupuesto === null || presupuesto === undefined) {
                             return null
                           }
                           
-                          // Convertir a número
-                          let numPresupuesto: number
-                          if (typeof presupuesto === 'string') {
-                            const cleaned = presupuesto.trim().replace(/[^0-9.-]/g, '')
-                            if (!cleaned || cleaned === '-') {
-                              return null
-                            }
-                            numPresupuesto = parseFloat(cleaned)
-                          } else {
-                            numPresupuesto = Number(presupuesto)
-                          }
-                          
-                          // Validar que sea un número válido y mayor a 0
-                          if (isNaN(numPresupuesto) || !isFinite(numPresupuesto) || numPresupuesto <= 0) {
+                          // Si es string vacío, no mostrar nada
+                          if (typeof presupuesto === 'string' && presupuesto.trim() === '') {
                             return null
                           }
                           
-                          // Formatear como moneda
-                          try {
+                          // Si es número, formatearlo directamente
+                          if (typeof presupuesto === 'number') {
                             return (
-                              <p><span className="font-medium">Presupuesto:</span> ${numPresupuesto.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+                              <p><span className="font-medium">Presupuesto:</span> ${presupuesto.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                             )
-                          } catch {
-                            return null
                           }
+                          
+                          // Si es string, intentar convertirlo
+                          if (typeof presupuesto === 'string') {
+                            const num = parseFloat(presupuesto.replace(/[^0-9.-]/g, ''))
+                            if (!isNaN(num) && num > 0) {
+                              return (
+                                <p><span className="font-medium">Presupuesto:</span> ${num.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+                              )
+                            }
+                            // Si no se puede convertir, mostrar el string tal cual
+                            return (
+                              <p><span className="font-medium">Presupuesto:</span> {presupuesto}</p>
+                            )
+                          }
+                          
+                          // Si no se puede formatear, mostrar el valor tal cual
+                          return (
+                            <p><span className="font-medium">Presupuesto:</span> {String(presupuesto)}</p>
+                          )
                         })()}
                       </div>
                       <div className="flex gap-2 mt-4">
