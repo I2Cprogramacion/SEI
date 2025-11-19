@@ -84,9 +84,12 @@ export async function GET(
         nombre: row.autor,
         institucion: row.institucion || ''
       } : { nombre: '', institucion: '' },
+      investigador_principal: row.autor || row.investigador_principal || '',
       institucion: row.institucion || '',
       fechaInicio: row.fecha_inicio || null,
       fechaFin: row.fecha_fin || null,
+      fecha_inicio: row.fecha_inicio || null,
+      fecha_fin: row.fecha_fin || null,
       estado: row.estado || '',
       categoria: row.categoria || '',
       areaInvestigacion: row.area_investigacion || '',

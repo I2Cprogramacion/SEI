@@ -23,6 +23,7 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
+import { ResearcherLink } from "@/components/researcher-link"
 
 interface Proyecto {
   id: number
@@ -38,7 +39,10 @@ interface Proyecto {
   estado: string
   fechaInicio: string | null
   fechaFin: string | null
-  presupuesto: number | null
+  fecha_inicio?: string | null
+  fecha_fin?: string | null
+  presupuesto: number | string | null
+  investigador_principal?: string
   financiamiento: string | null
   areaInvestigacion?: string
   palabrasClave: string[]
@@ -134,14 +138,36 @@ export default function ProjectPage() {
     }
   }
 
-  const formatPresupuesto = (presupuesto: number | null) => {
-    if (!presupuesto) return 'No especificado'
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(presupuesto)
+  const formatPresupuesto = (presupuesto: number | string | null) => {
+    if (presupuesto === null || presupuesto === undefined || presupuesto === '') {
+      return 'No especificado'
+    }
+    
+    // Si es número, formatearlo directamente
+    if (typeof presupuesto === 'number') {
+      return new Intl.NumberFormat('es-MX', {
+        style: 'currency',
+        currency: 'MXN',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(presupuesto)
+    }
+    
+    // Si es string, intentar convertirlo
+    if (typeof presupuesto === 'string') {
+      const num = parseFloat(presupuesto.replace(/[^0-9.-]/g, ''))
+      if (!isNaN(num) && num > 0) {
+        return new Intl.NumberFormat('es-MX', {
+          style: 'currency',
+          currency: 'MXN',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        }).format(num)
+      }
+      return presupuesto
+    }
+    
+    return 'No especificado'
   }
 
   const getColaboradorNombre = (colab: any): string => {
@@ -245,7 +271,7 @@ export default function ProjectPage() {
               {proyecto.autor.nombre && (
                 <div className="flex items-center">
                   <User className="mr-2 h-4 w-4" />
-                  <span>{proyecto.autor.nombre}</span>
+                  <ResearcherLink nombre={proyecto.autor.nombre} />
                 </div>
               )}
               {proyecto.autor.institucion && (
@@ -458,7 +484,13 @@ export default function ProjectPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="font-semibold text-gray-900 text-lg">{proyecto.autor.nombre || 'No especificado'}</p>
+                  <p className="font-semibold text-gray-900 text-lg">
+                    {proyecto.autor.nombre ? (
+                      <ResearcherLink nombre={proyecto.autor.nombre} className="text-gray-900 hover:text-blue-700" />
+                    ) : (
+                      'No especificado'
+                    )}
+                  </p>
                   {proyecto.autor.institucion && (
                     <p className="text-sm text-gray-600 mt-2 flex items-center gap-2">
                       <Building2 className="h-4 w-4" />
@@ -489,7 +521,13 @@ export default function ProjectPage() {
                         
                         return (
                           <div key={index} className="pb-3 border-b border-gray-100 last:border-0 last:pb-0">
-                            <p className="font-medium text-gray-900">{nombre || 'Colaborador'}</p>
+                            <p className="font-medium text-gray-900">
+                              {nombre ? (
+                                <ResearcherLink nombre={nombre} className="text-gray-900 hover:text-blue-700" />
+                              ) : (
+                                'Colaborador'
+                              )}
+                            </p>
                             {institucion && (
                               <p className="text-sm text-gray-600 mt-1">{institucion}</p>
                             )}
