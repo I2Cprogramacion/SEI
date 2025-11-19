@@ -64,12 +64,14 @@ export default function ProyectosAdmin() {
         console.log("📊 [Proyectos] Datos recibidos de la API:", data)
         const proyectosData = data.proyectos || data || []
         console.log("📊 [Proyectos] Datos procesados:", proyectosData)
-        console.log("📊 [Proyectos] Primer proyecto ejemplo:", proyectosData[0])
-        if (proyectosData[0]) {
-          console.log("📊 [Proyectos] Presupuesto ejemplo:", {
+        if (proyectosData.length > 0) {
+          console.log("📊 [Proyectos] Primer proyecto completo:", JSON.stringify(proyectosData[0], null, 2))
+          console.log("📊 [Proyectos] Investigador principal:", proyectosData[0].investigador_principal)
+          console.log("📊 [Proyectos] Autor:", proyectosData[0].autor)
+          console.log("📊 [Proyectos] Presupuesto:", {
             raw: proyectosData[0].presupuesto,
             tipo: typeof proyectosData[0].presupuesto,
-            investigador: proyectosData[0].investigador_principal || proyectosData[0].autor
+            valor: proyectosData[0].presupuesto
           })
         }
         setProyectos(proyectosData)
@@ -269,7 +271,17 @@ export default function ProyectosAdmin() {
                         <TableCell className="text-blue-900">
                           {(() => {
                             const nombreInvestigador = proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre) || null
-                            if (!nombreInvestigador) return "N/A"
+                            console.log("🔍 [Proyectos] Renderizando investigador:", {
+                              proyectoId: proyecto.id,
+                              investigador_principal: proyecto.investigador_principal,
+                              autor: proyecto.autor,
+                              nombreFinal: nombreInvestigador,
+                              tipo: typeof nombreInvestigador
+                            })
+                            if (!nombreInvestigador) {
+                              console.log("⚠️ [Proyectos] No hay nombre de investigador, mostrando N/A")
+                              return "N/A"
+                            }
                             return (
                               <div className="max-w-xs">
                                 <AuthorAvatarGroup 
@@ -396,7 +408,17 @@ export default function ProyectosAdmin() {
                       <div className="space-y-1 text-sm text-blue-700">
                         {(() => {
                           const nombreInvestigador = proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre)
-                          if (!nombreInvestigador) return null
+                          console.log("🔍 [Proyectos Mobile] Renderizando investigador:", {
+                            proyectoId: proyecto.id,
+                            investigador_principal: proyecto.investigador_principal,
+                            autor: proyecto.autor,
+                            nombreFinal: nombreInvestigador,
+                            tipo: typeof nombreInvestigador
+                          })
+                          if (!nombreInvestigador) {
+                            console.log("⚠️ [Proyectos Mobile] No hay nombre de investigador")
+                            return null
+                          }
                           return (
                             <div>
                               <span className="font-medium">Investigador:</span>

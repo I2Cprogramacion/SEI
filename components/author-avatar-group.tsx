@@ -40,34 +40,48 @@ export function AuthorAvatarGroup({
     ? authors.split(/[,;]/).map(a => a.trim()).filter(Boolean)
     : Array.isArray(authors) ? authors : []
   
+  console.log("🔍 [AuthorAvatarGroup] Props recibidas:", {
+    authors,
+    tipo: typeof authors,
+    authorArray,
+    length: authorArray.length,
+    maxVisible
+  })
+  
   const visibleAuthors = authorArray.slice(0, maxVisible)
   const remainingCount = Math.max(0, authorArray.length - maxVisible)
 
   useEffect(() => {
     async function fetchAuthorProfiles() {
+      console.log("🔍 [AuthorAvatarGroup] useEffect ejecutado, authorArray.length:", authorArray.length)
       if (authorArray.length === 0) {
+        console.log("⚠️ [AuthorAvatarGroup] authorArray vacío, no se buscarán perfiles")
         setLoading(false)
         return
       }
 
       try {
         const profiles = new Map<string, AuthorProfile>()
+        console.log("🔍 [AuthorAvatarGroup] Buscando perfiles para:", authorArray)
         
         await Promise.all(
           authorArray.map(async (author) => {
             try {
+              console.log("🔍 [AuthorAvatarGroup] Buscando perfil para:", author)
               const response = await fetch(`/api/buscar-investigador-por-nombre?nombre=${encodeURIComponent(author)}`)
               
               if (!response.ok) {
-                console.warn(`Failed to fetch profile for ${author}`)
+                console.warn(`⚠️ [AuthorAvatarGroup] Failed to fetch profile for ${author}, status:`, response.status)
                 profiles.set(author, { nombreCompleto: author })
                 return
               }
               
               const data = await response.json()
+              console.log("🔍 [AuthorAvatarGroup] Respuesta API para", author, ":", data)
               
               if (data.investigadores && data.investigadores.length > 0) {
                 const match = data.investigadores[0]
+                console.log("✅ [AuthorAvatarGroup] Perfil encontrado para", author, ":", match)
                 profiles.set(author, {
                   nombreCompleto: match.nombreCompleto,
                   slug: match.slug,
@@ -75,20 +89,23 @@ export function AuthorAvatarGroup({
                   institucion: match.institucion
                 })
               } else {
+                console.log("⚠️ [AuthorAvatarGroup] No se encontró perfil para", author)
                 profiles.set(author, { nombreCompleto: author })
               }
             } catch (error) {
-              console.warn(`Error fetching profile for ${author}:`, error)
+              console.warn(`❌ [AuthorAvatarGroup] Error fetching profile for ${author}:`, error)
               profiles.set(author, { nombreCompleto: author })
             }
           })
         )
         
+        console.log("🔍 [AuthorAvatarGroup] Perfiles finales:", Array.from(profiles.entries()))
         setAuthorProfiles(profiles)
       } catch (error) {
-        console.error('Error fetching author profiles:', error)
+        console.error('❌ [AuthorAvatarGroup] Error fetching author profiles:', error)
       } finally {
         setLoading(false)
+        console.log("🔍 [AuthorAvatarGroup] Loading completado")
       }
     }
 
@@ -105,7 +122,10 @@ export function AuthorAvatarGroup({
       .toUpperCase()
   }
 
+  console.log("🔍 [AuthorAvatarGroup] Renderizando, loading:", loading, "visibleAuthors:", visibleAuthors.length)
+  
   if (loading) {
+    console.log("⏳ [AuthorAvatarGroup] Mostrando estado de carga")
     return (
       <div className="flex items-center gap-2">
         {[...Array(Math.min(maxVisible, authorArray.length))].map((_, i) => (
@@ -118,6 +138,12 @@ export function AuthorAvatarGroup({
     )
   }
 
+  if (visibleAuthors.length === 0) {
+    console.log("⚠️ [AuthorAvatarGroup] No hay autores visibles, retornando null")
+    return null
+  }
+
+  console.log("✅ [AuthorAvatarGroup] Renderizando", visibleAuthors.length, "autores")
   return (
     <div className="flex items-center gap-2">
       <TooltipProvider>
