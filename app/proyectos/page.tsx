@@ -60,6 +60,18 @@ export default function ProyectosPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 9
 
+  // Función para formatear fechas
+  const formatFecha = (fecha: string | null | undefined) => {
+    if (!fecha) return 'N/A'
+    try {
+      const date = new Date(fecha)
+      if (isNaN(date.getTime())) return fecha
+      return date.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
+    } catch {
+      return fecha
+    }
+  }
+
   // Conectar con API real
   useEffect(() => {
     const fetchProyectos = async () => {
@@ -311,7 +323,7 @@ export default function ProyectosPage() {
                         <div className="flex items-center text-sm text-blue-600">
                           <Calendar className="mr-2 h-4 w-4" />
                           <span>
-                            {proyecto.fecha_inicio || proyecto.fechaInicio || 'N/A'} - {proyecto.fecha_fin || proyecto.fechaFin || 'N/A'}
+                            {formatFecha(proyecto.fecha_inicio || proyecto.fechaInicio)} - {formatFecha(proyecto.fecha_fin || proyecto.fechaFin)}
                           </span>
                         </div>
                       )}
