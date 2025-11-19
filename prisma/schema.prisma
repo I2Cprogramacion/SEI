@@ -199,6 +199,11 @@ model Profile {
   certificados        Certificado[]
   metricas            MetricaInvestigador?
   // postulaciones       Postulacion[] // Comentado hasta que se implemente la tabla
+  mensajesEnviados      Mensaje[]  @relation("MensajesEnviados")
+  mensajesRecibidos     Mensaje[]  @relation("MensajesRecibidos")
+  conexionesIniciadas   Conexion[] @relation("ConexionesIniciadas")
+  conexionesRecibidas   Conexion[] @relation("ConexionesRecibidas")
+  conexionesDestino     Conexion[] @relation("ConexionesDestino")
   createdAt           DateTime     @default(now()) @map("created_at")
   updatedAt           DateTime     @updatedAt      @map("updated_at")
 
@@ -449,6 +454,48 @@ model VerificacionCertificado {
   //   updatedAt         DateTime    @updatedAt
   //   @@map("notificaciones_convocatoria")
   // }
+
+  // ========================================
+  // MENSAJERÍA Y CONEXIONES
+  // ========================================
+
+model Mensaje {
+  id              Int      @id @default(autoincrement())
+  remitenteId     Int      @map("remitente_id")
+  destinatarioId  Int      @map("destinatario_id")
+  asunto          String?  @db.VarChar(255)
+  contenido       String   @db.Text
+  leido           Boolean  @default(false)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  
+  remitente       Profile  @relation("MensajesEnviados", fields: [remitenteId], references: [id], onDelete: Cascade)
+  destinatario    Profile  @relation("MensajesRecibidos", fields: [destinatarioId], references: [id], onDelete: Cascade)
+  
+  @@index([destinatarioId])
+  @@index([leido])
+  @@map("mensajes")
+}
+
+model Conexion {
+  id                    Int      @id @default(autoincrement())
+  investigadorId        Int      @map("investigador_id")
+  conectadoConId        Int      @map("conectado_con_id")
+  investigadorDestinoId Int      @map("investigador_destino_id")
+  estado                String   @default("pendiente") @db.VarChar(50)
+  mensaje               String?  @db.Text
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  
+  investigador          Profile  @relation("ConexionesIniciadas", fields: [investigadorId], references: [id], onDelete: Cascade)
+  conectadoCon          Profile  @relation("ConexionesRecibidas", fields: [conectadoConId], references: [id], onDelete: Cascade)
+  investigadorDestino   Profile  @relation("ConexionesDestino", fields: [investigadorDestinoId], references: [id], onDelete: Cascade)
+  
+  @@unique([investigadorId, conectadoConId])
+  @@index([estado])
+  @@index([investigadorDestinoId])
+  @@map("conexiones")
+}
 
   // ========================================
   // ÍNDICES ADICIONALES PARA OPTIMIZACIÓN
