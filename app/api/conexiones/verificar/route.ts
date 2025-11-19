@@ -7,13 +7,15 @@ import { getDatabase } from "@/lib/database-config"
 export async function GET(request: NextRequest) {
   try {
     const user = await currentUser()
+    
+    // Si no está autenticado, simplemente retornar que no están conectados
     if (!user) {
-      return NextResponse.json({ error: "No autenticado" }, { status: 401 })
+      return NextResponse.json({ conectados: false, noAutenticado: true }, { status: 200 })
     }
 
     const userEmail = user.emailAddresses[0]?.emailAddress
     if (!userEmail) {
-      return NextResponse.json({ error: "Email no encontrado" }, { status: 400 })
+      return NextResponse.json({ conectados: false, noAutenticado: true }, { status: 200 })
     }
 
     // Obtener email del investigador a verificar desde query params
@@ -35,7 +37,8 @@ export async function GET(request: NextRequest) {
     )
 
     if (!investigadorActual.rows || investigadorActual.rows.length === 0) {
-      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
+      console.log(`[VERIFICAR CONEXION] Usuario no encontrado en BD: ${userEmail}`)
+      return NextResponse.json({ conectados: false }, { status: 200 })
     }
 
     const miId = investigadorActual.rows[0].id

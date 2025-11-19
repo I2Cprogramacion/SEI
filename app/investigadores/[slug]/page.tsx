@@ -411,31 +411,30 @@ export default function InvestigadorPage() {
                   </CardContent>
                 </Card>
 
-                {/* Botones de Contacto */}
-                <Card className="bg-white border-blue-100 shadow-sm">
-                  <CardHeader className="px-3 sm:px-6 pt-4 sm:pt-6">
-                    <CardTitle className="text-blue-900 text-sm sm:text-base break-words">Contacto</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2 px-3 sm:px-6 pb-4 sm:pb-6">
-                    <Button 
-                      className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 text-xs sm:text-sm"
-                      onClick={() => window.location.href = `mailto:${investigador.email}?subject=Contacto desde SEI&body=Hola ${investigador.name},%0D%0A%0D%0A`}
-                    >
-                      <Mail className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                      Enviar Email
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 text-xs sm:text-sm"
-                      onClick={() => setMensajeDialogOpen(true)}
-                      disabled={!userId}
-                    >
-                      <MessageCircle className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                      Mensaje Interno
-                    </Button>
-                    
-                    {userId && (
-                      estanConectados ? (
+                {/* Botones de Contacto - Solo visible si está autenticado */}
+                {userId && (
+                  <Card className="bg-white border-blue-100 shadow-sm">
+                    <CardHeader className="px-3 sm:px-6 pt-4 sm:pt-6">
+                      <CardTitle className="text-blue-900 text-sm sm:text-base break-words">Contacto</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 px-3 sm:px-6 pb-4 sm:pb-6">
+                      <Button 
+                        className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 text-xs sm:text-sm"
+                        onClick={() => window.location.href = `mailto:${investigador.email}?subject=Contacto desde SEI&body=Hola ${investigador.name},%0D%0A%0D%0A`}
+                      >
+                        <Mail className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                        Enviar Email
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 text-xs sm:text-sm"
+                        onClick={() => setMensajeDialogOpen(true)}
+                      >
+                        <MessageCircle className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                        Mensaje Interno
+                      </Button>
+                      
+                      {estanConectados ? (
                         <Button 
                           variant="outline" 
                           className="w-full border-green-500 text-green-700 bg-green-50 hover:bg-green-100 text-xs sm:text-sm cursor-default"
@@ -463,10 +462,10 @@ export default function InvestigadorPage() {
                           <UserPlus className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                           {cargandoConexion ? "Verificando..." : "Conectar"}
                         </Button>
-                      )
-                    )}
-                  </CardContent>
-                </Card>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </div>
 
