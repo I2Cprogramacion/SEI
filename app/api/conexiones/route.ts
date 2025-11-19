@@ -210,8 +210,23 @@ export async function GET(request: NextRequest) {
         c.created_at DESC
     `
 
-    return NextResponse.json(conexiones.rows)
+    // Mapear los resultados al formato esperado por el frontend
+    const conexionesFormateadas = conexiones.rows.map((row: any) => ({
+      id: row.id,
+      estado: row.estado,
+      fecha_solicitud: row.fecha_solicitud,
+      fecha_respuesta: row.fecha_respuesta,
+      id_conexion: row.otro_id,
+      nombre: row.otro_nombre,
+      email: row.otro_email,
+      fotografia_url: row.otro_foto,
+      institucion: row.otro_institucion,
+      es_destinatario: row.tipo === 'recibida' && row.estado === 'pendiente'
+    }))
+
+    return NextResponse.json(conexionesFormateadas)
   } catch (error) {
+    console.error('❌ Error en GET /api/conexiones:', error)
     return NextResponse.json(
       { error: "Error al obtener conexiones" },
       { status: 500 }
