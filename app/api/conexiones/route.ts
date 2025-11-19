@@ -56,8 +56,8 @@ export async function POST(request: NextRequest) {
     const existente = await sql`
       SELECT id, estado FROM conexiones 
       WHERE (
-        (investigador_origen_id = ${origenId} AND investigador_destino_id = ${destinoId})
-        OR (investigador_origen_id = ${destinoId} AND investigador_destino_id = ${origenId})
+        (investigador_id = ${origenId} AND conectado_con_id = ${destinoId})
+        OR (investigador_id = ${destinoId} AND conectado_con_id = ${origenId})
       )
       AND estado IN ('pendiente','aceptada')
       LIMIT 1
@@ -73,17 +73,17 @@ export async function POST(request: NextRequest) {
     // Crear solicitud de conexión
     const result = await sql`
       INSERT INTO conexiones (
-        investigador_origen_id,
+        investigador_id,
+        conectado_con_id,
         investigador_destino_id,
         estado,
-        mensaje,
-        fecha_solicitud
+        mensaje
       ) VALUES (
         ${origenId},
         ${destinoId},
+        ${destinoId},
         'pendiente',
-        ${mensaje || null},
-        CURRENT_TIMESTAMP
+        ${mensaje || null}
       )
       RETURNING id
     `
@@ -142,43 +142,43 @@ export async function GET(request: NextRequest) {
       SELECT 
         c.id,
         c.estado,
-        c.fecha_solicitud,
-        c.fecha_respuesta,
-        c.investigador_origen_id,
+        c.created_at as fecha_solicitud,
+        c.updated_at as fecha_respuesta,
+        c.investigador_id,
         c.investigador_destino_id,
         c.mensaje,
         CASE 
-          WHEN c.investigador_origen_id = ${investigadorId} THEN 'enviada'
+          WHEN c.investigador_id = ${investigadorId} THEN 'enviada'
           ELSE 'recibida'
         END as tipo,
         CASE 
-          WHEN c.investigador_origen_id = ${investigadorId} THEN i_dest.id
+          WHEN c.investigador_id = ${investigadorId} THEN i_dest.id
           ELSE i_orig.id
         END as otro_id,
         CASE 
-          WHEN c.investigador_origen_id = ${investigadorId} THEN i_dest.nombre_completo
+          WHEN c.investigador_id = ${investigadorId} THEN i_dest.nombre_completo
           ELSE i_orig.nombre_completo
         END as otro_nombre,
         CASE 
-          WHEN c.investigador_origen_id = ${investigadorId} THEN i_dest.correo
+          WHEN c.investigador_id = ${investigadorId} THEN i_dest.correo
           ELSE i_orig.correo
         END as otro_email,
         CASE 
-          WHEN c.investigador_origen_id = ${investigadorId} THEN i_dest.fotografia_url
+          WHEN c.investigador_id = ${investigadorId} THEN i_dest.fotografia_url
           ELSE i_orig.fotografia_url
         END as otro_foto,
         CASE 
-          WHEN c.investigador_origen_id = ${investigadorId} THEN i_dest.institucion
+          WHEN c.investigador_id = ${investigadorId} THEN i_dest.institucion
           ELSE i_orig.institucion
         END as otro_institucion
       FROM conexiones c
-      LEFT JOIN investigadores i_orig ON c.investigador_origen_id = i_orig.id
+      LEFT JOIN investigadores i_orig ON c.investigador_id = i_orig.id
       LEFT JOIN investigadores i_dest ON c.investigador_destino_id = i_dest.id
-      WHERE c.investigador_origen_id = ${investigadorId} 
+      WHERE c.investigador_id = ${investigadorId} 
          OR c.investigador_destino_id = ${investigadorId}
       ORDER BY 
         CASE WHEN c.estado = 'pendiente' THEN 0 ELSE 1 END,
-        c.fecha_solicitud DESC
+        c.created_at DESC
     `
 
     return NextResponse.json(conexiones.rows)
@@ -230,9 +230,9 @@ export async function PATCH(request: NextRequest) {
 
     // Obtener datos de la conexión antes de actualizar
     const conexion = await sql`
-      SELECT c.investigador_origen_id, i.clerk_user_id as origen_clerk_id
+      SELECT c.investigador_id, i.clerk_user_id as origen_clerk_id
       FROM conexiones c
-      LEFT JOIN investigadores i ON c.investigador_origen_id = i.id
+      LEFT JOIN investigadores i ON c.investigador_id = i.id
       WHERE c.id = ${conexionId} 
       AND c.investigador_destino_id = ${investigadorId}
       AND c.estado = 'pendiente'
@@ -242,7 +242,7 @@ export async function PATCH(request: NextRequest) {
     await sql`
       UPDATE conexiones 
       SET estado = ${nuevoEstado},
-          fecha_respuesta = CURRENT_TIMESTAMP
+          updated_at = CURRENT_TIMESTAMP
       WHERE id = ${conexionId} 
       AND investigador_destino_id = ${investigadorId}
       AND estado = 'pendiente'

@@ -28,15 +28,13 @@ export async function POST(request: NextRequest) {
         remitente_id,
         destinatario_id,
         asunto,
-        mensaje,
-        fecha_envio,
+        contenido,
         leido
       ) VALUES (
         ${clerkUserId},
         ${destinatarioClerkId},
         ${asunto},
         ${mensaje},
-        CURRENT_TIMESTAMP,
         false
       )
       RETURNING id
@@ -93,8 +91,8 @@ export async function GET(request: NextRequest) {
       SELECT 
         m.id,
         m.asunto,
-        m.mensaje,
-        m.fecha_envio,
+        m.contenido as mensaje,
+        m.created_at as fecha_envio,
         m.leido,
         m.remitente_id,
         m.destinatario_id,
@@ -118,7 +116,7 @@ export async function GET(request: NextRequest) {
       LEFT JOIN investigadores i_rem ON m.remitente_id = i_rem.clerk_user_id
       LEFT JOIN investigadores i_dest ON m.destinatario_id = i_dest.clerk_user_id
       WHERE m.remitente_id = ${clerkUserId} OR m.destinatario_id = ${clerkUserId}
-      ORDER BY m.fecha_envio DESC
+      ORDER BY m.created_at DESC
     `
 
     return NextResponse.json(mensajes.rows)
