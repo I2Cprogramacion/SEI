@@ -86,6 +86,9 @@ export default function InvestigadorPage() {
   const [conectarDialogOpen, setConectarDialogOpen] = useState(false)
   const [mensajeDialogOpen, setMensajeDialogOpen] = useState(false)
   const [tipoDocumento, setTipoDocumento] = useState<'PU' | 'Dictamen' | 'SNI'>('PU')
+  const [estanConectados, setEstanConectados] = useState(false)
+  const [solicitudPendiente, setSolicitudPendiente] = useState(false)
+  const [cargandoConexion, setCargandoConexion] = useState(true)
 
   // Redirigir si es tu propio perfil
   useEffect(() => {
@@ -174,6 +177,33 @@ export default function InvestigadorPage() {
 
     fetchInvestigador()
   }, [slug])
+
+  // Verificar estado de conexión
+  useEffect(() => {
+    if (!userId || !investigador?.email) {
+      setCargandoConexion(false)
+      return
+    }
+
+    const verificarConexion = async () => {
+      try {
+        setCargandoConexion(true)
+        const response = await fetch(`/api/conexiones/verificar?email=${encodeURIComponent(investigador.email)}`)
+        
+        if (response.ok) {
+          const data = await response.json()
+          setEstanConectados(data.conectados || false)
+          setSolicitudPendiente(data.solicitudPendiente || false)
+        }
+      } catch (error) {
+        console.error("Error verificando conexión:", error)
+      } finally {
+        setCargandoConexion(false)
+      }
+    }
+
+    verificarConexion()
+  }, [userId, investigador?.email])
 
   if (isLoading) {
     return (
@@ -277,6 +307,24 @@ export default function InvestigadorPage() {
 
                       <div className="flex-1 min-w-0">
                         <h2 className="text-lg sm:text-xl font-bold text-blue-900 break-words">{investigador.name}</h2>
+                        
+                        {/* Badge de estado de conexión */}
+                        {userId && !cargandoConexion && (
+                          <div className="mt-2">
+                            {estanConectados ? (
+                              <Badge className="bg-green-100 text-green-800 border-green-300 text-xs">
+                                <Users className="mr-1 h-3 w-3" />
+                                Conectados
+                              </Badge>
+                            ) : solicitudPendiente ? (
+                              <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300 text-xs">
+                                <Users className="mr-1 h-3 w-3" />
+                                Solicitud Pendiente
+                              </Badge>
+                            ) : null}
+                          </div>
+                        )}
+                        
                         <p className="text-xs sm:text-sm text-blue-600 flex items-center gap-2 mt-1 break-words">
                           <Mail className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
                           {investigador.email || 'No disponible'}
@@ -380,18 +428,43 @@ export default function InvestigadorPage() {
                       variant="outline" 
                       className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 text-xs sm:text-sm"
                       onClick={() => setMensajeDialogOpen(true)}
+                      disabled={!userId}
                     >
                       <MessageCircle className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                       Mensaje Interno
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      className="w-full border-green-300 text-green-700 hover:bg-green-50 text-xs sm:text-sm"
-                      onClick={() => setConectarDialogOpen(true)}
-                    >
-                      <UserPlus className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                      Conectar
-                    </Button>
+                    
+                    {userId && (
+                      estanConectados ? (
+                        <Button 
+                          variant="outline" 
+                          className="w-full border-green-500 text-green-700 bg-green-50 hover:bg-green-100 text-xs sm:text-sm cursor-default"
+                          disabled
+                        >
+                          <Users className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                          Ya Conectados
+                        </Button>
+                      ) : solicitudPendiente ? (
+                        <Button 
+                          variant="outline" 
+                          className="w-full border-yellow-500 text-yellow-700 bg-yellow-50 hover:bg-yellow-100 text-xs sm:text-sm cursor-default"
+                          disabled
+                        >
+                          <UserPlus className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                          Solicitud Enviada
+                        </Button>
+                      ) : (
+                        <Button 
+                          variant="outline" 
+                          className="w-full border-green-300 text-green-700 hover:bg-green-50 text-xs sm:text-sm"
+                          onClick={() => setConectarDialogOpen(true)}
+                          disabled={cargandoConexion}
+                        >
+                          <UserPlus className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                          {cargandoConexion ? "Verificando..." : "Conectar"}
+                        </Button>
+                      )
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -545,6 +618,10 @@ export default function InvestigadorPage() {
             investigadorId={investigador.id}
             investigadorClerkId={investigador.clerkUserId || ''}
             investigadorNombre={investigador.name}
+            onSuccess={() => {
+              // Actualizar estado de conexión después de enviar solicitud
+              setSolicitudPendiente(true)
+            }}
           />
           <EnviarMensajeDialog
             open={mensajeDialogOpen}

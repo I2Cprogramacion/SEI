@@ -22,6 +22,7 @@ interface ConectarInvestigadorDialogProps {
   investigadorId: string
   investigadorClerkId: string
   investigadorNombre: string
+  onSuccess?: () => void
 }
 
 export function ConectarInvestigadorDialog({
@@ -30,6 +31,7 @@ export function ConectarInvestigadorDialog({
   investigadorId,
   investigadorClerkId,
   investigadorNombre,
+  onSuccess,
 }: ConectarInvestigadorDialogProps) {
   const { userId } = useAuth()
   const { toast } = useToast()
@@ -72,6 +74,11 @@ export function ConectarInvestigadorDialog({
         title: "¡Solicitud enviada!",
         description: `Se ha enviado una solicitud de conexión a ${investigadorNombre}`,
       })
+
+      // Llamar callback de éxito si existe
+      if (onSuccess) {
+        onSuccess()
+      }
 
       setTimeout(() => {
         onOpenChange(false)
