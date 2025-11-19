@@ -12,12 +12,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    console.log('🔵 POST /api/conexiones - Usuario:', user.id)
-
     const userEmail = user.emailAddresses[0]?.emailAddress
+    
+    if (!userEmail) {
+      return NextResponse.json({ error: "Email no disponible" }, { status: 400 })
+    }
+
     const { destinatarioId, mensaje } = await request.json()
 
-    console.log('🔵 Datos recibidos:', { userEmail, destinatarioId, mensaje: mensaje?.substring(0, 50) })
+    console.log('🔵 POST /api/conexiones:', { userEmail, destinatarioId, mensaje: mensaje?.substring(0, 50) })
 
     if (!destinatarioId) {
       return NextResponse.json(
@@ -26,7 +29,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Obtener ID del investigador origen por email
+    // Obtener ID del investigador origen solo por email (Clerk solo para auth)
     console.log('🔵 Buscando investigador origen con email:', userEmail)
     const origenQuery = await sql`
       SELECT id, nombre_completo, correo FROM investigadores 
@@ -39,8 +42,8 @@ export async function POST(request: NextRequest) {
       console.log('❌ Usuario origen no encontrado con email:', userEmail)
       return NextResponse.json(
         { 
-          error: "Tu cuenta no está registrada en el sistema. Por favor completa tu perfil primero.",
-          details: "No se encontró un investigador asociado a tu email"
+          error: `No se encontró un investigador registrado con el email ${userEmail}. Por favor completa tu registro primero.`,
+          details: "Búsqueda por email, no por clerk_user_id"
         },
         { status: 404 }
       )
@@ -140,7 +143,11 @@ export async function GET(request: NextRequest) {
 
     const userEmail = user.emailAddresses[0]?.emailAddress
 
-    // Obtener ID del investigador actual por email
+    if (!userEmail) {
+      return NextResponse.json({ error: "Email no disponible" }, { status: 400 })
+    }
+
+    // Obtener ID del investigador actual solo por email
     const investigadorQuery = await sql`
       SELECT id FROM investigadores WHERE correo = ${userEmail} LIMIT 1
     `
@@ -214,6 +221,11 @@ export async function PATCH(request: NextRequest) {
     }
 
     const userEmail = user.emailAddresses[0]?.emailAddress
+    
+    if (!userEmail) {
+      return NextResponse.json({ error: "Email no disponible" }, { status: 400 })
+    }
+
     const { conexionId, accion } = await request.json()
 
     if (!conexionId || !accion) {
@@ -230,7 +242,7 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    // Obtener ID del investigador actual por email
+    // Obtener ID del investigador actual solo por email
     const investigadorQuery = await sql`
       SELECT id FROM investigadores WHERE correo = ${userEmail} LIMIT 1
     `

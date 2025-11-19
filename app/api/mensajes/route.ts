@@ -13,6 +13,11 @@ export async function POST(request: NextRequest) {
     }
 
     const userEmail = user.emailAddresses[0]?.emailAddress
+    
+    if (!userEmail) {
+      return NextResponse.json({ error: "Email no disponible" }, { status: 400 })
+    }
+
     const { destinatarioId, asunto, mensaje } = await request.json()
 
     console.log('📧 POST /api/mensajes:', { userEmail, destinatarioId, asunto })
@@ -24,9 +29,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Obtener ID del remitente desde su email (sin usar clerk_user_id)
+    // Obtener ID del remitente por email (solo Clerk para autenticación)
     const remitenteQuery = await sql`
-      SELECT id, correo, nombre_completo, slug FROM investigadores 
+      SELECT id, correo, nombre_completo FROM investigadores 
       WHERE correo = ${userEmail} 
       LIMIT 1
     `
@@ -37,8 +42,8 @@ export async function POST(request: NextRequest) {
       console.error('❌ Usuario no encontrado con email:', userEmail)
       return NextResponse.json(
         { 
-          error: "Tu cuenta no está registrada en el sistema. Por favor completa tu perfil primero.",
-          details: "No se encontró un investigador asociado a tu email"
+          error: `No se encontró un investigador registrado con el email ${userEmail}. Por favor completa tu registro primero.`,
+          details: "Búsqueda por email, no por clerk_user_id"
         },
         { status: 404 }
       )
@@ -120,7 +125,11 @@ export async function GET(request: NextRequest) {
 
     const userEmail = user.emailAddresses[0]?.emailAddress
 
-    // Obtener ID del investigador actual por email
+    if (!userEmail) {
+      return NextResponse.json({ error: "Email no disponible" }, { status: 400 })
+    }
+
+    // Obtener ID del investigador actual solo por email
     const investigadorQuery = await sql`
       SELECT id FROM investigadores 
       WHERE correo = ${userEmail} 
@@ -185,6 +194,11 @@ export async function PATCH(request: NextRequest) {
     }
 
     const userEmail = user.emailAddresses[0]?.emailAddress
+    
+    if (!userEmail) {
+      return NextResponse.json({ error: "Email no disponible" }, { status: 400 })
+    }
+
     const { mensajeId } = await request.json()
 
     if (!mensajeId) {
@@ -194,7 +208,7 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    // Obtener ID del investigador actual por email
+    // Obtener ID del investigador actual solo por email
     const investigadorQuery = await sql`
       SELECT id FROM investigadores 
       WHERE correo = ${userEmail} 
