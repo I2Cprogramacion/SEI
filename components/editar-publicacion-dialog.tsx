@@ -438,12 +438,13 @@ export function EditarPublicacionDialog({
               </div>
             </div>
 
-            {/* Revista e Institución */}
+            {/* Revista y Editorial */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="revista">Revista o Editorial *</Label>
+                <Label htmlFor="revista">Revista *</Label>
                 <Input
                   id="revista"
+                  placeholder="Nombre de la revista..."
                   value={formData.revista || ""}
                   onChange={(e) => handleChange("revista", e.target.value)}
                   required
@@ -451,9 +452,10 @@ export function EditarPublicacionDialog({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="institucion">Institución *</Label>
+                <Label htmlFor="institucion">Editorial *</Label>
                 <Input
                   id="institucion"
+                  placeholder="Nombre de la editorial..."
                   value={formData.institucion || ""}
                   onChange={(e) => handleChange("institucion", e.target.value)}
                   required

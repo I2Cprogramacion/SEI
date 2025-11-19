@@ -268,7 +268,7 @@ export default function NuevaPublicacionPage() {
     },
     {
       id: "revista",
-      title: "Revista e Institución",
+      title: "Revista y Editorial",
       completed: calculateSectionProgress([
         { value: formData.revista, required: true },
         { value: formData.institucion, required: true }
@@ -475,14 +475,14 @@ export default function NuevaPublicacionPage() {
       newErrors.push({ field: "autores", message: "Debe agregar al menos un autor" })
     }
 
-    // Validar institución
+    // Validar institución (editorial)
     if (!formData.institucion.trim()) {
-      newErrors.push({ field: "institucion", message: "La institución es obligatoria" })
+      newErrors.push({ field: "institucion", message: "La editorial es obligatoria" })
     }
 
     // Validar revista
     if (!formData.revista.trim()) {
-      newErrors.push({ field: "revista", message: "La revista o editorial es obligatoria" })
+      newErrors.push({ field: "revista", message: "La revista es obligatoria" })
     }
 
     // Validar año
@@ -1054,21 +1054,21 @@ export default function NuevaPublicacionPage() {
                 </div>
               </div>
 
-              {/* Publicación e institución */}
+              {/* Revista y Editorial */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <Building className="h-4 w-4" />
-                  Revista e Institución
+                  Revista y Editorial
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="revista" className="text-blue-900">
-                      Revista o Editorial *
+                      Revista *
                     </Label>
                     <Input
                       id="revista"
-                      placeholder="Nombre de la revista o editorial..."
+                      placeholder="Nombre de la revista..."
                       value={formData.revista}
                       onChange={(e) => handleInputChange("revista", e.target.value)}
                       className={errors.some(e => e.field === "revista") ? "border-red-300" : ""}
@@ -1082,41 +1082,15 @@ export default function NuevaPublicacionPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="institucion" className="text-blue-900">
-                      Institución *
+                      Editorial *
                     </Label>
-                    <Select
+                    <Input
+                      id="institucion"
+                      placeholder="Nombre de la editorial..."
                       value={formData.institucion}
-                      onValueChange={(value) => handleInputChange("institucion", value)}
-                    >
-                      <SelectTrigger className={errors.some(e => e.field === "institucion") ? "border-red-300" : ""}>
-                        <SelectValue placeholder="Selecciona una institución..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {institucionesDisponibles.length > 0 ? (
-                          institucionesDisponibles.map((inst, idx) => (
-                            <SelectItem key={idx} value={inst}>
-                              {inst}
-                            </SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem value="loading" disabled>
-                            Cargando instituciones...
-                          </SelectItem>
-                        )}
-                        <SelectItem value="otra">Otra (escribir manualmente)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    {/* Campo manual si selecciona "Otra" */}
-                    {formData.institucion === "otra" && (
-                      <Input
-                        placeholder="Escribe el nombre de la institución..."
-                        value={formData.institucion === "otra" ? "" : formData.institucion}
-                        onChange={(e) => handleInputChange("institucion", e.target.value)}
-                        className="mt-2"
-                      />
-                    )}
-                    
+                      onChange={(e) => handleInputChange("institucion", e.target.value)}
+                      className={errors.some(e => e.field === "institucion") ? "border-red-300" : ""}
+                    />
                     {errors.some(e => e.field === "institucion") && (
                       <p className="text-sm text-red-600">
                         {errors.find(e => e.field === "institucion")?.message}

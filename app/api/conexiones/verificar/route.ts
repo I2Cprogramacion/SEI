@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { currentUser } from "@clerk/nextjs/server"
-import { getDatabase } from "@/lib/database-config"
+import { sql } from "@vercel/postgres"
 
 // GET /api/conexiones/verificar?email=investigador@email.com
 // Verifica si existe una conexión aceptada entre el usuario actual y el investigador especificado
@@ -28,15 +28,12 @@ export async function GET(request: NextRequest) {
 
     console.log(`[VERIFICAR CONEXION] Usuario: ${userEmail}, Investigador: ${investigadorEmail}`)
 
-    const db = await getDatabase()
-
     // Buscar el investigador actual por email
-    const investigadorActual = await db.query(
-      `SELECT id FROM investigadores WHERE correo = $1`,
-      [userEmail]
-    )
+    const investigadorActual = await sql`
+      SELECT id FROM investigadores WHERE correo = ${userEmail} LIMIT 1
+    `
 
-    if (!investigadorActual.rows || investigadorActual.rows.length === 0) {
+    if (investigadorActual.rows.length === 0) {
       console.log(`[VERIFICAR CONEXION] Usuario no encontrado en BD: ${userEmail}`)
       return NextResponse.json({ conectados: false }, { status: 200 })
     }
@@ -44,55 +41,57 @@ export async function GET(request: NextRequest) {
     const miId = investigadorActual.rows[0].id
 
     // Buscar el investigador objetivo por email
-    const investigadorObjetivo = await db.query(
-      `SELECT id FROM investigadores WHERE correo = $1`,
-      [investigadorEmail]
-    )
+    const investigadorObjetivo = await sql`
+      SELECT id FROM investigadores WHERE correo = ${investigadorEmail} LIMIT 1
+    `
 
-    if (!investigadorObjetivo.rows || investigadorObjetivo.rows.length === 0) {
+    if (investigadorObjetivo.rows.length === 0) {
       return NextResponse.json({ conectados: false }, { status: 200 })
     }
 
     const otroId = investigadorObjetivo.rows[0].id
 
+    console.log(`[VERIFICAR CONEXION] IDs: miId=${miId}, otroId=${otroId}`)
+
     // Verificar si existe una conexión aceptada (en cualquier dirección)
-    const conexion = await db.query(
-      `SELECT id, estado, fecha_respuesta 
-       FROM conexiones 
-       WHERE estado = 'aceptada' 
-       AND (
-         (investigador_id = $1 AND investigador_destino_id = $2) 
-         OR 
-         (investigador_id = $2 AND investigador_destino_id = $1)
-       )
-       LIMIT 1`,
-      [miId, otroId]
-    )
+    // Usar la misma lógica que en GET /api/conexiones
+    const conexion = await sql`
+      SELECT id, estado, updated_at 
+      FROM conexiones 
+      WHERE estado = 'aceptada' 
+      AND (
+        (investigador_id = ${miId} AND investigador_destino_id = ${otroId}) 
+        OR 
+        (investigador_id = ${otroId} AND investigador_destino_id = ${miId})
+      )
+      LIMIT 1
+    `
 
-    console.log(`[VERIFICAR CONEXION] Conexión encontrada:`, conexion.rows.length > 0)
+    console.log(`[VERIFICAR CONEXION] Conexión aceptada encontrada:`, conexion.rows.length > 0)
 
-    if (conexion.rows && conexion.rows.length > 0) {
+    if (conexion.rows.length > 0) {
       return NextResponse.json({ 
         conectados: true,
-        fechaConexion: conexion.rows[0].fecha_respuesta 
+        fechaConexion: conexion.rows[0].updated_at 
       }, { status: 200 })
     }
 
     // Verificar si hay una solicitud pendiente (para mostrar estado diferente)
-    const solicitudPendiente = await db.query(
-      `SELECT id, estado 
-       FROM conexiones 
-       WHERE estado = 'pendiente' 
-       AND (
-         (investigador_id = $1 AND investigador_destino_id = $2) 
-         OR 
-         (investigador_id = $2 AND investigador_destino_id = $1)
-       )
-       LIMIT 1`,
-      [miId, otroId]
-    )
+    const solicitudPendiente = await sql`
+      SELECT id, estado 
+      FROM conexiones 
+      WHERE estado = 'pendiente' 
+      AND (
+        (investigador_id = ${miId} AND investigador_destino_id = ${otroId}) 
+        OR 
+        (investigador_id = ${otroId} AND investigador_destino_id = ${miId})
+      )
+      LIMIT 1
+    `
 
-    if (solicitudPendiente.rows && solicitudPendiente.rows.length > 0) {
+    console.log(`[VERIFICAR CONEXION] Solicitud pendiente encontrada:`, solicitudPendiente.rows.length > 0)
+
+    if (solicitudPendiente.rows.length > 0) {
       return NextResponse.json({ 
         conectados: false,
         solicitudPendiente: true 
@@ -103,7 +102,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("[VERIFICAR CONEXION ERROR]:", error)
     return NextResponse.json(
-      { error: "Error al verificar conexión" },
+      { error: "Error al verificar conexión", details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     )
   }
