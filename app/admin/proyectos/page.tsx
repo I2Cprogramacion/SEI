@@ -42,6 +42,8 @@ interface Proyecto {
 }
 
 export default function ProyectosAdmin() {
+  console.log("🚀 [Proyectos] Componente ProyectosAdmin renderizado")
+  
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(5)
@@ -53,10 +55,13 @@ export default function ProyectosAdmin() {
 
   // Cargar proyectos desde la API
   useEffect(() => {
+    console.log("🔄 [Proyectos] useEffect ejecutado, iniciando fetch")
     const fetchProyectos = async () => {
       try {
+        console.log("📡 [Proyectos] Iniciando fetch a /api/proyectos")
         setIsLoading(true)
         const response = await fetch("/api/proyectos")
+        console.log("📡 [Proyectos] Respuesta recibida, status:", response.status, "ok:", response.ok)
         if (!response.ok) {
           throw new Error("Error al cargar los proyectos")
         }
@@ -76,11 +81,13 @@ export default function ProyectosAdmin() {
         }
         setProyectos(proyectosData)
         setFilteredData(proyectosData)
+        console.log("✅ [Proyectos] Proyectos cargados exitosamente, total:", proyectosData.length)
       } catch (error) {
-        console.error("Error al cargar proyectos:", error)
+        console.error("❌ [Proyectos] Error al cargar proyectos:", error)
         setError("No se pudieron cargar los proyectos.")
       } finally {
         setIsLoading(false)
+        console.log("🏁 [Proyectos] Fetch completado, isLoading:", false)
       }
     }
 
@@ -131,6 +138,8 @@ export default function ProyectosAdmin() {
     return estados[estado as keyof typeof estados] || 'bg-gray-100 text-gray-800'
   }
 
+  console.log("🎨 [Proyectos] Renderizando componente, isLoading:", isLoading, "proyectos:", proyectos.length, "filteredData:", filteredData.length)
+  
   return (
     <div className="w-full">
       <div className="w-full py-4 md:py-8 px-4 md:px-6">
