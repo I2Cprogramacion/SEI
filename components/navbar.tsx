@@ -36,6 +36,7 @@ export default function Navbar() {
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
   const [fotografiaUrl, setFotografiaUrl] = useState<string | null>(null)
+  const [nombreCompleto, setNombreCompleto] = useState<string | null>(null)
   const [mensajesNoLeidos, setMensajesNoLeidos] = useState(0)
   const [conexionesPendientes, setConexionesPendientes] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -52,7 +53,12 @@ export default function Navbar() {
 
   const getDisplayName = (): string => {
     if (!user) return ""
-    return user.fullName || user.primaryEmailAddress?.emailAddress || ""
+    // Priorizar nombre completo del perfil de investigador
+    if (nombreCompleto) return nombreCompleto
+    // Luego el nombre completo de Clerk
+    if (user.fullName) return user.fullName
+    // Finalmente el correo como fallback
+    return user.primaryEmailAddress?.emailAddress || ""
   }
 
   // Cargar contadores de notificaciones
@@ -103,6 +109,9 @@ export default function Navbar() {
           if (result.success && result.data) {
             if (result.data.fotografia_url) {
               setFotografiaUrl(result.data.fotografia_url)
+            }
+            if (result.data.nombre_completo || result.data.nombreCompleto) {
+              setNombreCompleto(result.data.nombre_completo || result.data.nombreCompleto)
             }
             if (result.data.es_admin) {
               setIsAdmin(true)
@@ -260,7 +269,9 @@ export default function Navbar() {
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-semibold text-gray-900 truncate">{getDisplayName()}</p>
-                        <p className="text-xs text-gray-500 truncate">{user.primaryEmailAddress?.emailAddress}</p>
+                        {nombreCompleto && user.fullName && nombreCompleto !== user.fullName && (
+                          <p className="text-xs text-gray-500 truncate">{user.fullName}</p>
+                        )}
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
@@ -362,7 +373,9 @@ export default function Navbar() {
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-semibold text-gray-900">{getDisplayName()}</p>
-                        <p className="text-xs text-gray-500">{user.primaryEmailAddress?.emailAddress}</p>
+                        {nombreCompleto && user.fullName && nombreCompleto !== user.fullName && (
+                          <p className="text-xs text-gray-500">{user.fullName}</p>
+                        )}
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
@@ -566,9 +579,11 @@ export default function Navbar() {
                             <div className="text-sm font-semibold text-gray-900 truncate">
                               {getDisplayName()}
                             </div>
-                            <div className="text-xs text-gray-600 truncate">
-                              {user.primaryEmailAddress?.emailAddress}
-                            </div>
+                            {nombreCompleto && user.fullName && nombreCompleto !== user.fullName && (
+                              <div className="text-xs text-gray-600 truncate">
+                                {user.fullName}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <Button 
