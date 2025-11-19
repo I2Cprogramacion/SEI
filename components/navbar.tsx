@@ -39,6 +39,7 @@ export default function Navbar() {
   const [mensajesNoLeidos, setMensajesNoLeidos] = useState(0)
   const [conexionesPendientes, setConexionesPendientes] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const router = useRouter()
   const { user, isSignedIn } = useUser()
   const { signOut } = useClerk()
@@ -85,25 +86,30 @@ export default function Navbar() {
     }
   }, [isSignedIn])
 
-  // Cargar foto del investigador desde PostgreSQL
+  // Cargar foto del investigador y verificar si es admin desde PostgreSQL
   useEffect(() => {
-    const cargarFotoInvestigador = async () => {
+    const cargarDatosInvestigador = async () => {
       if (!isSignedIn || !user) return
       
       try {
         const response = await fetch("/api/investigadores/perfil")
         if (response.ok) {
           const result = await response.json()
-          if (result.success && result.data?.fotografia_url) {
-            setFotografiaUrl(result.data.fotografia_url)
+          if (result.success && result.data) {
+            if (result.data.fotografia_url) {
+              setFotografiaUrl(result.data.fotografia_url)
+            }
+            if (result.data.es_admin) {
+              setIsAdmin(true)
+            }
           }
         }
       } catch (error) {
-        console.error("Error al cargar foto del investigador:", error)
+        console.error("Error al cargar datos del investigador:", error)
       }
     }
 
-    cargarFotoInvestigador()
+    cargarDatosInvestigador()
   }, [isSignedIn, user])
 
   useEffect(() => {
@@ -300,6 +306,19 @@ export default function Navbar() {
                   <span className="sr-only">Explorar</span>
                 </Link>
               </Button>
+
+              {/* Admin Button - Solo visible para admins */}
+              {isSignedIn && isAdmin && (
+                <Button 
+                  className="hidden lg:flex bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 shadow-md hover:shadow-lg transition-all px-4 h-10 gap-2" 
+                  asChild
+                >
+                  <Link href="/admin">
+                    <LayoutDashboard className="h-4 w-4" />
+                    <span className="font-semibold">Admin</span>
+                  </Link>
+                </Button>
+              )}
 
               {/* IIC Button */}
               <Button 
@@ -503,6 +522,16 @@ export default function Navbar() {
                         </Link>
                       </Button>
                     </div>
+
+                    {/* Admin Button móvil - Solo visible para admins */}
+                    {isSignedIn && isAdmin && (
+                      <Button className="w-full mt-4 bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800" asChild>
+                        <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
+                          <LayoutDashboard className="mr-2 h-4 w-4" />
+                          Panel de Administración
+                        </Link>
+                      </Button>
+                    )}
 
                     {/* IIC Button móvil */}
                     <Button className="w-full mt-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800" asChild>

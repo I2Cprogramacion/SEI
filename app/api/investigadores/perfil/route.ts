@@ -61,7 +61,8 @@ export async function GET(request: NextRequest) {
         fecha_asignacion_nivel,
         COALESCE(cv_url, '') AS cv_url,
         dictamen_url,
-        sni_url
+        sni_url,
+        COALESCE(es_admin, false) AS es_admin
       FROM investigadores 
       WHERE correo = $1
       LIMIT 1
