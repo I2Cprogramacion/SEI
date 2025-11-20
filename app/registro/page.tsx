@@ -48,6 +48,14 @@ import {
 } from "@/components/ui/select"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 // Constants
 const FILE_CONSTRAINTS = {
@@ -228,14 +236,54 @@ const nacionalidadesAmerica = [
   "Peruana", "Surinamesa", "Uruguaya", "Venezolana"
 ];
 
-// Descripciones de niveles de investigador
+// Información completa de niveles de tecnólogo e investigador
+const nivelesCompletos = {
+  tecnologos: [
+    {
+      nombre: "Tecnólogo Nivel A",
+      descripcion: "Estudiantes o egresados recientes de licenciaturas en áreas de humanidades, ciencias, tecnología e innovación, con experiencia en proyectos iniciales de desarrollo tecnológico, adscritos a empresas, instituciones académicas o centros de investigación."
+    },
+    {
+      nombre: "Tecnólogo Nivel B",
+      descripcion: "Profesionales con experiencia comprobable en el desarrollo tecnológico o la innovación en las áreas de humanidades, ciencias, tecnología e innovación, adscritos a empresas, instituciones de educación superior, centros de investigación, o entidades equivalentes. Incluye a quienes cuenten con títulos de propiedad industrial otorgados por el IMPI."
+    }
+  ],
+  investigadores: [
+    {
+      nombre: "Candidato a investigador estatal",
+      descripcion: "Personas con nivel mínimo de licenciatura que realizan actividades de producción científica, divulgación y promoción científica, adscritos a instituciones académicas o tecnológicas."
+    },
+    {
+      nombre: "Investigador estatal nivel I",
+      descripcion: "Profesionales con grado de maestría o estudiantes de doctorado que colaboran en proyectos de investigación, desarrollo tecnológico y/o innovación."
+    },
+    {
+      nombre: "Investigador estatal nivel II",
+      descripcion: "Investigadores con grado de doctorado que han liderado proyectos científicos o tecnológicos con impacto en el estado y que sean miembros del SNI."
+    },
+    {
+      nombre: "Investigador estatal nivel III",
+      descripcion: "Miembros del Sistema Nacional de Investigadores (SNI) en el nivel II, con alto impacto en el estado."
+    },
+    {
+      nombre: "Investigador excepcional",
+      descripcion: "Miembros del SNI en los niveles III o Emérito, reconocidos por su trayectoria científica y tecnológica como referentes estatales en su área de conocimiento, con más de 10 años de experiencia en el proceso ID+i."
+    },
+    {
+      nombre: "Investigador insigne",
+      descripcion: "Distinción otorgada a aquellos investigadores que han alcanzado el más alto nivel de reconocimiento en su trayectoria científica, tecnológica y académica, con un impacto significativo en su área de conocimiento y en la sociedad."
+    }
+  ]
+}
+
+// Descripciones de niveles de investigador (para compatibilidad con tooltips existentes)
 const nivelesInvestigadorDescripciones: Record<string, string> = {
-  "Candidato a investigador estatal": "Personas con nivel mínimo de licenciatura que realizan actividades de producción científica, divulgación y promoción científica, adscritos a instituciones académicas o tecnológicas.",
-  "Investigador estatal nivel I": "Profesionales con grado de maestría o estudiantes de doctorado que colaboran en proyectos de investigación, desarrollo tecnológico y/o innovación.",
-  "Investigador estatal nivel II": "Investigadores con grado de doctorado que han liderado proyectos científicos o tecnológicos con impacto en el estado y que sean miembros del SNI.",
-  "Investigador estatal nivel III": "Miembros del Sistema Nacional de Investigadores (SNI) en el nivel II, con alto impacto en el estado.",
-  "Investigador excepcional": "Miembros del SNI en los niveles III o Emérito, reconocidos por su trayectoria científica y tecnológica como referentes estatales en su área de conocimiento, con más de 10 años de experiencia en el proceso ID+i.",
-  "Investigador insigne": "Distinción otorgada a aquellos investigadores que han alcanzado el más alto nivel de reconocimiento en su trayectoria científica, tecnológica y académica, con un impacto significativo en su área de conocimiento y en la sociedad."
+  "Candidato a investigador estatal": nivelesCompletos.investigadores[0].descripcion,
+  "Investigador estatal nivel I": nivelesCompletos.investigadores[1].descripcion,
+  "Investigador estatal nivel II": nivelesCompletos.investigadores[2].descripcion,
+  "Investigador estatal nivel III": nivelesCompletos.investigadores[3].descripcion,
+  "Investigador excepcional": nivelesCompletos.investigadores[4].descripcion,
+  "Investigador insigne": nivelesCompletos.investigadores[5].descripcion
 }
 
 
@@ -684,6 +732,7 @@ export default function RegistroPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isProcessingPDF, setIsProcessingPDF] = useState(false)
   const [ocrCompleted, setOcrCompleted] = useState(false) // false: no mostrar mensaje hasta procesar PDF
+  const [showNivelesModal, setShowNivelesModal] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [submitAttempts, setSubmitAttempts] = useState(0)
@@ -1549,13 +1598,91 @@ export default function RegistroPage() {
                     <div className="grid grid-cols-1 gap-4">
                       {formData.tipo_perfil === "INVESTIGADOR" ? (
                         <div className="space-y-2">
-                          <Label
-                            htmlFor="nivel_investigador"
-                            className="text-blue-900 text-sm font-medium flex items-center gap-2"
-                          >
-                            <Award className="h-4 w-4" />
-                            Nivel de Investigador *
-                          </Label>
+                          <div className="flex items-center gap-2">
+                            <Label
+                              htmlFor="nivel_investigador"
+                              className="text-blue-900 text-sm font-medium flex items-center gap-2"
+                            >
+                              <Award className="h-4 w-4" />
+                              Nivel de Investigador *
+                            </Label>
+                            <Dialog open={showNivelesModal} onOpenChange={setShowNivelesModal}>
+                              <DialogTrigger asChild>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    setShowNivelesModal(true)
+                                  }}
+                                >
+                                  <Info className="h-4 w-4" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                                <DialogHeader>
+                                  <DialogTitle className="text-2xl font-bold text-blue-900">
+                                    Información de Niveles
+                                  </DialogTitle>
+                                  <DialogDescription>
+                                    Conoce los diferentes niveles de tecnólogos e investigadores disponibles en el sistema
+                                  </DialogDescription>
+                                </DialogHeader>
+                                
+                                <div className="space-y-6 mt-4">
+                                  {/* Tecnólogos */}
+                                  <div>
+                                    <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                                      <Users2 className="h-5 w-5" />
+                                      Niveles de Tecnólogo
+                                    </h3>
+                                    <div className="space-y-4">
+                                      {nivelesCompletos.tecnologos.map((tecnologo, index) => (
+                                        <Card key={index} className="border-blue-200">
+                                          <CardHeader className="pb-3">
+                                            <CardTitle className="text-base text-blue-800">
+                                              {tecnologo.nombre}
+                                            </CardTitle>
+                                          </CardHeader>
+                                          <CardContent>
+                                            <p className="text-sm text-gray-700">
+                                              {tecnologo.descripcion}
+                                            </p>
+                                          </CardContent>
+                                        </Card>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  {/* Investigadores */}
+                                  <div>
+                                    <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                                      <Award className="h-5 w-5" />
+                                      Niveles de Investigador
+                                    </h3>
+                                    <div className="space-y-4">
+                                      {nivelesCompletos.investigadores.map((investigador, index) => (
+                                        <Card key={index} className="border-blue-200">
+                                          <CardHeader className="pb-3">
+                                            <CardTitle className="text-base text-blue-800">
+                                              {investigador.nombre}
+                                            </CardTitle>
+                                          </CardHeader>
+                                          <CardContent>
+                                            <p className="text-sm text-gray-700">
+                                              {investigador.descripcion}
+                                            </p>
+                                          </CardContent>
+                                        </Card>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
                           <Select 
                             value={formData.nivel_investigador} 
                             onValueChange={(value) => handleSelectChange("nivel_investigador", value)}
@@ -1568,21 +1695,11 @@ export default function RegistroPage() {
                               <SelectValue placeholder="Selecciona nivel" />
                             </SelectTrigger>
                             <SelectContent>
-                              <TooltipProvider delayDuration={200}>
-                                {Object.keys(nivelesInvestigadorDescripciones).map((nivel) => (
-                                  <Tooltip key={nivel}>
-                                    <TooltipTrigger asChild>
-                                      <SelectItem value={nivel} className="cursor-pointer">
-                                        {nivel}
-                                      </SelectItem>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="right" className="max-w-xs z-[100]">
-                                      <p className="font-semibold text-sm mb-1">{nivel}</p>
-                                      <p className="text-xs text-gray-600">{nivelesInvestigadorDescripciones[nivel]}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                ))}
-                              </TooltipProvider>
+                              {Object.keys(nivelesInvestigadorDescripciones).map((nivel) => (
+                                <SelectItem key={nivel} value={nivel}>
+                                  {nivel}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                           <p className="text-xs text-blue-600 mt-1">
@@ -1591,13 +1708,91 @@ export default function RegistroPage() {
                         </div>
                       ) : (
                         <div className="space-y-2">
-                          <Label
-                            htmlFor="nivel_tecnologo"
-                            className="text-blue-900 text-sm font-medium flex items-center gap-2"
-                          >
-                            <Award className="h-4 w-4" />
-                            Nivel de Tecnólogo *
-                          </Label>
+                          <div className="flex items-center gap-2">
+                            <Label
+                              htmlFor="nivel_tecnologo"
+                              className="text-blue-900 text-sm font-medium flex items-center gap-2"
+                            >
+                              <Award className="h-4 w-4" />
+                              Nivel de Tecnólogo *
+                            </Label>
+                            <Dialog open={showNivelesModal} onOpenChange={setShowNivelesModal}>
+                              <DialogTrigger asChild>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    setShowNivelesModal(true)
+                                  }}
+                                >
+                                  <Info className="h-4 w-4" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                                <DialogHeader>
+                                  <DialogTitle className="text-2xl font-bold text-blue-900">
+                                    Información de Niveles
+                                  </DialogTitle>
+                                  <DialogDescription>
+                                    Conoce los diferentes niveles de tecnólogos e investigadores disponibles en el sistema
+                                  </DialogDescription>
+                                </DialogHeader>
+                                
+                                <div className="space-y-6 mt-4">
+                                  {/* Tecnólogos */}
+                                  <div>
+                                    <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                                      <Users2 className="h-5 w-5" />
+                                      Niveles de Tecnólogo
+                                    </h3>
+                                    <div className="space-y-4">
+                                      {nivelesCompletos.tecnologos.map((tecnologo, index) => (
+                                        <Card key={index} className="border-blue-200">
+                                          <CardHeader className="pb-3">
+                                            <CardTitle className="text-base text-blue-800">
+                                              {tecnologo.nombre}
+                                            </CardTitle>
+                                          </CardHeader>
+                                          <CardContent>
+                                            <p className="text-sm text-gray-700">
+                                              {tecnologo.descripcion}
+                                            </p>
+                                          </CardContent>
+                                        </Card>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  {/* Investigadores */}
+                                  <div>
+                                    <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                                      <Award className="h-5 w-5" />
+                                      Niveles de Investigador
+                                    </h3>
+                                    <div className="space-y-4">
+                                      {nivelesCompletos.investigadores.map((investigador, index) => (
+                                        <Card key={index} className="border-blue-200">
+                                          <CardHeader className="pb-3">
+                                            <CardTitle className="text-base text-blue-800">
+                                              {investigador.nombre}
+                                            </CardTitle>
+                                          </CardHeader>
+                                          <CardContent>
+                                            <p className="text-sm text-gray-700">
+                                              {investigador.descripcion}
+                                            </p>
+                                          </CardContent>
+                                        </Card>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
                           <Select 
                             value={formData.nivel_tecnologo} 
                             onValueChange={(value) => handleSelectChange("nivel_tecnologo", value)}
