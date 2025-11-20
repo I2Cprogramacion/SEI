@@ -46,6 +46,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 
 // Constants
 const FILE_CONSTRAINTS = {
@@ -225,6 +227,17 @@ const nacionalidadesAmerica = [
   "Argentina", "Boliviana", "Brasileña", "Chilena", "Colombiana", "Ecuatoriana", "Guyanesa", "Paraguaya",
   "Peruana", "Surinamesa", "Uruguaya", "Venezolana"
 ];
+
+// Descripciones de niveles de investigador
+const nivelesInvestigadorDescripciones: Record<string, string> = {
+  "Candidato a investigador estatal": "Personas con nivel mínimo de licenciatura que realizan actividades de producción científica, divulgación y promoción científica, adscritos a instituciones académicas o tecnológicas.",
+  "Investigador estatal nivel I": "Profesionales con grado de maestría o estudiantes de doctorado que colaboran en proyectos de investigación, desarrollo tecnológico y/o innovación.",
+  "Investigador estatal nivel II": "Investigadores con grado de doctorado que han liderado proyectos científicos o tecnológicos con impacto en el estado y que sean miembros del SNI.",
+  "Investigador estatal nivel III": "Miembros del Sistema Nacional de Investigadores (SNI) en el nivel II, con alto impacto en el estado.",
+  "Investigador excepcional": "Miembros del SNI en los niveles III o Emérito, reconocidos por su trayectoria científica y tecnológica como referentes estatales en su área de conocimiento, con más de 10 años de experiencia en el proceso ID+i.",
+  "Investigador insigne": "Distinción otorgada a aquellos investigadores que han alcanzado el más alto nivel de reconocimiento en su trayectoria científica, tecnológica y académica, con un impacto significativo en su área de conocimiento y en la sociedad."
+}
+
 
 const initialFormData: FormData = {
   nombres: "",
@@ -1555,12 +1568,21 @@ export default function RegistroPage() {
                               <SelectValue placeholder="Selecciona nivel" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Candidato a investigador estatal">Candidato a investigador estatal</SelectItem>
-                              <SelectItem value="Investigador estatal nivel I">Investigador estatal nivel I</SelectItem>
-                              <SelectItem value="Investigador estatal nivel II">Investigador estatal nivel II</SelectItem>
-                              <SelectItem value="Investigador estatal nivel III">Investigador estatal nivel III</SelectItem>
-                              <SelectItem value="Investigador excepcional">Investigador excepcional</SelectItem>
-                              <SelectItem value="Investigador insigne">Investigador insigne</SelectItem>
+                              <TooltipProvider delayDuration={200}>
+                                {Object.keys(nivelesInvestigadorDescripciones).map((nivel) => (
+                                  <Tooltip key={nivel}>
+                                    <TooltipTrigger asChild>
+                                      <SelectItem value={nivel} className="cursor-pointer">
+                                        {nivel}
+                                      </SelectItem>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" className="max-w-xs z-[100]">
+                                      <p className="font-semibold text-sm mb-1">{nivel}</p>
+                                      <p className="text-xs text-gray-600">{nivelesInvestigadorDescripciones[nivel]}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                ))}
+                              </TooltipProvider>
                             </SelectContent>
                           </Select>
                           <p className="text-xs text-blue-600 mt-1">

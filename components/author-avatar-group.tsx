@@ -18,6 +18,8 @@ interface AuthorAvatarGroupProps {
   maxVisible?: number
   size?: 'sm' | 'md' | 'lg'
   showNames?: boolean
+  role?: 'autor' | 'coautor'
+  noGap?: boolean
 }
 
 const sizeClasses = {
@@ -30,7 +32,9 @@ export function AuthorAvatarGroup({
   authors, 
   maxVisible = 3,
   size = 'md',
-  showNames = false
+  showNames = false,
+  role,
+  noGap = false
 }: AuthorAvatarGroupProps) {
   const [authorProfiles, setAuthorProfiles] = useState<Map<string, AuthorProfile>>(new Map())
   const [loading, setLoading] = useState(true)
@@ -149,7 +153,7 @@ export function AuthorAvatarGroup({
 
   console.log("✅ [AuthorAvatarGroup] Renderizando", visibleAuthors.length, "autores")
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex items-center ${noGap ? '' : 'gap-2'}`}>
       <TooltipProvider>
         <div className="flex -space-x-2">
           {visibleAuthors.map((author, index) => {
@@ -179,6 +183,11 @@ export function AuthorAvatarGroup({
                 <TooltipContent>
                   <div className="text-sm">
                     <p className="font-semibold">{profile?.nombreCompleto || author}</p>
+                    {role && (
+                      <p className="text-xs font-medium text-blue-700 mt-1 capitalize">
+                        {role === 'autor' ? 'Autor' : 'Coautor'}
+                      </p>
+                    )}
                     {profile?.institucion && (
                       <p className="text-xs text-blue-600">{profile.institucion}</p>
                     )}

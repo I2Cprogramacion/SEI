@@ -367,7 +367,7 @@ export default function ProyectosPage() {
                     </div>
                   </CardContent>
                   <CardFooter className="border-t border-blue-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 py-3 sm:py-4 px-3 sm:px-6">
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center -space-x-2">
                       {(() => {
                         const nombreInvestigador = proyecto.investigador_principal || (typeof proyecto.autor === 'string' ? proyecto.autor : proyecto.autor?.nombre) || null
                         if (nombreInvestigador) {
@@ -377,13 +377,15 @@ export default function ProyectosPage() {
                               maxVisible={1}
                               size="sm"
                               showNames={false}
+                              role="autor"
+                              noGap={true}
                             />
                           )
                         }
                         return null
                       })()}
                       {Array.isArray(proyecto.colaboradores) && proyecto.colaboradores.length > 0 && (
-                        <div className="flex items-center gap-1">
+                        <>
                           {proyecto.colaboradores.slice(0, 2).map((colaborador: any, colabIndex: number) => {
                             const colaboradorNombre = typeof colaborador === 'string' 
                               ? colaborador.split(' - ')[0] || colaborador
@@ -396,15 +398,17 @@ export default function ProyectosPage() {
                                 maxVisible={1}
                                 size="sm"
                                 showNames={false}
+                                role="coautor"
+                                noGap={true}
                               />
                             )
                           })}
                           {proyecto.colaboradores.length > 2 && (
-                            <div className="h-8 w-8 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-medium ring-2 ring-blue-100">
+                            <div className="h-8 w-8 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-medium ring-2 ring-blue-100 border-2 border-white">
                               +{proyecto.colaboradores.length - 2}
                             </div>
                           )}
-                        </div>
+                        </>
                       )}
                     </div>
                     <AnimatedButton
