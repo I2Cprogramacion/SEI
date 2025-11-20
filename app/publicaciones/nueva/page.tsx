@@ -90,6 +90,8 @@ export default function NuevaPublicacionPage() {
     isbn: true,
     url: true
   })
+  const [camposFaltantes, setCamposFaltantes] = useState<string[]>([])
+  const [mostrarErrores, setMostrarErrores] = useState(false)
 
   const [formData, setFormData] = useState<FormData>({
     titulo: "",
@@ -427,6 +429,36 @@ export default function NuevaPublicacionPage() {
     }
   }
 
+  // Obtener campos requeridos según tipo de publicación
+  const getCamposRequeridos = (tipo: string): string[] => {
+    const camposBase = ['titulo', 'autores', 'categoria', 'tipo', 'resumen', 'palabrasClave', 'añoPublicacion']
+    
+    switch (tipo) {
+      case 'Artículo de investigación':
+      case 'Artículo de revisión':
+      case 'Artículo corto':
+        return [...camposBase, 'revista', 'institucion', 'doi', 'volumen', 'numero']
+      
+      case 'Libro':
+        return [...camposBase, 'institucion', 'isbn']
+      
+      case 'Capítulo de libro':
+        return [...camposBase, 'revista', 'institucion', 'isbn', 'paginas']
+      
+      case 'Memoria de conferencia':
+        return [...camposBase, 'revista', 'institucion']
+      
+      case 'Tesis':
+        return [...camposBase, 'institucion']
+      
+      case 'Reporte técnico':
+        return [...camposBase, 'institucion']
+      
+      default:
+        return [...camposBase, 'revista', 'institucion']
+    }
+  }
+
   // Validar DOI
   const validateDOI = (doi: string): boolean => {
     if (!doi) return true // DOI es opcional
@@ -459,62 +491,106 @@ export default function NuevaPublicacionPage() {
     }
   }
 
-  // Validar formulario
+  // Validar formulario con campos dinámicos
   const validateForm = (): boolean => {
     const newErrors: ErrorMessage[] = []
+    const faltantes: string[] = []
+    const camposRequeridos = getCamposRequeridos(formData.tipo)
 
     // Validar título
-    if (!formData.titulo.trim()) {
+    if (camposRequeridos.includes('titulo') && !formData.titulo.trim()) {
       newErrors.push({ field: "titulo", message: "El título es obligatorio" })
-    } else if (formData.titulo.length < 10) {
+      faltantes.push("Título")
+    } else if (formData.titulo && formData.titulo.length < 10) {
       newErrors.push({ field: "titulo", message: "El título debe tener al menos 10 caracteres" })
+      faltantes.push("Título (mínimo 10 caracteres)")
     }
 
     // Validar autores
-    if (formData.autores.length === 0) {
+    if (camposRequeridos.includes('autores') && formData.autores.length === 0) {
       newErrors.push({ field: "autores", message: "Debe agregar al menos un autor" })
+      faltantes.push("Autores")
     }
 
-    // Validar institución (editorial)
-    if (!formData.institucion.trim()) {
-      newErrors.push({ field: "institucion", message: "La editorial es obligatoria" })
+    // Validar institución (editorial) - solo si es requerida
+    if (camposRequeridos.includes('institucion') && !formData.institucion.trim()) {
+      newErrors.push({ field: "institucion", message: "La editorial es obligatoria para este tipo de publicación" })
+      faltantes.push("Editorial")
     }
 
-    // Validar revista
-    if (!formData.revista.trim()) {
-      newErrors.push({ field: "revista", message: "La revista es obligatoria" })
+    // Validar revista - solo si es requerida
+    if (camposRequeridos.includes('revista') && !formData.revista.trim()) {
+      newErrors.push({ field: "revista", message: "La revista es obligatoria para este tipo de publicación" })
+      faltantes.push("Revista")
+    }
+
+    // Validar DOI - solo si es requerido
+    if (camposRequeridos.includes('doi') && !formData.doi.trim()) {
+      newErrors.push({ field: "doi", message: "El DOI es obligatorio para artículos de investigación" })
+      faltantes.push("DOI")
+    }
+
+    // Validar ISBN - solo si es requerido
+    if (camposRequeridos.includes('isbn') && !formData.isbn.trim()) {
+      newErrors.push({ field: "isbn", message: "El ISBN es obligatorio para libros y capítulos" })
+      faltantes.push("ISBN")
+    }
+
+    // Validar volumen - solo si es requerido
+    if (camposRequeridos.includes('volumen') && !formData.volumen.trim()) {
+      newErrors.push({ field: "volumen", message: "El volumen es obligatorio para este tipo de publicación" })
+      faltantes.push("Volumen")
+    }
+
+    // Validar número - solo si es requerido
+    if (camposRequeridos.includes('numero') && !formData.numero.trim()) {
+      newErrors.push({ field: "numero", message: "El número es obligatorio para este tipo de publicación" })
+      faltantes.push("Número")
+    }
+
+    // Validar páginas - solo si es requerido
+    if (camposRequeridos.includes('paginas') && !formData.paginas.trim()) {
+      newErrors.push({ field: "paginas", message: "Las páginas son obligatorias para este tipo de publicación" })
+      faltantes.push("Páginas")
     }
 
     // Validar año
     if (!formData.añoPublicacion) {
       newErrors.push({ field: "añoPublicacion", message: "El año de publicación es obligatorio" })
+      faltantes.push("Año de publicación")
     } else {
       const año = parseInt(formData.añoPublicacion)
       if (año < 1900 || año > new Date().getFullYear() + 1) {
         newErrors.push({ field: "añoPublicacion", message: `El año debe estar entre 1900 y ${new Date().getFullYear() + 1}` })
+        faltantes.push("Año válido")
       }
     }
 
     // Validar categoría
     if (!formData.categoria) {
       newErrors.push({ field: "categoria", message: "La categoría es obligatoria" })
+      faltantes.push("Categoría")
     }
 
     // Validar tipo
     if (!formData.tipo) {
       newErrors.push({ field: "tipo", message: "El tipo de publicación es obligatorio" })
+      faltantes.push("Tipo de publicación")
     }
 
     // Validar resumen
     if (!formData.resumen.trim()) {
       newErrors.push({ field: "resumen", message: "El resumen es obligatorio" })
+      faltantes.push("Resumen")
     } else if (formData.resumen.length < 50) {
       newErrors.push({ field: "resumen", message: "El resumen debe tener al menos 50 caracteres" })
+      faltantes.push("Resumen (mínimo 50 caracteres)")
     }
 
     // Validar palabras clave
     if (formData.palabrasClave.length === 0) {
       newErrors.push({ field: "palabrasClave", message: "Debe agregar al menos una palabra clave" })
+      faltantes.push("Palabras clave")
     }
 
     // Validar DOI
@@ -543,6 +619,20 @@ export default function NuevaPublicacionPage() {
     }
 
     setErrors(newErrors)
+    setCamposFaltantes(faltantes)
+    
+    // Si hay errores, hacer scroll al primer campo con error
+    if (newErrors.length > 0) {
+      setMostrarErrores(true)
+      setTimeout(() => {
+        const primerError = document.getElementById(newErrors[0].field)
+        if (primerError) {
+          primerError.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          primerError.focus()
+        }
+      }, 100)
+    }
+    
     return newErrors.length === 0
   }
 
@@ -551,8 +641,13 @@ export default function NuevaPublicacionPage() {
     e.preventDefault()
 
     if (!validateForm()) {
-      toast.error('Errores en el formulario', {
-        description: 'Por favor corrige los errores antes de continuar'
+      const mensajeFaltantes = camposFaltantes.length > 0 
+        ? `Campos faltantes: ${camposFaltantes.join(', ')}`
+        : 'Por favor corrige los errores antes de continuar'
+      
+      toast.error('Formulario incompleto', {
+        description: mensajeFaltantes,
+        duration: 5000
       })
       return
     }
@@ -736,6 +831,55 @@ export default function NuevaPublicacionPage() {
           </Alert>
         )}
 
+        {/* Banner de campos faltantes */}
+        {mostrarErrores && errors.length > 0 && (
+          <Alert className="border-red-300 bg-red-50 shadow-lg">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <X className="h-5 w-5 text-red-600" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-red-900 mb-1">
+                  Formulario incompleto ({errors.length} {errors.length === 1 ? 'error' : 'errores'})
+                </h3>
+                <p className="text-sm text-red-700 mb-2">
+                  Por favor completa los siguientes campos:
+                </p>
+                <ul className="list-disc list-inside text-sm text-red-600 space-y-1">
+                  {camposFaltantes.map((campo, index) => (
+                    <li key={index} className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                      {campo}
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const primerError = document.getElementById(errors[0].field)
+                    if (primerError) {
+                      primerError.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                      primerError.focus()
+                    }
+                  }}
+                  className="mt-3 text-red-700 hover:text-red-800 hover:bg-red-100"
+                >
+                  Ir al primer campo faltante →
+                </Button>
+              </div>
+              <button
+                onClick={() => setMostrarErrores(false)}
+                className="flex-shrink-0 text-red-400 hover:text-red-600 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </Alert>
+        )}
+
         {/* Layout con progreso lateral */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Indicador de progreso */}
@@ -810,7 +954,36 @@ export default function NuevaPublicacionPage() {
                     <Label htmlFor="tipo" className="text-blue-900">
                       Tipo de Publicación *
                     </Label>
-                    <Select value={formData.tipo} onValueChange={(value) => handleInputChange("tipo", value)}>
+                    <Select value={formData.tipo} onValueChange={(value) => {
+                      handleInputChange("tipo", value)
+                      // Limpiar errores al cambiar tipo
+                      setMostrarErrores(false)
+                      // Mostrar info de campos requeridos
+                      if (value) {
+                        const requeridos = getCamposRequeridos(value)
+                        const nombresRequeridos = requeridos
+                          .filter(r => !['titulo', 'autores', 'categoria', 'tipo', 'resumen', 'palabrasClave', 'añoPublicacion'].includes(r))
+                          .map(r => {
+                            switch(r) {
+                              case 'revista': return 'Revista'
+                              case 'institucion': return 'Editorial'
+                              case 'doi': return 'DOI'
+                              case 'isbn': return 'ISBN'
+                              case 'volumen': return 'Volumen'
+                              case 'numero': return 'Número'
+                              case 'paginas': return 'Páginas'
+                              default: return r
+                            }
+                          })
+                        
+                        if (nombresRequeridos.length > 0) {
+                          toast.info(`Campos requeridos para ${value}:`, {
+                            description: nombresRequeridos.join(', '),
+                            duration: 4000
+                          })
+                        }
+                      }
+                    }}>
                       <SelectTrigger className={errors.some(e => e.field === "tipo") ? "border-red-300" : ""}>
                       <SelectValue placeholder="Selecciona el tipo" />
                     </SelectTrigger>
@@ -1064,7 +1237,7 @@ export default function NuevaPublicacionPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="revista" className="text-blue-900">
-                      Revista *
+                      Revista {getCamposRequeridos(formData.tipo).includes('revista') && <span className="text-red-500">*</span>}
                     </Label>
                     <Input
                       id="revista"
@@ -1082,7 +1255,7 @@ export default function NuevaPublicacionPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="institucion" className="text-blue-900">
-                      Editorial *
+                      Editorial {getCamposRequeridos(formData.tipo).includes('institucion') && <span className="text-red-500">*</span>}
                     </Label>
                     <Input
                       id="institucion"
@@ -1146,7 +1319,7 @@ export default function NuevaPublicacionPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="volumen" className="text-blue-900">
-                      Volumen
+                      Volumen {getCamposRequeridos(formData.tipo).includes('volumen') && <span className="text-red-500">*</span>}
                     </Label>
                   <Input
                     id="volumen"
@@ -1158,7 +1331,7 @@ export default function NuevaPublicacionPage() {
 
                 <div className="space-y-2">
                     <Label htmlFor="numero" className="text-blue-900">
-                      Número
+                      Número {getCamposRequeridos(formData.tipo).includes('numero') && <span className="text-red-500">*</span>}
                     </Label>
                   <Input
                     id="numero"
@@ -1170,7 +1343,7 @@ export default function NuevaPublicacionPage() {
 
                 <div className="space-y-2">
                     <Label htmlFor="paginas" className="text-blue-900">
-                      Páginas
+                      Páginas {getCamposRequeridos(formData.tipo).includes('paginas') && <span className="text-red-500">*</span>}
                     </Label>
                   <Input
                     id="paginas"
@@ -1250,7 +1423,7 @@ export default function NuevaPublicacionPage() {
                   {identificadoresActivos.doi && (
                     <div className="space-y-2">
                       <Label htmlFor="doi" className="text-blue-900">
-                        DOI (Digital Object Identifier)
+                        DOI (Digital Object Identifier) {getCamposRequeridos(formData.tipo).includes('doi') && <span className="text-red-500">*</span>}
                       </Label>
                       <Input
                         id="doi"
@@ -1290,7 +1463,7 @@ export default function NuevaPublicacionPage() {
                   {identificadoresActivos.isbn && (
                     <div className="space-y-2">
                       <Label htmlFor="isbn" className="text-blue-900">
-                        ISBN (para libros)
+                        ISBN (para libros) {getCamposRequeridos(formData.tipo).includes('isbn') && <span className="text-red-500">*</span>}
                       </Label>
                       <Input
                         id="isbn"
