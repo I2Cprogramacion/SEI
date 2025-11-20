@@ -632,16 +632,16 @@ export default function NuevaPublicacionPage() {
       case 'Artículo de investigación':
       case 'Artículo de revisión':
       case 'Artículo corto':
-        return [...camposBase, 'revista', 'institucion', 'doi', 'volumen', 'numero']
+        return [...camposBase, 'revista', 'institucion', 'volumen', 'numero']
       
       case 'Libro':
         return [...camposBase, 'institucion', 'isbn']
       
       case 'Capítulo de libro':
-        return [...camposBase, 'revista', 'institucion', 'isbn', 'paginas']
+        return [...camposBase, 'institucion', 'isbn', 'paginas']
       
       case 'Memoria de conferencia':
-        return [...camposBase, 'revista', 'institucion']
+        return [...camposBase, 'institucion']
       
       case 'Tesis':
         return [...camposBase, 'institucion']
@@ -650,7 +650,7 @@ export default function NuevaPublicacionPage() {
         return [...camposBase, 'institucion']
       
       default:
-        return [...camposBase, 'revista', 'institucion']
+        return [...camposBase, 'institucion']
     }
   }
 

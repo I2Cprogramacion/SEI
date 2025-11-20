@@ -6,7 +6,7 @@ export async function GET() {
     const db = await getDatabase()
     
     // Obtener todas las revistas únicas de las publicaciones existentes
-    const result = await db.ejecutarConsulta(
+    const result = await db.query(
       `SELECT DISTINCT revista 
        FROM publicaciones 
        WHERE revista IS NOT NULL 
@@ -14,7 +14,7 @@ export async function GET() {
        ORDER BY revista ASC`
     )
 
-    const revistas = result.map((row: { revista: string }) => row.revista)
+    const revistas = result.rows.map((row: { revista: string }) => row.revista)
 
     return NextResponse.json({ revistas }, { status: 200 })
   } catch (error) {
