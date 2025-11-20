@@ -39,6 +39,7 @@ interface Publicacion {
   autoresInfo?: AutorInfo[] // Información detallada de autores si están registrados
   revista: string
   año: number
+  fechaPublicacion?: string // Nueva: fecha completa de publicación
   volumen?: string
   numero?: string
   paginas?: string
@@ -189,7 +190,12 @@ export default function PublicacionesPage() {
 
   const formatCitation = (pub: Publicacion) => {
     const authors = pub.autores && pub.autores.length ? pub.autores.join(', ') : 'Autor'
-    const year = pub.año || 's.f.'
+    let year = 's.f.'
+    if (pub.fechaPublicacion) {
+      year = new Date(pub.fechaPublicacion).getFullYear().toString()
+    } else if (pub.año) {
+      year = pub.año.toString()
+    }
     const title = pub.titulo || ''
     const journal = pub.revista || ''
     const doi = pub.doi ? `https://doi.org/${pub.doi}` : (pub.archivoUrl || '')
@@ -242,7 +248,13 @@ export default function PublicacionesPage() {
       pub.palabrasClave.some((palabra) => palabra.toLowerCase().includes(searchTerm.toLowerCase()))
 
     const matchesCategory = selectedCategory === "all" || pub.categoria === selectedCategory
-    const matchesYear = selectedYear === "all" || pub.año.toString() === selectedYear
+    
+    // Extraer año de fechaPublicacion o usar año directamente
+    const publicacionYear = pub.fechaPublicacion 
+      ? new Date(pub.fechaPublicacion).getFullYear().toString()
+      : pub.año?.toString() || ''
+    const matchesYear = selectedYear === "all" || publicacionYear === selectedYear
+    
     const matchesAccess = selectedAccess === "all" || pub.acceso === selectedAccess
 
     return matchesSearch && matchesCategory && matchesYear && matchesAccess
@@ -910,7 +922,13 @@ export default function PublicacionesPage() {
                           <div className="flex items-center gap-2 break-words">
                             <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                             <span className="break-words">
-                              {publicacion.año}
+                              {publicacion.fechaPublicacion 
+                                ? new Date(publicacion.fechaPublicacion).toLocaleDateString('es-ES', { 
+                                    day: '2-digit', 
+                                    month: '2-digit', 
+                                    year: 'numeric' 
+                                  })
+                                : publicacion.año || 's.f.'}
                               {publicacion.volumen && `, Vol. ${publicacion.volumen}`}
                               {publicacion.numero && `(${publicacion.numero})`}
                               {publicacion.paginas && `, pp. ${publicacion.paginas}`}

@@ -44,7 +44,7 @@ interface FormData {
   coautores: Coautor[]
   institucion: string
   revista: string
-  añoPublicacion: string
+  fechaPublicacion: string
   volumen: string
   numero: string
   paginas: string
@@ -93,7 +93,7 @@ export default function NuevaPublicacionPage() {
     coautores: [],
     institucion: "",
     revista: "",
-    añoPublicacion: new Date().getFullYear().toString(),
+    fechaPublicacion: new Date().toISOString().split('T')[0],
     volumen: "",
     numero: "",
     paginas: "",
@@ -170,7 +170,9 @@ export default function NuevaPublicacionPage() {
           autores: p.autor ? String(p.autor).split(/,\s*/).filter(Boolean) : [],
           institucion: p.institucion || '',
           revista: p.revista || p.editorial || '',
-          añoPublicacion: p.año_creacion ? String(p.año_creacion) : prev.añoPublicacion,
+          fechaPublicacion: p.fecha_publicacion || p.año_creacion ? 
+            (p.fecha_publicacion || `${p.año_creacion}-01-01`) : 
+            prev.fechaPublicacion,
           volumen: p.volumen || '',
           numero: p.numero || '',
           paginas: p.paginas || '',
@@ -288,7 +290,7 @@ export default function NuevaPublicacionPage() {
       id: "detalles",
       title: "Detalles",
       completed: calculateSectionProgress([
-        { value: formData.añoPublicacion, required: true }
+        { value: formData.fechaPublicacion, required: true }
       ]) === 100
     },
     {
@@ -465,7 +467,7 @@ export default function NuevaPublicacionPage() {
 
   // Obtener campos requeridos según tipo de publicación
   const getCamposRequeridos = (tipo: string): string[] => {
-    const camposBase = ['titulo', 'autores', 'categoria', 'tipo', 'resumen', 'palabrasClave', 'añoPublicacion']
+    const camposBase = ['titulo', 'autores', 'categoria', 'tipo', 'resumen', 'palabrasClave', 'fechaPublicacion']
     
     switch (tipo) {
       case 'Artículo de investigación':
@@ -588,15 +590,19 @@ export default function NuevaPublicacionPage() {
       faltantes.push("Páginas")
     }
 
-    // Validar año
-    if (!formData.añoPublicacion) {
-      newErrors.push({ field: "añoPublicacion", message: "El año de publicación es obligatorio" })
-      faltantes.push("Año de publicación")
+    // Validar fecha de publicación
+    if (!formData.fechaPublicacion) {
+      newErrors.push({ field: "fechaPublicacion", message: "La fecha de publicación es obligatoria" })
+      faltantes.push("Fecha de publicación")
     } else {
-      const año = parseInt(formData.añoPublicacion)
-      if (año < 1900 || año > new Date().getFullYear() + 1) {
-        newErrors.push({ field: "añoPublicacion", message: `El año debe estar entre 1900 y ${new Date().getFullYear() + 1}` })
-        faltantes.push("Año válido")
+      const fecha = new Date(formData.fechaPublicacion)
+      const año = fecha.getFullYear()
+      const fechaMaxima = new Date()
+      fechaMaxima.setFullYear(fechaMaxima.getFullYear() + 1)
+      
+      if (año < 1900 || fecha > fechaMaxima) {
+        newErrors.push({ field: "fechaPublicacion", message: `La fecha debe ser entre 1900 y el próximo año` })
+        faltantes.push("Fecha válida")
       }
     }
 
@@ -755,8 +761,10 @@ export default function NuevaPublicacionPage() {
         coautores: formData.coautores && formData.coautores.length > 0 ? JSON.stringify(formData.coautores) : null,
         institucion: formData.institucion || null,
         revista: formData.revista || null,
-        // El servidor busca 'año_creacion' o 'año'
-        año_creacion: formData.añoPublicacion ? parseInt(formData.añoPublicacion) : null,
+        // Enviar fecha completa
+        fecha_publicacion: formData.fechaPublicacion || null,
+        // También extraer el año por compatibilidad
+        año_creacion: formData.fechaPublicacion ? new Date(formData.fechaPublicacion).getFullYear() : null,
         volumen: formData.volumen || null,
         numero: formData.numero || null,
         paginas: formData.paginas || null,
@@ -865,55 +873,6 @@ export default function NuevaPublicacionPage() {
           </Alert>
         )}
 
-        {/* Banner de campos faltantes */}
-        {mostrarErrores && errors.length > 0 && (
-          <Alert className="border-red-300 bg-red-50 shadow-lg">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <X className="h-5 w-5 text-red-600" />
-                </div>
-              </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold text-red-900 mb-1">
-                  Formulario incompleto ({errors.length} {errors.length === 1 ? 'error' : 'errores'})
-                </h3>
-                <p className="text-sm text-red-700 mb-2">
-                  Por favor completa los siguientes campos:
-                </p>
-                <ul className="list-disc list-inside text-sm text-red-600 space-y-1">
-                  {camposFaltantes.map((campo, index) => (
-                    <li key={index} className="flex items-center gap-2">
-                      <span className="w-2 h-2 bg-red-500 rounded-full"></span>
-                      {campo}
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    const primerError = document.getElementById(errors[0].field)
-                    if (primerError) {
-                      primerError.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                      primerError.focus()
-                    }
-                  }}
-                  className="mt-3 text-red-700 hover:text-red-800 hover:bg-red-100"
-                >
-                  Ir al primer campo faltante →
-                </Button>
-              </div>
-              <button
-                onClick={() => setMostrarErrores(false)}
-                className="flex-shrink-0 text-red-400 hover:text-red-600 transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-          </Alert>
-        )}
-
         {/* Layout con progreso lateral */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Indicador de progreso */}
@@ -996,7 +955,7 @@ export default function NuevaPublicacionPage() {
                       if (value) {
                         const requeridos = getCamposRequeridos(value)
                         const nombresRequeridos = requeridos
-                          .filter(r => !['titulo', 'autores', 'categoria', 'tipo', 'resumen', 'palabrasClave', 'añoPublicacion'].includes(r))
+                          .filter(r => !['titulo', 'autores', 'categoria', 'tipo', 'resumen', 'palabrasClave', 'fechaPublicacion'].includes(r))
                           .map(r => {
                             switch(r) {
                               case 'revista': return 'Revista'
@@ -1316,39 +1275,26 @@ export default function NuevaPublicacionPage() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="añoPublicacion" className="text-blue-900">
-                      Año *
+                    <Label htmlFor="fechaPublicacion" className="text-blue-900">
+                      Fecha de Publicación *
                     </Label>
                     <Input
-                      id="añoPublicacion"
-                      type="number"
-                      min="1900"
-                      max={new Date().getFullYear() + 1}
-                      value={formData.añoPublicacion}
+                      id="fechaPublicacion"
+                      type="date"
+                      min="1900-01-01"
+                      max={new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]}
+                      value={formData.fechaPublicacion}
                       onChange={(e) => {
-                        const value = e.target.value
-                        // Permitir valores vacíos o números válidos
-                        if (value === '' || (!isNaN(Number(value)) && Number(value) >= 1900 && Number(value) <= new Date().getFullYear() + 1)) {
-                          handleInputChange("añoPublicacion", value)
-                        }
+                        handleInputChange("fechaPublicacion", e.target.value)
                       }}
-                      onBlur={(e) => {
-                        // Validar al salir del campo
-                        const value = e.target.value
-                        if (value && (isNaN(Number(value)) || Number(value) < 1900 || Number(value) > new Date().getFullYear() + 1)) {
-                          setErrors(prev => [...prev.filter(e => e.field !== "añoPublicacion"), {
-                            field: "añoPublicacion",
-                            message: `El año debe estar entre 1900 y ${new Date().getFullYear() + 1}`
-                          }])
-                        }
-                      }}
-                      className={errors.some(e => e.field === "añoPublicacion") ? "border-red-300" : ""}
+                      className={errors.some(e => e.field === "fechaPublicacion") ? "border-red-300" : ""}
                     />
-                    {errors.some(e => e.field === "añoPublicacion") && (
+                    {errors.some(e => e.field === "fechaPublicacion") && (
                       <p className="text-sm text-red-600">
-                        {errors.find(e => e.field === "añoPublicacion")?.message}
+                        {errors.find(e => e.field === "fechaPublicacion")?.message}
                       </p>
                     )}
+                    <p className="text-xs text-slate-500">Fecha exacta de publicación (día/mes/año)</p>
                   </div>
 
                   <div className="space-y-2">
@@ -1699,6 +1645,41 @@ export default function NuevaPublicacionPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Banner de campos faltantes - Antes de documento */}
+              {mostrarErrores && errors.length > 0 && (
+                <Alert className="border-red-300 bg-red-50 shadow-lg">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                        <X className="h-5 w-5 text-red-600" />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-red-900 mb-1">
+                        Formulario incompleto ({errors.length} {errors.length === 1 ? 'error' : 'errores'})
+                      </h3>
+                      <p className="text-sm text-red-700 mb-2">
+                        Por favor completa los siguientes campos:
+                      </p>
+                      <ul className="list-disc list-inside text-sm text-red-600 space-y-1">
+                        {camposFaltantes.map((campo, index) => (
+                          <li key={index} className="flex items-center gap-2">
+                            <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                            {campo}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <button
+                      onClick={() => setMostrarErrores(false)}
+                      className="flex-shrink-0 text-red-400 hover:text-red-600 transition-colors"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                </Alert>
+              )}
 
               {/* Documento - Archivo o Enlace */}
               <div className="space-y-4">

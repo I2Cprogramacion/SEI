@@ -150,6 +150,33 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
   // Procesar autores para extraer información
   const autores = publicacion.autor ? publicacion.autor.split(/[,;]/).map((a: string) => a.trim()) : []
 
+  // Función para formatear fecha
+  const formatearFecha = (fecha: string | null | undefined): string => {
+    if (!fecha) return 's.f.'
+    try {
+      const date = new Date(fecha)
+      const dia = date.getDate().toString().padStart(2, '0')
+      const mes = (date.getMonth() + 1).toString().padStart(2, '0')
+      const año = date.getFullYear()
+      return `${dia}/${mes}/${año}`
+    } catch {
+      return 's.f.'
+    }
+  }
+
+  // Extraer año de la fecha para citaciones
+  const obtenerAño = (fecha: string | null | undefined): string => {
+    if (!fecha) return 's.f.'
+    try {
+      return new Date(fecha).getFullYear().toString()
+    } catch {
+      return 's.f.'
+    }
+  }
+
+  const añoCitacion = obtenerAño(publicacion.fecha_publicacion || publicacion.año_creacion?.toString())
+  const fechaCompleta = formatearFecha(publicacion.fecha_publicacion || publicacion.año_creacion?.toString())
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header con diseño consistente */}
@@ -182,10 +209,10 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                   {publicacion.acceso}
                 </Badge>
               )}
-              {publicacion.año_creacion && (
+              {(publicacion.fecha_publicacion || publicacion.año_creacion) && (
                 <Badge className="bg-blue-600 text-white px-3 py-1 text-sm font-medium shadow-sm">
                   <Calendar className="mr-1 h-3 w-3" />
-                  {publicacion.año_creacion}
+                  {fechaCompleta}
                 </Badge>
               )}
             </div>
@@ -356,7 +383,7 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                           const lastName = parts[parts.length - 1]
                           const initials = parts.slice(0, -1).map((n: string) => n[0]).join('. ')
                           return `${idx > 0 ? ', ' : ''}${lastName}, ${initials}.`
-                        })}{autores.length > 7 && ', et al.'} ({publicacion.año_creacion || 's.f.'}). {publicacion.titulo}. 
+                        })}{autores.length > 7 && ', et al.'} ({añoCitacion}). {publicacion.titulo}. 
                         {publicacion.editorial && <em> {publicacion.editorial}</em>}
                         {publicacion.volumen && `, ${publicacion.volumen}`}
                         {publicacion.numero && `(${publicacion.numero})`}
@@ -370,7 +397,7 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                         const lastName = parts[parts.length - 1]
                         const initials = parts.slice(0, -1).map((n: string) => n[0]).join('. ')
                         return `${lastName}, ${initials}.`
-                      }).join(', ')}${autores.length > 7 ? ', et al.' : ''} (${publicacion.año_creacion || 's.f.'}). ${publicacion.titulo}. ${publicacion.editorial ? publicacion.editorial + ',' : ''}${publicacion.volumen ? ` ${publicacion.volumen}` : ''}${publicacion.numero ? `(${publicacion.numero})` : ''}${publicacion.paginas ? `, ${publicacion.paginas}` : ''}.${publicacion.doi ? ` https://doi.org/${publicacion.doi.replace(/^https?:\/\/(dx\.)?doi\.org\//, '')}` : ''}`}
+                      }).join(', ')}${autores.length > 7 ? ', et al.' : ''} (${añoCitacion}). ${publicacion.titulo}. ${publicacion.editorial ? publicacion.editorial + ',' : ''}${publicacion.volumen ? ` ${publicacion.volumen}` : ''}${publicacion.numero ? `(${publicacion.numero})` : ''}${publicacion.paginas ? `, ${publicacion.paginas}` : ''}.${publicacion.doi ? ` https://doi.org/${publicacion.doi.replace(/^https?:\/\/(dx\.)?doi\.org\//, '')}` : ''}`}
                       label="Copiar citación APA"
                     />
                   </TabsContent>
@@ -388,7 +415,7 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                         {publicacion.editorial && <em> {publicacion.editorial}</em>}
                         {publicacion.volumen && `, vol. ${publicacion.volumen}`}
                         {publicacion.numero && `, no. ${publicacion.numero}`}
-                        {publicacion.paginas && `, pp. ${publicacion.paginas}`}, {publicacion.año_creacion || 'n.d.'}.
+                        {publicacion.paginas && `, pp. ${publicacion.paginas}`}, {añoCitacion}.
                       </p>
                     </div>
                     <CitationCopyButton 
@@ -397,7 +424,7 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                         const lastName = parts[parts.length - 1]
                         const initials = parts.slice(0, -1).map((n: string) => n[0]).join('. ')
                         return `${initials ? initials + '. ' : ''}${lastName}`
-                      }).join(', ')}${autores.length > 6 ? ', et al.' : ''}, "${publicacion.titulo}," ${publicacion.editorial ? publicacion.editorial + ',' : ''}${publicacion.volumen ? ` vol. ${publicacion.volumen}` : ''}${publicacion.numero ? `, no. ${publicacion.numero}` : ''}${publicacion.paginas ? `, pp. ${publicacion.paginas}` : ''}, ${publicacion.año_creacion || 'n.d.'}.`}
+                      }).join(', ')}${autores.length > 6 ? ', et al.' : ''}, "${publicacion.titulo}," ${publicacion.editorial ? publicacion.editorial + ',' : ''}${publicacion.volumen ? ` vol. ${publicacion.volumen}` : ''}${publicacion.numero ? `, no. ${publicacion.numero}` : ''}${publicacion.paginas ? `, pp. ${publicacion.paginas}` : ''}, ${añoCitacion}.`}
                       label="Copiar citación IEEE"
                     />
                   </TabsContent>
@@ -416,7 +443,7 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                         {publicacion.editorial && <em>{publicacion.editorial} </em>}
                         {publicacion.volumen && `${publicacion.volumen}`}
                         {publicacion.numero && `, no. ${publicacion.numero}`}
-                        {publicacion.año_creacion && ` (${publicacion.año_creacion})`}
+                        {añoCitacion !== 's.f.' && ` (${añoCitacion})`}
                         {publicacion.paginas && `: ${publicacion.paginas}`}.
                       </p>
                     </div>
@@ -427,7 +454,7 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                         const firstName = parts.slice(0, -1).join(' ')
                         if (idx === 0) return `${lastName}, ${firstName}`
                         return `, ${firstName} ${lastName}`
-                      }).join('')}${autores.length > 10 ? ', et al.' : ''}. "${publicacion.titulo}." ${publicacion.editorial ? publicacion.editorial + ' ' : ''}${publicacion.volumen || ''}${publicacion.numero ? `, no. ${publicacion.numero}` : ''}${publicacion.año_creacion ? ` (${publicacion.año_creacion})` : ''}${publicacion.paginas ? `: ${publicacion.paginas}` : ''}.`}
+                      }).join('')}${autores.length > 10 ? ', et al.' : ''}. "${publicacion.titulo}." ${publicacion.editorial ? publicacion.editorial + ' ' : ''}${publicacion.volumen || ''}${publicacion.numero ? `, no. ${publicacion.numero}` : ''}${añoCitacion !== 's.f.' ? ` (${añoCitacion})` : ''}${publicacion.paginas ? `: ${publicacion.paginas}` : ''}.`}
                       label="Copiar citación Chicago"
                     />
                   </TabsContent>
@@ -445,7 +472,7 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                         {publicacion.editorial && <em>{publicacion.editorial}</em>}
                         {publicacion.volumen && `, vol. ${publicacion.volumen}`}
                         {publicacion.numero && `, no. ${publicacion.numero}`}
-                        {publicacion.año_creacion && `, ${publicacion.año_creacion}`}
+                        {añoCitacion !== 's.f.' && `, ${añoCitacion}`}
                         {publicacion.paginas && `, pp. ${publicacion.paginas}`}.
                       </p>
                     </div>
@@ -455,7 +482,7 @@ export default async function PublicacionPage({ params }: PublicacionPageProps) 
                         const lastName = parts[parts.length - 1]
                         const firstName = parts.slice(0, -1).join(' ')
                         return `${lastName}, ${firstName}`
-                      }).join('')}${autores.length > 1 ? ', et al.' : ''}. "${publicacion.titulo}." ${publicacion.editorial ? publicacion.editorial : ''}${publicacion.volumen ? `, vol. ${publicacion.volumen}` : ''}${publicacion.numero ? `, no. ${publicacion.numero}` : ''}${publicacion.año_creacion ? `, ${publicacion.año_creacion}` : ''}${publicacion.paginas ? `, pp. ${publicacion.paginas}` : ''}.`}
+                      }).join('')}${autores.length > 1 ? ', et al.' : ''}. "${publicacion.titulo}." ${publicacion.editorial ? publicacion.editorial : ''}${publicacion.volumen ? `, vol. ${publicacion.volumen}` : ''}${publicacion.numero ? `, no. ${publicacion.numero}` : ''}${añoCitacion !== 's.f.' ? `, ${añoCitacion}` : ''}${publicacion.paginas ? `, pp. ${publicacion.paginas}` : ''}.`}
                       label="Copiar citación MLA"
                     />
                   </TabsContent>
