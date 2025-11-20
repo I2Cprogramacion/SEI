@@ -907,12 +907,33 @@ export default function PublicacionesPage() {
                         <div className="space-y-1">
                           <div className="flex items-start gap-2 break-words">
                             <User className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 mt-1" />
-                            <div className="min-w-0 flex-1">
-                              <AuthorAvatarGroup 
-                                authors={publicacion.autores}
-                                maxVisible={3}
-                                size="sm"
-                              />
+                            <div className="min-w-0 flex-1 flex items-center -space-x-2">
+                              {publicacion.autores.length > 0 && (
+                                <AuthorAvatarGroup 
+                                  authors={publicacion.autores[0]}
+                                  maxVisible={1}
+                                  size="sm"
+                                  showNames={false}
+                                  role="autor"
+                                  noGap={true}
+                                />
+                              )}
+                              {publicacion.autores.length > 1 && publicacion.autores.slice(1, 3).map((autor: string, index: number) => (
+                                <AuthorAvatarGroup 
+                                  key={index}
+                                  authors={autor}
+                                  maxVisible={1}
+                                  size="sm"
+                                  showNames={false}
+                                  role="coautor"
+                                  noGap={true}
+                                />
+                              ))}
+                              {publicacion.autores.length > 3 && (
+                                <div className="h-8 w-8 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-medium ring-2 ring-blue-100 border-2 border-white">
+                                  +{publicacion.autores.length - 3}
+                                </div>
+                              )}
                             </div>
                           </div>
                           <div className="flex items-center gap-2 break-words">
