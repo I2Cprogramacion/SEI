@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server"
-import { db } from "@/lib/db"
+import { getDatabase } from "@/lib/database-config"
 
 export async function GET() {
   try {
+    const db = await getDatabase()
+    
     // Obtener todas las revistas únicas de las publicaciones existentes
-    const result = await db.query(
+    const result = await db.ejecutarConsulta(
       `SELECT DISTINCT revista 
        FROM publicaciones 
        WHERE revista IS NOT NULL 
@@ -12,7 +14,7 @@ export async function GET() {
        ORDER BY revista ASC`
     )
 
-    const revistas = result.rows.map((row: { revista: string }) => row.revista)
+    const revistas = result.map((row: { revista: string }) => row.revista)
 
     return NextResponse.json({ revistas }, { status: 200 })
   } catch (error) {

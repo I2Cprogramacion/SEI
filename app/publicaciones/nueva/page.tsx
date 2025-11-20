@@ -555,11 +555,13 @@ export default function NuevaPublicacionPage() {
     try {
       setGuardandoBorrador(true)
       
+      // Crear una copia sin el archivo para evitar problemas de serialización
+      const { archivo, ...formDataSinArchivo } = formData
+      
       // Guardar en localStorage
       const borrador = {
-        ...formData,
-        fecha_guardado: new Date().toISOString(),
-        archivo: undefined // No guardar el archivo en localStorage
+        ...formDataSinArchivo,
+        fecha_guardado: new Date().toISOString()
       }
       
       localStorage.setItem('borrador_publicacion', JSON.stringify(borrador))
@@ -567,7 +569,7 @@ export default function NuevaPublicacionPage() {
       toast.success('Borrador guardado correctamente')
     } catch (error) {
       toast.error('Error al guardar borrador')
-      console.error('Error:', error)
+      console.error('Error al guardar borrador:', error)
     } finally {
       setGuardandoBorrador(false)
     }
