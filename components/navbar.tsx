@@ -36,6 +36,7 @@ export default function Navbar() {
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
   const [fotografiaUrl, setFotografiaUrl] = useState<string | null>(null)
+  const [nombreCompleto, setNombreCompleto] = useState<string | null>(null)
   const [mensajesNoLeidos, setMensajesNoLeidos] = useState(0)
   const [conexionesPendientes, setConexionesPendientes] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -52,7 +53,12 @@ export default function Navbar() {
 
   const getDisplayName = (): string => {
     if (!user) return ""
-    return user.fullName || user.primaryEmailAddress?.emailAddress || ""
+    // Priorizar nombre completo del perfil de investigador
+    if (nombreCompleto) return nombreCompleto
+    // Luego el nombre completo de Clerk
+    if (user.fullName) return user.fullName
+    // Finalmente el correo como fallback
+    return user.primaryEmailAddress?.emailAddress || ""
   }
 
   // Cargar contadores de notificaciones
@@ -103,6 +109,9 @@ export default function Navbar() {
           if (result.success && result.data) {
             if (result.data.fotografia_url) {
               setFotografiaUrl(result.data.fotografia_url)
+            }
+            if (result.data.nombre_completo || result.data.nombreCompleto) {
+              setNombreCompleto(result.data.nombre_completo || result.data.nombreCompleto)
             }
             if (result.data.es_admin) {
               setIsAdmin(true)
