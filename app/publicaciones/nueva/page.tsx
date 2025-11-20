@@ -84,12 +84,6 @@ export default function NuevaPublicacionPage() {
   const [coautoresSeleccionados, setCoautoresSeleccionados] = useState<Investigador[]>([])
   const [emailCoautor, setEmailCoautor] = useState<Record<number, string>>({})
   const [institucionesDisponibles, setInstitucionesDisponibles] = useState<string[]>([])
-  const [identificadoresActivos, setIdentificadoresActivos] = useState({
-    doi: true,
-    issn: true,
-    isbn: true,
-    url: true
-  })
   const [camposFaltantes, setCamposFaltantes] = useState<string[]>([])
   const [mostrarErrores, setMostrarErrores] = useState(false)
 
@@ -139,6 +133,20 @@ export default function NuevaPublicacionPage() {
     }
     fetchInstituciones()
   }, [])
+  
+  // Limpiar campos de identificadores no relevantes al cambiar tipo
+  useEffect(() => {
+    if (!formData.tipo) return
+    
+    const relevantes = getIdentificadoresRelevantes(formData.tipo)
+    
+    setFormData(prev => ({
+      ...prev,
+      doi: relevantes.doi ? prev.doi : '',
+      issn: relevantes.issn ? prev.issn : '',
+      isbn: relevantes.isbn ? prev.isbn : '',
+    }))
+  }, [formData.tipo])
   
   // Si hay query param `id`, cargamos la publicación existente para editar
   useEffect(() => {
@@ -426,6 +434,32 @@ export default function NuevaPublicacionPage() {
       }))
       // Limpiar errores de archivo
       setErrors(prev => prev.filter(e => e.field !== "archivo"))
+    }
+  }
+
+  // Determinar qué identificadores son relevantes según el tipo de publicación
+  const getIdentificadoresRelevantes = (tipo: string) => {
+    switch (tipo) {
+      case 'Artículo de investigación':
+      case 'Artículo de revisión':
+      case 'Artículo corto':
+        return { doi: true, issn: true, isbn: false, url: true }
+      
+      case 'Libro':
+        return { doi: false, issn: false, isbn: true, url: true }
+      
+      case 'Capítulo de libro':
+        return { doi: false, issn: false, isbn: true, url: true }
+      
+      case 'Memoria de conferencia':
+        return { doi: true, issn: false, isbn: false, url: true }
+      
+      case 'Tesis':
+      case 'Reporte técnico':
+        return { doi: false, issn: false, isbn: false, url: true }
+      
+      default:
+        return { doi: true, issn: true, isbn: true, url: true }
     }
   }
 
@@ -1362,68 +1396,23 @@ export default function NuevaPublicacionPage() {
                   Identificadores y Enlaces
                 </h3>
 
-                {/* Selector de identificadores */}
-                <div className="bg-blue-50 p-4 rounded-lg space-y-3">
-                  <p className="text-sm text-blue-900 font-medium">
-                    Selecciona los identificadores que aplican a tu publicación:
-                  </p>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="check-doi"
-                        checked={identificadoresActivos.doi}
-                        onCheckedChange={(checked) => 
-                          setIdentificadoresActivos(prev => ({ ...prev, doi: !!checked }))
-                        }
-                      />
-                      <label htmlFor="check-doi" className="text-sm font-medium text-blue-900 cursor-pointer">
-                        DOI
-                      </label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="check-issn"
-                        checked={identificadoresActivos.issn}
-                        onCheckedChange={(checked) => 
-                          setIdentificadoresActivos(prev => ({ ...prev, issn: !!checked }))
-                        }
-                      />
-                      <label htmlFor="check-issn" className="text-sm font-medium text-blue-900 cursor-pointer">
-                        ISSN
-                      </label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="check-isbn"
-                        checked={identificadoresActivos.isbn}
-                        onCheckedChange={(checked) => 
-                          setIdentificadoresActivos(prev => ({ ...prev, isbn: !!checked }))
-                        }
-                      />
-                      <label htmlFor="check-isbn" className="text-sm font-medium text-blue-900 cursor-pointer">
-                        ISBN
-                      </label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="check-url"
-                        checked={identificadoresActivos.url}
-                        onCheckedChange={(checked) => 
-                          setIdentificadoresActivos(prev => ({ ...prev, url: !!checked }))
-                        }
-                      />
-                      <label htmlFor="check-url" className="text-sm font-medium text-blue-900 cursor-pointer">
-                        URL
-                      </label>
-                    </div>
-                  </div>
-                </div>
+                {formData.tipo && (
+                  <Alert className="bg-blue-50 border-blue-200">
+                    <AlertDescription className="text-sm text-blue-700">
+                      Los campos mostrados son relevantes para: <strong>{formData.tipo}</strong>
+                    </AlertDescription>
+                  </Alert>
+                )}
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {identificadoresActivos.doi && (
+                  {/* DOI - visible solo para artículos y conferencias */}
+                  {getIdentificadoresRelevantes(formData.tipo).doi && (
                     <div className="space-y-2">
-                      <Label htmlFor="doi" className="text-blue-900">
-                        DOI (Digital Object Identifier) {getCamposRequeridos(formData.tipo).includes('doi') && <span className="text-red-500">*</span>}
+                      <Label htmlFor="doi" className="text-blue-900 flex items-center gap-2">
+                        DOI {getCamposRequeridos(formData.tipo).includes('doi') ? 
+                          <span className="text-red-500">*</span> : 
+                          <span className="text-gray-500 text-xs font-normal">(Opcional)</span>
+                        }
                       </Label>
                       <Input
                         id="doi"
@@ -1432,6 +1421,7 @@ export default function NuevaPublicacionPage() {
                         onChange={(e) => handleInputChange("doi", e.target.value)}
                         className={errors.some(e => e.field === "doi") ? "border-red-300" : ""}
                       />
+                      <p className="text-xs text-gray-500">Identificador digital de objetos</p>
                       {errors.some(e => e.field === "doi") && (
                         <p className="text-sm text-red-600">
                           {errors.find(e => e.field === "doi")?.message}
@@ -1440,10 +1430,11 @@ export default function NuevaPublicacionPage() {
                     </div>
                   )}
 
-                  {identificadoresActivos.issn && (
+                  {/* ISSN - solo para artículos de revista */}
+                  {getIdentificadoresRelevantes(formData.tipo).issn && (
                     <div className="space-y-2">
-                      <Label htmlFor="issn" className="text-blue-900">
-                        ISSN (para revistas)
+                      <Label htmlFor="issn" className="text-blue-900 flex items-center gap-2">
+                        ISSN <span className="text-gray-500 text-xs font-normal">(Opcional)</span>
                       </Label>
                       <Input
                         id="issn"
@@ -1452,6 +1443,7 @@ export default function NuevaPublicacionPage() {
                         onChange={(e) => handleInputChange("issn", e.target.value)}
                         className={errors.some(e => e.field === "issn") ? "border-red-300" : ""}
                       />
+                      <p className="text-xs text-gray-500">Número internacional normalizado de publicaciones seriadas</p>
                       {errors.some(e => e.field === "issn") && (
                         <p className="text-sm text-red-600">
                           {errors.find(e => e.field === "issn")?.message}
@@ -1460,10 +1452,14 @@ export default function NuevaPublicacionPage() {
                     </div>
                   )}
 
-                  {identificadoresActivos.isbn && (
+                  {/* ISBN - solo para libros y capítulos */}
+                  {getIdentificadoresRelevantes(formData.tipo).isbn && (
                     <div className="space-y-2">
-                      <Label htmlFor="isbn" className="text-blue-900">
-                        ISBN (para libros) {getCamposRequeridos(formData.tipo).includes('isbn') && <span className="text-red-500">*</span>}
+                      <Label htmlFor="isbn" className="text-blue-900 flex items-center gap-2">
+                        ISBN {getCamposRequeridos(formData.tipo).includes('isbn') ? 
+                          <span className="text-red-500">*</span> : 
+                          <span className="text-gray-500 text-xs font-normal">(Opcional)</span>
+                        }
                       </Label>
                       <Input
                         id="isbn"
@@ -1472,6 +1468,7 @@ export default function NuevaPublicacionPage() {
                         onChange={(e) => handleInputChange("isbn", e.target.value)}
                         className={errors.some(e => e.field === "isbn") ? "border-red-300" : ""}
                       />
+                      <p className="text-xs text-gray-500">Número internacional normalizado del libro</p>
                       {errors.some(e => e.field === "isbn") && (
                         <p className="text-sm text-red-600">
                           {errors.find(e => e.field === "isbn")?.message}
@@ -1480,10 +1477,11 @@ export default function NuevaPublicacionPage() {
                     </div>
                   )}
 
-                  {identificadoresActivos.url && (
+                  {/* URL - siempre visible */}
+                  {getIdentificadoresRelevantes(formData.tipo).url && (
                     <div className="space-y-2">
-                      <Label htmlFor="url" className="text-blue-900">
-                        URL de la Publicación
+                      <Label htmlFor="url" className="text-blue-900 flex items-center gap-2">
+                        URL <span className="text-gray-500 text-xs font-normal">(Opcional)</span>
                       </Label>
                       <Input
                         id="url"
@@ -1493,6 +1491,7 @@ export default function NuevaPublicacionPage() {
                         onChange={(e) => handleInputChange("url", e.target.value)}
                         className={errors.some(e => e.field === "url") ? "border-red-300" : ""}
                       />
+                      <p className="text-xs text-gray-500">Enlace a la publicación en línea</p>
                       {errors.some(e => e.field === "url") && (
                         <p className="text-sm text-red-600">
                           {errors.find(e => e.field === "url")?.message}
