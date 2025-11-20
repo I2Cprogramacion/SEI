@@ -626,31 +626,37 @@ export default function NuevaPublicacionPage() {
 
   // Obtener campos requeridos según tipo de publicación
   const getCamposRequeridos = (tipo: string): string[] => {
-    const camposBase = ['titulo', 'autores', 'categoria', 'tipo', 'resumen', 'palabrasClave', 'fechaPublicacion']
+    const camposBase = ['titulo', 'autores', 'categoria', 'tipo', 'resumen', 'palabrasClave', 'fechaPublicacion', 'institucion']
     
     switch (tipo) {
       case 'Artículo de investigación':
       case 'Artículo de revisión':
       case 'Artículo corto':
-        return [...camposBase, 'revista', 'institucion', 'volumen', 'numero']
+        // Artículos requieren: revista, volumen, número
+        return [...camposBase, 'revista', 'volumen', 'numero']
       
       case 'Libro':
-        return [...camposBase, 'institucion', 'isbn']
+        // Libros requieren: ISBN
+        return [...camposBase, 'isbn']
       
       case 'Capítulo de libro':
-        return [...camposBase, 'institucion', 'isbn', 'paginas']
+        // Capítulos requieren: nombre del libro (revista), ISBN, páginas
+        return [...camposBase, 'revista', 'isbn', 'paginas']
       
       case 'Memoria de conferencia':
-        return [...camposBase, 'institucion']
+        // Memorias requieren: nombre de conferencia (revista)
+        return [...camposBase, 'revista']
       
       case 'Tesis':
-        return [...camposBase, 'institucion']
+        // Tesis solo requiere campos base (incluye institución)
+        return camposBase
       
       case 'Reporte técnico':
-        return [...camposBase, 'institucion']
+        // Reportes solo requieren campos base (incluye institución)
+        return camposBase
       
       default:
-        return [...camposBase, 'institucion']
+        return camposBase
     }
   }
 
@@ -709,20 +715,16 @@ export default function NuevaPublicacionPage() {
 
     // Validar institución (editorial) - solo si es requerida
     if (camposRequeridos.includes('institucion') && !formData.institucion.trim()) {
-      newErrors.push({ field: "institucion", message: "La editorial es obligatoria para este tipo de publicación" })
-      faltantes.push("Editorial")
+      newErrors.push({ field: "institucion", message: "La institución/editorial es obligatoria" })
+      faltantes.push("Institución")
     }
 
     // Validar revista - solo si es requerida
     if (camposRequeridos.includes('revista') && !formData.revista.trim()) {
-      newErrors.push({ field: "revista", message: "La revista es obligatoria para este tipo de publicación" })
-      faltantes.push("Revista")
-    }
-
-    // Validar DOI - solo si es requerido
-    if (camposRequeridos.includes('doi') && !formData.doi.trim()) {
-      newErrors.push({ field: "doi", message: "El DOI es obligatorio para artículos de investigación" })
-      faltantes.push("DOI")
+      const nombreCampo = formData.tipo === 'Capítulo de libro' ? 'título del libro' : 
+                          formData.tipo === 'Memoria de conferencia' ? 'nombre de la conferencia' : 'revista'
+      newErrors.push({ field: "revista", message: `El ${nombreCampo} es obligatorio para este tipo de publicación` })
+      faltantes.push(nombreCampo.charAt(0).toUpperCase() + nombreCampo.slice(1))
     }
 
     // Validar ISBN - solo si es requerido
@@ -733,19 +735,19 @@ export default function NuevaPublicacionPage() {
 
     // Validar volumen - solo si es requerido
     if (camposRequeridos.includes('volumen') && !formData.volumen.trim()) {
-      newErrors.push({ field: "volumen", message: "El volumen es obligatorio para este tipo de publicación" })
+      newErrors.push({ field: "volumen", message: "El volumen es obligatorio para artículos" })
       faltantes.push("Volumen")
     }
 
     // Validar número - solo si es requerido
     if (camposRequeridos.includes('numero') && !formData.numero.trim()) {
-      newErrors.push({ field: "numero", message: "El número es obligatorio para este tipo de publicación" })
+      newErrors.push({ field: "numero", message: "El número es obligatorio para artículos" })
       faltantes.push("Número")
     }
 
     // Validar páginas - solo si es requerido
     if (camposRequeridos.includes('paginas') && !formData.paginas.trim()) {
-      newErrors.push({ field: "paginas", message: "Las páginas son obligatorias para este tipo de publicación" })
+      newErrors.push({ field: "paginas", message: "Las páginas son obligatorias para capítulos de libro" })
       faltantes.push("Páginas")
     }
 
@@ -1416,12 +1418,18 @@ export default function NuevaPublicacionPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="revista" className="text-blue-900">
-                      Revista {getCamposRequeridos(formData.tipo).includes('revista') && <span className="text-red-500">*</span>}
+                      {formData.tipo === 'Capítulo de libro' ? 'Título del Libro' :
+                       formData.tipo === 'Memoria de conferencia' ? 'Nombre de la Conferencia' : 
+                       'Revista'} {getCamposRequeridos(formData.tipo).includes('revista') && <span className="text-red-500">*</span>}
                     </Label>
                     <div className="relative">
                       <Input
                         id="revista"
-                        placeholder="Nombre de la revista..."
+                        placeholder={
+                          formData.tipo === 'Capítulo de libro' ? 'Título del libro donde se publicó...' :
+                          formData.tipo === 'Memoria de conferencia' ? 'Nombre del evento o conferencia...' :
+                          'Nombre de la revista...'
+                        }
                         value={formData.revista}
                         onChange={(e) => handleInputChange("revista", e.target.value)}
                         className={errors.some(e => e.field === "revista") ? "border-red-300" : ""}
@@ -1443,11 +1451,11 @@ export default function NuevaPublicacionPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="institucion" className="text-blue-900">
-                      Editorial {getCamposRequeridos(formData.tipo).includes('institucion') && <span className="text-red-500">*</span>}
+                      {formData.tipo === 'Libro' || formData.tipo === 'Capítulo de libro' ? 'Editorial' : 'Institución'} {getCamposRequeridos(formData.tipo).includes('institucion') && <span className="text-red-500">*</span>}
                     </Label>
                     <Input
                       id="institucion"
-                      placeholder="Nombre de la editorial..."
+                      placeholder={formData.tipo === 'Libro' || formData.tipo === 'Capítulo de libro' ? 'Nombre de la editorial...' : 'Institución o universidad...'}
                       value={formData.institucion}
                       onChange={(e) => handleInputChange("institucion", e.target.value)}
                       className={errors.some(e => e.field === "institucion") ? "border-red-300" : ""}
