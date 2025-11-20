@@ -250,27 +250,27 @@ const nivelesCompletos = {
   ],
   investigadores: [
     {
-      nombre: "Candidato a investigador estatal",
+      nombre: "Candidato a Investigador Estatal",
       descripcion: "Personas con nivel mínimo de licenciatura que realizan actividades de producción científica, divulgación y promoción científica, adscritos a instituciones académicas o tecnológicas."
     },
     {
-      nombre: "Investigador estatal nivel I",
+      nombre: "Investigador Estatal Nivel I",
       descripcion: "Profesionales con grado de maestría o estudiantes de doctorado que colaboran en proyectos de investigación, desarrollo tecnológico y/o innovación."
     },
     {
-      nombre: "Investigador estatal nivel II",
+      nombre: "Investigador Estatal Nivel II",
       descripcion: "Investigadores con grado de doctorado que han liderado proyectos científicos o tecnológicos con impacto en el estado y que sean miembros del SNI."
     },
     {
-      nombre: "Investigador estatal nivel III",
+      nombre: "Investigador Estatal Nivel III",
       descripcion: "Miembros del Sistema Nacional de Investigadores (SNI) en el nivel II, con alto impacto en el estado."
     },
     {
-      nombre: "Investigador excepcional",
+      nombre: "Investigador Excepcional",
       descripcion: "Miembros del SNI en los niveles III o Emérito, reconocidos por su trayectoria científica y tecnológica como referentes estatales en su área de conocimiento, con más de 10 años de experiencia en el proceso ID+i."
     },
     {
-      nombre: "Investigador insigne",
+      nombre: "Investigador Insigne",
       descripcion: "Distinción otorgada a aquellos investigadores que han alcanzado el más alto nivel de reconocimiento en su trayectoria científica, tecnológica y académica, con un impacto significativo en su área de conocimiento y en la sociedad."
     }
   ]
@@ -278,12 +278,12 @@ const nivelesCompletos = {
 
 // Descripciones de niveles de investigador (para compatibilidad con tooltips existentes)
 const nivelesInvestigadorDescripciones: Record<string, string> = {
-  "Candidato a investigador estatal": nivelesCompletos.investigadores[0].descripcion,
-  "Investigador estatal nivel I": nivelesCompletos.investigadores[1].descripcion,
-  "Investigador estatal nivel II": nivelesCompletos.investigadores[2].descripcion,
-  "Investigador estatal nivel III": nivelesCompletos.investigadores[3].descripcion,
-  "Investigador excepcional": nivelesCompletos.investigadores[4].descripcion,
-  "Investigador insigne": nivelesCompletos.investigadores[5].descripcion
+  "Candidato a Investigador Estatal": nivelesCompletos.investigadores[0].descripcion,
+  "Investigador Estatal Nivel I": nivelesCompletos.investigadores[1].descripcion,
+  "Investigador Estatal Nivel II": nivelesCompletos.investigadores[2].descripcion,
+  "Investigador Estatal Nivel III": nivelesCompletos.investigadores[3].descripcion,
+  "Investigador Excepcional": nivelesCompletos.investigadores[4].descripcion,
+  "Investigador Insigne": nivelesCompletos.investigadores[5].descripcion
 }
 
 
