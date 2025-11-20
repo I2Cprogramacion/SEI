@@ -387,19 +387,19 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
         </div>
         <CardTitle className="text-xl sm:text-2xl text-blue-900 flex items-center justify-center gap-2">
           <Upload className="h-5 w-5 sm:h-6 sm:w-6" />
-          Subir Perfil Único
+          Subir Perfil Único Completo (PUC)
         </CardTitle>
         <CardDescription className="text-sm sm:text-base text-blue-600 px-2">
-          Selecciona tu Perfil Único (PU) en formato PDF para extraer automáticamente tu información académica
+          Selecciona tu Perfil Único Completo (PUC) en formato PDF para extraer automáticamente tu información académica
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-3">
           <Label htmlFor="pdf-upload" className="text-sm sm:text-base text-blue-900 font-medium">
-            Archivo PDF del Perfil Único * (Máximo {FILE_CONSTRAINTS.MAX_SIZE_MB}MB)
+            Archivo PDF del Perfil Único Completo (PUC) * (Máximo {FILE_CONSTRAINTS.MAX_SIZE_MB}MB)
           </Label>
           <p className="text-xs text-blue-600">
-            Este documento se procesará automáticamente para extraer tu información y se guardará como tu Perfil Único en el perfil.
+            Este documento se procesará automáticamente para extraer tu información y se guardará como tu Perfil Único Completo (PUC) en el perfil.
           </p>
           <div className="relative">
             <Input
@@ -407,7 +407,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
               type="file"
               accept=".pdf"
               onChange={onFileChange}
-              aria-label="Subir archivo PDF del Perfil Único"
+              aria-label="Subir archivo PDF del Perfil Único Completo (PUC)"
               aria-required="true"
               className="bg-white border-blue-200 text-blue-900 file:bg-blue-50 file:text-blue-700 file:border-0 file:rounded-md file:px-4 file:py-2 file:mr-4 hover:file:bg-blue-100 transition-colors h-14 py-2.5"
               required
@@ -446,7 +446,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
           ) : (
             <>
               <Upload className="mr-2 h-5 w-5" />
-              Procesar Perfil Único
+              Procesar Perfil Único Completo (PUC)
             </>
           )}
         </Button>
