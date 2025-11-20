@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Upload, Plus, X, FileText, Calendar, User, Building, Globe, BookOpen, Users, Link as LinkIcon, CheckCircle2 } from "lucide-react"
+import { Upload, Plus, X, FileText, Calendar, User, Building, Globe, BookOpen, Users, Link as LinkIcon, CheckCircle2, Check, Save, Loader2 } from "lucide-react"
 import { calculateSectionProgress } from "@/lib/form-utils"
 import { InvestigadorSearch } from "@/components/investigador-search"
 
@@ -86,6 +86,79 @@ export default function NuevaPublicacionPage() {
   const [institucionesDisponibles, setInstitucionesDisponibles] = useState<string[]>([])
   const [camposFaltantes, setCamposFaltantes] = useState<string[]>([])
   const [mostrarErrores, setMostrarErrores] = useState(false)
+  const [revistasDisponibles, setRevistasDisponibles] = useState<string[]>([])
+  const [pdfPreview, setPdfPreview] = useState<string | null>(null)
+  const [guardandoBorrador, setGuardandoBorrador] = useState(false)
+
+  // Funciones de validación de identificadores
+  const validarISSN = (issn: string): boolean => {
+    // ISSN formato: ####-#### o ########
+    const issnRegex = /^\d{4}-?\d{3}[\dxX]$/
+    if (!issnRegex.test(issn.replace(/\s/g, ''))) return false
+    
+    // Validar dígito de control
+    const digits = issn.replace(/[^\dxX]/g, '')
+    if (digits.length !== 8) return false
+    
+    let sum = 0
+    for (let i = 0; i < 7; i++) {
+      sum += parseInt(digits[i]) * (8 - i)
+    }
+    const checkDigit = digits[7].toUpperCase()
+    const calculatedCheck = (11 - (sum % 11)) % 11
+    const expectedCheck = calculatedCheck === 10 ? 'X' : calculatedCheck.toString()
+    
+    return checkDigit === expectedCheck
+  }
+
+  const validarISBN = (isbn: string): boolean => {
+    // ISBN-10 o ISBN-13
+    const digits = isbn.replace(/[^\dxX]/g, '')
+    
+    if (digits.length === 10) {
+      // ISBN-10
+      let sum = 0
+      for (let i = 0; i < 9; i++) {
+        sum += parseInt(digits[i]) * (10 - i)
+      }
+      const checkDigit = digits[9].toUpperCase()
+      const calculatedCheck = (11 - (sum % 11)) % 11
+      const expectedCheck = calculatedCheck === 10 ? 'X' : calculatedCheck.toString()
+      return checkDigit === expectedCheck
+    } else if (digits.length === 13) {
+      // ISBN-13
+      let sum = 0
+      for (let i = 0; i < 12; i++) {
+        sum += parseInt(digits[i]) * (i % 2 === 0 ? 1 : 3)
+      }
+      const checkDigit = parseInt(digits[12])
+      const calculatedCheck = (10 - (sum % 10)) % 10
+      return checkDigit === calculatedCheck
+    }
+    
+    return false
+  }
+
+  const validarDOI = (doi: string): boolean => {
+    // DOI formato básico: 10.####/...
+    const doiRegex = /^10\.\d{4,}(\.\d+)*\/[\S]+$/
+    const cleanDOI = doi.replace(/^https?:\/\/(dx\.)?doi\.org\//, '')
+    return doiRegex.test(cleanDOI)
+  }
+
+  const formatearIdentificador = (tipo: 'issn' | 'isbn', valor: string): string => {
+    const digits = valor.replace(/[^\dxX]/g, '')
+    if (tipo === 'issn' && digits.length === 8) {
+      return `${digits.slice(0, 4)}-${digits.slice(4)}`
+    } else if (tipo === 'isbn') {
+      if (digits.length === 10) {
+        return `${digits.slice(0, 1)}-${digits.slice(1, 4)}-${digits.slice(4, 9)}-${digits.slice(9)}`
+      } else if (digits.length === 13) {
+        return `${digits.slice(0, 3)}-${digits.slice(3, 4)}-${digits.slice(4, 7)}-${digits.slice(7, 12)}-${digits.slice(12)}`
+      }
+    }
+    return valor
+  }
 
   const [formData, setFormData] = useState<FormData>({
     titulo: "",
@@ -132,6 +205,51 @@ export default function NuevaPublicacionPage() {
       }
     }
     fetchInstituciones()
+  }, [])
+  
+  // Cargar revistas disponibles para autocompletado
+  useEffect(() => {
+    const fetchRevistas = async () => {
+      try {
+        const response = await fetch('/api/publicaciones/revistas')
+        if (response.ok) {
+          const data = await response.json()
+          setRevistasDisponibles(data.revistas || [])
+        }
+      } catch (error) {
+        console.error('Error cargando revistas:', error)
+      }
+    }
+    fetchRevistas()
+  }, [])
+  
+  // Cargar borrador al iniciar
+  useEffect(() => {
+    const borradorGuardado = localStorage.getItem('borrador_publicacion')
+    if (borradorGuardado) {
+      try {
+        const borrador = JSON.parse(borradorGuardado)
+        const fechaGuardado = new Date(borrador.fecha_guardado)
+        const diasDesdeGuardado = (Date.now() - fechaGuardado.getTime()) / (1000 * 60 * 60 * 24)
+        
+        // Solo cargar si tiene menos de 7 días
+        if (diasDesdeGuardado < 7) {
+          if (confirm('¿Deseas cargar el borrador guardado?')) {
+            setFormData(prev => ({
+              ...prev,
+              ...borrador,
+              archivo: undefined
+            }))
+            toast.success('Borrador cargado')
+          }
+        } else {
+          // Eliminar borradores antiguos
+          localStorage.removeItem('borrador_publicacion')
+        }
+      } catch (error) {
+        console.error('Error cargando borrador:', error)
+      }
+    }
   }, [])
   
   // Limpiar campos de identificadores no relevantes al cambiar tipo
@@ -244,6 +362,20 @@ export default function NuevaPublicacionPage() {
     "Alemán",
     "Portugués",
     "Italiano",
+    "Chino",
+    "Japonés",
+    "Ruso",
+    "Coreano",
+    "Árabe",
+    "Holandés",
+    "Sueco",
+    "Noruego",
+    "Danés",
+    "Polaco",
+    "Turco",
+    "Catalán",
+    "Gallego",
+    "Vasco",
     "Otro"
   ]
 
@@ -381,6 +513,66 @@ export default function NuevaPublicacionPage() {
     }))
   }
 
+  // Manejar archivo PDF con preview
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validar que sea PDF
+      if (file.type !== 'application/pdf') {
+        toast.error('Solo se permiten archivos PDF')
+        return
+      }
+      
+      // Validar tamaño (máximo 15MB)
+      if (file.size > 15 * 1024 * 1024) {
+        toast.error('El archivo es demasiado grande. Máximo 15MB')
+        return
+      }
+      
+      setFormData(prev => ({ ...prev, archivo: file }))
+      
+      // Generar preview
+      const reader = new FileReader()
+      reader.onload = () => {
+        setPdfPreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+      
+      toast.success('Archivo cargado correctamente')
+    }
+  }
+
+  const eliminarPreview = () => {
+    setPdfPreview(null)
+    setFormData(prev => ({ ...prev, archivo: undefined }))
+    // Limpiar input file
+    const fileInput = document.getElementById('archivo') as HTMLInputElement
+    if (fileInput) fileInput.value = ''
+  }
+
+  // Guardar borrador
+  const guardarBorrador = async () => {
+    try {
+      setGuardandoBorrador(true)
+      
+      // Guardar en localStorage
+      const borrador = {
+        ...formData,
+        fecha_guardado: new Date().toISOString(),
+        archivo: undefined // No guardar el archivo en localStorage
+      }
+      
+      localStorage.setItem('borrador_publicacion', JSON.stringify(borrador))
+      
+      toast.success('Borrador guardado correctamente')
+    } catch (error) {
+      toast.error('Error al guardar borrador')
+      console.error('Error:', error)
+    } finally {
+      setGuardandoBorrador(false)
+    }
+  }
+
   // Manejar selección de autores
   useEffect(() => {
     const nombresAutores = autoresSeleccionados.map(inv => inv.nombre)
@@ -403,41 +595,6 @@ export default function NuevaPublicacionPage() {
       coautores: coautoresFormateados
     }))
   }, [coautoresSeleccionados, emailCoautor])
-
-  // Manejar archivo
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      // Validar tamaño (máximo 15MB para publicaciones académicas)
-      const maxSize = 15 * 1024 * 1024 // 15MB en bytes
-      if (file.size > maxSize) {
-        setErrors(prev => [...prev, {
-          field: "archivo",
-          message: "El archivo es demasiado grande. El tamaño máximo es 15MB"
-        }])
-        event.target.value = "" // Limpiar input
-        return
-      }
-
-      // Validar tipo de archivo
-      const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-      if (!validTypes.includes(file.type)) {
-        setErrors(prev => [...prev, {
-          field: "archivo",
-          message: "Formato de archivo no válido. Solo se permiten PDF, DOC y DOCX"
-        }])
-        event.target.value = "" // Limpiar input
-        return
-      }
-
-      setFormData(prev => ({
-        ...prev,
-        archivo: file
-      }))
-      // Limpiar errores de archivo
-      setErrors(prev => prev.filter(e => e.field !== "archivo"))
-    }
-  }
 
   // Determinar qué identificadores son relevantes según el tipo de publicación
   const getIdentificadoresRelevantes = (tipo: string) => {
@@ -625,6 +782,33 @@ export default function NuevaPublicacionPage() {
     } else if (formData.resumen.length < 50) {
       newErrors.push({ field: "resumen", message: "El resumen debe tener al menos 50 caracteres" })
       faltantes.push("Resumen (mínimo 50 caracteres)")
+    }
+
+    // Validar DOI si está presente
+    if (formData.doi && !validarDOI(formData.doi)) {
+      newErrors.push({ 
+        field: "doi", 
+        message: "Formato de DOI inválido. Debe ser: 10.####/xxxxx" 
+      })
+      faltantes.push("DOI válido")
+    }
+
+    // Validar ISSN si está presente
+    if (formData.issn && formData.issn.trim() && !validarISSN(formData.issn)) {
+      newErrors.push({ 
+        field: "issn", 
+        message: "Formato de ISSN inválido. Debe ser: ####-#### (con dígito de control válido)" 
+      })
+      faltantes.push("ISSN válido")
+    }
+
+    // Validar ISBN si está presente
+    if (formData.isbn && formData.isbn.trim() && !validarISBN(formData.isbn)) {
+      newErrors.push({ 
+        field: "isbn", 
+        message: "Formato de ISBN inválido. Debe ser ISBN-10 o ISBN-13 válido" 
+      })
+      faltantes.push("ISBN válido")
     }
 
     // Validar palabras clave
@@ -1232,18 +1416,27 @@ export default function NuevaPublicacionPage() {
                     <Label htmlFor="revista" className="text-blue-900">
                       Revista {getCamposRequeridos(formData.tipo).includes('revista') && <span className="text-red-500">*</span>}
                     </Label>
-                    <Input
-                      id="revista"
-                      placeholder="Nombre de la revista..."
-                      value={formData.revista}
-                      onChange={(e) => handleInputChange("revista", e.target.value)}
-                      className={errors.some(e => e.field === "revista") ? "border-red-300" : ""}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="revista"
+                        placeholder="Nombre de la revista..."
+                        value={formData.revista}
+                        onChange={(e) => handleInputChange("revista", e.target.value)}
+                        className={errors.some(e => e.field === "revista") ? "border-red-300" : ""}
+                        list="revistas-list"
+                      />
+                      <datalist id="revistas-list">
+                        {revistasDisponibles.map((revista, index) => (
+                          <option key={index} value={revista} />
+                        ))}
+                      </datalist>
+                    </div>
                     {errors.some(e => e.field === "revista") && (
                       <p className="text-sm text-red-600">
                         {errors.find(e => e.field === "revista")?.message}
                       </p>
                     )}
+                    <p className="text-xs text-gray-500">Comienza a escribir para ver sugerencias</p>
                   </div>
 
                   <div className="space-y-2">
@@ -1365,12 +1558,30 @@ export default function NuevaPublicacionPage() {
                         placeholder="10.1234/example"
                         value={formData.doi}
                         onChange={(e) => handleInputChange("doi", e.target.value)}
+                        onBlur={(e) => {
+                          const valor = e.target.value.trim()
+                          if (valor && !validarDOI(valor)) {
+                            setErrors(prev => [...prev.filter(e => e.field !== "doi"), {
+                              field: "doi",
+                              message: "DOI inválido. Debe comenzar con '10.' seguido del prefijo y sufijo"
+                            }])
+                          } else if (valor) {
+                            setErrors(prev => prev.filter(e => e.field !== "doi"))
+                          }
+                        }}
                         className={errors.some(e => e.field === "doi") ? "border-red-300" : ""}
                       />
-                      <p className="text-xs text-gray-500">Identificador digital de objetos</p>
+                      <p className="text-xs text-gray-500">Digital Object Identifier (formato: 10.XXXX/YYYY)</p>
                       {errors.some(e => e.field === "doi") && (
-                        <p className="text-sm text-red-600">
+                        <p className="text-sm text-red-600 flex items-center gap-1">
+                          <X className="h-3 w-3" />
                           {errors.find(e => e.field === "doi")?.message}
+                        </p>
+                      )}
+                      {formData.doi && validarDOI(formData.doi) && (
+                        <p className="text-sm text-green-600 flex items-center gap-1">
+                          <Check className="h-3 w-3" />
+                          DOI válido
                         </p>
                       )}
                     </div>
@@ -1384,15 +1595,36 @@ export default function NuevaPublicacionPage() {
                       </Label>
                       <Input
                         id="issn"
-                        placeholder="1234-5678"
+                        placeholder="####-####"
                         value={formData.issn}
                         onChange={(e) => handleInputChange("issn", e.target.value)}
+                        onBlur={(e) => {
+                          const valor = e.target.value.trim()
+                          if (valor && !validarISSN(valor)) {
+                            setErrors(prev => [...prev.filter(e => e.field !== "issn"), {
+                              field: "issn",
+                              message: "ISSN inválido. Verifica el formato y dígito de control"
+                            }])
+                          } else if (valor) {
+                            // Auto-formatear
+                            const formateado = formatearIdentificador('issn', valor)
+                            handleInputChange("issn", formateado)
+                            setErrors(prev => prev.filter(e => e.field !== "issn"))
+                          }
+                        }}
                         className={errors.some(e => e.field === "issn") ? "border-red-300" : ""}
                       />
-                      <p className="text-xs text-gray-500">Número internacional normalizado de publicaciones seriadas</p>
+                      <p className="text-xs text-gray-500">International Standard Serial Number (formato: ####-####)</p>
                       {errors.some(e => e.field === "issn") && (
-                        <p className="text-sm text-red-600">
+                        <p className="text-sm text-red-600 flex items-center gap-1">
+                          <X className="h-3 w-3" />
                           {errors.find(e => e.field === "issn")?.message}
+                        </p>
+                      )}
+                      {formData.issn && validarISSN(formData.issn) && (
+                        <p className="text-sm text-green-600 flex items-center gap-1">
+                          <Check className="h-3 w-3" />
+                          ISSN válido
                         </p>
                       )}
                     </div>
@@ -1409,15 +1641,36 @@ export default function NuevaPublicacionPage() {
                       </Label>
                       <Input
                         id="isbn"
-                        placeholder="978-3-16-148410-0"
+                        placeholder="###-#-###-#####-# (ISBN-10/13)"
                         value={formData.isbn}
                         onChange={(e) => handleInputChange("isbn", e.target.value)}
+                        onBlur={(e) => {
+                          const valor = e.target.value.trim()
+                          if (valor && !validarISBN(valor)) {
+                            setErrors(prev => [...prev.filter(e => e.field !== "isbn"), {
+                              field: "isbn",
+                              message: "ISBN inválido. Debe ser ISBN-10 o ISBN-13 válido"
+                            }])
+                          } else if (valor) {
+                            // Auto-formatear
+                            const formateado = formatearIdentificador('isbn', valor)
+                            handleInputChange("isbn", formateado)
+                            setErrors(prev => prev.filter(e => e.field !== "isbn"))
+                          }
+                        }}
                         className={errors.some(e => e.field === "isbn") ? "border-red-300" : ""}
                       />
-                      <p className="text-xs text-gray-500">Número internacional normalizado del libro</p>
+                      <p className="text-xs text-gray-500">International Standard Book Number (10 o 13 dígitos)</p>
                       {errors.some(e => e.field === "isbn") && (
-                        <p className="text-sm text-red-600">
+                        <p className="text-sm text-red-600 flex items-center gap-1">
+                          <X className="h-3 w-3" />
                           {errors.find(e => e.field === "isbn")?.message}
+                        </p>
+                      )}
+                      {formData.isbn && validarISBN(formData.isbn) && (
+                        <p className="text-sm text-green-600 flex items-center gap-1">
+                          <Check className="h-3 w-3" />
+                          ISBN válido
                         </p>
                       )}
                     </div>
@@ -1769,43 +2022,56 @@ export default function NuevaPublicacionPage() {
 
                       {/* Vista previa del archivo */}
                       {formData.archivo && !errors.some(e => e.field === "archivo") && (
-                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                          <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0">
-                              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                <FileText className="h-6 w-6 text-green-700" />
+                        <div className="space-y-3">
+                          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="flex items-start gap-3">
+                              <div className="flex-shrink-0">
+                                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                  <FileText className="h-6 w-6 text-green-700" />
+                                </div>
                               </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-green-900 truncate">
+                                  {formData.archivo.name}
+                                </p>
+                                <p className="text-xs text-green-700 mt-1">
+                                  Tamaño: {(formData.archivo.size / 1024 / 1024).toFixed(2)} MB
+                                </p>
+                                <p className="text-xs text-green-600 mt-1">
+                                  Tipo: {formData.archivo.type || 'Desconocido'}
+                                </p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={eliminarPreview}
+                                className="flex-shrink-0 text-red-600 hover:text-red-700 transition-colors"
+                                title="Eliminar archivo"
+                              >
+                                <X className="h-5 w-5" />
+                              </button>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-green-900 truncate">
-                                {formData.archivo.name}
-                              </p>
-                              <p className="text-xs text-green-700 mt-1">
-                                Tamaño: {(formData.archivo.size / 1024 / 1024).toFixed(2)} MB
-                              </p>
-                              <p className="text-xs text-green-600 mt-1">
-                                Tipo: {formData.archivo.type || 'Desconocido'}
-                              </p>
+                          </div>
+
+                          {/* Preview del PDF */}
+                          {pdfPreview && formData.archivo.type === 'application/pdf' && (
+                            <div className="border border-blue-200 rounded-lg overflow-hidden">
+                              <div className="bg-blue-50 px-3 py-2 flex items-center justify-between">
+                                <span className="text-sm font-medium text-blue-900">Vista previa del PDF</span>
+                                <button
+                                  type="button"
+                                  onClick={eliminarPreview}
+                                  className="text-blue-600 hover:text-blue-700 text-xs"
+                                >
+                                  Cerrar preview
+                                </button>
+                              </div>
+                              <iframe
+                                src={pdfPreview}
+                                className="w-full h-96"
+                                title="Vista previa del PDF"
+                              />
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setFormData(prev => ({ ...prev, archivo: undefined }))
-                                const fileInput = document.getElementById('archivo') as HTMLInputElement
-                                if (fileInput) fileInput.value = ''
-                              }}
-                              className="flex-shrink-0 text-red-600 hover:text-red-700 transition-colors"
-                              title="Eliminar archivo"
-                            >
-                              <X className="h-5 w-5" />
-                            </button>
-                          </div>
-                          <div className="mt-3 pt-3 border-t border-green-200">
-                            <p className="text-xs text-green-700 flex items-center gap-1">
-                              <CheckCircle2 className="h-3 w-3" />
-                              Archivo listo para ser subido
-                            </p>
-                          </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -1910,28 +2176,49 @@ export default function NuevaPublicacionPage() {
               </div>
 
               {/* Botones */}
-              <div className="flex justify-end gap-4 pt-6 border-t border-blue-100">
+              <div className="flex justify-between gap-4 pt-6 border-t border-blue-100">
                 <AnimatedButton
-              type="button"
-              variant="outline"
-                  onClick={() => router.push("/publicaciones")}
-                  disabled={loading}
-            >
-              Cancelar
-                </AnimatedButton>
-                <AnimatedButton
-              type="submit"
-                  className="bg-blue-700 text-white hover:bg-blue-800 animate-glow"
-                  disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      {isEditing ? 'Guardando...' : 'Creando...'}
-                </>
-              ) : (
+                  type="button"
+                  variant="outline"
+                  onClick={guardarBorrador}
+                  disabled={loading || guardandoBorrador}
+                  className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                >
+                  {guardandoBorrador ? (
                     <>
-                      <Upload className="mr-2 h-4 w-4" />
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Guardar Borrador
+                    </>
+                  )}
+                </AnimatedButton>
+
+                <div className="flex gap-4">
+                  <AnimatedButton
+                    type="button"
+                    variant="outline"
+                    onClick={() => router.push("/publicaciones")}
+                    disabled={loading}
+                  >
+                    Cancelar
+                  </AnimatedButton>
+                  <AnimatedButton
+                    type="submit"
+                    className="bg-blue-700 text-white hover:bg-blue-800 animate-glow"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        {isEditing ? 'Guardando...' : 'Creando...'}
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-4 w-4" />
                       {isEditing ? 'Guardar cambios' : 'Crear Publicación'}
                     </>
               )}
