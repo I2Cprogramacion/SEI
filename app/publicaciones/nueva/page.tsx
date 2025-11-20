@@ -1185,8 +1185,18 @@ export default function NuevaPublicacionPage() {
               </div>
               </div>
 
+              {/* Mensaje de selección de tipo */}
+              {!formData.tipo && (
+                <Alert className="border-blue-200 bg-blue-50">
+                  <AlertDescription className="text-blue-700 text-sm flex items-center gap-2">
+                    <span className="text-xl">👆</span>
+                    <span>Por favor, selecciona primero el <strong>Tipo de Publicación</strong> para continuar con el formulario</span>
+                  </AlertDescription>
+                </Alert>
+              )}
+
               {/* Autores y coautores */}
-              <div className="space-y-4">
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <User className="h-4 w-4" />
                   Autores
@@ -1225,6 +1235,7 @@ export default function NuevaPublicacionPage() {
                           }
                         }}
                         className="flex-1 text-sm"
+                        disabled={!formData.tipo}
                       />
                       <Button 
                         type="button" 
@@ -1232,7 +1243,7 @@ export default function NuevaPublicacionPage() {
                         variant="outline"
                         size="sm"
                         className="px-3"
-                        disabled={!autor.trim()}
+                        disabled={!autor.trim() || !formData.tipo}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
@@ -1277,7 +1288,7 @@ export default function NuevaPublicacionPage() {
               </div>
 
               {/* Coautores */}
-              <div className="space-y-4">
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <Users className="h-4 w-4" />
                   Coautores (Opcional)
@@ -1409,7 +1420,7 @@ export default function NuevaPublicacionPage() {
               </div>
 
               {/* Revista y Editorial */}
-              <div className="space-y-4">
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <Building className="h-4 w-4" />
                   Revista y Editorial
@@ -1470,7 +1481,7 @@ export default function NuevaPublicacionPage() {
               </div>
 
               {/* Detalles de publicación */}
-              <div className="space-y-4">
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   Detalles de Publicación
@@ -1539,7 +1550,7 @@ export default function NuevaPublicacionPage() {
               </div>
 
               {/* Identificadores */}
-              <div className="space-y-4">
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <Globe className="h-4 w-4" />
                   Identificadores y Enlaces
@@ -1712,7 +1723,7 @@ export default function NuevaPublicacionPage() {
               </div>
 
               {/* Resumen y Abstract */}
-              <div className="space-y-4">
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <BookOpen className="h-4 w-4" />
                   Resumen
@@ -1756,11 +1767,9 @@ export default function NuevaPublicacionPage() {
                 </div>
               </div>
 
-          {/* Palabras clave */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-blue-900">Palabras Clave</h3>
-                
-                <div className="space-y-3">
+              {/* Palabras clave */}
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+                <h3 className="text-lg font-semibold text-blue-900">Palabras Clave</h3>                <div className="space-y-3">
                   <div>
                     <Label htmlFor="palabrasClave" className="text-blue-900">
                       Agregar Palabras Clave *
@@ -1846,7 +1855,7 @@ export default function NuevaPublicacionPage() {
               </div>
 
               {/* Configuración adicional */}
-              <div className="space-y-4">
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <LinkIcon className="h-4 w-4" />
                   Configuración Adicional
@@ -1945,7 +1954,7 @@ export default function NuevaPublicacionPage() {
               )}
 
               {/* Documento - Archivo o Enlace */}
-              <div className="space-y-4">
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Documento de la Publicación (Opcional)
