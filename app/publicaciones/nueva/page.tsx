@@ -2219,17 +2219,18 @@ export default function NuevaPublicacionPage() {
                     ) : (
                       <>
                         <Upload className="mr-2 h-4 w-4" />
-                      {isEditing ? 'Guardar cambios' : 'Crear Publicación'}
-                    </>
-              )}
-                </AnimatedButton>
-          </div>
-        </form>
+                        {isEditing ? 'Guardar cambios' : 'Crear Publicación'}
+                      </>
+                    )}
+                  </AnimatedButton>
+                </div>
+              </div>
+            </form>
           </CardContent>
-            </AnimatedCard>
-          </div>
-        </div>
+        </AnimatedCard>
       </div>
     </div>
+  </div>
+  </div>
   )
 }
