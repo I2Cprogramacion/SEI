@@ -13,6 +13,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { UploadFotografia } from "@/components/upload-fotografia"
 import { TagsInput } from "@/components/ui/tags-input"
+import { AreaSNIISelector } from "@/components/area-snii-selector"
+import { NivelSNISelector } from "@/components/nivel-sni-selector"
 import {
   Info,
   AlertCircle,
@@ -101,6 +103,8 @@ interface FormData {
   empleo_actual: string;
   linea_investigacion: string[];
   area_investigacion: string[];
+  area_snii: string;
+  nivel_sni: string;
   disciplina?: string;
   area_investigacionRaw?: string;
   especialidad?: string;
@@ -300,6 +304,8 @@ const initialFormData: FormData = {
   empleo_actual: "",
   linea_investigacion: [],
   area_investigacion: [],
+  area_snii: "",
+  nivel_sni: "",
   nacionalidad: "Mexicana",
   fecha_nacimiento: "",
   genero: "",
@@ -767,6 +773,8 @@ export default function RegistroPage() {
     { field: "empleo_actual", label: "Empleo Actual" },
     { field: "linea_investigacion", label: "Línea de Investigación" },
     { field: "area_investigacion", label: "Área de Investigación" },
+    { field: "area_snii", label: "Área SNII" },
+    { field: "nivel_sni", label: "Nivel SNI" },
     { field: "nacionalidad", label: "Nacionalidad" },
     { field: "fecha_nacimiento", label: "Fecha de Nacimiento" },
     { field: "genero", label: "Género" },
@@ -2059,6 +2067,25 @@ export default function RegistroPage() {
                       />
                     )}
                   </div>
+
+                    {/* Área SNII */}
+                    <div className="space-y-2">
+                      <AreaSNIISelector
+                        value={formData.area_snii}
+                        onChange={(value: string) => setFormData(prev => ({ ...prev, area_snii: value }))}
+                        error={!formData.area_snii && ocrCompleted}
+                      />
+                    </div>
+
+                    {/* Nivel SNI */}
+                    <div className="space-y-2">
+                      <NivelSNISelector
+                        value={formData.nivel_sni}
+                        onChange={(value: string) => setFormData(prev => ({ ...prev, nivel_sni: value }))}
+                        areaSNII={formData.area_snii}
+                        error={!formData.nivel_sni && ocrCompleted}
+                      />
+                    </div>
 
                     {/* Área de Investigación como textarea grande */}
                     <div className="space-y-2">
