@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server"
-import { db } from "@/lib/db"
+import { getDatabase } from "@/lib/database-config"
 
 export async function GET() {
   try {
+    const db = await getDatabase()
+    
     // Obtener todas las revistas únicas de las publicaciones existentes
     const result = await db.query(
       `SELECT DISTINCT revista 

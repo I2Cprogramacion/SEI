@@ -331,8 +331,8 @@ export default function InvestigadoresPage() {
                         )}
 
                         {/* Información de contacto - Rediseñada */}
-                        <div className="w-full space-y-2.5 sm:space-y-3 text-xs sm:text-sm mb-4 px-3">
-                          {investigador.institucion && investigador.institucion.trim() !== '' && (
+                        <div className="w-full space-y-2.5 sm:space-y-3 text-xs sm:text-sm mb-4 px-3 min-h-[88px] flex flex-col justify-center">
+                          {investigador.institucion && investigador.institucion.trim() !== '' ? (
                             <div className="flex items-center justify-center gap-2 text-blue-700 max-w-full bg-blue-50/50 rounded-lg px-3 py-2 border border-blue-100">
                               <Building className="h-4 w-4 flex-shrink-0 text-blue-500" />
                               <span className="text-xs font-semibold text-center truncate min-w-0 flex-1">{investigador.institucion}</span>
@@ -340,12 +340,22 @@ export default function InvestigadoresPage() {
                                 ✓
                               </Badge>
                             </div>
+                          ) : (
+                            <div className="flex items-center justify-center gap-2 text-gray-400 max-w-full bg-gray-50/50 rounded-lg px-3 py-2 border border-gray-200">
+                              <Building className="h-4 w-4 flex-shrink-0" />
+                              <span className="text-xs font-medium text-center truncate min-w-0 flex-1">Sin institución</span>
+                            </div>
                           )}
 
-                          {investigador.telefono && (
+                          {investigador.telefono ? (
                             <div className="flex items-center justify-center gap-2 text-blue-700 max-w-full bg-blue-50/50 rounded-lg px-3 py-2 border border-blue-100">
                               <Phone className="h-4 w-4 flex-shrink-0 text-blue-500" />
                               <span className="text-xs font-semibold text-center truncate min-w-0 flex-1">{investigador.telefono}</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center gap-2 text-gray-400 max-w-full bg-gray-50/50 rounded-lg px-3 py-2 border border-gray-200">
+                              <Phone className="h-4 w-4 flex-shrink-0" />
+                              <span className="text-xs font-medium text-center truncate min-w-0 flex-1">Sin teléfono</span>
                             </div>
                           )}
                         </div>

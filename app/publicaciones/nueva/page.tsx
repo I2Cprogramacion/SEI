@@ -555,11 +555,13 @@ export default function NuevaPublicacionPage() {
     try {
       setGuardandoBorrador(true)
       
+      // Crear una copia sin el archivo para evitar problemas de serialización
+      const { archivo, ...formDataSinArchivo } = formData
+      
       // Guardar en localStorage
       const borrador = {
-        ...formData,
-        fecha_guardado: new Date().toISOString(),
-        archivo: undefined // No guardar el archivo en localStorage
+        ...formDataSinArchivo,
+        fecha_guardado: new Date().toISOString()
       }
       
       localStorage.setItem('borrador_publicacion', JSON.stringify(borrador))
@@ -567,7 +569,7 @@ export default function NuevaPublicacionPage() {
       toast.success('Borrador guardado correctamente')
     } catch (error) {
       toast.error('Error al guardar borrador')
-      console.error('Error:', error)
+      console.error('Error al guardar borrador:', error)
     } finally {
       setGuardandoBorrador(false)
     }
@@ -624,32 +626,11 @@ export default function NuevaPublicacionPage() {
 
   // Obtener campos requeridos según tipo de publicación
   const getCamposRequeridos = (tipo: string): string[] => {
-    const camposBase = ['titulo', 'autores', 'categoria', 'tipo', 'resumen', 'palabrasClave', 'fechaPublicacion']
+    // Solo campos ESENCIALES obligatorios
+    const camposBase = ['titulo', 'autores', 'tipo', 'fechaPublicacion', 'resumen', 'palabrasClave']
     
-    switch (tipo) {
-      case 'Artículo de investigación':
-      case 'Artículo de revisión':
-      case 'Artículo corto':
-        return [...camposBase, 'revista', 'institucion', 'doi', 'volumen', 'numero']
-      
-      case 'Libro':
-        return [...camposBase, 'institucion', 'isbn']
-      
-      case 'Capítulo de libro':
-        return [...camposBase, 'revista', 'institucion', 'isbn', 'paginas']
-      
-      case 'Memoria de conferencia':
-        return [...camposBase, 'revista', 'institucion']
-      
-      case 'Tesis':
-        return [...camposBase, 'institucion']
-      
-      case 'Reporte técnico':
-        return [...camposBase, 'institucion']
-      
-      default:
-        return [...camposBase, 'revista', 'institucion']
-    }
+    // Los demás campos (revista, institución, ISBN, etc.) son OPCIONALES pero recomendados
+    return camposBase
   }
 
   // Validar DOI
@@ -707,20 +688,16 @@ export default function NuevaPublicacionPage() {
 
     // Validar institución (editorial) - solo si es requerida
     if (camposRequeridos.includes('institucion') && !formData.institucion.trim()) {
-      newErrors.push({ field: "institucion", message: "La editorial es obligatoria para este tipo de publicación" })
-      faltantes.push("Editorial")
+      newErrors.push({ field: "institucion", message: "La institución/editorial es obligatoria" })
+      faltantes.push("Institución")
     }
 
     // Validar revista - solo si es requerida
     if (camposRequeridos.includes('revista') && !formData.revista.trim()) {
-      newErrors.push({ field: "revista", message: "La revista es obligatoria para este tipo de publicación" })
-      faltantes.push("Revista")
-    }
-
-    // Validar DOI - solo si es requerido
-    if (camposRequeridos.includes('doi') && !formData.doi.trim()) {
-      newErrors.push({ field: "doi", message: "El DOI es obligatorio para artículos de investigación" })
-      faltantes.push("DOI")
+      const nombreCampo = formData.tipo === 'Capítulo de libro' ? 'título del libro' : 
+                          formData.tipo === 'Memoria de conferencia' ? 'nombre de la conferencia' : 'revista'
+      newErrors.push({ field: "revista", message: `El ${nombreCampo} es obligatorio para este tipo de publicación` })
+      faltantes.push(nombreCampo.charAt(0).toUpperCase() + nombreCampo.slice(1))
     }
 
     // Validar ISBN - solo si es requerido
@@ -731,19 +708,19 @@ export default function NuevaPublicacionPage() {
 
     // Validar volumen - solo si es requerido
     if (camposRequeridos.includes('volumen') && !formData.volumen.trim()) {
-      newErrors.push({ field: "volumen", message: "El volumen es obligatorio para este tipo de publicación" })
+      newErrors.push({ field: "volumen", message: "El volumen es obligatorio para artículos" })
       faltantes.push("Volumen")
     }
 
     // Validar número - solo si es requerido
     if (camposRequeridos.includes('numero') && !formData.numero.trim()) {
-      newErrors.push({ field: "numero", message: "El número es obligatorio para este tipo de publicación" })
+      newErrors.push({ field: "numero", message: "El número es obligatorio para artículos" })
       faltantes.push("Número")
     }
 
     // Validar páginas - solo si es requerido
     if (camposRequeridos.includes('paginas') && !formData.paginas.trim()) {
-      newErrors.push({ field: "paginas", message: "Las páginas son obligatorias para este tipo de publicación" })
+      newErrors.push({ field: "paginas", message: "Las páginas son obligatorias para capítulos de libro" })
       faltantes.push("Páginas")
     }
 
@@ -763,11 +740,8 @@ export default function NuevaPublicacionPage() {
       }
     }
 
-    // Validar categoría
-    if (!formData.categoria) {
-      newErrors.push({ field: "categoria", message: "La categoría es obligatoria" })
-      faltantes.push("Categoría")
-    }
+    // Validar categoría (opcional, pero si se pone debe ser válida)
+    // No es obligatoria, se puede omitir
 
     // Validar tipo
     if (!formData.tipo) {
@@ -1106,7 +1080,7 @@ export default function NuevaPublicacionPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor="categoria" className="text-blue-900">
-                      Categoría *
+                      Categoría <span className="text-gray-500 text-xs font-normal">(Opcional)</span>
                     </Label>
                     <Select value={formData.categoria} onValueChange={(value) => handleInputChange("categoria", value)}>
                       <SelectTrigger className={errors.some(e => e.field === "categoria") ? "border-red-300" : ""}>
@@ -1135,31 +1109,6 @@ export default function NuevaPublicacionPage() {
                       handleInputChange("tipo", value)
                       // Limpiar errores al cambiar tipo
                       setMostrarErrores(false)
-                      // Mostrar info de campos requeridos
-                      if (value) {
-                        const requeridos = getCamposRequeridos(value)
-                        const nombresRequeridos = requeridos
-                          .filter(r => !['titulo', 'autores', 'categoria', 'tipo', 'resumen', 'palabrasClave', 'fechaPublicacion'].includes(r))
-                          .map(r => {
-                            switch(r) {
-                              case 'revista': return 'Revista'
-                              case 'institucion': return 'Editorial'
-                              case 'doi': return 'DOI'
-                              case 'isbn': return 'ISBN'
-                              case 'volumen': return 'Volumen'
-                              case 'numero': return 'Número'
-                              case 'paginas': return 'Páginas'
-                              default: return r
-                            }
-                          })
-                        
-                        if (nombresRequeridos.length > 0) {
-                          toast.info(`Campos requeridos para ${value}:`, {
-                            description: nombresRequeridos.join(', '),
-                            duration: 4000
-                          })
-                        }
-                      }
                     }}>
                       <SelectTrigger className={errors.some(e => e.field === "tipo") ? "border-red-300" : ""}>
                       <SelectValue placeholder="Selecciona el tipo" />
@@ -1181,8 +1130,18 @@ export default function NuevaPublicacionPage() {
               </div>
               </div>
 
+              {/* Mensaje de selección de tipo */}
+              {!formData.tipo && (
+                <Alert className="border-blue-200 bg-blue-50">
+                  <AlertDescription className="text-blue-700 text-sm flex items-center gap-2">
+                    <span className="text-xl">👆</span>
+                    <span>Por favor, selecciona primero el <strong>Tipo de Publicación</strong> para continuar con el formulario</span>
+                  </AlertDescription>
+                </Alert>
+              )}
+
               {/* Autores y coautores */}
-              <div className="space-y-4">
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <User className="h-4 w-4" />
                   Autores
@@ -1221,6 +1180,7 @@ export default function NuevaPublicacionPage() {
                           }
                         }}
                         className="flex-1 text-sm"
+                        disabled={!formData.tipo}
                       />
                       <Button 
                         type="button" 
@@ -1228,7 +1188,7 @@ export default function NuevaPublicacionPage() {
                         variant="outline"
                         size="sm"
                         className="px-3"
-                        disabled={!autor.trim()}
+                        disabled={!autor.trim() || !formData.tipo}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
@@ -1273,7 +1233,7 @@ export default function NuevaPublicacionPage() {
               </div>
 
               {/* Coautores */}
-              <div className="space-y-4">
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <Users className="h-4 w-4" />
                   Coautores (Opcional)
@@ -1405,7 +1365,7 @@ export default function NuevaPublicacionPage() {
               </div>
 
               {/* Revista y Editorial */}
-              <div className="space-y-4">
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <Building className="h-4 w-4" />
                   Revista y Editorial
@@ -1414,12 +1374,18 @@ export default function NuevaPublicacionPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="revista" className="text-blue-900">
-                      Revista {getCamposRequeridos(formData.tipo).includes('revista') && <span className="text-red-500">*</span>}
+                      {formData.tipo === 'Capítulo de libro' ? 'Título del Libro' :
+                       formData.tipo === 'Memoria de conferencia' ? 'Nombre de la Conferencia' : 
+                       'Revista'} <span className="text-gray-500 text-xs font-normal">(Opcional)</span>
                     </Label>
                     <div className="relative">
                       <Input
                         id="revista"
-                        placeholder="Nombre de la revista..."
+                        placeholder={
+                          formData.tipo === 'Capítulo de libro' ? 'Título del libro donde se publicó...' :
+                          formData.tipo === 'Memoria de conferencia' ? 'Nombre del evento o conferencia...' :
+                          'Nombre de la revista...'
+                        }
                         value={formData.revista}
                         onChange={(e) => handleInputChange("revista", e.target.value)}
                         className={errors.some(e => e.field === "revista") ? "border-red-300" : ""}
@@ -1441,11 +1407,11 @@ export default function NuevaPublicacionPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="institucion" className="text-blue-900">
-                      Editorial {getCamposRequeridos(formData.tipo).includes('institucion') && <span className="text-red-500">*</span>}
+                      {formData.tipo === 'Libro' || formData.tipo === 'Capítulo de libro' ? 'Editorial' : 'Institución'} <span className="text-gray-500 text-xs font-normal">(Opcional)</span>
                     </Label>
                     <Input
                       id="institucion"
-                      placeholder="Nombre de la editorial..."
+                      placeholder={formData.tipo === 'Libro' || formData.tipo === 'Capítulo de libro' ? 'Nombre de la editorial...' : 'Institución o universidad...'}
                       value={formData.institucion}
                       onChange={(e) => handleInputChange("institucion", e.target.value)}
                       className={errors.some(e => e.field === "institucion") ? "border-red-300" : ""}
@@ -1460,7 +1426,7 @@ export default function NuevaPublicacionPage() {
               </div>
 
               {/* Detalles de publicación */}
-              <div className="space-y-4">
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   Detalles de Publicación
@@ -1492,7 +1458,7 @@ export default function NuevaPublicacionPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="volumen" className="text-blue-900">
-                      Volumen {getCamposRequeridos(formData.tipo).includes('volumen') && <span className="text-red-500">*</span>}
+                      Volumen <span className="text-gray-500 text-xs font-normal">(Opcional)</span>
                     </Label>
                   <Input
                     id="volumen"
@@ -1504,7 +1470,7 @@ export default function NuevaPublicacionPage() {
 
                 <div className="space-y-2">
                     <Label htmlFor="numero" className="text-blue-900">
-                      Número {getCamposRequeridos(formData.tipo).includes('numero') && <span className="text-red-500">*</span>}
+                      Número <span className="text-gray-500 text-xs font-normal">(Opcional)</span>
                     </Label>
                   <Input
                     id="numero"
@@ -1516,7 +1482,7 @@ export default function NuevaPublicacionPage() {
 
                 <div className="space-y-2">
                     <Label htmlFor="paginas" className="text-blue-900">
-                      Páginas {getCamposRequeridos(formData.tipo).includes('paginas') && <span className="text-red-500">*</span>}
+                      Páginas <span className="text-gray-500 text-xs font-normal">(Opcional)</span>
                     </Label>
                   <Input
                     id="paginas"
@@ -1529,7 +1495,7 @@ export default function NuevaPublicacionPage() {
               </div>
 
               {/* Identificadores */}
-              <div className="space-y-4">
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <Globe className="h-4 w-4" />
                   Identificadores y Enlaces
@@ -1548,10 +1514,7 @@ export default function NuevaPublicacionPage() {
                   {getIdentificadoresRelevantes(formData.tipo).doi && (
                     <div className="space-y-2">
                       <Label htmlFor="doi" className="text-blue-900 flex items-center gap-2">
-                        DOI {getCamposRequeridos(formData.tipo).includes('doi') ? 
-                          <span className="text-red-500">*</span> : 
-                          <span className="text-gray-500 text-xs font-normal">(Opcional)</span>
-                        }
+                        DOI <span className="text-gray-500 text-xs font-normal">(Opcional)</span>
                       </Label>
                       <Input
                         id="doi"
@@ -1634,10 +1597,7 @@ export default function NuevaPublicacionPage() {
                   {getIdentificadoresRelevantes(formData.tipo).isbn && (
                     <div className="space-y-2">
                       <Label htmlFor="isbn" className="text-blue-900 flex items-center gap-2">
-                        ISBN {getCamposRequeridos(formData.tipo).includes('isbn') ? 
-                          <span className="text-red-500">*</span> : 
-                          <span className="text-gray-500 text-xs font-normal">(Opcional)</span>
-                        }
+                        ISBN <span className="text-gray-500 text-xs font-normal">(Opcional)</span>
                       </Label>
                       <Input
                         id="isbn"
@@ -1702,7 +1662,7 @@ export default function NuevaPublicacionPage() {
               </div>
 
               {/* Resumen y Abstract */}
-              <div className="space-y-4">
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <BookOpen className="h-4 w-4" />
                   Resumen
@@ -1746,11 +1706,9 @@ export default function NuevaPublicacionPage() {
                 </div>
               </div>
 
-          {/* Palabras clave */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-blue-900">Palabras Clave</h3>
-                
-                <div className="space-y-3">
+              {/* Palabras clave */}
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+                <h3 className="text-lg font-semibold text-blue-900">Palabras Clave</h3>                <div className="space-y-3">
                   <div>
                     <Label htmlFor="palabrasClave" className="text-blue-900">
                       Agregar Palabras Clave *
@@ -1836,7 +1794,7 @@ export default function NuevaPublicacionPage() {
               </div>
 
               {/* Configuración adicional */}
-              <div className="space-y-4">
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <LinkIcon className="h-4 w-4" />
                   Configuración Adicional
@@ -1935,7 +1893,7 @@ export default function NuevaPublicacionPage() {
               )}
 
               {/* Documento - Archivo o Enlace */}
-              <div className="space-y-4">
+              <div className={`space-y-4 transition-opacity duration-300 ${!formData.tipo ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <h3 className="text-lg font-semibold text-blue-900 flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Documento de la Publicación (Opcional)
