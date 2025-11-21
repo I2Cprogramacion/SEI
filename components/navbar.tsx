@@ -249,65 +249,6 @@ export default function Navbar() {
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-2 lg:gap-3">
-              {/* Mobile User Avatar - Solo mostrar en móvil cuando está autenticado */}
-              {isSignedIn && user && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="md:hidden hover:bg-gray-100">
-                      <Avatar className="h-8 w-8 ring-2 ring-blue-100">
-                        <AvatarImage 
-                          src={fotografiaUrl || user.imageUrl} 
-                          alt={getDisplayName()} 
-                        />
-                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-700 text-white text-xs font-semibold">
-                          {(getDisplayName().charAt(0) || "U").toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 bg-white shadow-lg">
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-semibold text-gray-900 truncate">{getDisplayName()}</p>
-                        <p className="text-xs text-gray-500 truncate">{user.primaryEmailAddress?.emailAddress}</p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => router.push("/dashboard")} className="cursor-pointer">
-                      <LayoutDashboard className="mr-2 h-4 w-4 text-blue-600" />
-                      <span>Dashboard</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push("/dashboard/editar-perfil")} className="cursor-pointer">
-                      <User className="mr-2 h-4 w-4 text-blue-600" />
-                      <span>Editar Perfil</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push("/dashboard/mensajes")} className="cursor-pointer">
-                      <FileText className="mr-2 h-4 w-4 text-blue-600" />
-                      <span>Mensajes</span>
-                      {mensajesNoLeidos > 0 && (
-                        <Badge className="ml-auto bg-orange-500 text-white text-xs">
-                          {mensajesNoLeidos}
-                        </Badge>
-                      )}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push("/dashboard/conexiones")} className="cursor-pointer">
-                      <Users className="mr-2 h-4 w-4 text-blue-600" />
-                      <span>Conexiones</span>
-                      {conexionesPendientes > 0 && (
-                        <Badge className="ml-auto bg-blue-500 text-white text-xs">
-                          {conexionesPendientes}
-                        </Badge>
-                      )}
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Cerrar sesión</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-
               {/* Explorar Button */}
               <Button 
                 variant="ghost" 
@@ -417,6 +358,65 @@ export default function Navbar() {
                     <Link href="/registro">Registrarse</Link>
                   </Button>
                 </div>
+              )}
+
+              {/* Mobile User Avatar - Mostrar a la derecha en móvil cuando está autenticado */}
+              {isSignedIn && user && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="md:hidden hover:bg-gray-100">
+                      <Avatar className="h-8 w-8 ring-2 ring-blue-100">
+                        <AvatarImage 
+                          src={fotografiaUrl || user.imageUrl} 
+                          alt={getDisplayName()} 
+                        />
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-700 text-white text-xs font-semibold">
+                          {(getDisplayName().charAt(0) || "U").toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 bg-white shadow-lg">
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{getDisplayName()}</p>
+                        <p className="text-xs text-gray-500 truncate">{user.primaryEmailAddress?.emailAddress}</p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => router.push("/dashboard")} className="cursor-pointer">
+                      <LayoutDashboard className="mr-2 h-4 w-4 text-blue-600" />
+                      <span>Dashboard</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push("/dashboard/editar-perfil")} className="cursor-pointer">
+                      <User className="mr-2 h-4 w-4 text-blue-600" />
+                      <span>Editar Perfil</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push("/dashboard/mensajes")} className="cursor-pointer">
+                      <FileText className="mr-2 h-4 w-4 text-blue-600" />
+                      <span>Mensajes</span>
+                      {mensajesNoLeidos > 0 && (
+                        <Badge className="ml-auto bg-orange-500 text-white text-xs">
+                          {mensajesNoLeidos}
+                        </Badge>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push("/dashboard/conexiones")} className="cursor-pointer">
+                      <Users className="mr-2 h-4 w-4 text-blue-600" />
+                      <span>Conexiones</span>
+                      {conexionesPendientes > 0 && (
+                        <Badge className="ml-auto bg-blue-500 text-white text-xs">
+                          {conexionesPendientes}
+                        </Badge>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Cerrar sesión</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
 
               {/* Mobile Menu Button */}
@@ -559,98 +559,7 @@ export default function Navbar() {
                     </Button>
 
                     {/* User Info o Auth Buttons */}
-                    {isSignedIn && user ? (
-                      <div className="mt-6 pt-6 border-t space-y-2">
-                        <div className="flex items-center gap-3 px-2 py-3 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100">
-                          <Avatar className="h-10 w-10 ring-2 ring-blue-200">
-                            <AvatarImage 
-                              src={fotografiaUrl || user.imageUrl} 
-                              alt={getDisplayName()} 
-                            />
-                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-700 text-white font-semibold">
-                              {(getDisplayName().charAt(0) || "U").toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-semibold text-gray-900 truncate">
-                              {getDisplayName()}
-                            </div>
-                            <div className="text-xs text-gray-600 truncate">
-                              {user.primaryEmailAddress?.emailAddress}
-                            </div>
-                          </div>
-                        </div>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className={cn(
-                            "w-full justify-start text-gray-700 hover:bg-gray-100",
-                            currentSection === 'dashboard' && "bg-blue-50 text-blue-700"
-                          )}
-                          asChild
-                        >
-                          <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                            <LayoutDashboard className="mr-2 h-4 w-4" />
-                            Dashboard
-                          </Link>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="w-full justify-start text-gray-700 hover:bg-gray-100 relative" 
-                          asChild
-                        >
-                          <Link href="/dashboard/mensajes" onClick={() => setMobileMenuOpen(false)}>
-                            <FileText className="mr-2 h-4 w-4" />
-                            Mensajes
-                            {mensajesNoLeidos > 0 && (
-                              <Badge className="ml-auto bg-orange-500 text-white text-xs">
-                                {mensajesNoLeidos}
-                              </Badge>
-                            )}
-                          </Link>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="w-full justify-start text-gray-700 hover:bg-gray-100 relative" 
-                          asChild
-                        >
-                          <Link href="/dashboard/conexiones" onClick={() => setMobileMenuOpen(false)}>
-                            <Users className="mr-2 h-4 w-4" />
-                            Conexiones
-                            {conexionesPendientes > 0 && (
-                              <Badge className="ml-auto bg-blue-500 text-white text-xs">
-                                {conexionesPendientes}
-                              </Badge>
-                            )}
-                          </Link>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="w-full justify-start text-gray-700 hover:bg-gray-100" 
-                          asChild
-                        >
-                          <Link href="/dashboard/editar-perfil" onClick={() => setMobileMenuOpen(false)}>
-                            <User className="mr-2 h-4 w-4" />
-                            Editar Perfil
-                          </Link>
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full justify-start border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700" 
-                          onClick={() => {
-                            setMobileMenuOpen(false)
-                            handleLogout()
-                          }}
-                        >
-                          <LogOut className="mr-2 h-4 w-4" />
-                          Cerrar sesión
-                        </Button>
-                      </div>
-                    ) : (
+                    {!isSignedIn && !user && (
                       <div className="mt-6 pt-6 border-t space-y-2">
                         <Button 
                           variant="outline" 
