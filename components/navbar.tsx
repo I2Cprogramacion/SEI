@@ -427,12 +427,16 @@ export default function Navbar() {
                     <span className="sr-only">Menú</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="bg-white w-[300px] sm:w-[400px] overflow-y-auto">
-                  <SheetHeader className="border-b pb-4">
+                <SheetContent 
+                  side="right" 
+                  className="bg-white w-[300px] sm:w-[400px] flex flex-col h-full overflow-hidden"
+                  style={{ WebkitOverflowScrolling: 'touch' }}
+                >
+                  <SheetHeader className="border-b pb-4 flex-shrink-0">
                     <SheetTitle className="text-left text-gray-900">Menú</SheetTitle>
                   </SheetHeader>
                   
-                  <div className="flex flex-col gap-2 mt-6">
+                  <div className="flex flex-col gap-2 mt-6 overflow-y-auto flex-1 pb-4" style={{ WebkitOverflowScrolling: 'touch' }}>
                     {/* Logo en móvil */}
                     <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-2 mb-4 hover:opacity-80 transition-opacity">
                       <div className="relative h-8 w-8">

@@ -18,6 +18,12 @@
     "test:registro": "node scripts/test-registro.js",
     "test:api": "node scripts/test-api-registro.js",
     "test:prisma": "node scripts/test-prisma.js",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report",
+    "test:performance": "node scripts/performance-metrics.js",
+    "test:security": "node scripts/security-check.js",
+    "test:all": "npm run test:security && npm run test:performance && npm run test:e2e",
     "migrate:create-publicaciones": "node scripts/create-publicaciones-table.js",
     "migrate:institutions": "node scripts/migrate-institutions-auto.js",
     "verify:institutions": "node scripts/verificar-columnas-institutions.js",
@@ -100,6 +106,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.48.0",
     "@types/node": "^22",
     "@types/nodemailer": "^7.0.1",
     "@types/pdf-parse": "^1.1.5",

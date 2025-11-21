@@ -58,7 +58,7 @@ export function AdminSidebar() {
 
   const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => (
     <>
-      <div className="p-6 border-b border-gray-200 bg-gradient-to-br from-blue-600 to-blue-700">
+      <div className="p-6 border-b border-gray-200 bg-gradient-to-br from-blue-600 to-blue-700 flex-shrink-0">
         <Link href="/admin" className="flex items-center gap-3" onClick={onItemClick}>
           <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center">
             <LayoutDashboard className="h-6 w-6 text-white" />
@@ -69,7 +69,7 @@ export function AdminSidebar() {
           </div>
         </Link>
       </div>
-      <div className="flex-1 py-4 px-3 space-y-1">
+      <div className="flex-1 py-4 px-3 space-y-1 overflow-y-auto min-h-0">
         {sidebarItems.map((item) => {
           const isActive = pathname === item.href
           return (
@@ -96,7 +96,7 @@ export function AdminSidebar() {
           )
         })}
       </div>
-      <div className="p-3 border-t border-gray-200 space-y-1 bg-gray-50">
+      <div className="p-3 border-t border-gray-200 space-y-1 bg-gray-50 flex-shrink-0">
         <Link
           href="/"
           onClick={onItemClick}
@@ -149,11 +149,14 @@ export function AdminSidebar() {
       {/* Sidebar Móvil */}
       <div
         className={cn(
-          "md:hidden fixed top-16 left-0 z-50 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 shadow-xl transform transition-transform duration-300 ease-in-out",
+          "md:hidden fixed top-16 left-0 z-50 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 shadow-xl transform transition-transform duration-300 ease-in-out flex flex-col overflow-hidden",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
+        style={{ WebkitOverflowScrolling: 'touch' }}
       >
-        <SidebarContent onItemClick={() => setMobileMenuOpen(false)} />
+        <div className="flex flex-col h-full overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <SidebarContent onItemClick={() => setMobileMenuOpen(false)} />
+        </div>
       </div>
     </>
   )
