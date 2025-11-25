@@ -9,24 +9,32 @@ export async function POST(request: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
-    const clerkUserId = user.id
-    console.log("🟢 Reactivando perfil para clerk_user_id:", clerkUserId)
+    const correo = user.emailAddresses[0]?.emailAddress
+    if (!correo) {
+      return NextResponse.json({ error: "No se encontró el correo del usuario" }, { status: 400 })
+    }
+    console.log("🟢 Reactivando perfil para correo:", correo)
     
     const db = await getDatabase()
     
     // Verificar el estado actual antes de actualizar
-    const checkQuery = `SELECT id, nombre_completo, activo FROM investigadores WHERE clerk_user_id = $1`
-    const beforeUpdate = await db.query(checkQuery, [clerkUserId])
+    const checkQuery = `SELECT id, nombre_completo, correo, activo FROM investigadores WHERE correo = $1`
+    const beforeUpdate = await db.query(checkQuery, [correo])
     console.log("📊 Estado ANTES de reactivar:", beforeUpdate.rows[0])
     
-    // Actualizar el campo activo a true
-    const updateQuery = `UPDATE investigadores SET activo = TRUE WHERE clerk_user_id = $1 RETURNING id, nombre_completo, activo`
-    const result = await db.query(updateQuery, [clerkUserId])
+    if (!beforeUpdate.rows[0]) {
+      return NextResponse.json({ error: "No se encontró el investigador con ese correo" }, { status: 404 })
+    }
+    
+    // Actualizar el campo activo a true usando el ID del investigador
+    const investigadorId = beforeUpdate.rows[0].id
+    const updateQuery = `UPDATE investigadores SET activo = TRUE WHERE id = $1 RETURNING id, nombre_completo, correo, activo`
+    const result = await db.query(updateQuery, [investigadorId])
     
     console.log("✅ Estado DESPUÉS de reactivar:", result.rows[0])
     
     if (result.rowCount === 0) {
-      return NextResponse.json({ error: "No se encontró el investigador" }, { status: 404 })
+      return NextResponse.json({ error: "No se pudo actualizar el perfil" }, { status: 500 })
     }
     
     return NextResponse.json({ 
