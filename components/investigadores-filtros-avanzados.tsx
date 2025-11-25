@@ -163,7 +163,7 @@ export function InvestigadoresFiltrosAvanzados({ onFiltrosChange, filtrosActivos
               </SelectContent>
             </Select>
             <p className="text-xs text-gray-500 mt-1">
-              Basado en comparación con cuartiles Q1-Q3 del SNII
+              ⚠️ Evaluación disponible cuando se agreguen campos numéricos de producción
             </p>
           </div>
 

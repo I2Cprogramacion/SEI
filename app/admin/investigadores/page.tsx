@@ -100,24 +100,27 @@ export default function InvestigadoresAdmin() {
 
   // Calcular estado de un investigador vs parámetros SNII
   const calcularEstadoInvestigador = (inv: Investigador): "bajo" | "medio" | "alto" | "sin_datos" => {
-    if (!inv.area || !inv.nivel) return "sin_datos"
+    // Verificar que tenga área y nivel
+    const area = inv.area_investigacion || inv.area
+    const nivel = inv.nivel_investigador || inv.nivel
     
-    const areaId = mapearAreaAId(inv.area)
-    const nivelId = mapearNivelAId(inv.nivel)
+    if (!area || !nivel) return "sin_datos"
+    
+    const areaId = mapearAreaAId(area)
+    const nivelId = mapearNivelAId(nivel)
     
     if (!areaId || !nivelId) return "sin_datos"
     
     const parametros = getParametrosSNII(areaId, nivelId)
     if (!parametros) return "sin_datos"
     
-    // Usar los campos que existan en el investigador
-    const articulos = parseInt(String(inv.articulos_publicados || 0)) || 0
+    // Por ahora, si no tenemos campos numéricos, retornar sin_datos
+    // TODO: Cuando se agreguen campos numéricos, descomentar esto:
+    // const articulos = parseInt(String(inv.articulos_count || 0)) || 0
+    // const estadoArticulos = compararConParametros(articulos, parametros.articulos)
+    // return estadoArticulos
     
-    const estadoArticulos = compararConParametros(articulos, parametros.articulos)
-    
-    // Por simplicidad, basamos el estado general en los artículos
-    // (puedes hacerlo más complejo si tienes más datos)
-    return estadoArticulos
+    return "sin_datos"
   }
 
   // Función auxiliar para mapear área a ID
@@ -164,16 +167,32 @@ export default function InvestigadoresAdmin() {
     )
 
     // Aplicar filtros avanzados
-    if (filtrosAvanzados.area) {
-      filtered = filtered.filter(inv => 
-        (inv.area || inv.area_investigacion || "").toLowerCase().includes(filtrosAvanzados.area!.toLowerCase())
-      )
+    if (filtrosAvanzados.area && filtrosAvanzados.area !== "todas") {
+      filtered = filtered.filter(inv => {
+        const areaInv = (inv.area_investigacion || inv.area || "").toLowerCase()
+        const areaFiltro = filtrosAvanzados.area!.toLowerCase()
+        
+        // Comparación exacta o por inclusión
+        return areaInv.includes(areaFiltro) || areaFiltro.includes(areaInv)
+      })
     }
 
-    if (filtrosAvanzados.nivel) {
-      filtered = filtered.filter(inv => 
-        (inv.nivel || inv.nivel_investigador || "").toLowerCase().includes(filtrosAvanzados.nivel!.toLowerCase())
-      )
+    if (filtrosAvanzados.nivel && filtrosAvanzados.nivel !== "todos") {
+      filtered = filtered.filter(inv => {
+        const nivelInv = (inv.nivel_investigador || inv.nivel || "").toLowerCase()
+        const nivelFiltro = filtrosAvanzados.nivel!.toLowerCase()
+        
+        // Normalizar los nombres de niveles para comparación
+        const normalizarNivel = (n: string) => {
+          if (n.includes("candidato")) return "candidato"
+          if (n.includes("iii") || n.includes("3")) return "nivel3"
+          if (n.includes("ii") || n.includes("2")) return "nivel2"
+          if (n.includes("i") || n.includes("1")) return "nivel1"
+          return n
+        }
+        
+        return normalizarNivel(nivelInv) === normalizarNivel(nivelFiltro)
+      })
     }
 
     if (filtrosAvanzados.estado) {
@@ -209,7 +228,19 @@ export default function InvestigadoresAdmin() {
     const estado = calcularEstadoInvestigador(investigador)
     
     if (estado === "sin_datos") {
-      return null // No mostrar badge si no hay datos
+      // Mostrar badge informativo si tiene área y nivel pero no datos numéricos
+      const area = investigador.area_investigacion || investigador.area
+      const nivel = investigador.nivel_investigador || investigador.nivel
+      
+      if (area && nivel) {
+        return (
+          <Badge variant="outline" className="bg-gray-100 text-gray-600 border-gray-200 flex items-center gap-1 text-xs">
+            <Minus className="h-3 w-3" />
+            <span>Pendiente</span>
+          </Badge>
+        )
+      }
+      return null // No mostrar badge si no hay área/nivel
     }
 
     const badgeConfig = {
