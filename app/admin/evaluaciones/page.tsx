@@ -106,16 +106,16 @@ export default function EvaluacionesPage() {
   }
 
   // Preparar datos para gráficos
-  const datosArea = estadisticas?.distribucionArea.map((item) => ({
-    name: item.area.length > 30 ? item.area.substring(0, 30) + "..." : item.area,
-    value: parseInt(String(item.total)),
+  const datosArea = estadisticas?.distribucionArea?.map((item) => ({
+    name: item.area?.length > 30 ? item.area.substring(0, 30) + "..." : item.area,
+    value: parseInt(String(item.total || 0)),
     fullName: item.area,
-  })) || []
+  })).filter(item => item.value > 0) || []
 
-  const datosNivel = estadisticas?.distribucionNivel.map((item) => ({
+  const datosNivel = estadisticas?.distribucionNivel?.map((item) => ({
     name: item.nivel,
-    value: parseInt(String(item.total)),
-  })) || []
+    value: parseInt(String(item.total || 0)),
+  })).filter(item => item.value > 0) || []
 
   return (
     <div className="w-full">
