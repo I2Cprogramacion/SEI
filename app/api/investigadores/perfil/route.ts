@@ -62,7 +62,8 @@ export async function GET(request: NextRequest) {
         COALESCE(cv_url, '') AS cv_url,
         dictamen_url,
         sni_url,
-        COALESCE(es_admin, false) AS es_admin
+        COALESCE(es_admin, false) AS es_admin,
+        COALESCE(activo, true) AS activo
       FROM investigadores 
       WHERE correo = $1
       LIMIT 1
