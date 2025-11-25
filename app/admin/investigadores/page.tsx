@@ -18,8 +18,10 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ArrowLeft, Download, Eye, Filter, Search, UserCog } from "lucide-react"
+import { ArrowLeft, Download, Eye, Filter, Search, UserCog, TrendingUp, TrendingDown, Minus } from "lucide-react"
 import { ExportDialog } from "@/components/export-dialog"
+import { InvestigadoresFiltrosAvanzados, type FiltrosInvestigador } from "@/components/investigadores-filtros-avanzados"
+import { getParametrosSNII, compararConParametros } from "@/lib/snii-parametros"
 
 // Interfaz para los datos de investigadores (ajustada al API)
 interface Investigador {
@@ -50,6 +52,12 @@ interface Investigador {
   fotografia_url?: string
   fecha_registro?: string
   is_admin?: boolean
+  // Campos para evaluación SNII
+  area_investigacion?: string
+  nivel_investigador?: string
+  articulos_publicados?: string | number
+  libros_publicados?: string | number
+  capitulos_publicados?: string | number
 }
 
 export default function InvestigadoresAdmin() {
@@ -61,6 +69,7 @@ export default function InvestigadoresAdmin() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
+  const [filtrosAvanzados, setFiltrosAvanzados] = useState<FiltrosInvestigador>({})
 
   // Cargar investigadores desde la API
   useEffect(() => {
@@ -89,29 +98,103 @@ export default function InvestigadoresAdmin() {
     fetchInvestigadores()
   }, [])
 
-  // Filtrar datos basados en el término de búsqueda
+  // Calcular estado de un investigador vs parámetros SNII
+  const calcularEstadoInvestigador = (inv: Investigador): "bajo" | "medio" | "alto" | "sin_datos" => {
+    if (!inv.area || !inv.nivel) return "sin_datos"
+    
+    const areaId = mapearAreaAId(inv.area)
+    const nivelId = mapearNivelAId(inv.nivel)
+    
+    if (!areaId || !nivelId) return "sin_datos"
+    
+    const parametros = getParametrosSNII(areaId, nivelId)
+    if (!parametros) return "sin_datos"
+    
+    // Usar los campos que existan en el investigador
+    const articulos = parseInt(String(inv.articulos_publicados || 0)) || 0
+    
+    const estadoArticulos = compararConParametros(articulos, parametros.articulos)
+    
+    // Por simplicidad, basamos el estado general en los artículos
+    // (puedes hacerlo más complejo si tienes más datos)
+    return estadoArticulos
+  }
+
+  // Función auxiliar para mapear área a ID
+  const mapearAreaAId = (area: string): string | null => {
+    if (!area) return null
+    const areaLower = area.toLowerCase()
+    
+    if (areaLower.includes("físico") || areaLower.includes("matemáticas")) return "area1"
+    if (areaLower.includes("biología") || areaLower.includes("química")) return "area2"
+    if (areaLower.includes("medicina") || areaLower.includes("salud")) return "area3"
+    if (areaLower.includes("conducta") || areaLower.includes("educación")) return "area4"
+    if (areaLower.includes("humanidades")) return "area5"
+    if (areaLower.includes("sociales")) return "area6"
+    if (areaLower.includes("agricultura") || areaLower.includes("agropecuarias")) return "area7"
+    if (areaLower.includes("ingenierías") || areaLower.includes("tecnológico")) return "area8"
+    if (areaLower.includes("interdisciplinaria")) return "area9"
+    
+    return null
+  }
+
+  // Función auxiliar para mapear nivel a ID
+  const mapearNivelAId = (nivel: string): string | null => {
+    if (!nivel) return null
+    const nivelLower = nivel.toLowerCase()
+    
+    if (nivelLower.includes("candidato")) return "candidato"
+    if (nivelLower.includes("snii iii") || nivelLower.includes("nivel 3")) return "nivel3"
+    if (nivelLower.includes("snii ii") || nivelLower.includes("nivel 2")) return "nivel2"
+    if (nivelLower.includes("snii i") || nivelLower.includes("nivel 1")) return "nivel1"
+    
+    return null
+  }
+
+  // Filtrar datos basados en el término de búsqueda y filtros avanzados
   const handleSearch = () => {
     if (!Array.isArray(investigadores)) return
     
-    const filtered = investigadores.filter(
+    let filtered = investigadores.filter(
       (investigador) =>
         (investigador.nombre || investigador.nombre_completo)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (investigador.email || investigador.correo)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (investigador.institucion && investigador.institucion.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (investigador.area && investigador.area.toLowerCase().includes(searchTerm.toLowerCase())),
     )
+
+    // Aplicar filtros avanzados
+    if (filtrosAvanzados.area) {
+      filtered = filtered.filter(inv => 
+        (inv.area || inv.area_investigacion || "").toLowerCase().includes(filtrosAvanzados.area!.toLowerCase())
+      )
+    }
+
+    if (filtrosAvanzados.nivel) {
+      filtered = filtered.filter(inv => 
+        (inv.nivel || inv.nivel_investigador || "").toLowerCase().includes(filtrosAvanzados.nivel!.toLowerCase())
+      )
+    }
+
+    if (filtrosAvanzados.estado) {
+      filtered = filtered.filter(inv => {
+        const estado = calcularEstadoInvestigador(inv)
+        return estado === filtrosAvanzados.estado
+      })
+    }
+
     setFilteredData(filtered)
     setCurrentPage(1)
   }
 
-  // Búsqueda automática cuando cambia el término de búsqueda
+  // Búsqueda automática cuando cambia el término de búsqueda o filtros
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       handleSearch()
     }, 300) // Debounce de 300ms
 
     return () => clearTimeout(timeoutId)
-  }, [searchTerm, investigadores])
+  }, [searchTerm, investigadores, filtrosAvanzados])
 
   // Calcular índices para paginación
   const indexOfLastItem = currentPage * itemsPerPage
@@ -120,6 +203,43 @@ export default function InvestigadoresAdmin() {
 
   // Cambiar página
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
+
+  // Renderizar badge de estado SNII
+  const renderEstadoBadge = (investigador: Investigador) => {
+    const estado = calcularEstadoInvestigador(investigador)
+    
+    if (estado === "sin_datos") {
+      return null // No mostrar badge si no hay datos
+    }
+
+    const badgeConfig = {
+      alto: {
+        icon: TrendingUp,
+        className: "bg-green-100 text-green-700 border-green-200",
+        texto: "Por encima"
+      },
+      medio: {
+        icon: Minus,
+        className: "bg-yellow-100 text-yellow-700 border-yellow-200",
+        texto: "En rango"
+      },
+      bajo: {
+        icon: TrendingDown,
+        className: "bg-red-100 text-red-700 border-red-200",
+        texto: "Por debajo"
+      }
+    }
+
+    const config = badgeConfig[estado]
+    const Icon = config.icon
+
+    return (
+      <Badge variant="outline" className={`${config.className} flex items-center gap-1 text-xs`}>
+        <Icon className="h-3 w-3" />
+        <span>{config.texto}</span>
+      </Badge>
+    )
+  }
 
   return (
     <div className="w-full">
@@ -191,14 +311,10 @@ export default function InvestigadoresAdmin() {
               )}
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="border-gray-200 text-gray-700 hover:bg-gray-50 bg-white shadow-sm hover:shadow-md transition-all flex-1 sm:flex-initial"
-              >
-                <Filter className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Filtros</span>
-              </Button>
+              <InvestigadoresFiltrosAvanzados
+                onFiltrosChange={setFiltrosAvanzados}
+                filtrosActivos={filtrosAvanzados}
+              />
               <Button
                 variant="outline"
                 size="sm"
@@ -235,6 +351,7 @@ export default function InvestigadoresAdmin() {
                   <TableHead className="text-gray-700 font-semibold">Institución</TableHead>
                   <TableHead className="text-gray-700 font-semibold">Teléfono</TableHead>
                   <TableHead className="text-gray-700 font-semibold">Rol</TableHead>
+                  <TableHead className="text-gray-700 font-semibold">Estado SNII</TableHead>
                   <TableHead className="text-gray-700 font-semibold">Fecha Registro</TableHead>
                   <TableHead className="text-gray-700 font-semibold text-right">Acciones</TableHead>
                 </TableRow>
@@ -242,7 +359,7 @@ export default function InvestigadoresAdmin() {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-blue-600">
+                    <TableCell colSpan={10} className="text-center py-8 text-blue-600">
                       <div className="flex items-center justify-center">
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
                         Cargando investigadores...
@@ -251,7 +368,7 @@ export default function InvestigadoresAdmin() {
                   </TableRow>
                 ) : !Array.isArray(filteredData) || filteredData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-blue-600">
+                    <TableCell colSpan={10} className="text-center py-8 text-blue-600">
                       {error ? "Error al cargar los datos" : "No se encontraron investigadores"}
                     </TableCell>
                   </TableRow>
@@ -289,6 +406,9 @@ export default function InvestigadoresAdmin() {
                           </Badge>
                         )}
                       </TableCell>
+                      <TableCell>
+                        {renderEstadoBadge(investigador)}
+                      </TableCell>
                       <TableCell className="text-gray-700">
                         {investigador.fecha_registro 
                           ? new Date(investigador.fecha_registro).toLocaleDateString('es-ES')
@@ -325,7 +445,7 @@ export default function InvestigadoresAdmin() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-blue-600">
+                    <TableCell colSpan={10} className="text-center py-8 text-blue-600">
                       {investigadores.length === 0
                         ? "No hay investigadores registrados en la plataforma."
                         : "No se encontraron investigadores con los criterios de búsqueda."}
@@ -391,6 +511,12 @@ export default function InvestigadoresAdmin() {
                           )}
                           {investigador.fecha_registro && (
                             <p><span className="font-medium">Registro:</span> {new Date(investigador.fecha_registro).toLocaleDateString('es-ES')}</p>
+                          )}
+                          {renderEstadoBadge(investigador) && (
+                            <div className="pt-2">
+                              <span className="font-medium">Estado SNII:</span>{" "}
+                              {renderEstadoBadge(investigador)}
+                            </div>
                           )}
                         </div>
                         <div className="flex gap-2 mt-4">

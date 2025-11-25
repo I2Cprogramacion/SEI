@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useClerk } from "@clerk/nextjs"
 import { cn } from "@/lib/utils"
-import { BarChart3, FileText, GraduationCap, Home, LayoutDashboard, LogOut, Users, Award, Menu, X } from "lucide-react"
+import { BarChart3, FileText, GraduationCap, Home, LayoutDashboard, LogOut, Users, Award, Menu, X, ClipboardCheck } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 
@@ -33,6 +33,11 @@ const sidebarItems = [
     title: "Instituciones",
     href: "/admin/instituciones",
     icon: GraduationCap,
+  },
+  {
+    title: "Evaluaciones SNII",
+    href: "/admin/evaluaciones",
+    icon: ClipboardCheck,
   },
   {
     title: "Estadísticas",
