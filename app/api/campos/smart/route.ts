@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Verificar si hay datos
-    const totalQuery = `SELECT COUNT(*) as total FROM investigadores`
+    const totalQuery = `SELECT COUNT(*) as total FROM investigadores WHERE COALESCE(activo, true) = true`
     console.log('Query de conteo:', totalQuery)
     
     let totalResult
@@ -136,6 +136,7 @@ export async function GET(request: NextRequest) {
         FROM investigadores inv
         WHERE inv.area_investigacion IS NOT NULL AND inv.area_investigacion != ''
         AND LOWER(TRIM(inv.institucion)) = LOWER(TRIM($1))
+        AND COALESCE(inv.activo, true) = true
         GROUP BY area_investigacion
         ORDER BY investigadores DESC
       `
@@ -149,6 +150,7 @@ export async function GET(request: NextRequest) {
           STRING_AGG(DISTINCT inv.linea_investigacion, ', ') FILTER (WHERE inv.linea_investigacion IS NOT NULL AND inv.linea_investigacion != '') as lineas_investigacion
         FROM investigadores inv
         WHERE inv.area_investigacion IS NOT NULL AND inv.area_investigacion != ''
+        AND COALESCE(inv.activo, true) = true
         GROUP BY area_investigacion
         ORDER BY investigadores DESC
       `
