@@ -35,21 +35,21 @@ export function AreaSNIISelector({
   return (
     <div className="space-y-2">
       <Label
-        htmlFor="area_snii"
+        htmlFor="area_investigacion"
         className="text-blue-900 text-sm font-medium flex items-center gap-2"
       >
         <Beaker className="h-4 w-4" />
-        Área SNII {required && "*"}
+        Área de Investigación {required && "*"}
       </Label>
       <Select value={value} onValueChange={onChange} disabled={disabled}>
         <SelectTrigger
-          id="area_snii"
+          id="area_investigacion"
           className={`bg-white border-blue-200 text-blue-900 ${
             error ? "border-red-300 bg-red-50" : ""
           }`}
-          aria-label="Seleccionar área SNII"
+          aria-label="Seleccionar área de investigación"
         >
-          <SelectValue placeholder="Selecciona tu área SNII" />
+          <SelectValue placeholder="Selecciona tu área de investigación" />
         </SelectTrigger>
         <SelectContent className="max-h-[400px]">
           {AREAS_SNII.map((area) => (
@@ -60,7 +60,7 @@ export function AreaSNIISelector({
         </SelectContent>
       </Select>
       <p className="text-xs text-blue-600">
-        Selecciona el área de investigación según la clasificación del Sistema Nacional de Investigadores
+        Selecciona tu área según la clasificación del Sistema Nacional de Investigadores e Investigadoras
       </p>
     </div>
   )

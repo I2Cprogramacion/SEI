@@ -102,11 +102,9 @@ interface FormData {
   grado_maximo_estudios?: string;
   empleo_actual: string;
   linea_investigacion: string[];
-  area_investigacion: string[];
-  area_snii: string;
+  area_investigacion: string;
   nivel_sni: string;
   disciplina?: string;
-  area_investigacionRaw?: string;
   especialidad?: string;
   orcid?: string;
   nivel?: string;
@@ -303,8 +301,7 @@ const initialFormData: FormData = {
   ultimo_grado_estudios: "",
   empleo_actual: "",
   linea_investigacion: [],
-  area_investigacion: [],
-  area_snii: "",
+  area_investigacion: "",
   nivel_sni: "",
   nacionalidad: "Mexicana",
   fecha_nacimiento: "",
@@ -773,7 +770,6 @@ export default function RegistroPage() {
     { field: "empleo_actual", label: "Empleo Actual" },
     { field: "linea_investigacion", label: "Línea de Investigación" },
     { field: "area_investigacion", label: "Área de Investigación" },
-    { field: "area_snii", label: "Área SNII" },
     { field: "nivel_sni", label: "Nivel SNI" },
     { field: "nacionalidad", label: "Nacionalidad" },
     { field: "fecha_nacimiento", label: "Fecha de Nacimiento" },
@@ -1153,7 +1149,8 @@ export default function RegistroPage() {
             grado_maximo_estudios: formData.grado_maximo_estudios || "",
             empleo_actual: formData.empleo_actual,
             linea_investigacion: Array.isArray(formData.linea_investigacion) ? formData.linea_investigacion.join(', ') : formData.linea_investigacion,
-            area_investigacion: Array.isArray(formData.area_investigacion) ? formData.area_investigacion.join(', ') : formData.area_investigacion,
+            area_investigacion: formData.area_investigacion,
+            nivel_sni: formData.nivel_sni,
             disciplina: formData.disciplina || "",
             especialidad: formData.especialidad || "",
             orcid: formData.orcid || "",
@@ -2068,12 +2065,12 @@ export default function RegistroPage() {
                     )}
                   </div>
 
-                    {/* Área SNII */}
+                    {/* Área de Investigación (selector SNII) */}
                     <div className="space-y-2">
                       <AreaSNIISelector
-                        value={formData.area_snii}
-                        onChange={(value: string) => setFormData(prev => ({ ...prev, area_snii: value }))}
-                        error={!formData.area_snii && ocrCompleted}
+                        value={formData.area_investigacion}
+                        onChange={(value: string) => setFormData(prev => ({ ...prev, area_investigacion: value }))}
+                        error={!formData.area_investigacion && ocrCompleted}
                       />
                     </div>
 
@@ -2082,46 +2079,9 @@ export default function RegistroPage() {
                       <NivelSNISelector
                         value={formData.nivel_sni}
                         onChange={(value: string) => setFormData(prev => ({ ...prev, nivel_sni: value }))}
-                        areaSNII={formData.area_snii}
+                        areaSNII={formData.area_investigacion}
                         error={!formData.nivel_sni && ocrCompleted}
                       />
-                    </div>
-
-                    {/* Área de Investigación como textarea grande */}
-                    <div className="space-y-2">
-                      <Label htmlFor="area_investigacion" className="text-blue-900 font-medium flex items-center gap-2">
-                        <Edit className="h-4 w-4" />
-                        Áreas de Investigación *
-                        <span className="text-xs text-blue-600">(Máximo 500 caracteres)</span>
-                      </Label>
-                      <Textarea
-                        id="area_investigacion"
-                        placeholder="Describe tus áreas de investigación, especialidades y campos de conocimiento..."
-                        value={formData.area_investigacionRaw ?? formData.area_investigacion.join(', ')}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (value.length <= 500) {
-                            // Guardar el valor crudo para que el usuario pueda escribir espacios
-                            setFormData(prev => ({
-                              ...prev,
-                              area_investigacionRaw: value,
-                              area_investigacion: value.split(',').map((area: string) => area.trim()).filter(Boolean)
-                            }));
-                          }
-                        }}
-                        className={`min-h-[120px] resize-y ${formData.area_investigacion.length === 0 && ocrCompleted ? "border-red-300 bg-red-50" : ""}`}
-                        maxLength={500}
-                      />
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="text-gray-500">
-                          {(formData.area_investigacionRaw ?? formData.area_investigacion.join(', ')).length}/500 caracteres
-                        </span>
-                        {formData.area_investigacion.length === 0 && (
-                          <span className="text-red-600">
-                            Este campo es obligatorio
-                          </span>
-                        )}
-                      </div>
                     </div>
 
                     {/* Línea de Investigación */}
