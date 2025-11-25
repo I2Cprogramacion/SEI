@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { getDatabase } from "@/lib/database-config"
 import { currentUser } from "@clerk/nextjs/server"
+import { Client } from "pg"
 
 export async function POST(request: NextRequest) {
+  let client: Client | null = null
   try {
     const user = await currentUser()
     if (!user) {
@@ -15,25 +16,32 @@ export async function POST(request: NextRequest) {
     }
     console.log("🔴 Desactivando perfil para correo:", correo)
     
-    const db = await getDatabase()
+    // Conexión directa a PostgreSQL
+    const databaseUrl = process.env.DATABASE_URL
+    if (!databaseUrl) {
+      throw new Error("DATABASE_URL no configurada")
+    }
+    
+    client = new Client({ connectionString: databaseUrl, ssl: { rejectUnauthorized: false } })
+    await client.connect()
     
     // Verificar el estado actual antes de actualizar
     const checkQuery = `SELECT id, nombre_completo, correo, activo FROM investigadores WHERE correo = $1`
-    const beforeUpdate = await db.query(checkQuery, [correo])
+    const beforeUpdate = await client.query(checkQuery, [correo])
     console.log("📊 Estado ANTES de desactivar:", beforeUpdate.rows[0])
     
-    if (!beforeUpdate.rows[0]) {
+    if (!beforeUpdate.rows || beforeUpdate.rows.length === 0) {
       return NextResponse.json({ error: "No se encontró el investigador con ese correo" }, { status: 404 })
     }
     
     // Actualizar el campo activo a false usando el ID del investigador
     const investigadorId = beforeUpdate.rows[0].id
     const updateQuery = `UPDATE investigadores SET activo = FALSE WHERE id = $1 RETURNING id, nombre_completo, correo, activo`
-    const result = await db.query(updateQuery, [investigadorId])
+    const result = await client.query(updateQuery, [investigadorId])
     
     console.log("✅ Estado DESPUÉS de desactivar:", result.rows[0])
     
-    if (result.rowCount === 0) {
+    if (!result.rows || result.rows.length === 0) {
       return NextResponse.json({ error: "No se pudo actualizar el perfil" }, { status: 500 })
     }
     
@@ -47,5 +55,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       error: `Error al desactivar el perfil: ${error instanceof Error ? error.message : "Error desconocido"}` 
     }, { status: 500 })
+  } finally {
+    if (client) {
+      await client.end()
+    }
   }
 }
