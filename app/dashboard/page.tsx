@@ -641,35 +641,114 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-3 md:gap-4 p-3 md:p-4 bg-red-50 rounded-lg border border-red-200">
-                {/* Ocultar perfil solo si activo === true */}
-                {investigadorData?.activo !== false && (
-                  <Button
-                    variant="outline"
-                    className="border border-red-400 text-red-700 hover:bg-red-100"
-                    disabled={isDesactivando}
-                    onClick={async () => {
-                      setIsDesactivando(true);
-                      try {
-                        const response = await fetch("/api/investigadores/desactivar", { method: "POST" });
-                        const result = await response.json();
-                        if (response.ok && result.success) {
-                          alert("Tu perfil ha sido ocultado y ahora está invisible para los demás.");
-                          if (investigadorData) {
-                            setInvestigadorData({ ...investigadorData, activo: false });
+                {/* Mostrar botón según estado del perfil */}
+                {investigadorData?.activo === false ? (
+                  // Botón para REACTIVAR perfil (cuando está oculto)
+                  <div className="space-y-3">
+                    <div className="bg-amber-50 border border-amber-300 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-amber-800 mb-2">
+                        <EyeOff className="h-4 w-4" />
+                        <span className="font-semibold text-sm">Tu perfil está oculto</span>
+                      </div>
+                      <p className="text-xs text-amber-700">
+                        Tu perfil no es visible para otros usuarios. Haz clic en el botón de abajo para volver a mostrarlo.
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="w-full border-2 border-green-500 text-green-700 hover:bg-green-50 font-semibold"
+                      disabled={isActivando}
+                      onClick={async () => {
+                        setIsActivando(true);
+                        try {
+                          console.log("🟢 Intentando reactivar perfil...");
+                          const response = await fetch("/api/investigadores/activar", { method: "POST" });
+                          const result = await response.json();
+                          console.log("📊 Respuesta del servidor:", result);
+                          
+                          if (response.ok && result.success) {
+                            alert("✅ Tu perfil ha sido reactivado y ahora es visible para todos.");
+                            if (investigadorData) {
+                              setInvestigadorData({ ...investigadorData, activo: true });
+                            }
+                            window.location.reload();
+                          } else {
+                            alert("❌ Error al reactivar perfil: " + (result.error || "Error desconocido"));
                           }
-                        } else {
-                          alert("Error al ocultar perfil: " + (result.error || "Error desconocido"));
+                        } catch (error) {
+                          console.error("❌ Error en reactivación:", error);
+                          alert("❌ Error al reactivar perfil. Por favor, intenta de nuevo.");
+                        } finally {
+                          setIsActivando(false);
                         }
-                      } catch (error) {
-                        alert("Error al ocultar perfil. Por favor, intenta de nuevo.");
-                      } finally {
-                        setIsDesactivando(false);
-                      }
-                    }}
-                  >
-                    Ocultar perfil
-                  </Button>
+                      }}
+                    >
+                      {isActivando ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Reactivando...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Mostrar perfil nuevamente
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                ) : (
+                  // Botón para OCULTAR perfil (cuando está visible)
+                  <div className="space-y-3">
+                    <Button
+                      variant="outline"
+                      className="w-full border border-red-400 text-red-700 hover:bg-red-100"
+                      disabled={isDesactivando}
+                      onClick={async () => {
+                        if (!confirm("¿Estás seguro de que deseas ocultar tu perfil? Los demás usuarios no podrán verlo.")) {
+                          return;
+                        }
+                        setIsDesactivando(true);
+                        try {
+                          console.log("🔴 Intentando ocultar perfil...");
+                          const response = await fetch("/api/investigadores/desactivar", { method: "POST" });
+                          const result = await response.json();
+                          console.log("📊 Respuesta del servidor:", result);
+                          
+                          if (response.ok && result.success) {
+                            alert("✅ Tu perfil ha sido ocultado y ahora está invisible para los demás.");
+                            if (investigadorData) {
+                              setInvestigadorData({ ...investigadorData, activo: false });
+                            }
+                            window.location.reload();
+                          } else {
+                            alert("❌ Error al ocultar perfil: " + (result.error || "Error desconocido"));
+                          }
+                        } catch (error) {
+                          console.error("❌ Error en desactivación:", error);
+                          alert("❌ Error al ocultar perfil. Por favor, intenta de nuevo.");
+                        } finally {
+                          setIsDesactivando(false);
+                        }
+                      }}
+                    >
+                      {isDesactivando ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Ocultando...
+                        </>
+                      ) : (
+                        <>
+                          <EyeOff className="mr-2 h-4 w-4" />
+                          Ocultar perfil
+                        </>
+                      )}
+                    </Button>
+                    <p className="text-xs text-red-600">
+                      Al ocultar tu perfil, no aparecerás en búsquedas ni será visible para otros usuarios.
+                    </p>
+                  </div>
                 )}
+                
                 <div className="flex items-start justify-between">
                   <div className="flex flex-col md:flex-row w-full gap-3">
                     <div className="flex-1">
