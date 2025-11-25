@@ -49,48 +49,13 @@ export async function GET(request: NextRequest) {
     console.log('Total investigadores en BD:', totalInvestigadores)
     
     if (totalInvestigadores === 0) {
-      console.log('No hay investigadores en la base de datos')
+      console.log('No hay investigadores activos en la base de datos')
       
-      // Retornar datos de ejemplo cuando no hay datos reales
-      const camposEjemplo = [
-        {
-          id: 1,
-          nombre: "Ciencias de la Computación",
-          descripcion: "Área de investigación con datos de ejemplo",
-          investigadores: 0,
-          proyectos: 0,
-          publicaciones: 0,
-          instituciones: 0,
-          crecimiento: 0,
-          tendencia: "down" as const,
-          subcampos: ["Inteligencia Artificial", "Machine Learning"],
-          color: "bg-blue-100 text-blue-800",
-          slug: "ciencias-computacion",
-          instituciones_lista: "",
-          dias_promedio_registro: 0
-        },
-        {
-          id: 2,
-          nombre: "Ingeniería",
-          descripcion: "Área de investigación con datos de ejemplo",
-          investigadores: 0,
-          proyectos: 0,
-          publicaciones: 0,
-          instituciones: 0,
-          crecimiento: 0,
-          tendencia: "down" as const,
-          subcampos: ["Ingeniería Civil", "Ingeniería Industrial"],
-          color: "bg-green-100 text-green-800",
-          slug: "ingenieria",
-          instituciones_lista: "",
-          dias_promedio_registro: 0
-        }
-      ]
-      
+      // Retornar arrays vacíos cuando no hay datos reales
       return NextResponse.json({
-        campos: camposEjemplo,
+        campos: [],
         estadisticas: {
-          totalCampos: 2,
+          totalCampos: 0,
           totalInvestigadores: 0,
           totalProyectos: 0,
           totalPublicaciones: 0
@@ -117,7 +82,7 @@ export async function GET(request: NextRequest) {
           orden: 'investigadores',
           direccion: 'desc'
         },
-        mensaje: "No hay investigadores registrados en la base de datos. Mostrando campos de ejemplo."
+        mensaje: "No hay investigadores activos registrados en la base de datos."
       })
     }
     
@@ -174,33 +139,14 @@ export async function GET(request: NextRequest) {
     }
     
     if (!areas || areas.length === 0) {
-      console.log('No se encontraron áreas, usando datos de ejemplo')
+      console.log('No se encontraron áreas, retornando datos vacíos')
       
-      // Si no hay áreas específicas, crear una área general
-      const camposGenerales = [
-        {
-          id: 1,
-          nombre: "Investigación General",
-          descripcion: `Área general con ${totalInvestigadores} investigadores registrados`,
-          investigadores: totalInvestigadores,
-          proyectos: 0,
-          publicaciones: 0,
-          instituciones: 1,
-          crecimiento: Math.min(100, Math.round(totalInvestigadores * 5)),
-          tendencia: "up" as const,
-          subcampos: ["Investigación", "Desarrollo"],
-          color: "bg-blue-100 text-blue-800",
-          slug: "investigacion-general",
-          instituciones_lista: "",
-          dias_promedio_registro: 0
-        }
-      ]
-      
+      // Si no hay áreas, devolver arrays vacíos
       return NextResponse.json({
-        campos: camposGenerales,
+        campos: [],
         estadisticas: {
-          totalCampos: 1,
-          totalInvestigadores,
+          totalCampos: 0,
+          totalInvestigadores: totalInvestigadores,
           totalProyectos: 0,
           totalPublicaciones: 0
         },
@@ -226,7 +172,7 @@ export async function GET(request: NextRequest) {
           orden: 'investigadores',
           direccion: 'desc'
         },
-        mensaje: "Se encontraron investigadores pero sin áreas específicas definidas."
+        mensaje: "No se encontraron áreas de investigación definidas."
       })
     }
     
