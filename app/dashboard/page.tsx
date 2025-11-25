@@ -40,7 +40,9 @@ import {
   Trash2,
   Download,
   ExternalLink,
-  ChevronDown
+  ChevronDown,
+  EyeOff,
+  RefreshCw
 } from "lucide-react"
 
 import {
@@ -73,6 +75,7 @@ export default function DashboardPage() {
   const [gestionarCvDialogOpen, setGestionarCvDialogOpen] = useState(false);
   const [sugerencias, setSugerencias] = useState<any>(null);
   const [isDesactivando, setIsDesactivando] = useState(false);
+  const [isActivando, setIsActivando] = useState(false);
   const [areasInput, setAreasInput] = useState("");
   const [isFixingCvUrl, setIsFixingCvUrl] = useState(false);
   const [tipoDocumento, setTipoDocumento] = useState<'PU' | 'Dictamen' | 'SNI'>('PU');
