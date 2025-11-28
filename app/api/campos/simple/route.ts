@@ -11,13 +11,12 @@ export async function GET(request: NextRequest) {
     // Query muy simple para obtener áreas básicas
     const areasQuery = `
       SELECT 
-        COALESCE(area, area_investigacion, 'Sin especificar') as nombre,
+        COALESCE(area_investigacion, 'Sin especificar') as nombre,
         COUNT(DISTINCT id) as investigadores,
         COUNT(DISTINCT institucion) as instituciones
       FROM investigadores 
-      WHERE (area IS NOT NULL AND area != '') 
-         OR (area_investigacion IS NOT NULL AND area_investigacion != '')
-      GROUP BY COALESCE(area, area_investigacion, 'Sin especificar')
+      WHERE area_investigacion IS NOT NULL AND area_investigacion != ''
+      GROUP BY COALESCE(area_investigacion, 'Sin especificar')
       ORDER BY investigadores DESC
     `
     

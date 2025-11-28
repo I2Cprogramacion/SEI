@@ -8,8 +8,11 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  let slug: string = ''
+  
   try {
-    const { slug } = await params
+    const paramsData = await params
+    slug = paramsData.slug
     
     if (!slug) {
       return NextResponse.json(
@@ -33,8 +36,8 @@ export async function GET(
     // Intentar buscar con coincidencia parcial para mayor flexibilidad
     const campoQuery = `
       SELECT 
-        COALESCE(area, area_investigacion, 'Sin especificar') as nombre,
-        COALESCE(area, area_investigacion, 'Sin especificar') as area,
+        COALESCE(area_investigacion, 'Sin especificar') as nombre,
+        COALESCE(area_investigacion, 'Sin especificar') as area,
         COUNT(DISTINCT id) as investigadores,
         COUNT(DISTINCT CASE WHEN proyectos_investigacion IS NOT NULL AND proyectos_investigacion != '' THEN id END) as proyectos,
         COUNT(DISTINCT CASE WHEN articulos IS NOT NULL AND articulos != '' THEN id END) as publicaciones,
@@ -46,13 +49,14 @@ export async function GET(
         END) as dias_promedio_registro,
         STRING_AGG(DISTINCT institucion, ', ') as instituciones_lista
       FROM investigadores 
-      WHERE LOWER(COALESCE(area, area_investigacion, 'Sin especificar')) LIKE LOWER($1)
-      GROUP BY COALESCE(area, area_investigacion, 'Sin especificar')
+      WHERE LOWER(COALESCE(area_investigacion, 'Sin especificar')) LIKE LOWER($1)
+      GROUP BY COALESCE(area_investigacion, 'Sin especificar')
       LIMIT 1
     `
     
     // Intentar primero con coincidencia exacta, luego con LIKE
     let campoResult = await db.query(campoQuery, [nombreCampo])
+    console.log(`🔍 Búsqueda inicial con "${nombreCampo}": ${campoResult.length} resultados`)
     
     // Si no encuentra con el nombre generado, intentar con búsqueda parcial
     if (campoResult.length === 0) {
@@ -77,41 +81,65 @@ export async function GET(
     console.log(`Campo encontrado: ${nombreCampoReal}`)
     
     // Obtener subcampos/especialidades y líneas de investigación
-    const subcamposQuery = `
-      SELECT 
-        STRING_AGG(DISTINCT especialidad, ', ') as especialidades,
-        STRING_AGG(DISTINCT disciplina, ', ') as disciplinas,
-        STRING_AGG(DISTINCT linea_investigacion, ', ') as lineas_investigacion
-      FROM investigadores 
-      WHERE LOWER(COALESCE(area, area_investigacion, 'Sin especificar')) = LOWER($1)
-        AND (
-          (especialidad IS NOT NULL AND especialidad != '') OR
-          (disciplina IS NOT NULL AND disciplina != '') OR
-          (linea_investigacion IS NOT NULL AND linea_investigacion != '')
-        )
-    `
+    let subcampos: { especialidades: string | null, disciplinas: string | null, lineas_investigacion: string | null } = { 
+      especialidades: null, 
+      disciplinas: null, 
+      lineas_investigacion: null 
+    }
     
-    const subcamposResult = await db.query(subcamposQuery, [nombreCampoReal])
-    const subcampos = subcamposResult[0] || { especialidades: null, disciplinas: null, lineas_investigacion: null }
+    try {
+      const subcamposQuery = `
+        SELECT 
+          STRING_AGG(DISTINCT especialidad, ', ') as especialidades,
+          STRING_AGG(DISTINCT disciplina, ', ') as disciplinas,
+          STRING_AGG(DISTINCT linea_investigacion, ', ') as lineas_investigacion
+        FROM investigadores 
+        WHERE LOWER(COALESCE(area_investigacion, 'Sin especificar')) = LOWER($1)
+          AND (
+            (especialidad IS NOT NULL AND especialidad != '') OR
+            (disciplina IS NOT NULL AND disciplina != '') OR
+            (linea_investigacion IS NOT NULL AND linea_investigacion != '')
+          )
+      `
+      
+      const subcamposResult = await db.query(subcamposQuery, [nombreCampoReal])
+      subcampos = subcamposResult[0] || subcampos
+      console.log(`✅ Subcampos obtenidos para ${nombreCampoReal}:`, {
+        especialidades: subcampos.especialidades?.length || 0,
+        disciplinas: subcampos.disciplinas?.length || 0,
+        lineas: subcampos.lineas_investigacion?.length || 0
+      })
+    } catch (subcamposError) {
+      console.error(`❌ Error al obtener subcampos:`, subcamposError)
+      // Continuar sin subcampos en lugar de fallar completamente
+    }
     
     // Obtener lista de investigadores en este campo
-    const investigadoresQuery = `
-      SELECT 
-        id,
-        nombre_completo as nombre,
-        correo as email,
-        institucion,
-        linea_investigacion,
-        fotografia_url,
-        ultimo_grado_estudios,
-        slug
-      FROM investigadores 
-      WHERE LOWER(COALESCE(area, area_investigacion, 'Sin especificar')) = LOWER($1)
-      ORDER BY nombre_completo ASC
-      LIMIT 20
-    `
+    let investigadores: any[] = []
     
-    const investigadores = await db.query(investigadoresQuery, [nombreCampoReal])
+    try {
+      const investigadoresQuery = `
+        SELECT 
+          id,
+          nombre_completo as nombre,
+          correo as email,
+          institucion,
+          linea_investigacion,
+          fotografia_url,
+          ultimo_grado_estudios,
+          slug
+        FROM investigadores 
+        WHERE LOWER(COALESCE(area_investigacion, 'Sin especificar')) = LOWER($1)
+        ORDER BY nombre_completo ASC
+        LIMIT 20
+      `
+      
+      investigadores = await db.query(investigadoresQuery, [nombreCampoReal])
+      console.log(`✅ ${investigadores.length} investigadores encontrados en ${nombreCampoReal}`)
+    } catch (invError) {
+      console.error(`❌ Error al obtener investigadores:`, invError)
+      // Continuar con array vacío
+    }
     
     // Obtener proyectos relacionados con este campo
     const proyectosQuery = `
@@ -207,7 +235,7 @@ export async function GET(
         i.activo
       FROM instituciones i
       INNER JOIN investigadores inv ON LOWER(TRIM(inv.institucion)) = LOWER(TRIM(i.nombre))
-      WHERE LOWER(COALESCE(inv.area, inv.area_investigacion, 'Sin especificar')) = LOWER($1)
+      WHERE LOWER(COALESCE(inv.area_investigacion, 'Sin especificar')) = LOWER($1)
         AND i.activo = true
       ORDER BY i.nombre ASC
       LIMIT 10
@@ -311,18 +339,21 @@ export async function GET(
     return NextResponse.json(campoFormateado)
     
   } catch (error) {
-    console.error("Error detallado al obtener campo de investigación:", {
-      error,
-      message: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined
-    })
+    console.error("❌ [CAMPOS] Error detallado al obtener campo de investigación:")
+    console.error("   Slug recibido:", slug)
+    console.error("   Error tipo:", error instanceof Error ? error.constructor.name : typeof error)
+    console.error("   Mensaje:", error instanceof Error ? error.message : String(error))
+    console.error("   Stack:", error instanceof Error ? error.stack : 'No stack trace')
+    
     return NextResponse.json(
       { 
         error: "Error al cargar el campo de investigación", 
         details: error instanceof Error ? error.message : String(error),
+        slug: slug,
         timestamp: new Date().toISOString()
       },
       { status: 500 }
     )
   }
 }
+
