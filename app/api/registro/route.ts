@@ -114,13 +114,23 @@ export async function POST(request: NextRequest) {
     // ✅ SOLUCIÓN TEMPORAL: Guardar directo en investigadores
     // TODO: Volver a usar registros_pendientes cuando la tabla esté lista
     console.log("🔵 [REGISTRO] Guardando directamente en investigadores...")
+    console.log("🔍 [REGISTRO] Datos a guardar:", {
+      clerk_user_id: data.clerk_user_id,
+      correo: data.correo,
+      nombre_completo: data.nombre_completo,
+      cv_url: data.cv_url || 'No definido',
+      totalCampos: Object.keys(data).length
+    })
     
     try {
       const { guardarInvestigador } = await import("@/lib/db")
+      console.log("✅ [REGISTRO] Función guardarInvestigador importada correctamente")
+      
       const resultado = await guardarInvestigador(data)
+      console.log("📊 [REGISTRO] Resultado de guardarInvestigador:", resultado)
       
       if (resultado.success) {
-        console.log("✅ [REGISTRO] Guardado exitosamente")
+        console.log("✅ [REGISTRO] Guardado exitosamente en PostgreSQL")
         console.log("   ID:", resultado.id)
         console.log("   Clerk User ID:", data.clerk_user_id)
         console.log("   Correo:", data.correo)
@@ -132,15 +142,22 @@ export async function POST(request: NextRequest) {
         })
       } else {
         console.error("❌ [REGISTRO] Error al guardar:", resultado.message)
+        console.error("❌ [REGISTRO] Detalles:", resultado)
         return NextResponse.json({
           success: false,
-          message: resultado.message,
+          message: resultado.message || 'Error al guardar en la base de datos',
+          details: resultado
         }, { status: 409 })
       }
     } catch (dbError) {
-      console.error("❌ [REGISTRO] Error crítico:", dbError)
+      console.error("❌ [REGISTRO] Error crítico en guardarInvestigador:")
+      console.error("   Tipo:", dbError instanceof Error ? dbError.constructor.name : typeof dbError)
+      console.error("   Mensaje:", dbError instanceof Error ? dbError.message : String(dbError))
+      console.error("   Stack:", dbError instanceof Error ? dbError.stack : 'No stack trace')
+      
       return NextResponse.json({
-        error: `Error al guardar: ${dbError instanceof Error ? dbError.message : "Error desconocido"}`,
+        error: `Error crítico al guardar en PostgreSQL: ${dbError instanceof Error ? dbError.message : "Error desconocido"}`,
+        type: dbError instanceof Error ? dbError.constructor.name : typeof dbError
       }, { status: 500 })
     }
   } catch (error) {

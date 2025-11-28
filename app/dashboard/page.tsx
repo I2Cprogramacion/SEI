@@ -214,14 +214,28 @@ export default function DashboardPage() {
   const getValidCvUrl = (url: string | undefined | null): string | null => {
     if (!url || url.trim() === '') return null;
     
-    // Si es una URL completa válida (Cloudinary, Vercel Blob, etc.)
+    // Solo aceptar URLs externas válidas de servicios de almacenamiento
     if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
+      // Verificar que sea de un servicio conocido (Cloudinary, Vercel Blob, etc.)
+      const isValidExternalUrl = 
+        url.includes('cloudinary.com') || 
+        url.includes('blob.vercel-storage.com') ||
+        url.includes('public.blob.vercel-storage.com') ||
+        url.includes('s3.amazonaws.com') ||
+        url.includes('googleapis.com');
+      
+      if (isValidExternalUrl) {
+        return url;
+      } else {
+        console.warn('⚠️ URL externa no reconocida (posible loop):', url);
+        return null;
+      }
     }
     
-    // Si es una ruta local que empieza con /uploads/
+    // NO ACEPTAR rutas locales /uploads/ ya que pueden causar loops recursivos
     if (url.startsWith('/uploads/')) {
-      return url;
+      console.warn('⚠️ URL local detectada - estas pueden causar loops recursivos. Use servicios externos.');
+      return null;
     }
     
     // Si no cumple ninguno de los criterios anteriores, es inválida
@@ -981,8 +995,16 @@ export default function DashboardPage() {
                     <FileText className="h-12 w-12 text-blue-400 mx-auto mb-3" />
                     <p className="text-blue-700 font-medium mb-2">Perfil Único no disponible</p>
                     <p className="text-sm text-blue-600 mb-4">
-                      Tu Perfil Único debería haberse guardado automáticamente durante el registro.
+                      {investigadorData?.cv_url && !validCvUrl 
+                        ? 'La URL de tu archivo no es válida. Por favor, sube tu PDF nuevamente usando un servicio de almacenamiento externo.'
+                        : 'Tu Perfil Único debería haberse guardado automáticamente durante el registro.'
+                      }
                     </p>
+                    {investigadorData?.cv_url && !validCvUrl && (
+                      <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded mt-2">
+                        ⚠️ Las rutas locales (/uploads/) no son soportadas. Usa el botón de abajo para subir tu archivo a Vercel Blob.
+                      </p>
+                    )}
                   </div>
                   <UploadCv
                     value={investigadorData?.cv_url || ""}
