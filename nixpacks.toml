@@ -1,0 +1,15 @@
+# Configuración de Nixpacks para Railway
+# Este archivo le indica a Railway cómo construir el proyecto
+
+[phases.setup]
+nixPkgs = ["nodejs_18", "pnpm"]
+
+[phases.install]
+cmds = ["pnpm install --frozen-lockfile"]
+
+[phases.build]
+cmds = ["pnpm build"]
+
+[start]
+cmd = "pnpm start"
+
