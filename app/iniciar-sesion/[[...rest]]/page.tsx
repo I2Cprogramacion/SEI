@@ -82,7 +82,8 @@ export default function IniciarSesionPage() {
             routing="path"
             path="/iniciar-sesion"
             signUpUrl="/registro"
-            fallbackRedirectUrl="/dashboard"
+            fallbackRedirectUrl="/admin"
+            forceRedirectUrl={undefined}
           />
         </div>
         <div className="mt-6 text-center w-full">
