@@ -14,7 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { UploadFotografia } from "@/components/upload-fotografia"
 import { TagsInput } from "@/components/ui/tags-input"
 import { AreaSNIISelector } from "@/components/area-snii-selector"
-import { NivelSNISelector } from "@/components/nivel-sni-selector"
+import { RequisitosNivelInvestigador } from "@/components/requisitos-nivel-investigador"
 import {
   Info,
   AlertCircle,
@@ -302,7 +302,7 @@ const initialFormData: FormData = {
   empleo_actual: "",
   linea_investigacion: [],
   area_investigacion: "",
-  nivel_sni: "",
+  nivel_sni: "", // Se mantiene pero ya no es requerido, se determinará automáticamente
   nacionalidad: "Mexicana",
   fecha_nacimiento: "",
   genero: "",
@@ -770,7 +770,6 @@ export default function RegistroPage() {
     { field: "empleo_actual", label: "Empleo Actual" },
     { field: "linea_investigacion", label: "Línea de Investigación" },
     { field: "area_investigacion", label: "Área de Investigación" },
-    { field: "nivel_sni", label: "Nivel SNI" },
     { field: "nacionalidad", label: "Nacionalidad" },
     { field: "fecha_nacimiento", label: "Fecha de Nacimiento" },
     { field: "genero", label: "Género" },
@@ -2074,13 +2073,11 @@ export default function RegistroPage() {
                       />
                     </div>
 
-                    {/* Nivel SNI */}
+                    {/* Requisitos del Nivel de Investigador */}
                     <div className="space-y-2">
-                      <NivelSNISelector
-                        value={formData.nivel_sni}
-                        onChange={(value: string) => setFormData(prev => ({ ...prev, nivel_sni: value }))}
-                        areaSNII={formData.area_investigacion}
-                        error={!formData.nivel_sni && ocrCompleted}
+                      <RequisitosNivelInvestigador
+                        nivelInvestigador={formData.nivel_investigador}
+                        areaInvestigacion={formData.area_investigacion}
                       />
                     </div>
 
