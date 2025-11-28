@@ -1969,39 +1969,49 @@ export default function RegistroPage() {
                       <div className="space-y-2">
                         <Label htmlFor="curp" className="text-blue-900 font-medium flex items-center gap-2">
                           <CreditCard className="h-4 w-4" />
-                          CURP *
+                          CURP * <span className="text-xs text-gray-500">(18 caracteres)</span>
                         </Label>
                         <Input
                           id="curp"
                           name="curp"
                           value={formData.curp}
                           onChange={handleChange}
-                          placeholder="CURP"
+                          placeholder="CURP (18 caracteres)"
+                          maxLength={18}
+                          minLength={18}
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.curp.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
                           disabled={false}
                         />
+                        {formData.curp && formData.curp.length < 18 && formData.curp.length > 0 && (
+                          <p className="text-xs text-amber-600">La CURP debe tener exactamente 18 caracteres</p>
+                        )}
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="rfc" className="text-blue-900 font-medium flex items-center gap-2">
                           <CreditCard className="h-4 w-4" />
-                          RFC *
+                          RFC * <span className="text-xs text-gray-500">(12-13 caracteres)</span>
                         </Label>
                         <Input
                           id="rfc"
                           name="rfc"
                           value={formData.rfc}
                           onChange={handleChange}
-                          placeholder="RFC"
+                          placeholder="RFC (12 o 13 caracteres)"
+                          maxLength={13}
+                          minLength={12}
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.rfc.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
                           required
                           disabled={false}
                         />
+                        {formData.rfc && (formData.rfc.length < 12 || formData.rfc.length > 13) && formData.rfc.length > 0 && (
+                          <p className="text-xs text-amber-600">El RFC debe tener 12 o 13 caracteres</p>
+                        )}
                       </div>
                     </div>
                   </div>

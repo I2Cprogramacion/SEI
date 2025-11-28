@@ -155,8 +155,21 @@ export async function POST(request: NextRequest) {
       console.error("   Mensaje:", dbError instanceof Error ? dbError.message : String(dbError))
       console.error("   Stack:", dbError instanceof Error ? dbError.stack : 'No stack trace')
       
+      // Detectar errores específicos y dar mensajes útiles
+      let mensajeUsuario = "Error al guardar en la base de datos"
+      const mensajeError = dbError instanceof Error ? dbError.message : String(dbError)
+      
+      if (mensajeError.includes('value too long for type character varying(13)')) {
+        mensajeUsuario = "El RFC debe tener máximo 13 caracteres. Por favor, verifica que tu RFC sea correcto."
+      } else if (mensajeError.includes('value too long for type character varying(18)')) {
+        mensajeUsuario = "La CURP debe tener exactamente 18 caracteres. Por favor, verifica que tu CURP sea correcta."
+      } else if (mensajeError.includes('duplicate key')) {
+        mensajeUsuario = "Ya existe un registro con estos datos (CURP, RFC o correo duplicado)."
+      }
+      
       return NextResponse.json({
-        error: `Error crítico al guardar en PostgreSQL: ${dbError instanceof Error ? dbError.message : "Error desconocido"}`,
+        error: mensajeUsuario,
+        errorTecnico: mensajeError,
         type: dbError instanceof Error ? dbError.constructor.name : typeof dbError
       }, { status: 500 })
     }
