@@ -378,7 +378,7 @@ export const AREAS_SNII: Record<string, AreaSNII> = {
       docencia: { q1: 37, q2: 65, q3: 104 },
       formacionComunidad: { q1: 66, q2: 102, q3: 153 },
       accesoUniversal: { q1: 66, q2: 100, q3: 151 },
-      consideraciones: "SNII II - Área VII: 29 artículos (Q2). Incremento notable en producción científica y formación.",
+      consideraciones: "SNII II - Área VII: 29 artículos (Q2), 2 capítulos (Q2). Incremento notable en producción científica y formación.",
     },
     nivel3: {
       articulos: { q1: 28, q2: 51, q3: 84 },
@@ -390,7 +390,7 @@ export const AREAS_SNII: Record<string, AreaSNII> = {
       docencia: { q1: 55, q2: 80, q3: 122 },
       formacionComunidad: { q1: 101, q2: 144, q3: 187 },
       accesoUniversal: { q1: 106, q2: 150, q3: 242 },
-      consideraciones: "SNII III - Área VII: Alto perfil con 51 artículos (Q2). Liderazgo consolidado en investigación y formación.",
+      consideraciones: "SNII III - Área VII: Alto perfil con 51 artículos (Q2), 3 capítulos (Q2), 1 libro (Q3). Liderazgo consolidado en investigación y formación.",
     },
   },
   area8: {

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   Info, 
   BookOpen, 
@@ -11,7 +12,12 @@ import {
   Users, 
   Award,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Lightbulb,
+  GraduationCap,
+  Repeat,
+  FileCheck,
+  Globe
 } from "lucide-react"
 import { getParametrosSNII, mapearNivelAId, mapearAreaAId } from "@/lib/snii-parametros"
 
@@ -87,6 +93,66 @@ export function RequisitosNivelInvestigador({
     )
   }
 
+  // Función auxiliar para renderizar un indicador individual
+  const renderIndicador = (
+    titulo: string,
+    icono: React.ReactNode,
+    valores: { q1: number; q2: number; q3: number }
+  ) => {
+    const tieneValores = valores.q1 > 0 || valores.q2 > 0 || valores.q3 > 0
+    
+    return (
+      <Card className={`bg-white border hover:shadow-md transition-shadow ${
+        tieneValores ? 'border-gray-200' : 'border-gray-100 opacity-60'
+      }`}>
+        <CardContent className="p-4 h-full flex flex-col">
+          <div className="flex items-center gap-2 mb-3">
+            <div className={tieneValores ? 'text-blue-600' : 'text-gray-400'}>
+              {icono}
+            </div>
+            <h5 className={`text-sm font-semibold ${
+              tieneValores ? 'text-gray-900' : 'text-gray-500'
+            }`}>
+              {titulo}
+            </h5>
+          </div>
+          
+          <div className="space-y-2 flex-1">
+            {/* Q1 - Mínimo */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-600">Q1 (Mín 25%)</span>
+              <Badge variant="outline" className={`${
+                valores.q1 > 0 ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-500 border-gray-200'
+              }`}>
+                {valores.q1}
+              </Badge>
+            </div>
+            
+            {/* Q2 - Mediana */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-600 font-medium">Q2 (Mediana)</span>
+              <Badge className={`${
+                valores.q2 > 0 ? 'bg-blue-100 text-blue-800 border-blue-300' : 'bg-gray-100 text-gray-600 border-gray-200'
+              }`}>
+                {valores.q2} ⭐
+              </Badge>
+            </div>
+            
+            {/* Q3 - Alto */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-600">Q3 (Alto 75%)</span>
+              <Badge variant="outline" className={`${
+                valores.q3 > 0 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-gray-50 text-gray-500 border-gray-200'
+              }`}>
+                {valores.q3}
+              </Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 shadow-sm">
       <CardHeader className="pb-3">
@@ -98,6 +164,7 @@ export function RequisitosNivelInvestigador({
           Área: <span className="font-semibold">{areaInvestigacion}</span>
         </p>
       </CardHeader>
+      
       <CardContent className="space-y-4">
         {/* Descripción general */}
         {requisitos.consideraciones && (
@@ -109,160 +176,92 @@ export function RequisitosNivelInvestigador({
           </Alert>
         )}
 
-        {/* Requisitos de artículos */}
-        <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-blue-900 flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            Producción Científica Requerida
-          </h4>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {/* Artículos Q1 (Mínimo) */}
-            {requisitos.articulos?.q1 !== undefined && (
-              <Card className="bg-white border-green-200">
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <p className="text-xs text-gray-600">Artículos (Q1)</p>
-                      <p className="text-2xl font-bold text-green-700">
-                        {requisitos.articulos.q1}
-                      </p>
-                    </div>
-                    <Badge className="bg-green-100 text-green-800 border-green-300">
-                      Mínimo
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    Cuartil 25% - Producción mínima esperada
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+        {/* Tabs con los indicadores organizados */}
+        <Tabs defaultValue="produccion" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 bg-white">
+            <TabsTrigger value="produccion" className="text-xs">
+              <FileText className="h-4 w-4 mr-1" />
+              Producción
+            </TabsTrigger>
+            <TabsTrigger value="innovacion" className="text-xs">
+              <Lightbulb className="h-4 w-4 mr-1" />
+              Innovación
+            </TabsTrigger>
+            <TabsTrigger value="formacion" className="text-xs">
+              <GraduationCap className="h-4 w-4 mr-1" />
+              Formación
+            </TabsTrigger>
+          </TabsList>
 
-            {/* Artículos Q2 (Mediana) */}
-            {requisitos.articulos?.q2 !== undefined && (
-              <Card className="bg-white border-blue-200">
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <p className="text-xs text-gray-600">Artículos (Q2)</p>
-                      <p className="text-2xl font-bold text-blue-700">
-                        {requisitos.articulos.q2}
-                      </p>
-                    </div>
-                    <Badge className="bg-blue-100 text-blue-800 border-blue-300">
-                      Mediana
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    Cuartil 50% - Producción típica
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Artículos Q3 (Alto) */}
-            {requisitos.articulos?.q3 !== undefined && (
-              <Card className="bg-white border-amber-200">
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <p className="text-xs text-gray-600">Artículos (Q3)</p>
-                      <p className="text-2xl font-bold text-amber-700">
-                        {requisitos.articulos.q3}
-                      </p>
-                    </div>
-                    <Badge className="bg-amber-100 text-amber-800 border-amber-300">
-                      Alto
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    Cuartil 75% - Producción sobresaliente
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </div>
-
-        {/* Otros requisitos */}
-        {(requisitos.libros || requisitos.capitulos || requisitos.docencia) && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-semibold text-blue-900 flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              Otros Requisitos (Rangos Esperados)
-            </h4>
-            
-            <div className="space-y-2">
-              {requisitos.libros?.q2 !== undefined && requisitos.libros.q2 > 0 && (
-                <div className="flex items-center justify-between bg-white rounded-lg p-2 border border-gray-200">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="h-4 w-4 text-gray-600" />
-                    <span className="text-sm text-gray-700">Libros publicados</span>
-                  </div>
-                  <div className="flex gap-1">
-                    <Badge variant="outline" className="text-xs text-gray-600 border-gray-300">
-                      Mín: {requisitos.libros.q1}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs text-blue-700 border-blue-300">
-                      Mediana: {requisitos.libros.q2}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs text-green-700 border-green-300">
-                      Alto: {requisitos.libros.q3}
-                    </Badge>
-                  </div>
-                </div>
+          {/* Tab 1: Producción Académica */}
+          <TabsContent value="produccion" className="mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {renderIndicador(
+                "Artículos",
+                <FileText className="h-5 w-5" />,
+                requisitos.articulos
               )}
-
-              {requisitos.capitulos?.q2 !== undefined && requisitos.capitulos.q2 > 0 && (
-                <div className="flex items-center justify-between bg-white rounded-lg p-2 border border-gray-200">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-gray-600" />
-                    <span className="text-sm text-gray-700">Capítulos de libros</span>
-                  </div>
-                  <div className="flex gap-1">
-                    <Badge variant="outline" className="text-xs text-gray-600 border-gray-300">
-                      Mín: {requisitos.capitulos.q1}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs text-blue-700 border-blue-300">
-                      Mediana: {requisitos.capitulos.q2}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs text-green-700 border-green-300">
-                      Alto: {requisitos.capitulos.q3}
-                    </Badge>
-                  </div>
-                </div>
+              {renderIndicador(
+                "Libros",
+                <BookOpen className="h-5 w-5" />,
+                requisitos.libros
               )}
-
-              {requisitos.docencia?.q2 !== undefined && requisitos.docencia.q2 > 0 && (
-                <div className="flex items-center justify-between bg-white rounded-lg p-2 border border-gray-200">
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-gray-600" />
-                    <span className="text-sm text-gray-700">Actividades de docencia</span>
-                  </div>
-                  <div className="flex gap-1">
-                    <Badge variant="outline" className="text-xs text-gray-600 border-gray-300">
-                      Mín: {requisitos.docencia.q1}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs text-blue-700 border-blue-300">
-                      Mediana: {requisitos.docencia.q2}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs text-green-700 border-green-300">
-                      Alto: {requisitos.docencia.q3}
-                    </Badge>
-                  </div>
-                </div>
+              {renderIndicador(
+                "Capítulos",
+                <FileCheck className="h-5 w-5" />,
+                requisitos.capitulos
               )}
             </div>
-          </div>
-        )}
+          </TabsContent>
+
+          {/* Tab 2: Innovación */}
+          <TabsContent value="innovacion" className="mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {renderIndicador(
+                "Desarrollo Tecnológico",
+                <Lightbulb className="h-5 w-5" />,
+                requisitos.desarrolloTecnologico
+              )}
+              {renderIndicador(
+                "Propiedad Intelectual",
+                <Award className="h-5 w-5" />,
+                requisitos.propiedadIntelectual
+              )}
+              {renderIndicador(
+                "Transferencia Tecnológica",
+                <Repeat className="h-5 w-5" />,
+                requisitos.transferenciaTecnologica
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Tab 3: Formación y Divulgación */}
+          <TabsContent value="formacion" className="mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {renderIndicador(
+                "Docencia",
+                <GraduationCap className="h-5 w-5" />,
+                requisitos.docencia
+              )}
+              {renderIndicador(
+                "Formación de Comunidad",
+                <Users className="h-5 w-5" />,
+                requisitos.formacionComunidad
+              )}
+              {renderIndicador(
+                "Acceso Universal",
+                <Globe className="h-5 w-5" />,
+                requisitos.accesoUniversal
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
 
         {/* Nota informativa */}
         <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
           <CheckCircle2 className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-xs text-blue-700">
-            <strong>Nota:</strong> Estos son los requisitos mínimos establecidos por el SNII para tu nivel y área.
-            Durante el proceso de evaluación se verificará que cumplas con estos criterios.
+            <strong>Nota:</strong> Q2 (Mediana) representa el valor típico. Estos son los requisitos de referencia establecidos por el SNII para tu nivel y área.
           </AlertDescription>
         </Alert>
       </CardContent>
