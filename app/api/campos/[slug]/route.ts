@@ -21,12 +21,16 @@ export async function GET(
     const db = await getDatabase()
     
     // Buscar el campo por slug (convertir slug a nombre)
-    const nombreCampo = slug
+    // Primero intentamos buscar el campo usando el slug directamente como patrón
+    let nombreCampo = slug
       .split('-')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
     
+    console.log(`Buscando campo con slug: ${slug}, nombre generado: ${nombreCampo}`)
+    
     // Obtener estadísticas del campo específico
+    // Intentar buscar con coincidencia parcial para mayor flexibilidad
     const campoQuery = `
       SELECT 
         COALESCE(area, area_investigacion, 'Sin especificar') as nombre,
@@ -42,13 +46,24 @@ export async function GET(
         END) as dias_promedio_registro,
         STRING_AGG(DISTINCT institucion, ', ') as instituciones_lista
       FROM investigadores 
-      WHERE LOWER(COALESCE(area, area_investigacion, 'Sin especificar')) = LOWER($1)
+      WHERE LOWER(COALESCE(area, area_investigacion, 'Sin especificar')) LIKE LOWER($1)
       GROUP BY COALESCE(area, area_investigacion, 'Sin especificar')
+      LIMIT 1
     `
     
-    const campoResult = await db.query(campoQuery, [nombreCampo])
+    // Intentar primero con coincidencia exacta, luego con LIKE
+    let campoResult = await db.query(campoQuery, [nombreCampo])
+    
+    // Si no encuentra con el nombre generado, intentar con búsqueda parcial
+    if (campoResult.length === 0) {
+      console.log(`No se encontró con nombre exacto, intentando con búsqueda parcial...`)
+      const searchPattern = `%${nombreCampo.split(' ').join('%')}%`
+      campoResult = await db.query(campoQuery, [searchPattern])
+      console.log(`Búsqueda con patrón ${searchPattern}, resultados: ${campoResult.length}`)
+    }
     
     if (campoResult.length === 0) {
+      console.log(`Campo no encontrado para slug: ${slug}, nombre: ${nombreCampo}`)
       return NextResponse.json(
         { error: "Campo de investigación no encontrado" },
         { status: 404 }
@@ -57,17 +72,26 @@ export async function GET(
     
     const campo = campoResult[0]
     
+    // Usar el nombre real del campo encontrado para las siguientes queries
+    const nombreCampoReal = campo.nombre
+    console.log(`Campo encontrado: ${nombreCampoReal}`)
+    
     // Obtener subcampos/especialidades y líneas de investigación
     const subcamposQuery = `
       SELECT 
-        STRING_AGG(DISTINCT especialidad, ', ') FILTER (WHERE especialidad IS NOT NULL AND especialidad != '') as especialidades,
-        STRING_AGG(DISTINCT disciplina, ', ') FILTER (WHERE disciplina IS NOT NULL AND disciplina != '') as disciplinas,
-        STRING_AGG(DISTINCT linea_investigacion, ', ') FILTER (WHERE linea_investigacion IS NOT NULL AND linea_investigacion != '') as lineas_investigacion
+        STRING_AGG(DISTINCT especialidad, ', ') as especialidades,
+        STRING_AGG(DISTINCT disciplina, ', ') as disciplinas,
+        STRING_AGG(DISTINCT linea_investigacion, ', ') as lineas_investigacion
       FROM investigadores 
       WHERE LOWER(COALESCE(area, area_investigacion, 'Sin especificar')) = LOWER($1)
+        AND (
+          (especialidad IS NOT NULL AND especialidad != '') OR
+          (disciplina IS NOT NULL AND disciplina != '') OR
+          (linea_investigacion IS NOT NULL AND linea_investigacion != '')
+        )
     `
     
-    const subcamposResult = await db.query(subcamposQuery, [nombreCampo])
+    const subcamposResult = await db.query(subcamposQuery, [nombreCampoReal])
     const subcampos = subcamposResult[0] || { especialidades: null, disciplinas: null, lineas_investigacion: null }
     
     // Obtener lista de investigadores en este campo
@@ -87,7 +111,7 @@ export async function GET(
       LIMIT 20
     `
     
-    const investigadores = await db.query(investigadoresQuery, [nombreCampo])
+    const investigadores = await db.query(investigadoresQuery, [nombreCampoReal])
     
     // Obtener proyectos relacionados con este campo
     const proyectosQuery = `
@@ -110,7 +134,7 @@ export async function GET(
       LIMIT 10
     `
     
-    const proyectos = await db.query(proyectosQuery, [nombreCampo])
+    const proyectos = await db.query(proyectosQuery, [nombreCampoReal])
     
     // Obtener publicaciones relacionadas (a través de investigadores del campo)
     const investigadoresIds = investigadores.map((inv: any) => inv.id)
@@ -189,7 +213,7 @@ export async function GET(
       LIMIT 10
     `
     
-    const instituciones = await db.query(institucionesQuery, [nombreCampo])
+    const instituciones = await db.query(institucionesQuery, [nombreCampoReal])
     
     // Procesar subcampos y líneas de investigación
     const especialidades = subcampos.especialidades ? subcampos.especialidades.split(', ').filter(Boolean) : []
@@ -205,7 +229,7 @@ export async function GET(
           ? disciplinas 
           : []
     
-    console.log(`Campo ${nombreCampo}: ${lineas.length} líneas de investigación encontradas`)
+    console.log(`Campo ${nombreCampoReal}: ${lineas.length} líneas de investigación encontradas`)
     
     // Calcular nivel de actividad
     const actividad = Math.min(100, Math.round((campo.investigadores * 2 + campo.proyectos * 3 + campo.publicaciones * 1.5) / 2))
