@@ -57,19 +57,18 @@ export async function GET(
     
     const campo = campoResult[0]
     
-    // Obtener subcampos/especialidades
+    // Obtener subcampos/especialidades y líneas de investigación
     const subcamposQuery = `
       SELECT 
-        STRING_AGG(DISTINCT especialidad, ', ') as especialidades,
-        STRING_AGG(DISTINCT disciplina, ', ') as disciplinas,
-        STRING_AGG(DISTINCT linea_investigacion, ', ') as lineas_investigacion
+        STRING_AGG(DISTINCT especialidad, ', ') FILTER (WHERE especialidad IS NOT NULL AND especialidad != '') as especialidades,
+        STRING_AGG(DISTINCT disciplina, ', ') FILTER (WHERE disciplina IS NOT NULL AND disciplina != '') as disciplinas,
+        STRING_AGG(DISTINCT linea_investigacion, ', ') FILTER (WHERE linea_investigacion IS NOT NULL AND linea_investigacion != '') as lineas_investigacion
       FROM investigadores 
       WHERE LOWER(COALESCE(area, area_investigacion, 'Sin especificar')) = LOWER($1)
-        AND (especialidad IS NOT NULL AND especialidad != '')
     `
     
     const subcamposResult = await db.query(subcamposQuery, [nombreCampo])
-    const subcampos = subcamposResult[0] || { especialidades: '', disciplinas: '', lineas_investigacion: '' }
+    const subcampos = subcamposResult[0] || { especialidades: null, disciplinas: null, lineas_investigacion: null }
     
     // Obtener lista de investigadores en este campo
     const investigadoresQuery = `
@@ -192,16 +191,21 @@ export async function GET(
     
     const instituciones = await db.query(institucionesQuery, [nombreCampo])
     
-    // Procesar subcampos
+    // Procesar subcampos y líneas de investigación
     const especialidades = subcampos.especialidades ? subcampos.especialidades.split(', ').filter(Boolean) : []
     const disciplinas = subcampos.disciplinas ? subcampos.disciplinas.split(', ').filter(Boolean) : []
     const lineas = subcampos.lineas_investigacion ? subcampos.lineas_investigacion.split(', ').filter(Boolean) : []
     
-    const subcamposLista = especialidades.length > 0 
-      ? especialidades 
-      : disciplinas.length > 0 
-        ? disciplinas 
-        : lineas.slice(0, 4)
+    // Priorizar líneas de investigación, luego especialidades, luego disciplinas
+    const subcamposLista = lineas.length > 0 
+      ? lineas.slice(0, 8)  // Mostrar hasta 8 líneas de investigación
+      : especialidades.length > 0 
+        ? especialidades 
+        : disciplinas.length > 0 
+          ? disciplinas 
+          : []
+    
+    console.log(`Campo ${nombreCampo}: ${lineas.length} líneas de investigación encontradas`)
     
     // Calcular nivel de actividad
     const actividad = Math.min(100, Math.round((campo.investigadores * 2 + campo.proyectos * 3 + campo.publicaciones * 1.5) / 2))
@@ -217,7 +221,7 @@ export async function GET(
       'bg-pink-100 text-pink-800',
       'bg-lime-100 text-lime-800'
     ]
-    const colorIndex = Math.abs(campo.nombre.split('').reduce((a, b) => a + b.charCodeAt(0), 0)) % colores.length
+    const colorIndex = Math.abs(campo.nombre.split('').reduce((a: number, b: string) => a + b.charCodeAt(0), 0)) % colores.length
     
     const campoFormateado = {
       nombre: campo.nombre,
@@ -229,6 +233,9 @@ export async function GET(
       crecimiento: actividad,
       tendencia: actividad > 70 ? "up" : actividad > 40 ? "stable" : "down",
       subcampos: subcamposLista,
+      lineas_investigacion: lineas, // Todas las líneas de investigación
+      especialidades: especialidades,
+      disciplinas: disciplinas,
       color: colores[colorIndex],
       slug: slug,
       instituciones_lista: campo.instituciones_lista,
@@ -280,9 +287,17 @@ export async function GET(
     return NextResponse.json(campoFormateado)
     
   } catch (error) {
-    console.error("Error al obtener campo de investigación:", error)
+    console.error("Error detallado al obtener campo de investigación:", {
+      error,
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    })
     return NextResponse.json(
-      { error: "Error interno del servidor", details: error instanceof Error ? error.message : String(error) },
+      { 
+        error: "Error al cargar el campo de investigación", 
+        details: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     )
   }
