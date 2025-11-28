@@ -550,3 +550,38 @@ export function calcularPorcentajeCumplimiento(valor: number, q2: number): numbe
   return Math.round((valor / q2) * 100)
 }
 
+/**
+ * Mapea el nombre del nivel de investigador estatal al ID usado en AREAS_SNII
+ */
+export function mapearNivelAId(nivelNombre: string): string | null {
+  const mapeo: Record<string, string> = {
+    "Candidato a Investigador Estatal": "candidato",
+    "Investigador Estatal Nivel I": "nivel1",
+    "Investigador Estatal Nivel II": "nivel2",
+    "Investigador Estatal Nivel III": "nivel3",
+    "Investigador Excepcional": "nivel3", // Se mapea al nivel más alto disponible
+    "Investigador Insigne": "nivel3", // Se mapea al nivel más alto disponible
+  }
+  
+  return mapeo[nivelNombre] || null
+}
+
+/**
+ * Mapea el nombre del área de investigación al ID usado en AREAS_SNII
+ */
+export function mapearAreaAId(areaNombre: string): string | null {
+  const mapeo: Record<string, string> = {
+    "I. Físico Matemáticas y Ciencias de la Tierra": "area1",
+    "II. Biología y Química": "area2",
+    "III. Medicina y Ciencias de la Salud": "area3",
+    "IV. Ciencias de la Conducta y la Educación": "area4",
+    "V. Humanidades": "area5",
+    "VI. Ciencias Sociales": "area6",
+    "VII. Ciencias de la Agricultura, Agropecuarias, Forestales y de Ecosistemas": "area7",
+    "VIII. Ingenierías y Desarrollo Tecnológico": "area8",
+    "IX. Multidisciplinaria": "area9",
+  }
+  
+  return mapeo[areaNombre] || null
+}
+

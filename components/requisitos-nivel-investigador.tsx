@@ -13,7 +13,7 @@ import {
   CheckCircle2,
   AlertCircle
 } from "lucide-react"
-import { getParametrosSNII, mapearNivelAId } from "@/lib/snii-parametros"
+import { getParametrosSNII, mapearNivelAId, mapearAreaAId } from "@/lib/snii-parametros"
 
 interface RequisitosNivelInvestigadorProps {
   nivelInvestigador: string
@@ -39,9 +39,17 @@ export function RequisitosNivelInvestigador({
     const nivelId = mapearNivelAId(nivelInvestigador)
     
     if (nivelId && areaInvestigacion) {
-      const params = getParametrosSNII(areaInvestigacion, nivelId)
-      setRequisitos(params)
-      setNivelSNII(nivelInvestigador)
+      // Mapear el área al ID correspondiente
+      const areaId = mapearAreaAId(areaInvestigacion)
+      
+      if (areaId) {
+        const params = getParametrosSNII(areaId, nivelId)
+        setRequisitos(params)
+        setNivelSNII(nivelInvestigador)
+      } else {
+        setRequisitos(null)
+        setNivelSNII("")
+      }
     } else {
       setRequisitos(null)
       setNivelSNII("")
@@ -92,11 +100,11 @@ export function RequisitosNivelInvestigador({
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Descripción general */}
-        {requisitos.descripcion && (
+        {requisitos.consideraciones && (
           <Alert className="bg-white border-blue-200">
             <Info className="h-4 w-4 text-blue-600" />
             <AlertDescription className="text-sm text-gray-700">
-              {requisitos.descripcion}
+              {requisitos.consideraciones}
             </AlertDescription>
           </Alert>
         )}
@@ -109,67 +117,67 @@ export function RequisitosNivelInvestigador({
           </h4>
           
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {/* Artículos Q1 */}
-            {requisitos.articulos_q1 !== undefined && (
+            {/* Artículos Q1 (Mínimo) */}
+            {requisitos.articulos?.q1 !== undefined && (
               <Card className="bg-white border-green-200">
                 <CardContent className="p-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-2">
                     <div>
-                      <p className="text-xs text-gray-600">Artículos Q1</p>
+                      <p className="text-xs text-gray-600">Artículos (Q1)</p>
                       <p className="text-2xl font-bold text-green-700">
-                        {requisitos.articulos_q1}
+                        {requisitos.articulos.q1}
                       </p>
                     </div>
                     <Badge className="bg-green-100 text-green-800 border-green-300">
-                      Alto Impacto
+                      Mínimo
                     </Badge>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Publicaciones en revistas del primer cuartil
+                  <p className="text-xs text-gray-500">
+                    Cuartil 25% - Producción mínima esperada
                   </p>
                 </CardContent>
               </Card>
             )}
 
-            {/* Artículos Q2 */}
-            {requisitos.articulos_q2 !== undefined && (
+            {/* Artículos Q2 (Mediana) */}
+            {requisitos.articulos?.q2 !== undefined && (
               <Card className="bg-white border-blue-200">
                 <CardContent className="p-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-2">
                     <div>
-                      <p className="text-xs text-gray-600">Artículos Q2</p>
+                      <p className="text-xs text-gray-600">Artículos (Q2)</p>
                       <p className="text-2xl font-bold text-blue-700">
-                        {requisitos.articulos_q2}
+                        {requisitos.articulos.q2}
                       </p>
                     </div>
                     <Badge className="bg-blue-100 text-blue-800 border-blue-300">
-                      Medio Alto
+                      Mediana
                     </Badge>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Publicaciones en revistas del segundo cuartil
+                  <p className="text-xs text-gray-500">
+                    Cuartil 50% - Producción típica
                   </p>
                 </CardContent>
               </Card>
             )}
 
-            {/* Artículos Q3 */}
-            {requisitos.articulos_q3 !== undefined && (
+            {/* Artículos Q3 (Alto) */}
+            {requisitos.articulos?.q3 !== undefined && (
               <Card className="bg-white border-amber-200">
                 <CardContent className="p-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-2">
                     <div>
-                      <p className="text-xs text-gray-600">Artículos Q3</p>
+                      <p className="text-xs text-gray-600">Artículos (Q3)</p>
                       <p className="text-2xl font-bold text-amber-700">
-                        {requisitos.articulos_q3}
+                        {requisitos.articulos.q3}
                       </p>
                     </div>
                     <Badge className="bg-amber-100 text-amber-800 border-amber-300">
-                      Medio
+                      Alto
                     </Badge>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Publicaciones en revistas del tercer cuartil
+                  <p className="text-xs text-gray-500">
+                    Cuartil 75% - Producción sobresaliente
                   </p>
                 </CardContent>
               </Card>
@@ -178,47 +186,71 @@ export function RequisitosNivelInvestigador({
         </div>
 
         {/* Otros requisitos */}
-        {(requisitos.libros || requisitos.capitulos || requisitos.formacion_rh) && (
+        {(requisitos.libros || requisitos.capitulos || requisitos.docencia) && (
           <div className="space-y-2">
             <h4 className="text-sm font-semibold text-blue-900 flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
-              Otros Requisitos
+              Otros Requisitos (Rangos Esperados)
             </h4>
             
             <div className="space-y-2">
-              {requisitos.libros !== undefined && requisitos.libros > 0 && (
+              {requisitos.libros?.q2 !== undefined && requisitos.libros.q2 > 0 && (
                 <div className="flex items-center justify-between bg-white rounded-lg p-2 border border-gray-200">
                   <div className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4 text-gray-600" />
                     <span className="text-sm text-gray-700">Libros publicados</span>
                   </div>
-                  <Badge variant="outline" className="text-blue-700 border-blue-300">
-                    Mínimo {requisitos.libros}
-                  </Badge>
+                  <div className="flex gap-1">
+                    <Badge variant="outline" className="text-xs text-gray-600 border-gray-300">
+                      Mín: {requisitos.libros.q1}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs text-blue-700 border-blue-300">
+                      Mediana: {requisitos.libros.q2}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs text-green-700 border-green-300">
+                      Alto: {requisitos.libros.q3}
+                    </Badge>
+                  </div>
                 </div>
               )}
 
-              {requisitos.capitulos !== undefined && requisitos.capitulos > 0 && (
+              {requisitos.capitulos?.q2 !== undefined && requisitos.capitulos.q2 > 0 && (
                 <div className="flex items-center justify-between bg-white rounded-lg p-2 border border-gray-200">
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-gray-600" />
                     <span className="text-sm text-gray-700">Capítulos de libros</span>
                   </div>
-                  <Badge variant="outline" className="text-blue-700 border-blue-300">
-                    Mínimo {requisitos.capitulos}
-                  </Badge>
+                  <div className="flex gap-1">
+                    <Badge variant="outline" className="text-xs text-gray-600 border-gray-300">
+                      Mín: {requisitos.capitulos.q1}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs text-blue-700 border-blue-300">
+                      Mediana: {requisitos.capitulos.q2}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs text-green-700 border-green-300">
+                      Alto: {requisitos.capitulos.q3}
+                    </Badge>
+                  </div>
                 </div>
               )}
 
-              {requisitos.formacion_rh !== undefined && requisitos.formacion_rh > 0 && (
+              {requisitos.docencia?.q2 !== undefined && requisitos.docencia.q2 > 0 && (
                 <div className="flex items-center justify-between bg-white rounded-lg p-2 border border-gray-200">
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-gray-600" />
-                    <span className="text-sm text-gray-700">Formación de recursos humanos</span>
+                    <span className="text-sm text-gray-700">Actividades de docencia</span>
                   </div>
-                  <Badge variant="outline" className="text-blue-700 border-blue-300">
-                    Mínimo {requisitos.formacion_rh}
-                  </Badge>
+                  <div className="flex gap-1">
+                    <Badge variant="outline" className="text-xs text-gray-600 border-gray-300">
+                      Mín: {requisitos.docencia.q1}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs text-blue-700 border-blue-300">
+                      Mediana: {requisitos.docencia.q2}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs text-green-700 border-green-300">
+                      Alto: {requisitos.docencia.q3}
+                    </Badge>
+                  </div>
                 </div>
               )}
             </div>
