@@ -56,7 +56,8 @@ export async function PUT(request: NextRequest) {
       'nacionalidad', 'fecha_nacimiento', 'genero', 'municipio', 
       'estado_nacimiento', 'entidad_federativa', 'fotografia_url',
       'institucion_id', 'institucion', 'departamento', 'ubicacion', 'sitio_web',
-      'orcid', 'nivel', 'nivel_investigador', 'nivel_actual_id', 'fecha_asignacion_nivel'
+      'orcid', 'nivel', 'nivel_investigador', 'nivel_actual_id', 'fecha_asignacion_nivel',
+      'tipo_perfil', 'nivel_sni', 'sni', 'anio_sni', 'nivel_tecnologo', 'nivel_tecnologo_id'
     ]
 
     // Construir query dinámicamente solo con los campos que se envían
@@ -74,9 +75,18 @@ export async function PUT(request: NextRequest) {
           key.includes('fecha') || 
           key.includes('_id') || 
           key === 'orcid' || 
-          key === 'nivel'
+          key === 'nivel' ||
+          key === 'anio_sni'
         )) {
           valor = null
+        }
+        
+        // Convertir anio_sni a número si viene como string
+        if (key === 'anio_sni' && valor && typeof valor === 'string') {
+          valor = parseInt(valor, 10)
+          if (isNaN(valor)) {
+            valor = null
+          }
         }
         
         camposActualizar.push(`${key} = $${paramCount}`)
