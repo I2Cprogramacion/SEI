@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter, notFound } from "next/navigation"
-import { useAuth } from "@clerk/nextjs"
+import { useUser } from "@clerk/nextjs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -86,7 +86,8 @@ interface Publicacion {
 export default function InvestigadorPage() {
   const params = useParams()
   const router = useRouter()
-  const { userId } = useAuth()
+  const { user, isLoaded } = useUser()
+  const userId = user?.id
   const slug = params?.slug as string
   const [investigador, setInvestigador] = useState<InvestigadorData | null>(null)
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([])
@@ -128,6 +129,8 @@ export default function InvestigadorPage() {
 
         // 🔒 VALIDACIÓN: Redirigir si el usuario intenta ver su propio perfil
         console.log('=== 🔍 DIAGNÓSTICO DE REDIRECCIÓN ===')
+        console.log('Clerk isLoaded:', isLoaded)
+        console.log('Clerk user:', user)
         console.log('userId actual (Clerk):', userId)
         console.log('clerk_user_id del perfil:', perfilData.clerk_user_id)
         console.log('¿Son iguales?', userId === perfilData.clerk_user_id)
@@ -141,6 +144,8 @@ export default function InvestigadorPage() {
           return
         } else {
           console.log('❌ Condición NO cumplida - Mostrando perfil público')
+          if (!userId) console.log('   Razón: userId es undefined/null (Clerk no ha cargado)')
+          if (!perfilData.clerk_user_id) console.log('   Razón: perfil no tiene clerk_user_id')
         }
 
         // Procesar linea_investigacion (puede ser string o array)

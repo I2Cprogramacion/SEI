@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useAuth } from "@clerk/nextjs"
+import { useUser } from "@clerk/nextjs"
 import { useEffect, useState, createContext, useContext } from "react"
 
 // Context para compartir el slug del usuario actual entre todos los InvestigadorLink
@@ -20,12 +20,18 @@ const PerfilContext = createContext<PerfilContextType>({
  * y lo comparte con todos los InvestigadorLink
  */
 export function PerfilProvider({ children }: { children: React.ReactNode }) {
-  const { userId } = useAuth()
+  const { user, isLoaded } = useUser()
   const [miSlug, setMiSlug] = useState<string | null>(null)
   const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
-    if (!userId) {
+    // Esperar a que Clerk termine de cargar
+    if (!isLoaded) {
+      return
+    }
+
+    // Si no hay usuario autenticado
+    if (!user) {
       setCargando(false)
       return
     }
@@ -37,17 +43,18 @@ export function PerfilProvider({ children }: { children: React.ReactNode }) {
           const result = await response.json()
           if (result.success && result.data?.slug) {
             setMiSlug(result.data.slug)
+            console.log('✅ [PerfilProvider] Mi slug cargado:', result.data.slug)
           }
         }
       } catch (error) {
-        console.error('Error cargando slug del usuario:', error)
+        console.error('❌ [PerfilProvider] Error cargando slug del usuario:', error)
       } finally {
         setCargando(false)
       }
     }
 
     cargarMiSlug()
-  }, [userId])
+  }, [user, isLoaded])
 
   return (
     <PerfilContext.Provider value={{ miSlug, cargando }}>
