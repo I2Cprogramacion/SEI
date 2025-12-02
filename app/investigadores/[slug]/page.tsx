@@ -92,6 +92,7 @@ export default function InvestigadorPage() {
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [redirecting, setRedirecting] = useState(false)
   const [conectarDialogOpen, setConectarDialogOpen] = useState(false)
   const [mensajeDialogOpen, setMensajeDialogOpen] = useState(false)
   const [tipoDocumento, setTipoDocumento] = useState<'PU' | 'Dictamen' | 'SNI'>('PU')
@@ -126,10 +127,20 @@ export default function InvestigadorPage() {
         const perfilData = rawData.perfil ? rawData.perfil : rawData
 
         // 🔒 VALIDACIÓN: Redirigir si el usuario intenta ver su propio perfil
+        console.log('=== 🔍 DIAGNÓSTICO DE REDIRECCIÓN ===')
+        console.log('userId actual (Clerk):', userId)
+        console.log('clerk_user_id del perfil:', perfilData.clerk_user_id)
+        console.log('¿Son iguales?', userId === perfilData.clerk_user_id)
+        console.log('Tipos de datos:', typeof userId, 'vs', typeof perfilData.clerk_user_id)
+        console.log('Longitudes:', userId?.length, 'vs', perfilData.clerk_user_id?.length)
+        
         if (userId && perfilData.clerk_user_id && perfilData.clerk_user_id === userId) {
-          console.log('🔄 Redirigiendo al dashboard - es tu propio perfil')
+          console.log('✅ Condición cumplida - Redirigiendo al dashboard')
+          setRedirecting(true)
           router.push('/dashboard')
           return
+        } else {
+          console.log('❌ Condición NO cumplida - Mostrando perfil público')
         }
 
         // Procesar linea_investigacion (puede ser string o array)
@@ -222,6 +233,17 @@ export default function InvestigadorPage() {
 
     verificarConexion()
   }, [userId, investigador?.email])
+
+  if (redirecting) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-blue-600 font-medium">Redirigiendo a tu dashboard...</p>
+        </div>
+      </div>
+    )
+  }
 
   if (isLoading) {
     return (
