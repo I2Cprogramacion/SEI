@@ -9,6 +9,7 @@ import {
   ArrowLeft,
   Building,
   Calendar,
+  ExternalLink,
   FileDown,
   Globe2,
   Landmark,
