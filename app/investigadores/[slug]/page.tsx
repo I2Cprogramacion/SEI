@@ -132,24 +132,6 @@ export default function InvestigadorPage() {
           return
         }
 
-        if (!response.ok) {
-          if (response.status === 404) {
-            notFound()
-            return
-          }
-          let errMsg = 'Error al cargar el investigador'
-          try {
-            const errJson = await response.json()
-            if (errJson?.error) errMsg = String(errJson.error)
-          } catch (e) {
-            // ignore parse errors
-          }
-          throw new Error(errMsg)
-        }
-
-        const rawData = await response.json()
-        const perfilData = rawData.perfil ? rawData.perfil : rawData
-
         // Procesar linea_investigacion (puede ser string o array)
         let lineaInvestigacion = perfilData.linea_investigacion
         if (typeof lineaInvestigacion === 'string' && lineaInvestigacion.trim() !== '') {
