@@ -69,6 +69,7 @@ interface InvestigadorData {
   orcid?: string
   sni?: string
   anioSni?: number
+  sitioWeb?: string
   cvUrl?: string
   dictamenUrl?: string
   sniUrl?: string
@@ -189,6 +190,7 @@ export default function InvestigadorPage() {
           orcid: perfilData.orcid,
           sni: perfilData.sni,
           anioSni: perfilData.anio_sni,
+          sitioWeb: perfilData.sitio_web,
           cvUrl: perfilData.cv_url || perfilData.cvUrl,
           dictamenUrl: perfilData.dictamen_url,
           sniUrl: perfilData.sni_url,
@@ -545,6 +547,24 @@ export default function InvestigadorPage() {
                             {investigador.sni}
                             {investigador.anioSni && ` (${investigador.anioSni})`}
                           </p>
+                        </div>
+                      )}
+
+                      {/* 13. Sitio Web */}
+                      {investigador.sitioWeb && investigador.sitioWeb.trim() !== "" && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                            <ExternalLink className="h-3.5 w-3.5" />
+                            Sitio Web
+                          </label>
+                          <a 
+                            href={investigador.sitioWeb} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-600 hover:text-blue-800 hover:underline break-all"
+                          >
+                            {investigador.sitioWeb}
+                          </a>
                         </div>
                       )}
                     </div>
