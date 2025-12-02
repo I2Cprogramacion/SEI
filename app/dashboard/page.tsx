@@ -561,6 +561,17 @@ export default function DashboardPage() {
                     </div>
                   )}
 
+                  {/* Tipo de Perfil */}
+                  {investigadorData.tipo_perfil && investigadorData.tipo_perfil.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <Award className="h-3.5 w-3.5" />
+                        Tipo de Perfil
+                      </label>
+                      <p className="text-sm text-blue-900">{investigadorData.tipo_perfil === "INVESTIGADOR" ? "Investigador" : "Tecnólogo"}</p>
+                    </div>
+                  )}
+
                   {investigadorData.nivel_investigador && investigadorData.nivel_investigador.trim() !== "" && (
                     <div className="space-y-1">
                       <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
@@ -568,6 +579,16 @@ export default function DashboardPage() {
                         Nivel Investigador
                       </label>
                       <p className="text-sm text-blue-900">{investigadorData.nivel_investigador}</p>
+                    </div>
+                  )}
+
+                  {investigadorData.nivel_tecnologo && investigadorData.nivel_tecnologo.trim() !== "" && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                        <Award className="h-3.5 w-3.5" />
+                        Nivel Tecnólogo
+                      </label>
+                      <p className="text-sm text-blue-900">{investigadorData.nivel_tecnologo}</p>
                     </div>
                   )}
 

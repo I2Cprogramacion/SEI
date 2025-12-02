@@ -62,6 +62,8 @@ interface InvestigadorData {
   gradoMaximoEstudios?: string
   nivelInvestigador?: string
   nivelSni?: string
+  tipoPerfil?: string
+  nivelTecnologo?: string
   disciplina?: string
   especialidad?: string
   orcid?: string
@@ -455,14 +457,36 @@ export default function InvestigadorPage() {
                         </div>
                       )}
 
+                      {/* Tipo de Perfil */}
+                      {investigador.tipoPerfil && investigador.tipoPerfil.trim() !== "" && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                            <Award className="h-3.5 w-3.5" />
+                            Tipo de Perfil
+                          </label>
+                          <p className="text-sm text-blue-900 break-words">{investigador.tipoPerfil === "INVESTIGADOR" ? "Investigador" : "Tecnólogo"}</p>
+                        </div>
+                      )}
+
                       {/* 7. Nivel Investigador */}
                       {investigador.nivelInvestigador && investigador.nivelInvestigador.trim() !== "" && (
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
-                            <GraduationCap className="h-3.5 w-3.5" />
+                            <Award className="h-3.5 w-3.5" />
                             Nivel Investigador
                           </label>
                           <p className="text-sm text-blue-900 break-words">{investigador.nivelInvestigador}</p>
+                        </div>
+                      )}
+
+                      {/* Nivel Tecnólogo */}
+                      {investigador.nivelTecnologo && investigador.nivelTecnologo.trim() !== "" && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                            <Award className="h-3.5 w-3.5" />
+                            Nivel Tecnólogo
+                          </label>
+                          <p className="text-sm text-blue-900 break-words">{investigador.nivelTecnologo}</p>
                         </div>
                       )}
 
