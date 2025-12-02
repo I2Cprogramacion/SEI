@@ -57,7 +57,16 @@ interface InvestigadorData {
   empleoActual?: string
   fechaNacimiento?: string
   nacionalidad?: string
+  municipio?: string
+  entidadFederativa?: string
   gradoMaximoEstudios?: string
+  nivelInvestigador?: string
+  nivelSni?: string
+  disciplina?: string
+  especialidad?: string
+  orcid?: string
+  sni?: string
+  anioSni?: number
   cvUrl?: string
   dictamenUrl?: string
   sniUrl?: string
@@ -148,7 +157,16 @@ export default function InvestigadorPage() {
           empleoActual: perfilData.empleo_actual,
           fechaNacimiento: perfilData.fecha_nacimiento,
           nacionalidad: perfilData.nacionalidad,
+          municipio: perfilData.municipio,
+          entidadFederativa: perfilData.entidad_federativa,
           gradoMaximoEstudios: perfilData.grado_maximo_estudios,
+          nivelInvestigador: perfilData.nivel_investigador,
+          nivelSni: perfilData.nivel_sni,
+          disciplina: perfilData.disciplina,
+          especialidad: perfilData.especialidad,
+          orcid: perfilData.orcid,
+          sni: perfilData.sni,
+          anioSni: perfilData.anio_sni,
           cvUrl: perfilData.cv_url || perfilData.cvUrl,
           dictamenUrl: perfilData.dictamen_url,
           sniUrl: perfilData.sni_url,
@@ -338,30 +356,140 @@ export default function InvestigadorPage() {
                       </div>
                     </div>
 
-                    {/* Información secundaria */}
-                    <div className="mt-3 text-xs sm:text-sm text-slate-700 space-y-1">
-                      {investigador.fechaNacimiento && (
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-slate-400 flex-shrink-0" />
-                          <span className="break-words">{formatDate(investigador.fechaNacimiento)}</span>
+                    {/* Información detallada completa */}
+                    <div className="mt-4 pt-4 border-t border-blue-100 space-y-3">
+                      {/* 1. Empleo Actual */}
+                      {investigador.empleoActual && investigador.empleoActual.trim() !== "" && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                            <Briefcase className="h-3.5 w-3.5" />
+                            Empleo Actual
+                          </label>
+                          <p className="text-sm text-blue-900 break-words whitespace-pre-line">{investigador.empleoActual}</p>
                         </div>
                       )}
-                      {investigador.nacionalidad && (
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-slate-400 flex-shrink-0" />
-                          <span className="break-words">{investigador.nacionalidad}</span>
+
+                      {/* 2. CVU/PU */}
+                      {investigador.noCvu && investigador.noCvu.trim() !== "" && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                            <FileText className="h-3.5 w-3.5" />
+                            CVU/PU
+                          </label>
+                          <p className="text-sm text-blue-900 font-mono break-words">{investigador.noCvu}</p>
                         </div>
                       )}
-                      {investigador.title && (
-                        <div className="flex items-center gap-2">
-                          <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4 text-slate-400 flex-shrink-0" />
-                          <span className="break-words">{investigador.title}</span>
+
+                      {/* 3. Nacionalidad */}
+                      {investigador.nacionalidad && investigador.nacionalidad.trim() !== "" && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                            <MapPin className="h-3.5 w-3.5" />
+                            Nacionalidad
+                          </label>
+                          <p className="text-sm text-blue-900 break-words">{investigador.nacionalidad}</p>
                         </div>
                       )}
-                      {investigador.empleoActual && (
-                        <div className="flex items-center gap-2">
-                          <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 text-slate-400 flex-shrink-0" />
-                          <span className="break-words">{investigador.empleoActual}</span>
+
+                      {/* 4. Municipio */}
+                      {investigador.municipio && investigador.municipio.trim() !== "" && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                            <MapPin className="h-3.5 w-3.5" />
+                            Municipio
+                          </label>
+                          <p className="text-sm text-blue-900 break-words">{investigador.municipio}</p>
+                        </div>
+                      )}
+
+                      {/* 5. Entidad Federativa */}
+                      {investigador.entidadFederativa && investigador.entidadFederativa.trim() !== "" && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                            <MapPin className="h-3.5 w-3.5" />
+                            Entidad Federativa
+                          </label>
+                          <p className="text-sm text-blue-900 break-words">{investigador.entidadFederativa}</p>
+                        </div>
+                      )}
+
+                      {/* 6. Último Grado de Estudios */}
+                      {investigador.title && investigador.title.trim() !== "" && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                            <GraduationCap className="h-3.5 w-3.5" />
+                            Último Grado de Estudios
+                          </label>
+                          <p className="text-sm text-blue-900 break-words">{investigador.title}</p>
+                        </div>
+                      )}
+
+                      {/* 7. Nivel Investigador */}
+                      {investigador.nivelInvestigador && investigador.nivelInvestigador.trim() !== "" && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                            <GraduationCap className="h-3.5 w-3.5" />
+                            Nivel Investigador
+                          </label>
+                          <p className="text-sm text-blue-900 break-words">{investigador.nivelInvestigador}</p>
+                        </div>
+                      )}
+
+                      {/* 8. Nivel SNI */}
+                      {investigador.nivelSni && investigador.nivelSni.trim() !== "" && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                            <GraduationCap className="h-3.5 w-3.5" />
+                            Nivel SNI
+                          </label>
+                          <p className="text-sm text-blue-900 break-words">{investigador.nivelSni}</p>
+                        </div>
+                      )}
+
+                      {/* 9. Disciplina */}
+                      {investigador.disciplina && investigador.disciplina.trim() !== "" && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                            <GraduationCap className="h-3.5 w-3.5" />
+                            Disciplina
+                          </label>
+                          <p className="text-sm text-blue-900 break-words">{investigador.disciplina}</p>
+                        </div>
+                      )}
+
+                      {/* 10. Especialidad */}
+                      {investigador.especialidad && investigador.especialidad.trim() !== "" && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                            <GraduationCap className="h-3.5 w-3.5" />
+                            Especialidad
+                          </label>
+                          <p className="text-sm text-blue-900 break-words">{investigador.especialidad}</p>
+                        </div>
+                      )}
+
+                      {/* 11. ORCID */}
+                      {investigador.orcid && investigador.orcid.trim() !== "" && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                            <FileText className="h-3.5 w-3.5" />
+                            ORCID
+                          </label>
+                          <p className="text-sm text-blue-900 font-mono break-words">{investigador.orcid}</p>
+                        </div>
+                      )}
+
+                      {/* 12. SNI */}
+                      {investigador.sni && investigador.sni.trim() !== "" && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                            <GraduationCap className="h-3.5 w-3.5" />
+                            SNI
+                          </label>
+                          <p className="text-sm text-blue-900 break-words">
+                            {investigador.sni}
+                            {investigador.anioSni && ` (${investigador.anioSni})`}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -370,20 +498,25 @@ export default function InvestigadorPage() {
                       <div className="flex flex-wrap gap-2 mb-3">
                         {investigador.curp && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md break-words">CURP: {investigador.curp}</span>}
                         {investigador.rfc && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md break-words">RFC: {investigador.rfc}</span>}
-                        {investigador.noCvu && <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md break-words">CVU: {investigador.noCvu}</span>}
                       </div>
 
                       <div className="text-xs sm:text-sm text-blue-600 space-y-1">
-                        {investigador.institution && (
-                          <div className="flex items-center gap-2 break-words">
-                            <Building className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                            {investigador.institution}
+                        {investigador.institution && investigador.institution.trim() !== "" && (
+                          <div className="space-y-1">
+                            <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                              <Building className="h-3.5 w-3.5" />
+                              Institución
+                            </label>
+                            <p className="text-sm text-blue-900 break-words">{investigador.institution}</p>
                           </div>
                         )}
-                        {investigador.departamento && (
-                          <div className="flex items-center gap-2 mt-1 break-words">
-                            <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                            {investigador.departamento}
+                        {investigador.departamento && investigador.departamento.trim() !== "" && (
+                          <div className="space-y-1 mt-2">
+                            <label className="text-xs font-semibold text-blue-700 flex items-center gap-2 uppercase tracking-wide">
+                              <BookOpen className="h-3.5 w-3.5" />
+                              Departamento
+                            </label>
+                            <p className="text-sm text-blue-900 break-words">{investigador.departamento}</p>
                           </div>
                         )}
 
@@ -391,7 +524,7 @@ export default function InvestigadorPage() {
                           <div className="mt-6 pt-3 border-t border-blue-50">
                             <label className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Líneas de Investigación</label>
                             <div className="mt-2 flex flex-wrap gap-2">
-                              {investigador.lineaInvestigacion.slice(0,5).map((tag: string, idx: number) => (
+                              {investigador.lineaInvestigacion.map((tag: string, idx: number) => (
                                 <span key={idx} className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-100 break-words break-all">{tag}</span>
                               ))}
                             </div>
