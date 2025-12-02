@@ -12,6 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { UploadFotografia } from "@/components/upload-fotografia"
 import { TagsInput } from "@/components/ui/tags-input"
+import { AreaSNIISelector } from "@/components/area-snii-selector"
 import {
   Loader2,
   CheckCircle,
@@ -30,6 +31,23 @@ import {
   Edit,
   Award,
 } from "lucide-react"
+
+// Niveles de investigador (mismo formato que registro)
+const NIVELES_INVESTIGADOR = [
+  "Candidato a Investigador Estatal",
+  "Investigador Estatal Nivel I",
+  "Investigador Estatal Nivel II",
+  "Investigador Estatal Nivel III",
+  "Investigador Excepcional",
+  "Investigador Insigne"
+] as const
+
+// Niveles de tecnólogo (mismo formato que registro)
+const NIVELES_TECNOLOGO = [
+  "Tecnólogo Nivel A",
+  "Tecnólogo Nivel B",
+  "Tecnólogo Nivel C"
+] as const
 
 interface InvestigadorData {
   id: number
@@ -539,18 +557,25 @@ export default function EditarPerfilPage() {
 
                   {formData.tipo_perfil === "INVESTIGADOR" ? (
                     <div className="space-y-2">
-                      <Label htmlFor="nivel_sni" className="text-blue-900 font-medium flex items-center gap-2">
+                      <Label htmlFor="nivel_investigador" className="text-blue-900 font-medium flex items-center gap-2">
                         <Award className="h-4 w-4" />
-                        Nivel SNI
+                        Nivel de Investigador
                       </Label>
-                      <Input
-                        id="nivel_sni"
-                        name="nivel_sni"
-                        value={formData.nivel_sni}
-                        onChange={handleChange}
-                        placeholder="Ej: Candidato, I, II, III"
-                        className="bg-white border-blue-200"
-                      />
+                      <Select
+                        value={formData.nivel_investigador}
+                        onValueChange={(value) => handleSelectChange("nivel_investigador", value)}
+                      >
+                        <SelectTrigger className="bg-white border-blue-200">
+                          <SelectValue placeholder="Selecciona nivel" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {NIVELES_INVESTIGADOR.map((nivel) => (
+                            <SelectItem key={nivel} value={nivel}>
+                              {nivel}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -558,14 +583,21 @@ export default function EditarPerfilPage() {
                         <Award className="h-4 w-4" />
                         Nivel de Tecnólogo
                       </Label>
-                      <Input
-                        id="nivel_tecnologo"
-                        name="nivel_tecnologo"
-                        value={formData.nivel_tecnologo}
-                        onChange={handleChange}
-                        placeholder="Nivel de tecnólogo"
-                        className="bg-white border-blue-200"
-                      />
+                      <Select
+                        value={formData.nivel_tecnologo || ""}
+                        onValueChange={(value) => handleSelectChange("nivel_tecnologo", value)}
+                      >
+                        <SelectTrigger className="bg-white border-blue-200">
+                          <SelectValue placeholder="Selecciona nivel" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {NIVELES_TECNOLOGO.map((nivel) => (
+                            <SelectItem key={nivel} value={nivel}>
+                              {nivel}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   )}
 
@@ -697,23 +729,14 @@ export default function EditarPerfilPage() {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="area_investigacion" className="text-blue-900 font-medium flex items-center gap-2">
-                      <GraduationCap className="h-4 w-4" />
-                      Áreas de Investigación
-                    </Label>
-                    <Textarea
-                      id="area_investigacion"
-                      name="area_investigacion"
-                      value={formData.area_investigacion}
-                      onChange={handleChange}
-                      placeholder="Describe tus áreas de investigación, especialidades y campos de conocimiento..."
-                      rows={4}
-                      className="bg-white border-blue-200"
-                      maxLength={500}
-                    />
-                  </div>
+                  {/* Área de Investigación SNII */}
+                  <AreaSNIISelector
+                    value={formData.area_investigacion}
+                    onChange={(value) => setFormData(prev => ({ ...prev, area_investigacion: value }))}
+                    required
+                  />
 
+                  {/* Línea de Investigación */}
                   <div className="space-y-2">
                     <TagsInput
                       value={Array.isArray(formData.linea_investigacion) ? formData.linea_investigacion : []}

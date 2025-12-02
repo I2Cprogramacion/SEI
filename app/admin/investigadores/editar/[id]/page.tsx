@@ -12,7 +12,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ArrowLeft, Loader2, Save, X, Plus, Award } from "lucide-react"
+import { AreaSNIISelector } from "@/components/area-snii-selector"
 import Link from "next/link"
+
+// Niveles de investigador (mismo formato que registro)
+const NIVELES_INVESTIGADOR = [
+  "Candidato a Investigador Estatal",
+  "Investigador Estatal Nivel I",
+  "Investigador Estatal Nivel II",
+  "Investigador Estatal Nivel III",
+  "Investigador Excepcional",
+  "Investigador Insigne"
+] as const
+
+// Niveles de tecnólogo (mismo formato que registro)
+const NIVELES_TECNOLOGO = [
+  "Tecnólogo Nivel A",
+  "Tecnólogo Nivel B",
+  "Tecnólogo Nivel C"
+] as const
 
 // Interface para el formulario de investigador
 interface InvestigadorForm {
@@ -538,23 +556,41 @@ export default function EditarInvestigadorPage() {
 
                   {formData.tipo_perfil === "INVESTIGADOR" ? (
                     <div className="space-y-2">
-                      <Label htmlFor="nivel_sni">Nivel SNI</Label>
-                      <Input
-                        id="nivel_sni"
-                        value={formData.nivel_sni}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, nivel_sni: e.target.value }))}
-                        placeholder="Ej: Candidato, I, II, III"
-                      />
+                      <Label htmlFor="nivel_investigador">Nivel de Investigador</Label>
+                      <Select
+                        value={formData.nivel}
+                        onValueChange={(value) => setFormData((prev) => ({ ...prev, nivel: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona nivel" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {NIVELES_INVESTIGADOR.map((nivel) => (
+                            <SelectItem key={nivel} value={nivel}>
+                              {nivel}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   ) : (
                     <div className="space-y-2">
                       <Label htmlFor="nivel_tecnologo">Nivel de Tecnólogo</Label>
-                      <Input
-                        id="nivel_tecnologo"
+                      <Select
                         value={formData.nivel_tecnologo}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, nivel_tecnologo: e.target.value }))}
-                        placeholder="Nivel de tecnólogo"
-                      />
+                        onValueChange={(value) => setFormData((prev) => ({ ...prev, nivel_tecnologo: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona nivel" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {NIVELES_TECNOLOGO.map((nivel) => (
+                            <SelectItem key={nivel} value={nivel}>
+                              {nivel}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   )}
                 </div>
@@ -610,49 +646,25 @@ export default function EditarInvestigadorPage() {
                   </div>
                 </div>
 
+                {/* Área de Investigación SNII */}
+                <AreaSNIISelector
+                  value={formData.biografia}
+                  onChange={(value) => setFormData((prev) => ({ ...prev, biografia: value }))}
+                  required
+                />
+
                 <div className="space-y-2">
-                  <Label htmlFor="lineaInvestigacion">Línea de Investigación</Label>
+                  <Label htmlFor="lineaInvestigacion">Línea de Investigación Específica</Label>
                   <Textarea
                     id="lineaInvestigacion"
-                    placeholder="Describe tu línea de investigación principal..."
+                    placeholder="Describe tus líneas de investigación específicas (separadas por coma)..."
                     value={formData.lineaInvestigacion}
                     onChange={(e) => setFormData((prev) => ({ ...prev, lineaInvestigacion: e.target.value }))}
                     className="min-h-24"
                   />
-                </div>
-
-                <div className="space-y-4">
-                  <Label>Áreas de Especialización</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Agregar área de especialización"
-                      value={newArea}
-                      onChange={(e) => setNewArea(e.target.value)}
-                      onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addArea())}
-                    />
-                    <Button
-                      type="button"
-                      onClick={addArea}
-                      variant="outline"
-                      className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.areasEspecializacion.map((area, index) => (
-                      <Badge key={index} className="bg-blue-700 text-white">
-                        {area}
-                        <button
-                          type="button"
-                          onClick={() => removeArea(index)}
-                          className="ml-2 hover:bg-blue-600 rounded-full p-0.5"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
+                  <p className="text-xs text-gray-600">
+                    Ejemplos: Inteligencia Artificial, Biotecnología, Energías Renovables
+                  </p>
                 </div>
               </CardContent>
             </Card>
