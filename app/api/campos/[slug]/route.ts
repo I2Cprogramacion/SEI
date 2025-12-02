@@ -24,16 +24,17 @@ export async function GET(
     const db = await getDatabase()
     
     // Buscar el campo por slug (convertir slug a nombre)
-    // Primero intentamos buscar el campo usando el slug directamente como patrón
+    // El slug se genera así: nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-')
+    // Necesitamos revertir esto para buscar
     let nombreCampo = slug
       .split('-')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
     
-    console.log(`Buscando campo con slug: ${slug}, nombre generado: ${nombreCampo}`)
+    console.log(`[CAMPOS] Buscando campo con slug: "${slug}", nombre generado: "${nombreCampo}"`)
     
     // Obtener estadísticas del campo específico
-    // Intentar buscar con coincidencia parcial para mayor flexibilidad
+    // Estrategia de búsqueda: probar múltiples patrones para encontrar el área
     const campoQuery = `
       SELECT 
         COALESCE(area_investigacion, 'Sin especificar') as nombre,
@@ -54,16 +55,51 @@ export async function GET(
       LIMIT 1
     `
     
-    // Intentar primero con coincidencia exacta, luego con LIKE
+    // Estrategia 1: Buscar con el nombre generado directamente
     let campoResult = await db.query(campoQuery, [nombreCampo])
-    console.log(`🔍 Búsqueda inicial con "${nombreCampo}": ${campoResult.length} resultados`)
+    console.log(`[CAMPOS] Estrategia 1 - Nombre exacto "${nombreCampo}": ${campoResult.length} resultados`)
     
-    // Si no encuentra con el nombre generado, intentar con búsqueda parcial
+    // Estrategia 2: Buscar con patrón parcial (palabras separadas por %)
     if (campoResult.length === 0) {
-      console.log(`No se encontró con nombre exacto, intentando con búsqueda parcial...`)
       const searchPattern = `%${nombreCampo.split(' ').join('%')}%`
       campoResult = await db.query(campoQuery, [searchPattern])
-      console.log(`Búsqueda con patrón ${searchPattern}, resultados: ${campoResult.length}`)
+      console.log(`[CAMPOS] Estrategia 2 - Patrón parcial "${searchPattern}": ${campoResult.length} resultados`)
+    }
+    
+    // Estrategia 3: Buscar usando el slug original con %
+    if (campoResult.length === 0) {
+      const slugPattern = `%${slug.replace(/-/g, '%')}%`
+      campoResult = await db.query(campoQuery, [slugPattern])
+      console.log(`[CAMPOS] Estrategia 3 - Slug pattern "${slugPattern}": ${campoResult.length} resultados`)
+    }
+    
+    // Estrategia 4: Buscar todas las áreas y hacer match manual
+    if (campoResult.length === 0) {
+      console.log(`[CAMPOS] Estrategia 4 - Buscando todas las áreas para match manual...`)
+      const allAreasQuery = `
+        SELECT DISTINCT area_investigacion as nombre
+        FROM investigadores 
+        WHERE area_investigacion IS NOT NULL AND area_investigacion != ''
+      `
+      const allAreas = await db.query(allAreasQuery)
+      
+      // Buscar el área cuyo slug normalizado coincida
+      for (const area of allAreas) {
+        const areaSlug = area.nombre
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9\s]/g, '')
+          .replace(/\s+/g, '-')
+          .trim()
+        
+        if (areaSlug === slug) {
+          console.log(`[CAMPOS] Match encontrado: "${area.nombre}" => "${areaSlug}"`)
+          campoResult = await db.query(campoQuery, [area.nombre])
+          break
+        }
+      }
+      console.log(`[CAMPOS] Estrategia 4 - Match manual: ${campoResult.length} resultados`)
     }
     
     if (campoResult.length === 0) {

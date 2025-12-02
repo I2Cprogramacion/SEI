@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
           COALESCE(area_investigacion, 'Sin especificar') as nombre,
           COUNT(DISTINCT inv.id) as investigadores,
           COUNT(DISTINCT inv.institucion) as instituciones,
-          STRING_AGG(DISTINCT inv.linea_investigacion, ', ') FILTER (WHERE inv.linea_investigacion IS NOT NULL AND inv.linea_investigacion != '') as lineas_investigacion
+          STRING_AGG(DISTINCT CASE WHEN inv.linea_investigacion IS NOT NULL AND inv.linea_investigacion != '' THEN inv.linea_investigacion END, ', ') as lineas_investigacion
         FROM investigadores inv
         WHERE inv.area_investigacion IS NOT NULL AND inv.area_investigacion != ''
         AND LOWER(TRIM(inv.institucion)) = LOWER(TRIM($1))
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
           COALESCE(area_investigacion, 'Sin especificar') as nombre,
           COUNT(DISTINCT inv.id) as investigadores,
           COUNT(DISTINCT inv.institucion) as instituciones,
-          STRING_AGG(DISTINCT inv.linea_investigacion, ', ') FILTER (WHERE inv.linea_investigacion IS NOT NULL AND inv.linea_investigacion != '') as lineas_investigacion
+          STRING_AGG(DISTINCT CASE WHEN inv.linea_investigacion IS NOT NULL AND inv.linea_investigacion != '' THEN inv.linea_investigacion END, ', ') as lineas_investigacion
         FROM investigadores inv
         WHERE inv.area_investigacion IS NOT NULL AND inv.area_investigacion != ''
         AND COALESCE(inv.activo, true) = true
