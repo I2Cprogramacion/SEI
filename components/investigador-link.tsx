@@ -4,24 +4,24 @@ import Link from "next/link"
 import { useUser } from "@clerk/nextjs"
 import { useEffect, useState, createContext, useContext } from "react"
 
-// Context para compartir el slug del usuario actual entre todos los InvestigadorLink
+// Context para compartir el correo del usuario actual entre todos los InvestigadorLink
 interface PerfilContextType {
-  miSlug: string | null
+  miCorreo: string | null
   cargando: boolean
 }
 
 const PerfilContext = createContext<PerfilContextType>({
-  miSlug: null,
+  miCorreo: null,
   cargando: true,
 })
 
 /**
- * Provider que carga el slug del usuario autenticado una sola vez
+ * Provider que obtiene el correo del usuario autenticado una sola vez
  * y lo comparte con todos los InvestigadorLink
  */
 export function PerfilProvider({ children }: { children: React.ReactNode }) {
   const { user, isLoaded } = useUser()
-  const [miSlug, setMiSlug] = useState<string | null>(null)
+  const [miCorreo, setMiCorreo] = useState<string | null>(null)
   const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
@@ -36,28 +36,17 @@ export function PerfilProvider({ children }: { children: React.ReactNode }) {
       return
     }
 
-    const cargarMiSlug = async () => {
-      try {
-        const response = await fetch('/api/investigadores/perfil')
-        if (response.ok) {
-          const result = await response.json()
-          if (result.success && result.data?.slug) {
-            setMiSlug(result.data.slug)
-            console.log('✅ [PerfilProvider] Mi slug cargado:', result.data.slug)
-          }
-        }
-      } catch (error) {
-        console.error('❌ [PerfilProvider] Error cargando slug del usuario:', error)
-      } finally {
-        setCargando(false)
-      }
+    // Obtener el correo directamente de Clerk (no necesita API)
+    const email = user.emailAddresses?.[0]?.emailAddress
+    if (email) {
+      setMiCorreo(email.toLowerCase())
+      console.log('✅ [PerfilProvider] Email del usuario:', email)
     }
-
-    cargarMiSlug()
+    setCargando(false)
   }, [user, isLoaded])
 
   return (
-    <PerfilContext.Provider value={{ miSlug, cargando }}>
+    <PerfilContext.Provider value={{ miCorreo, cargando }}>
       {children}
     </PerfilContext.Provider>
   )
@@ -72,12 +61,56 @@ interface InvestigadorLinkProps {
 
 /**
  * Componente que envuelve enlaces a perfiles de investigadores.
- * Si el slug corresponde al usuario autenticado, redirige al dashboard.
+ * Si el correo del slug corresponde al usuario autenticado, redirige al dashboard.
  * De lo contrario, muestra el perfil público.
  */
 export function InvestigadorLink({ slug, children, className, onClick }: InvestigadorLinkProps) {
-  const { miSlug } = useContext(PerfilContext)
-  const esMiPerfil = miSlug && miSlug === slug
+  const { miCorreo } = useContext(PerfilContext)
+  const [esMiPerfil, setEsMiPerfil] = useState(false)
+  const [verificado, setVerificado] = useState(false)
+
+  useEffect(() => {
+    if (!miCorreo || !slug) {
+      setVerificado(true)
+      return
+    }
+
+    // Consultar el correo del perfil por su slug
+    const verificarPerfil = async () => {
+      try {
+        const response = await fetch(`/api/investigadores/${slug}`)
+        if (response.ok) {
+          const data = await response.json()
+          const perfilData = data.perfil || data
+          const perfilEmail = perfilData.correo?.toLowerCase()
+          
+          if (perfilEmail === miCorreo) {
+            setEsMiPerfil(true)
+            console.log('✅ [InvestigadorLink] Es tu perfil, redirigirá a dashboard')
+          }
+        }
+      } catch (error) {
+        console.error('Error verificando perfil:', error)
+      } finally {
+        setVerificado(true)
+      }
+    }
+
+    verificarPerfil()
+  }, [miCorreo, slug])
+
+  // Mientras verifica, mostrar el enlace normal
+  if (!verificado) {
+    return (
+      <Link 
+        href={`/investigadores/${slug}`} 
+        className={className}
+        onClick={onClick}
+      >
+        {children}
+      </Link>
+    )
+  }
 
   // Si es el perfil del usuario, redirigir al dashboard
   if (esMiPerfil) {

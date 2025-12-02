@@ -128,24 +128,28 @@ export default function InvestigadorPage() {
         const perfilData = rawData.perfil ? rawData.perfil : rawData
 
         // 🔒 VALIDACIÓN: Redirigir si el usuario intenta ver su propio perfil
+        // Comparamos por CORREO en lugar de clerk_user_id (más confiable)
+        const userEmail = user?.emailAddresses?.[0]?.emailAddress?.toLowerCase()
+        const perfilEmail = perfilData.correo?.toLowerCase()
+        
         console.log('=== 🔍 DIAGNÓSTICO DE REDIRECCIÓN ===')
         console.log('Clerk isLoaded:', isLoaded)
-        console.log('Clerk user:', user)
-        console.log('userId actual (Clerk):', userId)
-        console.log('clerk_user_id del perfil:', perfilData.clerk_user_id)
-        console.log('¿Son iguales?', userId === perfilData.clerk_user_id)
-        console.log('Tipos de datos:', typeof userId, 'vs', typeof perfilData.clerk_user_id)
-        console.log('Longitudes:', userId?.length, 'vs', perfilData.clerk_user_id?.length)
+        console.log('Email del usuario actual:', userEmail)
+        console.log('Email del perfil:', perfilEmail)
+        console.log('¿Son iguales?', userEmail === perfilEmail)
         
-        if (userId && perfilData.clerk_user_id && perfilData.clerk_user_id === userId) {
-          console.log('✅ Condición cumplida - Redirigiendo al dashboard')
+        if (userEmail && perfilEmail && userEmail === perfilEmail) {
+          console.log('✅ Condición cumplida - Es tu propio perfil - Redirigiendo al dashboard')
           setRedirecting(true)
           router.push('/dashboard')
           return
         } else {
           console.log('❌ Condición NO cumplida - Mostrando perfil público')
-          if (!userId) console.log('   Razón: userId es undefined/null (Clerk no ha cargado)')
-          if (!perfilData.clerk_user_id) console.log('   Razón: perfil no tiene clerk_user_id')
+          if (!userEmail) console.log('   Razón: No hay email del usuario (Clerk no ha cargado)')
+          if (!perfilEmail) console.log('   Razón: El perfil no tiene correo')
+          if (userEmail && perfilEmail && userEmail !== perfilEmail) {
+            console.log('   Razón: Los emails NO coinciden')
+          }
         }
 
         // Procesar linea_investigacion (puede ser string o array)
