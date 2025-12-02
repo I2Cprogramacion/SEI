@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { UploadFotografia } from "@/components/upload-fotografia"
 import { TagsInput } from "@/components/ui/tags-input"
 import {
@@ -27,6 +28,7 @@ import {
   ArrowLeft,
   Save,
   Edit,
+  Award,
 } from "lucide-react"
 
 interface InvestigadorData {
@@ -66,6 +68,12 @@ interface InvestigadorData {
   fecha_asignacion_nivel?: string | null
   fecha_registro: string
   origen: string
+  nivel_sni: string
+  sni?: string
+  anio_sni?: string | null
+  tipo_perfil: string
+  nivel_tecnologo?: string
+  nivel_tecnologo_id?: string | null
 }
 
 interface FormData {
@@ -101,6 +109,12 @@ interface FormData {
   nivel_investigador: string
   nivel_actual_id?: string | null
   fecha_asignacion_nivel?: string | null
+  nivel_sni: string
+  sni?: string
+  anio_sni?: string | null
+  tipo_perfil: string
+  nivel_tecnologo?: string
+  nivel_tecnologo_id?: string | null
 }
 
 export default function EditarPerfilPage() {
@@ -146,6 +160,12 @@ export default function EditarPerfilPage() {
     nivel_investigador: "",
     nivel_actual_id: "",
     fecha_asignacion_nivel: "",
+    nivel_sni: "",
+    sni: "",
+    anio_sni: "",
+    tipo_perfil: "INVESTIGADOR",
+    nivel_tecnologo: "",
+    nivel_tecnologo_id: "",
   })
 
   // Cargar datos del investigador
@@ -209,6 +229,12 @@ export default function EditarPerfilPage() {
             nivel_investigador: data.nivel_investigador || "",
             nivel_actual_id: data.nivel_actual_id || "",
             fecha_asignacion_nivel: data.fecha_asignacion_nivel || "",
+            nivel_sni: data.nivel_sni || "",
+            sni: data.sni || "",
+            anio_sni: data.anio_sni || "",
+            tipo_perfil: data.tipo_perfil || "INVESTIGADOR",
+            nivel_tecnologo: data.nivel_tecnologo || "",
+            nivel_tecnologo_id: data.nivel_tecnologo_id || "",
           })
         }
       } catch (err) {
@@ -224,6 +250,13 @@ export default function EditarPerfilPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -464,6 +497,112 @@ export default function EditarPerfilPage() {
                       className="bg-white border-blue-200"
                     />
                   </div>
+                </div>
+              </div>
+
+              {/* Tipo de Perfil y Nivel */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
+                  <Award className="h-5 w-5" />
+                  Tipo de Perfil y Nivel
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tipo_perfil" className="text-blue-900 font-medium flex items-center gap-2">
+                      <Award className="h-4 w-4" />
+                      Tipo de Perfil
+                    </Label>
+                    <Select
+                      value={formData.tipo_perfil}
+                      onValueChange={(value) => {
+                        handleSelectChange("tipo_perfil", value)
+                        // Limpiar el nivel cuando cambia el tipo
+                        if (value === "INVESTIGADOR") {
+                          handleSelectChange("nivel_tecnologo", "")
+                          handleSelectChange("nivel_tecnologo_id", "")
+                        } else {
+                          handleSelectChange("nivel_investigador", "")
+                          handleSelectChange("nivel_actual_id", "")
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="bg-white border-blue-200">
+                        <SelectValue placeholder="Selecciona tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="INVESTIGADOR">Investigador</SelectItem>
+                        <SelectItem value="TECNOLOGO">Tecnólogo</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {formData.tipo_perfil === "INVESTIGADOR" ? (
+                    <div className="space-y-2">
+                      <Label htmlFor="nivel_sni" className="text-blue-900 font-medium flex items-center gap-2">
+                        <Award className="h-4 w-4" />
+                        Nivel SNI
+                      </Label>
+                      <Input
+                        id="nivel_sni"
+                        name="nivel_sni"
+                        value={formData.nivel_sni}
+                        onChange={handleChange}
+                        placeholder="Ej: Candidato, I, II, III"
+                        className="bg-white border-blue-200"
+                      />
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Label htmlFor="nivel_tecnologo" className="text-blue-900 font-medium flex items-center gap-2">
+                        <Award className="h-4 w-4" />
+                        Nivel de Tecnólogo
+                      </Label>
+                      <Input
+                        id="nivel_tecnologo"
+                        name="nivel_tecnologo"
+                        value={formData.nivel_tecnologo}
+                        onChange={handleChange}
+                        placeholder="Nivel de tecnólogo"
+                        className="bg-white border-blue-200"
+                      />
+                    </div>
+                  )}
+
+                  {formData.tipo_perfil === "INVESTIGADOR" && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="sni" className="text-blue-900 font-medium flex items-center gap-2">
+                          <Hash className="h-4 w-4" />
+                          SNI (Sistema Nacional de Investigadores)
+                        </Label>
+                        <Input
+                          id="sni"
+                          name="sni"
+                          value={formData.sni}
+                          onChange={handleChange}
+                          placeholder="Número SNI"
+                          className="bg-white border-blue-200"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="anio_sni" className="text-blue-900 font-medium flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          Año SNI
+                        </Label>
+                        <Input
+                          id="anio_sni"
+                          name="anio_sni"
+                          type="number"
+                          value={formData.anio_sni}
+                          onChange={handleChange}
+                          placeholder="Año de ingreso"
+                          className="bg-white border-blue-200"
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 

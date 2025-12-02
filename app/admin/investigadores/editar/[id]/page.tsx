@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowLeft, Loader2, Save, X, Plus } from "lucide-react"
+import { ArrowLeft, Loader2, Save, X, Plus, Award } from "lucide-react"
 import Link from "next/link"
 
 // Interface para el formulario de investigador
@@ -59,6 +59,10 @@ interface InvestigadorForm {
   idiomas: string
   colaboracionInternacional: string
   colaboracionNacional: string
+  nivel_sni: string
+  tipo_perfil: string
+  nivel_tecnologo: string
+  nivel_tecnologo_id: string
 
   // Ubicación
   domicilio: string
@@ -120,6 +124,10 @@ export default function EditarInvestigadorPage() {
     estadoNacimiento: "",
     municipio: "",
     entidadFederativa: "",
+    nivel_sni: "",
+    tipo_perfil: "INVESTIGADOR",
+    nivel_tecnologo: "",
+    nivel_tecnologo_id: "",
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -183,6 +191,10 @@ export default function EditarInvestigadorPage() {
           estadoNacimiento: "",
           municipio: "",
           entidadFederativa: "",
+          nivel_sni: data.nivel_sni || "",
+          tipo_perfil: data.tipo_perfil || "INVESTIGADOR",
+          nivel_tecnologo: data.nivel_tecnologo || "",
+          nivel_tecnologo_id: data.nivel_tecnologo_id || "",
         })
       } catch (err) {
         console.error("Error fetching investigador:", err)
@@ -276,6 +288,10 @@ export default function EditarInvestigadorPage() {
       //     estado_nacimiento: formData.estadoNacimiento,
       //     municipio: formData.municipio,
       //     entidad_federativa: formData.entidadFederativa,
+      //     nivel_sni: formData.nivel_sni,
+      //     tipo_perfil: formData.tipo_perfil,
+      //     nivel_tecnologo: formData.nivel_tecnologo,
+      //     nivel_tecnologo_id: formData.nivel_tecnologo_id,
       //   }),
       // })
 
@@ -482,6 +498,65 @@ export default function EditarInvestigadorPage() {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Tipo de Perfil y Nivel */}
+            <Card className="bg-white border-blue-100">
+              <CardHeader>
+                <CardTitle className="text-blue-900">Tipo de Perfil y Nivel</CardTitle>
+                <CardDescription className="text-blue-600">
+                  Clasificación y nivel del investigador o tecnólogo
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="tipo_perfil">Tipo de Perfil</Label>
+                    <Select
+                      value={formData.tipo_perfil}
+                      onValueChange={(value) => {
+                        setFormData((prev) => ({ ...prev, tipo_perfil: value }))
+                        // Limpiar el nivel cuando cambia el tipo
+                        if (value === "INVESTIGADOR") {
+                          setFormData((prev) => ({ ...prev, nivel_tecnologo: "", nivel_tecnologo_id: "" }))
+                        } else {
+                          setFormData((prev) => ({ ...prev, nivel: "", nivel_sni: "" }))
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="INVESTIGADOR">Investigador</SelectItem>
+                        <SelectItem value="TECNOLOGO">Tecnólogo</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {formData.tipo_perfil === "INVESTIGADOR" ? (
+                    <div className="space-y-2">
+                      <Label htmlFor="nivel_sni">Nivel SNI</Label>
+                      <Input
+                        id="nivel_sni"
+                        value={formData.nivel_sni}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, nivel_sni: e.target.value }))}
+                        placeholder="Ej: Candidato, I, II, III"
+                      />
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Label htmlFor="nivel_tecnologo">Nivel de Tecnólogo</Label>
+                      <Input
+                        id="nivel_tecnologo"
+                        value={formData.nivel_tecnologo}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, nivel_tecnologo: e.target.value }))}
+                        placeholder="Nivel de tecnólogo"
+                      />
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
