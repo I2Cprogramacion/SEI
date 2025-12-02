@@ -1993,16 +1993,16 @@ export default function RegistroPage() {
                       <div className="space-y-2">
                         <Label htmlFor="rfc" className="text-blue-900 font-medium flex items-center gap-2">
                           <CreditCard className="h-4 w-4" />
-                          RFC * <span className="text-xs text-gray-500">(12-13 caracteres)</span>
+                          RFC * <span className="text-xs text-gray-500">(10-13 caracteres)</span>
                         </Label>
                         <Input
                           id="rfc"
                           name="rfc"
                           value={formData.rfc}
                           onChange={handleChange}
-                          placeholder="RFC (12 o 13 caracteres)"
+                          placeholder="RFC (10 o 13 caracteres)"
                           maxLength={13}
-                          minLength={12}
+                          minLength={10}
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.rfc.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
