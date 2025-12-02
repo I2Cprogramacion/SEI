@@ -99,13 +99,6 @@ export default function InvestigadorPage() {
   const [solicitudPendiente, setSolicitudPendiente] = useState(false)
   const [cargandoConexion, setCargandoConexion] = useState(true)
 
-  // Redirigir si es tu propio perfil
-  useEffect(() => {
-    if (userId && investigador?.clerkUserId && investigador.clerkUserId === userId) {
-      router.push('/dashboard')
-    }
-  }, [userId, investigador, router])
-
   useEffect(() => {
     if (!slug) return
 
@@ -113,6 +106,31 @@ export default function InvestigadorPage() {
       try {
         setIsLoading(true)
         const response = await fetch(`/api/investigadores/${slug}`)
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            notFound()
+            return
+          }
+          let errMsg = 'Error al cargar el investigador'
+          try {
+            const errJson = await response.json()
+            if (errJson?.error) errMsg = String(errJson.error)
+          } catch (e) {
+            // ignore parse errors
+          }
+          throw new Error(errMsg)
+        }
+
+        const rawData = await response.json()
+        const perfilData = rawData.perfil ? rawData.perfil : rawData
+
+        // 🔒 VALIDACIÓN: Redirigir si el usuario intenta ver su propio perfil
+        if (userId && perfilData.clerk_user_id && perfilData.clerk_user_id === userId) {
+          console.log('🔄 Redirigiendo al dashboard - es tu propio perfil')
+          router.push('/dashboard')
+          return
+        }
 
         if (!response.ok) {
           if (response.status === 404) {
