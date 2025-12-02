@@ -24,7 +24,15 @@ function parseJSON<T>(value: any, fallback: T): T {
 
 export async function GET(request: NextRequest) {
   try {
+    const searchParams = request.nextUrl.searchParams
+    const isAdmin = searchParams.get('admin') === 'true'
+    
     const db = await getDatabase()
+
+    // Si es admin, mostrar todas. Si es público, solo aprobadas y activas
+    const whereClause = isAdmin 
+      ? '' 
+      : "WHERE estado = 'APROBADA' AND activo = true"
 
     const rows = await db.query(`
       SELECT 
@@ -46,6 +54,7 @@ export async function GET(request: NextRequest) {
         created_at,
         updated_at
       FROM institutions
+      ${whereClause}
       ORDER BY created_at DESC NULLS LAST
     `)
 

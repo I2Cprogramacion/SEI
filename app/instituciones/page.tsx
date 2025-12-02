@@ -296,9 +296,12 @@ export default function InstitucionesPage() {
                                   {institucion.tipo}
                                 </Badge>
                               )}
-                              <Badge variant="outline" className={`text-xs ${estado.className} border`}>
-                                {estado.label}
-                              </Badge>
+                              {institucion.estado === "APROBADA" && (
+                                <Badge className="bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs border-0 shadow-sm">
+                                  <CheckCircle2 className="w-3 h-3 mr-1" />
+                                  Verificada
+                                </Badge>
+                              )}
                             </div>
                           </div>
                         </div>
