@@ -45,8 +45,7 @@ const NIVELES_INVESTIGADOR = [
 // Niveles de tecnólogo (mismo formato que registro)
 const NIVELES_TECNOLOGO = [
   "Tecnólogo Nivel A",
-  "Tecnólogo Nivel B",
-  "Tecnólogo Nivel C"
+  "Tecnólogo Nivel B"
 ] as const
 
 interface InvestigadorData {
@@ -599,41 +598,6 @@ export default function EditarPerfilPage() {
                         </SelectContent>
                       </Select>
                     </div>
-                  )}
-
-                  {formData.tipo_perfil === "INVESTIGADOR" && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="sni" className="text-blue-900 font-medium flex items-center gap-2">
-                          <Hash className="h-4 w-4" />
-                          SNI (Sistema Nacional de Investigadores)
-                        </Label>
-                        <Input
-                          id="sni"
-                          name="sni"
-                          value={formData.sni}
-                          onChange={handleChange}
-                          placeholder="Número SNI"
-                          className="bg-white border-blue-200"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="anio_sni" className="text-blue-900 font-medium flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
-                          Año SNI
-                        </Label>
-                        <Input
-                          id="anio_sni"
-                          name="anio_sni"
-                          type="number"
-                          value={formData.anio_sni}
-                          onChange={handleChange}
-                          placeholder="Año de ingreso"
-                          className="bg-white border-blue-200"
-                        />
-                      </div>
-                    </>
                   )}
                 </div>
               </div>

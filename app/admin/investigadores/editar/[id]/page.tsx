@@ -28,8 +28,7 @@ const NIVELES_INVESTIGADOR = [
 // Niveles de tecnólogo (mismo formato que registro)
 const NIVELES_TECNOLOGO = [
   "Tecnólogo Nivel A",
-  "Tecnólogo Nivel B",
-  "Tecnólogo Nivel C"
+  "Tecnólogo Nivel B"
 ] as const
 
 // Interface para el formulario de investigador
