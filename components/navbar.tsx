@@ -230,20 +230,6 @@ export default function Navbar() {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      href="/campos"
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        "text-gray-700 hover:text-blue-600 font-medium",
-                        currentSection === 'campos' && "bg-blue-50 text-blue-700 border-blue-200"
-                      )}
-                    >
-                      Campos
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
 
@@ -508,20 +494,6 @@ export default function Navbar() {
                         <Link href="/instituciones" onClick={() => setMobileMenuOpen(false)}>
                           <Building2 className="mr-3 h-5 w-5" />
                           Instituciones
-                        </Link>
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="default" 
-                        className={cn(
-                          "w-full justify-start text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors font-medium h-11 rounded-lg",
-                          currentSection === 'campos' && "bg-blue-50 text-blue-700"
-                        )}
-                        asChild
-                      >
-                        <Link href="/campos" onClick={() => setMobileMenuOpen(false)}>
-                          <BookOpen className="mr-3 h-5 w-5" />
-                          Campos
                         </Link>
                       </Button>
                     </div>

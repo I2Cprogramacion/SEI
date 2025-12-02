@@ -10,7 +10,6 @@ export function useCurrentPage() {
     if (pathname === '/') return { name: 'Inicio', section: 'home' }
     if (pathname.startsWith('/investigadores')) return { name: 'Investigadores', section: 'investigadores' }
     if (pathname.startsWith('/proyectos')) return { name: 'Proyectos', section: 'proyectos' }
-    if (pathname.startsWith('/campos')) return { name: 'Campos', section: 'campos' }
     if (pathname.startsWith('/convocatorias')) return { name: 'Convocatorias', section: 'convocatorias' }
     if (pathname.startsWith('/dashboard')) return { name: 'Dashboard', section: 'dashboard' }
     if (pathname.startsWith('/explorar')) return { name: 'Explorar', section: 'explorar' }

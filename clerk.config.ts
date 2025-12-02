@@ -48,8 +48,6 @@ export const clerkConfig = {
     "/instituciones/(.*)",
     "/redes",
     "/redes/(.*)",
-    "/campos",
-    "/campos/(.*)",
     "/buscar",
     "/buscar/(.*)",
     "/cookies",

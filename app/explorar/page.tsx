@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { Users, FileText, Building, GraduationCap, TrendingUp, Award, Globe } from "lucide-react"
+import { Users, FileText, Building, GraduationCap, Award, Globe } from "lucide-react"
 
 // Interfaces para tipos de datos
 interface Estadisticas {
@@ -15,13 +15,6 @@ interface Estadisticas {
   instituciones: number
   colaboraciones: number
   areas: number
-}
-
-interface AreaPopular {
-  nombre: string
-  investigadores: number
-  proyectos: number
-  color: string
 }
 
 interface InstitucionDestacada {
@@ -40,7 +33,6 @@ export default function ExplorarPage() {
     colaboraciones: 0,
     areas: 0,
   })
-  const [areasPopulares, setAreasPopulares] = useState<AreaPopular[]>([])
   const [institucionesDestacadas, setInstitucionesDestacadas] = useState<InstitucionDestacada[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -48,20 +40,14 @@ export default function ExplorarPage() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const [statsResponse, areasResponse, institutionsResponse] = await Promise.all([
+        const [statsResponse, institutionsResponse] = await Promise.all([
           fetch('/api/estadisticas'),
-          fetch('/api/areas-populares?limit=6'),
           fetch('/api/instituciones-destacadas?limit=4')
         ])
 
         if (statsResponse.ok) {
           const stats = await statsResponse.json()
           setEstadisticas(stats)
-        }
-
-        if (areasResponse.ok) {
-          const areas = await areasResponse.json()
-          setAreasPopulares(areas)
         }
 
         if (institutionsResponse.ok) {
@@ -79,7 +65,6 @@ export default function ExplorarPage() {
           colaboraciones: 0,
           areas: 0,
         })
-        setAreasPopulares([])
         setInstitucionesDestacadas([])
       } finally {
         setLoading(false)
@@ -190,63 +175,6 @@ export default function ExplorarPage() {
               </CardHeader>
             </Card>
           </Link>
-        </div>
-
-        {/* Áreas de investigación populares */}
-        <div className="space-y-4 sm:space-y-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 px-2">
-            <h2 className="text-xl sm:text-2xl font-bold text-blue-900 break-words">Áreas de Investigación Populares</h2>
-            <Button variant="ghost" asChild className="text-blue-700 hover:bg-blue-50 w-full sm:w-auto">
-              <Link href="/campos">Ver todas</Link>
-            </Button>
-          </div>
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[...Array(6)].map((_, i) => (
-                <Card key={i} className="glass-effect">
-                  <CardContent className="pt-6">
-                    <div className="animate-pulse">
-                      <div className="h-4 bg-blue-100 rounded w-1/2 mb-3"></div>
-                      <div className="h-3 bg-blue-100 rounded w-1/3 mb-2"></div>
-                      <div className="h-3 bg-blue-100 rounded w-1/4"></div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : areasPopulares.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {areasPopulares.map((area, index) => (
-                <Link key={index} href={`/campos/${area.nombre.toLowerCase().replace(/\s+/g, "-")}`}>
-                  <Card className="glass-effect card-hover cursor-pointer">
-                    <CardContent className="pt-4 sm:pt-6 px-3 sm:px-4">
-                      <div className="flex justify-between items-start mb-3 gap-2">
-                        <Badge className={`${area.color} break-words text-xs sm:text-sm`}>{area.nombre}</Badge>
-                        <TrendingUp className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-xs sm:text-sm">
-                          <span className="text-blue-600 break-words">Investigadores:</span>
-                          <span className="font-medium text-blue-900 ml-2">{area.investigadores}</span>
-                        </div>
-                        <div className="flex justify-between text-xs sm:text-sm">
-                          <span className="text-blue-600 break-words">Proyectos:</span>
-                          <span className="font-medium text-blue-900 ml-2">{area.proyectos}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <Card className="glass-effect">
-              <CardContent className="pt-6 text-center py-8">
-                <TrendingUp className="h-8 w-8 mx-auto text-blue-300 mb-2" />
-                <p className="text-blue-600">No hay áreas de investigación registradas aún.</p>
-              </CardContent>
-            </Card>
-          )}
         </div>
 
         {/* Instituciones destacadas */}

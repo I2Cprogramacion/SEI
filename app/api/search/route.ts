@@ -102,39 +102,6 @@ export async function GET(request: NextRequest) {
       console.log('Error buscando instituciones:', error)
     }
 
-    // Buscar campos de investigación
-    try {
-      const camposQuery = `
-        SELECT DISTINCT 
-          COALESCE(area, area_investigacion, 'Sin especificar') as title,
-          'Campo de investigación' as description
-        FROM investigadores 
-        WHERE LOWER(COALESCE(area, area_investigacion, '')) LIKE ?
-        LIMIT 3
-      `
-      const campos = await db.query(camposQuery, [`%${query.toLowerCase()}%`])
-      
-      campos.forEach((campo: any, index: number) => {
-        const slug = campo.title
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/[^a-z0-9\s]/g, '')
-          .replace(/\s+/g, '-')
-          .trim()
-          
-        results.push({
-          id: `campo-${index}`,
-          title: campo.title,
-          description: campo.description,
-          type: 'campo',
-          href: `/campos/${slug}`
-        })
-      })
-    } catch (error) {
-      console.log('Error buscando campos:', error)
-    }
-
     return NextResponse.json({ 
       results: results.slice(0, 10), // Limitar a 10 resultados
       query 
