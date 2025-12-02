@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/pagination"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Download, Eye, Filter, Search, BookOpen, Calendar, User, ExternalLink } from "lucide-react"
+import { ArrowLeft, Download, Eye, Search, BookOpen, Calendar, User, ExternalLink } from "lucide-react"
 import { ExportDialog } from "@/components/export-dialog"
 
 // Interfaz para los datos de publicaciones
@@ -44,8 +44,9 @@ interface Publicacion {
 
 export default function PublicacionesAdmin() {
   const [searchTerm, setSearchTerm] = useState("")
+  const [tipoFilter, setTipoFilter] = useState("todos")
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(5)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([])
   const [filteredData, setFilteredData] = useState<Publicacion[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -88,32 +89,36 @@ export default function PublicacionesAdmin() {
     fetchPublicaciones()
   }, [])
 
-  // Filtrar datos basados en el término de búsqueda
-  const handleSearch = () => {
+  // Filtrar datos basados en búsqueda y filtros
+  useEffect(() => {
     if (!Array.isArray(publicaciones)) return
     
-    const filtered = publicaciones.filter(
-      (publicacion) =>
-        publicacion.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        publicacion.autores?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        publicacion.revista?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        publicacion.area_tematica?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        publicacion.palabras_clave?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        publicacion.investigador_principal?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        publicacion.institucion?.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
+    let filtered = publicaciones
+
+    // Filtrar por término de búsqueda
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (publicacion) =>
+          publicacion.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          publicacion.autores?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          publicacion.revista?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          publicacion.area_tematica?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          publicacion.palabras_clave?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          publicacion.investigador_principal?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          publicacion.institucion?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    }
+
+    // Filtrar por tipo de publicación
+    if (tipoFilter !== "todos") {
+      filtered = filtered.filter(publicacion => 
+        publicacion.tipo_publicacion?.toLowerCase() === tipoFilter.toLowerCase()
+      )
+    }
+
     setFilteredData(filtered)
     setCurrentPage(1)
-  }
-
-  // Búsqueda automática cuando cambia el término de búsqueda
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      handleSearch()
-    }, 300) // Debounce de 300ms
-
-    return () => clearTimeout(timeoutId)
-  }, [searchTerm, publicaciones])
+  }, [searchTerm, tipoFilter, publicaciones])
 
   // Calcular índices para paginación
   const indexOfLastItem = currentPage * itemsPerPage
@@ -169,29 +174,57 @@ export default function PublicacionesAdmin() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-4 w-4" />
                 <Input
                   type="text"
-                  placeholder="Buscar por título..."
+                  placeholder="Buscar por título, autor, revista..."
                   className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 text-sm"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 />
               </div>
-              <Button 
-                onClick={handleSearch} 
-                size="sm"
-                className="bg-blue-700 text-white hover:bg-blue-800"
-              >
-                <Search className="mr-2 h-4 w-4 sm:hidden" />
-                <span className="sm:inline">Buscar</span>
-              </Button>
-              {searchTerm && (
+              <Select value={tipoFilter} onValueChange={setTipoFilter}>
+                <SelectTrigger className="w-full sm:w-[160px] bg-white border-blue-200">
+                  <SelectValue placeholder="Tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos los tipos</SelectItem>
+                  <SelectItem value="articulo">
+                    <span className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-blue-500" /> Artículo
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="libro">
+                    <span className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-green-500" /> Libro
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="capitulo">
+                    <span className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-purple-500" /> Capítulo
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="ponencia">
+                    <span className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-orange-500" /> Ponencia
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="tesis">
+                    <span className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-gray-500" /> Tesis
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="patente">
+                    <span className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-yellow-500" /> Patente
+                    </span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              {(searchTerm || tipoFilter !== "todos") && (
                 <Button 
                   variant="outline" 
                   size="sm"
                   onClick={() => {
                     setSearchTerm("")
-                    setFilteredData(publicaciones)
-                    setCurrentPage(1)
+                    setTipoFilter("todos")
                   }}
                   className="border-blue-200 text-blue-700 hover:bg-blue-50"
                 >
@@ -200,14 +233,6 @@ export default function PublicacionesAdmin() {
               )}
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent flex-1 sm:flex-initial"
-              >
-                <Filter className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Filtros</span>
-              </Button>
               <Button
                 variant="outline"
                 size="sm"

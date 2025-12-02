@@ -27,6 +27,45 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
+const DOCUMENT_INFO: Record<string, { label: string; description: string; icon: string; category: 'fiscal' | 'legal' | 'identidad' }> = {
+  constanciaSituacionFiscal: {
+    label: "Constancia de Situación Fiscal",
+    description: "Documento oficial del SAT que acredita la situación fiscal vigente",
+    icon: "📋",
+    category: "fiscal"
+  },
+  actaConstitutiva: {
+    label: "Acta Constitutiva",
+    description: "Documento notarial de constitución de la persona moral",
+    icon: "📜",
+    category: "legal"
+  },
+  poderRepresentante: {
+    label: "Poder del Representante",
+    description: "Documento que acredita las facultades del representante legal",
+    icon: "⚖️",
+    category: "legal"
+  },
+  comprobanteDomicilio: {
+    label: "Comprobante de Domicilio",
+    description: "Recibo de servicios o constancia de domicilio fiscal",
+    icon: "🏠",
+    category: "fiscal"
+  },
+  identificacionOficial: {
+    label: "Identificación Oficial",
+    description: "INE, pasaporte o cédula profesional del representante",
+    icon: "🪪",
+    category: "identidad"
+  }
+}
+
+const CATEGORY_STYLES = {
+  fiscal: { bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-700", badge: "bg-emerald-100 text-emerald-800" },
+  legal: { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-700", badge: "bg-blue-100 text-blue-800" },
+  identidad: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-700", badge: "bg-amber-100 text-amber-800" }
+}
+
 const DOCUMENT_LABELS: Record<string, string> = {
   constanciaSituacionFiscal: "Constancia de situación fiscal",
   actaConstitutiva: "Acta constitutiva",
@@ -701,24 +740,105 @@ export default function InstitucionDetallePage({ params }: { params: { id: strin
 
         {documentos.length > 0 && (
           <AnimatedCard className="bg-white border-blue-100" delay={320}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-blue-900 text-lg">
-                <FileDown className="h-5 w-5" /> Documentación disponible
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {documentos.map(([key, url]) => (
-                  <AnimatedButton
-                    key={key}
-                    variant="outline"
-                    className="border-blue-200 text-blue-700 hover:bg-blue-50"
-                    onClick={() => window.open(url, "_blank")}
-                  >
-                    <FileDown className="h-4 w-4 mr-2" /> {documentLabel(key)}
-                  </AnimatedButton>
-                ))}
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-blue-900 text-lg">
+                  <FileDown className="h-5 w-5" /> Documentación Disponible
+                </CardTitle>
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                  {documentos.length} {documentos.length === 1 ? 'documento' : 'documentos'}
+                </Badge>
               </div>
+              <p className="text-sm text-slate-500 mt-1">
+                Documentos oficiales verificados de la institución
+              </p>
+            </CardHeader>
+            <CardContent className="pt-4">
+              {/* Agrupación por categoría */}
+              {(['fiscal', 'legal', 'identidad'] as const).map(categoria => {
+                const docsCategoria = documentos.filter(([key]) => 
+                  DOCUMENT_INFO[key]?.category === categoria
+                )
+                if (docsCategoria.length === 0) return null
+                
+                const categoryNames = {
+                  fiscal: 'Documentos Fiscales',
+                  legal: 'Documentos Legales', 
+                  identidad: 'Identificación'
+                }
+                
+                return (
+                  <div key={categoria} className="mb-6 last:mb-0">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className={`h-1 w-1 rounded-full ${CATEGORY_STYLES[categoria].text.replace('text-', 'bg-')}`} />
+                      <h4 className={`text-sm font-semibold ${CATEGORY_STYLES[categoria].text}`}>
+                        {categoryNames[categoria]}
+                      </h4>
+                      <div className="flex-1 h-px bg-slate-200" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {docsCategoria.map(([key, url]) => {
+                        const info = DOCUMENT_INFO[key]
+                        const styles = info ? CATEGORY_STYLES[info.category] : CATEGORY_STYLES.fiscal
+                        
+                        return (
+                          <div
+                            key={key}
+                            className={`group relative rounded-xl border-2 ${styles.border} ${styles.bg} p-4 transition-all duration-200 hover:shadow-md hover:scale-[1.02] cursor-pointer`}
+                            onClick={() => window.open(url, "_blank")}
+                          >
+                            {/* Icono y título */}
+                            <div className="flex items-start gap-3">
+                              <div className="text-2xl flex-shrink-0">
+                                {info?.icon || '📄'}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h5 className={`font-semibold text-sm ${styles.text} leading-tight`}>
+                                  {info?.label || documentLabel(key)}
+                                </h5>
+                                <p className="text-xs text-slate-500 mt-1 line-clamp-2">
+                                  {info?.description || 'Documento oficial'}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            {/* Acción de ver documento */}
+                            <div className="mt-3 flex items-center justify-end">
+                              <span className="inline-flex items-center gap-1 text-xs text-slate-400 group-hover:text-blue-600 transition-colors">
+                                <ExternalLink className="w-3 h-3" />
+                                Ver documento
+                              </span>
+                            </div>
+                            
+                            {/* Hover overlay */}
+                            <div className="absolute inset-0 rounded-xl bg-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+              
+              {/* Documentos sin categoría (fallback) */}
+              {documentos.filter(([key]) => !DOCUMENT_INFO[key]).length > 0 && (
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  <h4 className="text-sm font-semibold text-slate-600 mb-3">Otros documentos</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {documentos.filter(([key]) => !DOCUMENT_INFO[key]).map(([key, url]) => (
+                      <Button
+                        key={key}
+                        variant="outline"
+                        size="sm"
+                        className="border-slate-200 text-slate-700 hover:bg-slate-50"
+                        onClick={() => window.open(url, "_blank")}
+                      >
+                        <FileDown className="h-4 w-4 mr-2" /> {documentLabel(key)}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </AnimatedCard>
         )}

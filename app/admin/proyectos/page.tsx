@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/pagination"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Download, Eye, Filter, Search, FileText, Calendar, User } from "lucide-react"
+import { ArrowLeft, Download, Eye, Search, FileText, Calendar, User } from "lucide-react"
 import { ExportDialog } from "@/components/export-dialog"
 import { AuthorAvatarGroup } from "@/components/author-avatar-group"
 
@@ -45,8 +45,9 @@ export default function ProyectosAdmin() {
   console.log("🚀 [Proyectos] Componente ProyectosAdmin renderizado")
   
   const [searchTerm, setSearchTerm] = useState("")
+  const [estadoFilter, setEstadoFilter] = useState("todos")
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(5)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
   const [proyectos, setProyectos] = useState<Proyecto[]>([])
   const [filteredData, setFilteredData] = useState<Proyecto[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -94,31 +95,37 @@ export default function ProyectosAdmin() {
     fetchProyectos()
   }, [])
 
-  // Filtrar datos basados en el término de búsqueda
-  const handleSearch = () => {
+  // Filtrar datos basados en búsqueda y filtros
+  useEffect(() => {
     if (!Array.isArray(proyectos)) return
     
-    const filtered = proyectos.filter(
-      (proyecto) =>
-        proyecto.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        proyecto.descripcion?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        proyecto.investigador_principal?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        proyecto.institucion?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        proyecto.area_investigacion?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        proyecto.estado?.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
+    let filtered = proyectos
+
+    // Filtrar por término de búsqueda
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (proyecto) =>
+          proyecto.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          proyecto.descripcion?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          proyecto.investigador_principal?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          proyecto.institucion?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          proyecto.area_investigacion?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    }
+
+    // Filtrar por estado
+    if (estadoFilter !== "todos") {
+      filtered = filtered.filter(proyecto => 
+        proyecto.estado?.toLowerCase() === estadoFilter.toLowerCase()
+      )
+    }
+
     setFilteredData(filtered)
     setCurrentPage(1)
-  }
+  }, [searchTerm, estadoFilter, proyectos])
 
-  // Búsqueda automática cuando cambia el término de búsqueda
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      handleSearch()
-    }, 300) // Debounce de 300ms
-
-    return () => clearTimeout(timeoutId)
-  }, [searchTerm, proyectos])
+  // Obtener estados únicos para el filtro
+  const estadosUnicos = Array.from(new Set(proyectos.map(p => p.estado).filter(Boolean))) as string[]
 
   // Calcular índices para paginación
   const indexOfLastItem = currentPage * itemsPerPage
@@ -174,29 +181,47 @@ export default function ProyectosAdmin() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-4 w-4" />
                 <Input
                   type="text"
-                  placeholder="Buscar por título..."
+                  placeholder="Buscar por título, investigador, institución..."
                   className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 text-sm"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 />
               </div>
-              <Button 
-                onClick={handleSearch} 
-                size="sm"
-                className="bg-blue-700 text-white hover:bg-blue-800"
-              >
-                <Search className="mr-2 h-4 w-4 sm:hidden" />
-                <span className="sm:inline">Buscar</span>
-              </Button>
-              {searchTerm && (
+              <Select value={estadoFilter} onValueChange={setEstadoFilter}>
+                <SelectTrigger className="w-full sm:w-[160px] bg-white border-blue-200">
+                  <SelectValue placeholder="Estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos los estados</SelectItem>
+                  <SelectItem value="activo">
+                    <span className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-green-500" /> Activo
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="completado">
+                    <span className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-blue-500" /> Completado
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="pausado">
+                    <span className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-yellow-500" /> Pausado
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="cancelado">
+                    <span className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-red-500" /> Cancelado
+                    </span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              {(searchTerm || estadoFilter !== "todos") && (
                 <Button 
                   variant="outline" 
                   size="sm"
                   onClick={() => {
                     setSearchTerm("")
-                    setFilteredData(proyectos)
-                    setCurrentPage(1)
+                    setEstadoFilter("todos")
                   }}
                   className="border-blue-200 text-blue-700 hover:bg-blue-50"
                 >
@@ -205,14 +230,6 @@ export default function ProyectosAdmin() {
               )}
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent flex-1 sm:flex-initial"
-              >
-                <Filter className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Filtros</span>
-              </Button>
               <Button
                 variant="outline"
                 size="sm"
