@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select"
 import { Search, User, FileText, Building, Eye, Filter, X, Users } from "lucide-react"
 import Link from "next/link"
+import { InvestigadorLink } from "@/components/investigador-link"
 
 interface SearchResult {
   investigadores: Array<{
@@ -296,11 +297,11 @@ export default function BuscarPage() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <Link href={`/investigadores/${investigador.slug}`} className="hover:underline">
+                        <InvestigadorLink slug={investigador.slug} className="hover:underline">
                           <h3 className="font-semibold text-lg text-blue-900 hover:text-blue-700 cursor-pointer mb-1">
                             {investigador.nombre}
                           </h3>
-                        </Link>
+                        </InvestigadorLink>
                         {investigador.ultimoGradoEstudios && (
                           <p className="text-sm text-blue-600 mb-2">{investigador.ultimoGradoEstudios}</p>
                         )}
@@ -324,10 +325,10 @@ export default function BuscarPage() {
                     </div>
                     <div className="flex flex-col gap-2">
                       <Button variant="ghost" size="sm" className="text-blue-700 hover:bg-blue-50" asChild>
-                        <Link href={`/investigadores/${investigador.slug}`}>
+                        <InvestigadorLink slug={investigador.slug}>
                           <Eye className="h-4 w-4 mr-2" />
                           Ver perfil
-                        </Link>
+                        </InvestigadorLink>
                       </Button>
                     </div>
                   </div>

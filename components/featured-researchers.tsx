@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Eye } from "lucide-react"
 import Link from "next/link"
+import { InvestigadorLink } from "@/components/investigador-link"
 
 // Interface para investigadores destacados
 interface FeaturedResearcher {
@@ -83,9 +84,9 @@ export function FeaturedResearchers() {
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <Link href={`/investigadores/${researcher.slug}`} className="hover:underline">
+                    <InvestigadorLink slug={researcher.slug} className="hover:underline">
                       <p className="font-medium text-blue-900 hover:text-blue-700 cursor-pointer">{researcher.name}</p>
-                    </Link>
+                    </InvestigadorLink>
                     <p className="text-sm text-blue-600">{researcher.title}</p>
                     {researcher.field && researcher.field !== 'Sin área' && (
                       <Badge variant="secondary" className="bg-blue-50 text-blue-700 text-xs mt-1">
@@ -95,9 +96,9 @@ export function FeaturedResearchers() {
                   </div>
                 </div>
                 <Button variant="ghost" size="sm" className="text-blue-700 hover:bg-blue-50" asChild>
-                  <Link href={`/investigadores/${researcher.slug}`}>
+                  <InvestigadorLink slug={researcher.slug}>
                     <Eye className="h-4 w-4" />
-                  </Link>
+                  </InvestigadorLink>
                 </Button>
               </div>
             ))}

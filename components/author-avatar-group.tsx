@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import Link from "next/link"
+import { InvestigadorLink } from "@/components/investigador-link"
 
 interface AuthorProfile {
   nombreCompleto: string
@@ -173,9 +174,9 @@ export function AuthorAvatarGroup({
               <Tooltip key={index}>
                 <TooltipTrigger asChild>
                   {hasProfile ? (
-                    <Link href={`/investigadores/${profile.slug}`} className="hover:scale-110 transition-transform">
+                    <InvestigadorLink slug={profile.slug} className="hover:scale-110 transition-transform">
                       {avatarContent}
-                    </Link>
+                    </InvestigadorLink>
                   ) : (
                     <div>{avatarContent}</div>
                   )}
@@ -217,12 +218,12 @@ export function AuthorAvatarGroup({
             return (
               <span key={index}>
                 {hasProfile ? (
-                  <Link 
-                    href={`/investigadores/${profile.slug}`}
+                  <InvestigadorLink 
+                    slug={profile.slug}
                     className="hover:underline font-medium text-blue-700"
                   >
                     {profile.nombreCompleto}
-                  </Link>
+                  </InvestigadorLink>
                 ) : (
                   <span>{profile?.nombreCompleto || author}</span>
                 )}

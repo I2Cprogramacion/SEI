@@ -10,6 +10,7 @@ import { Search, Building, MapPin, Phone, Filter, ChevronLeft, ChevronRight } fr
 import Link from "next/link"
 import { AnimatedCard } from "@/components/ui/animated-card"
 import { AnimatedBadge } from "@/components/ui/animated-badge"
+import { InvestigadorLink } from "@/components/investigador-link"
 
 interface Investigador {
   id: number
@@ -273,7 +274,7 @@ export default function InvestigadoresPage() {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {paginatedInvestigadores.map((investigador, index) => (
-                <Link href={`/investigadores/${investigador.slug}`} key={investigador.id}>
+                <InvestigadorLink slug={investigador.slug} key={investigador.id}>
                   <AnimatedCard className="h-full glass-effect card-hover cursor-pointer overflow-hidden group relative" delay={index * 100}>
                     {/* Gradiente decorativo superior */}
                     <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -388,7 +389,7 @@ export default function InvestigadoresPage() {
                       </div>
                     </CardFooter>
                   </AnimatedCard>
-                </Link>
+                </InvestigadorLink>
               ))}
               </div>
 
