@@ -9,9 +9,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowLeft, Loader2, Save, X, Plus, Award } from "lucide-react"
+import { ArrowLeft, Loader2, Save, X, Plus, Award, Shield } from "lucide-react"
 import { AreaSNIISelector } from "@/components/area-snii-selector"
 import Link from "next/link"
 
@@ -78,8 +79,10 @@ interface InvestigadorForm {
   colaboracionNacional: string
   nivel_sni: string
   tipo_perfil: string
+  nivel_investigador: string
   nivel_tecnologo: string
   nivel_tecnologo_id: string
+  genero: string
 
   // Ubicación
   domicilio: string
@@ -87,6 +90,11 @@ interface InvestigadorForm {
   estadoNacimiento: string
   municipio: string
   entidadFederativa: string
+
+  // Campos de admin
+  esAdmin: boolean
+  activo: boolean
+  perfilPublico: boolean
 }
 
 export default function EditarInvestigadorPage() {
@@ -143,8 +151,13 @@ export default function EditarInvestigadorPage() {
     entidadFederativa: "",
     nivel_sni: "",
     tipo_perfil: "INVESTIGADOR",
+    nivel_investigador: "",
     nivel_tecnologo: "",
     nivel_tecnologo_id: "",
+    genero: "",
+    esAdmin: false,
+    activo: true,
+    perfilPublico: true,
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -157,7 +170,7 @@ export default function EditarInvestigadorPage() {
 
       try {
         setIsLoading(true)
-        const response = await fetch(`/api/investigadores/${slug}`)
+        const response = await fetch(`/api/admin/investigadores/${slug}`)
         
         if (!response.ok) {
           throw new Error("Error al cargar el investigador")
@@ -167,51 +180,56 @@ export default function EditarInvestigadorPage() {
         
         // Mapear datos del API al formulario
         setFormData({
-          nombre: data.name?.split(' ')[0] || "",
-          apellidos: data.name?.split(' ').slice(1).join(' ') || "",
-          email: data.email || "",
+          nombre: data.nombres || data.nombre_completo?.split(' ')[0] || "",
+          apellidos: data.apellidos || data.nombre_completo?.split(' ').slice(1).join(' ') || "",
+          email: data.correo || "",
           telefono: data.telefono || "",
-          fechaNacimiento: data.fechaNacimiento || "",
+          fechaNacimiento: data.fecha_nacimiento || "",
           nacionalidad: data.nacionalidad || "Mexicana",
           curp: data.curp || "",
           rfc: data.rfc || "",
-          noCvu: data.noCvu || "",
-          titulo: data.title || "",
-          institucion: data.institution || "",
-          departamento: "",
-          ubicacion: data.location || "",
-          sitioWeb: "",
-          biografia: data.lineaInvestigacion || "",
-          areasEspecializacion: data.area ? [data.area] : [],
-          lineaInvestigacion: data.lineaInvestigacion || "",
+          noCvu: data.no_cvu || "",
+          titulo: data.ultimo_grado_estudios || "",
+          institucion: data.institucion || "",
+          departamento: data.departamento || "",
+          ubicacion: "",
+          sitioWeb: data.sitio_web || "",
+          biografia: "",
+          areasEspecializacion: data.area_investigacion ? [data.area_investigacion] : [],
+          lineaInvestigacion: data.linea_investigacion || "",
           orcid: data.orcid || "",
           nivel: data.nivel || "",
-          empleoActual: data.empleoActual || "",
-          gradoMaximoEstudios: data.gradoMaximoEstudios || "",
+          empleoActual: data.empleo_actual || "",
+          gradoMaximoEstudios: data.grado_maximo_estudios || "",
           disciplina: data.disciplina || "",
           especialidad: data.especialidad || "",
           sni: data.sni || "",
-          anioSni: data.anioSni?.toString() || "",
-          experienciaDocente: data.experienciaDocente || "",
-          experienciaLaboral: data.experienciaLaboral || "",
-          proyectosInvestigacion: data.proyectosInvestigacion || "",
-          proyectosVinculacion: data.proyectosVinculacion || "",
+          anioSni: data.anio_sni?.toString() || "",
+          experienciaDocente: data.experiencia_docente || "",
+          experienciaLaboral: data.experiencia_laboral || "",
+          proyectosInvestigacion: data.proyectos_investigacion || "",
+          proyectosVinculacion: data.proyectos_vinculacion || "",
           libros: data.libros || "",
-          capitulosLibros: data.capitulosLibros || "",
+          capitulosLibros: data.capitulos_libros || "",
           articulos: data.articulos || "",
-          premiosDistinciones: data.premiosDistinciones || "",
+          premiosDistinciones: data.premios_distinciones || "",
           idiomas: data.idiomas || "",
-          colaboracionInternacional: data.colaboracionInternacional || "",
-          colaboracionNacional: data.colaboracionNacional || "",
+          colaboracionInternacional: data.colaboracion_internacional || "",
+          colaboracionNacional: data.colaboracion_nacional || "",
           domicilio: data.domicilio || "",
           cp: data.cp || "",
-          estadoNacimiento: "",
-          municipio: "",
-          entidadFederativa: "",
+          estadoNacimiento: data.estado_nacimiento || "",
+          municipio: data.municipio || "",
+          entidadFederativa: data.entidad_federativa || "",
           nivel_sni: data.nivel_sni || "",
           tipo_perfil: data.tipo_perfil || "INVESTIGADOR",
+          nivel_investigador: data.nivel_investigador || "",
           nivel_tecnologo: data.nivel_tecnologo || "",
           nivel_tecnologo_id: data.nivel_tecnologo_id || "",
+          genero: data.genero || "",
+          esAdmin: data.es_admin || false,
+          activo: data.activo !== undefined ? data.activo : true,
+          perfilPublico: data.perfil_publico !== undefined ? data.perfil_publico : true,
         })
       } catch (err) {
         console.error("Error fetching investigador:", err)
@@ -266,63 +284,74 @@ export default function EditarInvestigadorPage() {
     setSuccess(null)
 
     try {
-      // TODO: Implementar API de actualización
-      // const response = await fetch(`/api/investigadores/${slug}`, {
-      //   method: "PUT",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({
-      //     nombre_completo: `${formData.nombre} ${formData.apellidos}`,
-      //     correo: formData.email,
-      //     telefono: formData.telefono,
-      //     curp: formData.curp,
-      //     rfc: formData.rfc,
-      //     no_cvu: formData.noCvu,
-      //     institucion: formData.institucion,
-      //     area: formData.areasEspecializacion.join(', '),
-      //     linea_investigacion: formData.lineaInvestigacion,
-      //     ultimo_grado_estudios: formData.titulo,
-      //     empleo_actual: formData.empleoActual,
-      //     orcid: formData.orcid,
-      //     nivel: formData.nivel,
-      //     grado_maximo_estudios: formData.gradoMaximoEstudios,
-      //     disciplina: formData.disciplina,
-      //     especialidad: formData.especialidad,
-      //     sni: formData.sni,
-      //     anio_sni: formData.anioSni ? parseInt(formData.anioSni) : null,
-      //     experiencia_docente: formData.experienciaDocente,
-      //     experiencia_laboral: formData.experienciaLaboral,
-      //     proyectos_investigacion: formData.proyectosInvestigacion,
-      //     proyectos_vinculacion: formData.proyectosVinculacion,
-      //     libros: formData.libros,
-      //     capitulos_libros: formData.capitulosLibros,
-      //     articulos: formData.articulos,
-      //     premios_distinciones: formData.premiosDistinciones,
-      //     idiomas: formData.idiomas,
-      //     colaboracion_internacional: formData.colaboracionInternacional,
-      //     colaboracion_nacional: formData.colaboracionNacional,
-      //     domicilio: formData.domicilio,
-      //     cp: formData.cp,
-      //     estado_nacimiento: formData.estadoNacimiento,
-      //     municipio: formData.municipio,
-      //     entidad_federativa: formData.entidadFederativa,
-      //     nivel_sni: formData.nivel_sni,
-      //     tipo_perfil: formData.tipo_perfil,
-      //     nivel_tecnologo: formData.nivel_tecnologo,
-      //     nivel_tecnologo_id: formData.nivel_tecnologo_id,
-      //   }),
-      // })
+      const response = await fetch(`/api/admin/investigadores/${slug}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre_completo: `${formData.nombre} ${formData.apellidos}`,
+          nombres: formData.nombre,
+          apellidos: formData.apellidos,
+          correo: formData.email,
+          telefono: formData.telefono,
+          fecha_nacimiento: formData.fechaNacimiento,
+          nacionalidad: formData.nacionalidad,
+          curp: formData.curp,
+          rfc: formData.rfc,
+          no_cvu: formData.noCvu,
+          institucion: formData.institucion,
+          departamento: formData.departamento,
+          sitio_web: formData.sitioWeb,
+          area_investigacion: formData.areasEspecializacion.join(', '),
+          linea_investigacion: formData.lineaInvestigacion,
+          ultimo_grado_estudios: formData.titulo,
+          empleo_actual: formData.empleoActual,
+          orcid: formData.orcid,
+          nivel: formData.nivel,
+          nivel_investigador: formData.nivel_investigador,
+          grado_maximo_estudios: formData.gradoMaximoEstudios,
+          disciplina: formData.disciplina,
+          especialidad: formData.especialidad,
+          sni: formData.sni,
+          anio_sni: formData.anioSni ? parseInt(formData.anioSni) : null,
+          nivel_sni: formData.nivel_sni,
+          tipo_perfil: formData.tipo_perfil,
+          nivel_tecnologo: formData.nivel_tecnologo,
+          nivel_tecnologo_id: formData.nivel_tecnologo_id,
+          experiencia_docente: formData.experienciaDocente,
+          experiencia_laboral: formData.experienciaLaboral,
+          proyectos_investigacion: formData.proyectosInvestigacion,
+          proyectos_vinculacion: formData.proyectosVinculacion,
+          libros: formData.libros,
+          capitulos_libros: formData.capitulosLibros,
+          articulos: formData.articulos,
+          premios_distinciones: formData.premiosDistinciones,
+          idiomas: formData.idiomas,
+          colaboracion_internacional: formData.colaboracionInternacional,
+          colaboracion_nacional: formData.colaboracionNacional,
+          domicilio: formData.domicilio,
+          cp: formData.cp,
+          estado_nacimiento: formData.estadoNacimiento,
+          municipio: formData.municipio,
+          entidad_federativa: formData.entidadFederativa,
+          genero: formData.genero,
+          // Campos de admin
+          es_admin: formData.esAdmin,
+          activo: formData.activo,
+          perfil_publico: formData.perfilPublico,
+        }),
+      })
 
-      // if (!response.ok) {
-      //   throw new Error("Error al actualizar el investigador")
-      // }
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Error al actualizar el investigador")
+      }
 
-      // Simular guardado exitoso
+      const result = await response.json()
+      setSuccess(result.message || "Investigador actualizado exitosamente")
+      
       setTimeout(() => {
-        setSuccess("Investigador actualizado exitosamente")
-        setTimeout(() => {
-          router.push("/admin/investigadores")
-        }, 2000)
-      }, 1000)
+        router.push("/admin/investigadores")
+      }, 2000)
 
     } catch (err) {
       console.error("Error saving investigador:", err)
@@ -775,6 +804,79 @@ export default function EditarInvestigadorPage() {
             </Card>
           </div>
         </div>
+
+        {/* Sección de Controles de Administrador */}
+        <Card className="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200">
+          <CardHeader>
+            <CardTitle className="text-red-900 flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Controles de Administrador
+            </CardTitle>
+            <CardDescription className="text-red-700">
+              Configuración sensible - Solo administradores
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Es Admin */}
+              <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-red-200">
+                <div className="space-y-1">
+                  <Label htmlFor="esAdmin" className="font-semibold text-red-900">
+                    Permisos de Administrador
+                  </Label>
+                  <p className="text-sm text-red-600">
+                    {formData.esAdmin ? "Usuario es administrador" : "Usuario estándar"}
+                  </p>
+                </div>
+                <Switch
+                  id="esAdmin"
+                  checked={formData.esAdmin}
+                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, esAdmin: checked }))}
+                />
+              </div>
+
+              {/* Perfil Activo */}
+              <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-red-200">
+                <div className="space-y-1">
+                  <Label htmlFor="activo" className="font-semibold text-red-900">
+                    Perfil Activo
+                  </Label>
+                  <p className="text-sm text-red-600">
+                    {formData.activo ? "Perfil visible" : "Perfil oculto"}
+                  </p>
+                </div>
+                <Switch
+                  id="activo"
+                  checked={formData.activo}
+                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, activo: checked }))}
+                />
+              </div>
+
+              {/* Perfil Público */}
+              <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-red-200">
+                <div className="space-y-1">
+                  <Label htmlFor="perfilPublico" className="font-semibold text-red-900">
+                    Perfil Público
+                  </Label>
+                  <p className="text-sm text-red-600">
+                    {formData.perfilPublico ? "Visible en búsquedas" : "Privado"}
+                  </p>
+                </div>
+                <Switch
+                  id="perfilPublico"
+                  checked={formData.perfilPublico}
+                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, perfilPublico: checked }))}
+                />
+              </div>
+            </div>
+
+            <Alert className="bg-red-50 border-red-200">
+              <AlertDescription className="text-red-700">
+                <strong>⚠️ Advertencia:</strong> Cambiar estos valores puede afectar el acceso y visibilidad del investigador en el sistema.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
