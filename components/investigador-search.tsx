@@ -23,13 +23,15 @@ interface InvestigadorSearchProps {
   onSelectionChange: (investigadores: Investigador[]) => void
   placeholder?: string
   className?: string
+  excludeIds?: number[] // IDs de investigadores a excluir (ej: ya seleccionados como coautores)
 }
 
 export function InvestigadorSearch({ 
   selectedInvestigadores, 
   onSelectionChange, 
   placeholder = "Buscar investigadores registrados...",
-  className 
+  className,
+  excludeIds = []
 }: InvestigadorSearchProps) {
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
@@ -85,7 +87,11 @@ export function InvestigadorSearch({
       const data = await response.json()
       
       if (response.ok) {
-        setInvestigadores(data.investigadores || [])
+        // Filtrar los investigadores excluidos (ya seleccionados en otro campo)
+        const investigadoresFiltrados = (data.investigadores || []).filter(
+          (inv: Investigador) => !excludeIds.includes(inv.id)
+        )
+        setInvestigadores(investigadoresFiltrados)
         // Mostrar mensaje si no tiene conexiones
         if (data.mensaje) {
           setError(data.mensaje)

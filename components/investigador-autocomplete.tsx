@@ -23,6 +23,7 @@ interface InvestigadorAutocompleteProps {
   placeholder?: string
   className?: string
   disabled?: boolean
+  excludeIds?: number[] // IDs de investigadores a excluir
 }
 
 export function InvestigadorAutocomplete({
@@ -30,7 +31,8 @@ export function InvestigadorAutocomplete({
   onSelect,
   placeholder = "Buscar investigador...",
   className,
-  disabled = false
+  disabled = false,
+  excludeIds = []
 }: InvestigadorAutocompleteProps) {
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
@@ -86,7 +88,11 @@ export function InvestigadorAutocomplete({
       const data = await response.json()
       
       if (response.ok) {
-        setInvestigadores(data.investigadores || [])
+        // Filtrar los investigadores excluidos (ya seleccionados en otro campo)
+        const investigadoresFiltrados = (data.investigadores || []).filter(
+          (inv: Investigador) => !excludeIds.includes(inv.id)
+        )
+        setInvestigadores(investigadoresFiltrados)
         // Mostrar mensaje si no tiene conexiones
         if (data.mensaje) {
           setError(data.mensaje)

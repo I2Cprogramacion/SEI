@@ -1159,6 +1159,7 @@ export default function NuevaPublicacionPage() {
                       selectedInvestigadores={autoresSeleccionados}
                       onSelectionChange={setAutoresSeleccionados}
                       placeholder="Buscar autores registrados..."
+                      excludeIds={coautoresSeleccionados.map(c => c.id)}
                     />
                   </div>
 
@@ -1248,6 +1249,7 @@ export default function NuevaPublicacionPage() {
                       selectedInvestigadores={coautoresSeleccionados}
                       onSelectionChange={setCoautoresSeleccionados}
                       placeholder="Buscar coautores registrados..."
+                      excludeIds={autoresSeleccionados.map(a => a.id)}
                     />
                   </div>
 

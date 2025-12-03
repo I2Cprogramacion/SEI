@@ -683,14 +683,13 @@ export default function NuevoProyectoPage() {
                         setInvestigadorPrincipal(inv)
                         if (inv) {
                           handleInputChange("autor", inv.nombre)
-                          handleInputChange("institucion", inv.institucion || "")
                         } else {
                           handleInputChange("autor", "")
                         }
                       }}
                       placeholder="Buscar investigador principal..."
-                      showInstitucion={false}
                       className={errors.some(e => e.field === "autor") ? "border-red-300" : ""}
+                      excludeIds={colaboradoresSeleccionados.map(c => c.id)}
                     />
                     {errors.some(e => e.field === "autor") && (
                       <p className="text-sm text-red-600">
@@ -978,6 +977,7 @@ export default function NuevoProyectoPage() {
                       selectedInvestigadores={colaboradoresSeleccionados}
                       onSelectionChange={setColaboradoresSeleccionados}
                       placeholder="Buscar colaboradores registrados..."
+                      excludeIds={investigadorPrincipal ? [investigadorPrincipal.id] : []}
                     />
                   </div>
 
