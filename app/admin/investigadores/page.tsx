@@ -19,7 +19,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ArrowLeft, Download, Eye, Filter, Search, UserCog, TrendingUp, TrendingDown, Minus, Award } from "lucide-react"
+import { ArrowLeft, Download, Eye, EyeOff, Filter, Search, UserCog, TrendingUp, TrendingDown, Minus, Award } from "lucide-react"
 import { ExportDialog } from "@/components/export-dialog"
 import { InvestigadoresFiltrosAvanzados, type FiltrosInvestigador } from "@/components/investigadores-filtros-avanzados"
 import { getParametrosSNII, compararConParametros } from "@/lib/snii-parametros"
@@ -107,7 +107,8 @@ export default function InvestigadoresAdmin() {
     const fetchInvestigadores = async () => {
       try {
         setIsLoading(true)
-        const response = await fetch("/api/investigadores")
+        // Agregar parámetro para incluir investigadores inactivos en el panel admin
+        const response = await fetch("/api/investigadores?incluirInactivos=true")
         if (!response.ok) {
           throw new Error("Error al cargar los investigadores")
         }
@@ -490,7 +491,15 @@ export default function InvestigadoresAdmin() {
                       </TableCell>
                       <TableCell className="text-gray-900">{investigador.id}</TableCell>
                       <TableCell className="text-gray-900 font-medium">
-                        {investigador.nombre || investigador.nombre_completo || "N/A"}
+                        <div className="flex items-center gap-2">
+                          <span>{investigador.nombre || investigador.nombre_completo || "N/A"}</span>
+                          {investigador.activo === false && (
+                            <Badge variant="outline" className="bg-gray-100 text-gray-600 border-gray-300 text-xs flex items-center gap-1">
+                              <EyeOff className="h-3 w-3" />
+                              Oculto
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-gray-700">{investigador.email || investigador.correo || "N/A"}</TableCell>
                       <TableCell className="text-gray-700">{investigador.institucion || "N/A"}</TableCell>
@@ -601,9 +610,17 @@ export default function InvestigadoresAdmin() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-blue-900 truncate">
-                              {investigador.nombre || investigador.nombre_completo || "N/A"}
-                            </h3>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-semibold text-blue-900 truncate">
+                                {investigador.nombre || investigador.nombre_completo || "N/A"}
+                              </h3>
+                              {investigador.activo === false && (
+                                <Badge variant="outline" className="bg-gray-100 text-gray-600 border-gray-300 text-xs flex items-center gap-1 flex-shrink-0">
+                                  <EyeOff className="h-3 w-3" />
+                                  Oculto
+                                </Badge>
+                              )}
+                            </div>
                             <p className="text-sm text-blue-600 truncate">{investigador.email || investigador.correo || "N/A"}</p>
                           </div>
                           <div className="flex flex-col gap-1">

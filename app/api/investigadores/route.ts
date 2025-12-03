@@ -18,23 +18,34 @@ export async function GET(request: NextRequest) {
   try {
     const db = await getDatabase()
     
+    // Obtener parámetro para modo admin (mostrar todos incluyendo inactivos)
+    const { searchParams } = new URL(request.url)
+    const incluirInactivos = searchParams.get('incluirInactivos') === 'true'
+    
     // Obtener todos los investigadores de la base de datos
     const investigadoresRaw = await db.obtenerInvestigadores()
     
-    // Filtrar solo investigadores activos y con datos básicos
-    const investigadoresActivos = investigadoresRaw.filter((inv: any) => {
-      // Solo mostrar investigadores activos (activo !== false)
-      const estaActivo = inv.activo !== false && inv.activo !== null
-      // Y que tengan nombre completo
+    // Filtrar investigadores según el modo
+    const investigadoresFiltrados = investigadoresRaw.filter((inv: any) => {
+      // Siempre requerir nombre completo
       const tieneNombre = inv.nombre_completo && inv.nombre_completo.trim() !== ''
-      return estaActivo && tieneNombre
+      if (!tieneNombre) return false
+      
+      // Si incluirInactivos es true (modo admin), mostrar todos
+      if (incluirInactivos) return true
+      
+      // Si no, solo mostrar activos (modo público)
+      const estaActivo = inv.activo !== false && inv.activo !== null
+      return estaActivo
     })
 
-    // Mezclar aleatoriamente los investigadores
-    const investigadoresMezclados = shuffleArray(investigadoresActivos)
+    // Mezclar aleatoriamente los investigadores (solo en modo público)
+    const investigadoresProcesados = incluirInactivos 
+      ? investigadoresFiltrados 
+      : shuffleArray(investigadoresFiltrados)
 
     // Mapear datos de snake_case a camelCase para el frontend
-    const investigadores = investigadoresMezclados.map((inv: any) => {
+    const investigadores = investigadoresProcesados.map((inv: any) => {
       // Generar slug si no existe
       let slug = inv.slug
       if (!slug || slug.trim() === '') {
