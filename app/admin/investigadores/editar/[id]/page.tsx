@@ -733,9 +733,9 @@ export default function EditarInvestigadorPage() {
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="flex items-center justify-between space-x-4 p-4 bg-white rounded-lg border-2 border-red-100">
+                  <div className="flex items-center justify-between space-x-4 p-4 bg-white rounded-lg border-2 border-red-100 hover:border-green-300 transition-colors">
                     <div className="space-y-1">
-                      <Label htmlFor="activo" className="text-red-900 font-medium flex items-center gap-2">
+                      <Label htmlFor="activo" className="text-red-900 font-medium flex items-center gap-2 cursor-pointer">
                         <Eye className="h-4 w-4" />
                         Perfil Visible
                       </Label>
@@ -747,13 +747,13 @@ export default function EditarInvestigadorPage() {
                       id="activo"
                       checked={formData.activo}
                       onCheckedChange={(checked) => setFormData(prev => ({ ...prev, activo: checked }))}
-                      className="data-[state=checked]:bg-green-600 border-2 border-gray-300"
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300 data-[state=unchecked]:border-gray-400"
                     />
                   </div>
 
-                  <div className="flex items-center justify-between space-x-4 p-4 bg-white rounded-lg border-2 border-red-100">
+                  <div className="flex items-center justify-between space-x-4 p-4 bg-white rounded-lg border-2 border-red-100 hover:border-red-300 transition-colors">
                     <div className="space-y-1">
-                      <Label htmlFor="es_admin" className="text-red-900 font-medium flex items-center gap-2">
+                      <Label htmlFor="es_admin" className="text-red-900 font-medium flex items-center gap-2 cursor-pointer">
                         <Shield className="h-4 w-4" />
                         Permisos de Administrador
                       </Label>
@@ -765,13 +765,13 @@ export default function EditarInvestigadorPage() {
                       id="es_admin"
                       checked={formData.es_admin}
                       onCheckedChange={(checked) => setFormData(prev => ({ ...prev, es_admin: checked }))}
-                      className="data-[state=checked]:bg-red-600 border-2 border-gray-300"
+                      className="data-[state=checked]:bg-red-600 data-[state=unchecked]:bg-gray-300 data-[state=unchecked]:border-gray-400"
                     />
                   </div>
 
-                  <div className="flex items-center justify-between space-x-4 p-4 bg-white rounded-lg border-2 border-red-100">
+                  <div className="flex items-center justify-between space-x-4 p-4 bg-white rounded-lg border-2 border-red-100 hover:border-purple-300 transition-colors">
                     <div className="space-y-1">
-                      <Label htmlFor="es_evaluador" className="text-red-900 font-medium flex items-center gap-2">
+                      <Label htmlFor="es_evaluador" className="text-red-900 font-medium flex items-center gap-2 cursor-pointer">
                         <Award className="h-4 w-4" />
                         Permisos de Evaluador
                       </Label>
@@ -783,7 +783,7 @@ export default function EditarInvestigadorPage() {
                       id="es_evaluador"
                       checked={formData.es_evaluador}
                       onCheckedChange={(checked) => setFormData(prev => ({ ...prev, es_evaluador: checked }))}
-                      className="data-[state=checked]:bg-purple-600 border-2 border-gray-300"
+                      className="data-[state=checked]:bg-purple-600 data-[state=unchecked]:bg-gray-300 data-[state=unchecked]:border-gray-400"
                     />
                   </div>
                 </div>
