@@ -32,69 +32,75 @@ const NIVELES_TECNOLOGO = [
   "Tecnólogo Nivel B"
 ] as const
 
-// Interface para el formulario de investigador
+// Interface para el formulario de investigador (alineado con registro)
 interface InvestigadorForm {
-  // Información personal
-  nombre: string
+  // Información personal básica
+  nombres: string
   apellidos: string
-  email: string
+  nombre_completo: string
+  correo: string
   telefono: string
-  fechaNacimiento: string
+  fecha_nacimiento: string
   nacionalidad: string
   curp: string
   rfc: string
-  noCvu: string
-
-  // Información académica
-  titulo: string
-  institucion: string
-  departamento: string
-  ubicacion: string
-  sitioWeb: string
-
-  // Información profesional
-  biografia: string
-  areasEspecializacion: string[]
-  lineaInvestigacion: string
-
-  // Información adicional
-  orcid: string
-  nivel: string
-  empleoActual: string
-  gradoMaximoEstudios: string
-  disciplina: string
-  especialidad: string
-  sni: string
-  anioSni: string
-  experienciaDocente: string
-  experienciaLaboral: string
-  proyectosInvestigacion: string
-  proyectosVinculacion: string
-  libros: string
-  capitulosLibros: string
-  articulos: string
-  premiosDistinciones: string
-  idiomas: string
-  colaboracionInternacional: string
-  colaboracionNacional: string
-  nivel_sni: string
-  tipo_perfil: string
-  nivel_investigador: string
-  nivel_tecnologo: string
-  nivel_tecnologo_id: string
+  no_cvu: string
   genero: string
 
   // Ubicación
-  domicilio: string
-  cp: string
-  estadoNacimiento: string
   municipio: string
-  entidadFederativa: string
+  estado_nacimiento: string
+  entidad_federativa: string
+
+  // Información académica/institucional
+  institucion: string
+  departamento: string
+  ubicacion: string
+  sitio_web: string
+  ultimo_grado_estudios: string
+  grado_maximo_estudios: string
+  empleo_actual: string
+
+  // Investigación
+  linea_investigacion: string
+  area_investigacion: string
+  disciplina: string
+  especialidad: string
+  orcid: string
+
+  // Nivel y SNI
+  nivel: string
+  nivel_investigador: string
+  nivel_sni: string
+  sni: string
+  anio_sni: string
+  nivel_actual_id: string
+  fecha_asignacion_nivel: string
+
+  // Producción académica
+  experiencia_docente: string
+  experiencia_laboral: string
+  proyectos_investigacion: string
+  proyectos_vinculacion: string
+  libros: string
+  capitulos_libros: string
+  articulos: string
+  premios_distinciones: string
+  idiomas: string
+  colaboracion_internacional: string
+  colaboracion_nacional: string
+
+  // CV
+  cv_url: string
+
+  // Evaluación
+  puntaje_total: number
+  estado_evaluacion: string
 
   // Campos de admin
-  esAdmin: boolean
+  es_admin: boolean
   activo: boolean
-  perfilPublico: boolean
+  perfil_publico: boolean
 }
 
 export default function EditarInvestigadorPage() {
@@ -108,60 +114,59 @@ export default function EditarInvestigadorPage() {
   const [success, setSuccess] = useState<string | null>(null)
 
   const [formData, setFormData] = useState<InvestigadorForm>({
-    nombre: "",
+    nombres: "",
     apellidos: "",
-    email: "",
+    nombre_completo: "",
+    correo: "",
     telefono: "",
-    fechaNacimiento: "",
+    fecha_nacimiento: "",
     nacionalidad: "Mexicana",
     curp: "",
     rfc: "",
-    noCvu: "",
-    titulo: "",
+    no_cvu: "",
+    genero: "",
+    municipio: "",
+    estado_nacimiento: "",
+    entidad_federativa: "",
     institucion: "",
     departamento: "",
     ubicacion: "",
-    sitioWeb: "",
-    biografia: "",
-    areasEspecializacion: [],
-    lineaInvestigacion: "",
-    orcid: "",
-    nivel: "",
-    empleoActual: "",
-    gradoMaximoEstudios: "",
+    sitio_web: "",
+    ultimo_grado_estudios: "",
+    grado_maximo_estudios: "",
+    empleo_actual: "",
+    linea_investigacion: "",
+    area_investigacion: "",
     disciplina: "",
     especialidad: "",
-    sni: "",
-    anioSni: "",
-    experienciaDocente: "",
-    experienciaLaboral: "",
-    proyectosInvestigacion: "",
-    proyectosVinculacion: "",
-    libros: "",
-    capitulosLibros: "",
-    articulos: "",
-    premiosDistinciones: "",
-    idiomas: "",
-    colaboracionInternacional: "",
-    colaboracionNacional: "",
-    domicilio: "",
-    cp: "",
-    estadoNacimiento: "",
-    municipio: "",
-    entidadFederativa: "",
-    nivel_sni: "",
-    tipo_perfil: "INVESTIGADOR",
+    orcid: "",
+    nivel: "",
     nivel_investigador: "",
-    nivel_tecnologo: "",
-    nivel_tecnologo_id: "",
-    genero: "",
-    esAdmin: false,
+    nivel_sni: "",
+    sni: "",
+    anio_sni: "",
+    nivel_actual_id: "",
+    fecha_asignacion_nivel: "",
+    experiencia_docente: "",
+    experiencia_laboral: "",
+    proyectos_investigacion: "",
+    proyectos_vinculacion: "",
+    libros: "",
+    capitulos_libros: "",
+    articulos: "",
+    premios_distinciones: "",
+    idiomas: "",
+    colaboracion_internacional: "",
+    colaboracion_nacional: "",
+    cv_url: "",
+    puntaje_total: 0,
+    estado_evaluacion: "PENDIENTE",
+    es_admin: false,
     activo: true,
-    perfilPublico: true,
+    perfil_publico: true,
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [newArea, setNewArea] = useState("")
 
   // Cargar datos del investigador
   useEffect(() => {
@@ -178,58 +183,58 @@ export default function EditarInvestigadorPage() {
 
         const data = await response.json()
         
-        // Mapear datos del API al formulario
+        // Mapear datos del API al formulario (usando nombres exactos de la BD)
         setFormData({
-          nombre: data.nombres || data.nombre_completo?.split(' ')[0] || "",
-          apellidos: data.apellidos || data.nombre_completo?.split(' ').slice(1).join(' ') || "",
-          email: data.correo || "",
+          nombres: data.nombres || "",
+          apellidos: data.apellidos || "",
+          nombre_completo: data.nombre_completo || "",
+          correo: data.correo || "",
           telefono: data.telefono || "",
-          fechaNacimiento: data.fecha_nacimiento || "",
+          fecha_nacimiento: data.fecha_nacimiento || "",
           nacionalidad: data.nacionalidad || "Mexicana",
           curp: data.curp || "",
           rfc: data.rfc || "",
-          noCvu: data.no_cvu || "",
-          titulo: data.ultimo_grado_estudios || "",
+          no_cvu: data.no_cvu || "",
+          genero: data.genero || "",
+          municipio: data.municipio || "",
+          estado_nacimiento: data.estado_nacimiento || "",
+          entidad_federativa: data.entidad_federativa || "",
           institucion: data.institucion || "",
           departamento: data.departamento || "",
-          ubicacion: "",
-          sitioWeb: data.sitio_web || "",
-          biografia: "",
-          areasEspecializacion: data.area_investigacion ? [data.area_investigacion] : [],
-          lineaInvestigacion: data.linea_investigacion || "",
-          orcid: data.orcid || "",
-          nivel: data.nivel || "",
-          empleoActual: data.empleo_actual || "",
-          gradoMaximoEstudios: data.grado_maximo_estudios || "",
+          ubicacion: data.ubicacion || "",
+          sitio_web: data.sitio_web || "",
+          ultimo_grado_estudios: data.ultimo_grado_estudios || "",
+          grado_maximo_estudios: data.grado_maximo_estudios || "",
+          empleo_actual: data.empleo_actual || "",
+          linea_investigacion: data.linea_investigacion || "",
+          area_investigacion: data.area_investigacion || "",
           disciplina: data.disciplina || "",
           especialidad: data.especialidad || "",
-          sni: data.sni || "",
-          anioSni: data.anio_sni?.toString() || "",
-          experienciaDocente: data.experiencia_docente || "",
-          experienciaLaboral: data.experiencia_laboral || "",
-          proyectosInvestigacion: data.proyectos_investigacion || "",
-          proyectosVinculacion: data.proyectos_vinculacion || "",
-          libros: data.libros || "",
-          capitulosLibros: data.capitulos_libros || "",
-          articulos: data.articulos || "",
-          premiosDistinciones: data.premios_distinciones || "",
-          idiomas: data.idiomas || "",
-          colaboracionInternacional: data.colaboracion_internacional || "",
-          colaboracionNacional: data.colaboracion_nacional || "",
-          domicilio: data.domicilio || "",
-          cp: data.cp || "",
-          estadoNacimiento: data.estado_nacimiento || "",
-          municipio: data.municipio || "",
-          entidadFederativa: data.entidad_federativa || "",
-          nivel_sni: data.nivel_sni || "",
-          tipo_perfil: data.tipo_perfil || "INVESTIGADOR",
+          orcid: data.orcid || "",
+          nivel: data.nivel || "",
           nivel_investigador: data.nivel_investigador || "",
-          nivel_tecnologo: data.nivel_tecnologo || "",
-          nivel_tecnologo_id: data.nivel_tecnologo_id || "",
-          genero: data.genero || "",
-          esAdmin: data.es_admin || false,
+          nivel_sni: data.nivel_sni || "",
+          sni: data.sni || "",
+          anio_sni: data.anio_sni?.toString() || "",
+          nivel_actual_id: data.nivel_actual_id?.toString() || "",
+          fecha_asignacion_nivel: data.fecha_asignacion_nivel || "",
+          experiencia_docente: data.experiencia_docente || "",
+          experiencia_laboral: data.experiencia_laboral || "",
+          proyectos_investigacion: data.proyectos_investigacion || "",
+          proyectos_vinculacion: data.proyectos_vinculacion || "",
+          libros: data.libros || "",
+          capitulos_libros: data.capitulos_libros || "",
+          articulos: data.articulos || "",
+          premios_distinciones: data.premios_distinciones || "",
+          idiomas: data.idiomas || "",
+          colaboracion_internacional: data.colaboracion_internacional || "",
+          colaboracion_nacional: data.colaboracion_nacional || "",
+          cv_url: data.cv_url || "",
+          puntaje_total: data.puntaje_total || 0,
+          estado_evaluacion: data.estado_evaluacion || "PENDIENTE",
+          es_admin: data.es_admin || false,
           activo: data.activo !== undefined ? data.activo : true,
-          perfilPublico: data.perfil_publico !== undefined ? data.perfil_publico : true,
+          perfil_publico: data.perfil_publico !== undefined ? data.perfil_publico : true,
         })
       } catch (err) {
         console.error("Error fetching investigador:", err)
@@ -242,32 +247,13 @@ export default function EditarInvestigadorPage() {
     fetchInvestigador()
   }, [slug])
 
-  // Agregar área de especialización
-  const addArea = () => {
-    if (newArea.trim() && !formData.areasEspecializacion.includes(newArea.trim())) {
-      setFormData((prev) => ({
-        ...prev,
-        areasEspecializacion: [...prev.areasEspecializacion, newArea.trim()],
-      }))
-      setNewArea("")
-    }
-  }
-
-  // Remover área de especialización
-  const removeArea = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      areasEspecializacion: prev.areasEspecializacion.filter((_, i) => i !== index),
-    }))
-  }
-
   // Validar formulario
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.nombre) newErrors.nombre = "El nombre es requerido"
+    if (!formData.nombres) newErrors.nombres = "El nombre es requerido"
     if (!formData.apellidos) newErrors.apellidos = "Los apellidos son requeridos"
-    if (!formData.email) newErrors.email = "El email es requerido"
+    if (!formData.correo) newErrors.correo = "El email es requerido"
     if (!formData.curp) newErrors.curp = "El CURP es requerido"
     if (!formData.rfc) newErrors.rfc = "El RFC es requerido"
 
@@ -288,56 +274,75 @@ export default function EditarInvestigadorPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          nombre_completo: `${formData.nombre} ${formData.apellidos}`,
-          nombres: formData.nombre,
+          // Datos personales
+          nombres: formData.nombres,
           apellidos: formData.apellidos,
-          correo: formData.email,
+          nombre_completo: formData.nombre_completo || `${formData.nombres} ${formData.apellidos}`,
+          correo: formData.correo,
           telefono: formData.telefono,
-          fecha_nacimiento: formData.fechaNacimiento,
+          fecha_nacimiento: formData.fecha_nacimiento,
           nacionalidad: formData.nacionalidad,
           curp: formData.curp,
           rfc: formData.rfc,
-          no_cvu: formData.noCvu,
+          no_cvu: formData.no_cvu,
+          genero: formData.genero,
+          
+          // Ubicación
+          municipio: formData.municipio,
+          estado_nacimiento: formData.estado_nacimiento,
+          entidad_federativa: formData.entidad_federativa,
+          
+          // Información institucional
           institucion: formData.institucion,
           departamento: formData.departamento,
-          sitio_web: formData.sitioWeb,
-          area_investigacion: formData.areasEspecializacion.join(', '),
-          linea_investigacion: formData.lineaInvestigacion,
-          ultimo_grado_estudios: formData.titulo,
-          empleo_actual: formData.empleoActual,
-          orcid: formData.orcid,
-          nivel: formData.nivel,
-          nivel_investigador: formData.nivel_investigador,
-          grado_maximo_estudios: formData.gradoMaximoEstudios,
+          ubicacion: formData.ubicacion,
+          sitio_web: formData.sitio_web,
+          
+          // Formación académica
+          ultimo_grado_estudios: formData.ultimo_grado_estudios,
+          grado_maximo_estudios: formData.grado_maximo_estudios,
+          empleo_actual: formData.empleo_actual,
+          
+          // Investigación
+          linea_investigacion: formData.linea_investigacion,
+          area_investigacion: formData.area_investigacion,
           disciplina: formData.disciplina,
           especialidad: formData.especialidad,
-          sni: formData.sni,
-          anio_sni: formData.anioSni ? parseInt(formData.anioSni) : null,
+          orcid: formData.orcid,
+          
+          // Nivel y SNI
+          nivel: formData.nivel,
+          nivel_investigador: formData.nivel_investigador,
           nivel_sni: formData.nivel_sni,
-          tipo_perfil: formData.tipo_perfil,
-          nivel_tecnologo: formData.nivel_tecnologo,
-          nivel_tecnologo_id: formData.nivel_tecnologo_id,
-          experiencia_docente: formData.experienciaDocente,
-          experiencia_laboral: formData.experienciaLaboral,
-          proyectos_investigacion: formData.proyectosInvestigacion,
-          proyectos_vinculacion: formData.proyectosVinculacion,
+          sni: formData.sni,
+          anio_sni: formData.anio_sni ? parseInt(formData.anio_sni) : null,
+          nivel_actual_id: formData.nivel_actual_id || null,
+          fecha_asignacion_nivel: formData.fecha_asignacion_nivel || null,
+          
+          // Producción académica
+          experiencia_docente: formData.experiencia_docente,
+          experiencia_laboral: formData.experiencia_laboral,
+          proyectos_investigacion: formData.proyectos_investigacion,
+          proyectos_vinculacion: formData.proyectos_vinculacion,
           libros: formData.libros,
-          capitulos_libros: formData.capitulosLibros,
+          capitulos_libros: formData.capitulos_libros,
           articulos: formData.articulos,
-          premios_distinciones: formData.premiosDistinciones,
+          premios_distinciones: formData.premios_distinciones,
           idiomas: formData.idiomas,
-          colaboracion_internacional: formData.colaboracionInternacional,
-          colaboracion_nacional: formData.colaboracionNacional,
-          domicilio: formData.domicilio,
-          cp: formData.cp,
-          estado_nacimiento: formData.estadoNacimiento,
-          municipio: formData.municipio,
-          entidad_federativa: formData.entidadFederativa,
-          genero: formData.genero,
+          colaboracion_internacional: formData.colaboracion_internacional,
+          colaboracion_nacional: formData.colaboracion_nacional,
+          
+          // CV
+          cv_url: formData.cv_url,
+          
+          // Evaluación
+          puntaje_total: formData.puntaje_total,
+          estado_evaluacion: formData.estado_evaluacion,
+          
           // Campos de admin
-          es_admin: formData.esAdmin,
+          es_admin: formData.es_admin,
           activo: formData.activo,
-          perfil_publico: formData.perfilPublico,
+          perfil_publico: formData.perfil_publico,
         }),
       })
 
@@ -372,7 +377,7 @@ export default function EditarInvestigadorPage() {
     )
   }
 
-  if (error && !formData.nombre) {
+  if (error && !formData.nombres) {
     return (
       <div className="container mx-auto py-8 px-4">
         <div className="text-center space-y-4">
@@ -403,7 +408,7 @@ export default function EditarInvestigadorPage() {
                 </Link>
               </Button>
               <h1 className="text-3xl font-bold text-blue-900">
-                Editar Investigador: {formData.nombre} {formData.apellidos}
+                Editar Investigador: {formData.nombres} {formData.apellidos}
               </h1>
             </div>
             <p className="text-blue-600">Modifica la información del investigador</p>
@@ -454,14 +459,14 @@ export default function EditarInvestigadorPage() {
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="nombre">Nombre(s) *</Label>
+                    <Label htmlFor="nombres">Nombre(s) *</Label>
                     <Input
-                      id="nombre"
-                      value={formData.nombre}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, nombre: e.target.value }))}
-                      className={errors.nombre ? "border-red-300" : ""}
+                      id="nombres"
+                      value={formData.nombres}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, nombres: e.target.value }))}
+                      className={errors.nombres ? "border-red-300" : ""}
                     />
-                    {errors.nombre && <p className="text-sm text-red-600">{errors.nombre}</p>}
+                    {errors.nombres && <p className="text-sm text-red-600">{errors.nombres}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -476,15 +481,15 @@ export default function EditarInvestigadorPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email">Correo Electrónico *</Label>
+                    <Label htmlFor="correo">Correo Electrónico *</Label>
                     <Input
-                      id="email"
+                      id="correo"
                       type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                      className={errors.email ? "border-red-300" : ""}
+                      value={formData.correo}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, correo: e.target.value }))}
+                      className={errors.correo ? "border-red-300" : ""}
                     />
-                    {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
+                    {errors.correo && <p className="text-sm text-red-600">{errors.correo}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -521,11 +526,11 @@ export default function EditarInvestigadorPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="noCvu">CVU/PU</Label>
+                    <Label htmlFor="no_cvu">CVU/PU</Label>
                     <Input
-                      id="noCvu"
-                      value={formData.noCvu}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, noCvu: e.target.value }))}
+                      id="no_cvu"
+                      value={formData.no_cvu}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, no_cvu: e.target.value }))}
                     />
                   </div>
 
@@ -548,83 +553,6 @@ export default function EditarInvestigadorPage() {
               </CardContent>
             </Card>
 
-            {/* Tipo de Perfil y Nivel */}
-            <Card className="bg-white border-blue-100">
-              <CardHeader>
-                <CardTitle className="text-blue-900">Tipo de Perfil y Nivel</CardTitle>
-                <CardDescription className="text-blue-600">
-                  Clasificación y nivel del investigador o tecnólogo
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="tipo_perfil">Tipo de Perfil</Label>
-                    <Select
-                      value={formData.tipo_perfil}
-                      onValueChange={(value) => {
-                        setFormData((prev) => ({ ...prev, tipo_perfil: value }))
-                        // Limpiar el nivel cuando cambia el tipo
-                        if (value === "INVESTIGADOR") {
-                          setFormData((prev) => ({ ...prev, nivel_tecnologo: "", nivel_tecnologo_id: "" }))
-                        } else {
-                          setFormData((prev) => ({ ...prev, nivel: "", nivel_sni: "" }))
-                        }
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="INVESTIGADOR">Investigador</SelectItem>
-                        <SelectItem value="TECNOLOGO">Tecnólogo</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {formData.tipo_perfil === "INVESTIGADOR" ? (
-                    <div className="space-y-2">
-                      <Label htmlFor="nivel_investigador">Nivel de Investigador</Label>
-                      <Select
-                        value={formData.nivel}
-                        onValueChange={(value) => setFormData((prev) => ({ ...prev, nivel: value }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona nivel" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {NIVELES_INVESTIGADOR.map((nivel) => (
-                            <SelectItem key={nivel} value={nivel}>
-                              {nivel}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <Label htmlFor="nivel_tecnologo">Nivel de Tecnólogo</Label>
-                      <Select
-                        value={formData.nivel_tecnologo}
-                        onValueChange={(value) => setFormData((prev) => ({ ...prev, nivel_tecnologo: value }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona nivel" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {NIVELES_TECNOLOGO.map((nivel) => (
-                            <SelectItem key={nivel} value={nivel}>
-                              {nivel}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Información académica */}
             <Card className="bg-white border-blue-100">
               <CardHeader>
@@ -636,12 +564,12 @@ export default function EditarInvestigadorPage() {
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="titulo">Título Académico</Label>
+                    <Label htmlFor="ultimo_grado_estudios">Último Grado de Estudios</Label>
                     <Input
-                      id="titulo"
-                      placeholder="Ej: Dr. en Neurociencia"
-                      value={formData.titulo}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, titulo: e.target.value }))}
+                      id="ultimo_grado_estudios"
+                      placeholder="Ej: Doctorado en Neurociencia"
+                      value={formData.ultimo_grado_estudios}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, ultimo_grado_estudios: e.target.value }))}
                     />
                   </div>
 
@@ -674,20 +602,13 @@ export default function EditarInvestigadorPage() {
                   </div>
                 </div>
 
-                {/* Área de Investigación SNII */}
-                <AreaSNIISelector
-                  value={formData.biografia}
-                  onChange={(value) => setFormData((prev) => ({ ...prev, biografia: value }))}
-                  required
-                />
-
                 <div className="space-y-2">
-                  <Label htmlFor="lineaInvestigacion">Línea de Investigación Específica</Label>
+                  <Label htmlFor="linea_investigacion">Línea de Investigación Específica</Label>
                   <Textarea
-                    id="lineaInvestigacion"
+                    id="linea_investigacion"
                     placeholder="Describe tus líneas de investigación específicas (separadas por coma)..."
-                    value={formData.lineaInvestigacion}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, lineaInvestigacion: e.target.value }))}
+                    value={formData.linea_investigacion}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, linea_investigacion: e.target.value }))}
                     className="min-h-24"
                   />
                   <p className="text-xs text-gray-600">
@@ -707,23 +628,23 @@ export default function EditarInvestigadorPage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="experienciaLaboral">Experiencia Laboral</Label>
+                  <Label htmlFor="experiencia_laboral">Experiencia Laboral</Label>
                   <Textarea
-                    id="experienciaLaboral"
+                    id="experiencia_laboral"
                     placeholder="Describe tu experiencia laboral..."
-                    value={formData.experienciaLaboral}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, experienciaLaboral: e.target.value }))}
+                    value={formData.experiencia_laboral}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, experiencia_laboral: e.target.value }))}
                     className="min-h-24"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="proyectosInvestigacion">Proyectos de Investigación</Label>
+                  <Label htmlFor="proyectos_investigacion">Proyectos de Investigación</Label>
                   <Textarea
-                    id="proyectosInvestigacion"
+                    id="proyectos_investigacion"
                     placeholder="Lista tus proyectos de investigación..."
-                    value={formData.proyectosInvestigacion}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, proyectosInvestigacion: e.target.value }))}
+                    value={formData.proyectos_investigacion}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, proyectos_investigacion: e.target.value }))}
                     className="min-h-24"
                   />
                 </div>
@@ -759,12 +680,12 @@ export default function EditarInvestigadorPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="anioSni">Año SNI</Label>
+                  <Label htmlFor="anio_sni">Año SNI</Label>
                   <Input
-                    id="anioSni"
+                    id="anio_sni"
                     type="number"
-                    value={formData.anioSni}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, anioSni: e.target.value }))}
+                    value={formData.anio_sni}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, anio_sni: e.target.value }))}
                   />
                 </div>
               </CardContent>
@@ -785,11 +706,11 @@ export default function EditarInvestigadorPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="empleoActual">Empleo Actual</Label>
+                  <Label htmlFor="empleo_actual">Empleo Actual</Label>
                   <Input
-                    id="empleoActual"
-                    value={formData.empleoActual}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, empleoActual: e.target.value }))}
+                    id="empleo_actual"
+                    value={formData.empleo_actual}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, empleo_actual: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-2">
@@ -821,17 +742,17 @@ export default function EditarInvestigadorPage() {
               {/* Es Admin */}
               <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-red-200">
                 <div className="space-y-1">
-                  <Label htmlFor="esAdmin" className="font-semibold text-red-900">
+                  <Label htmlFor="es_admin" className="font-semibold text-red-900">
                     Permisos de Administrador
                   </Label>
                   <p className="text-sm text-red-600">
-                    {formData.esAdmin ? "Usuario es administrador" : "Usuario estándar"}
+                    {formData.es_admin ? "Usuario es administrador" : "Usuario estándar"}
                   </p>
                 </div>
                 <Switch
-                  id="esAdmin"
-                  checked={formData.esAdmin}
-                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, esAdmin: checked }))}
+                  id="es_admin"
+                  checked={formData.es_admin}
+                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, es_admin: checked }))}
                 />
               </div>
 
@@ -855,17 +776,17 @@ export default function EditarInvestigadorPage() {
               {/* Perfil Público */}
               <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-red-200">
                 <div className="space-y-1">
-                  <Label htmlFor="perfilPublico" className="font-semibold text-red-900">
+                  <Label htmlFor="perfil_publico" className="font-semibold text-red-900">
                     Perfil Público
                   </Label>
                   <p className="text-sm text-red-600">
-                    {formData.perfilPublico ? "Visible en búsquedas" : "Privado"}
+                    {formData.perfil_publico ? "Visible en búsquedas" : "Privado"}
                   </p>
                 </div>
                 <Switch
-                  id="perfilPublico"
-                  checked={formData.perfilPublico}
-                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, perfilPublico: checked }))}
+                  id="perfil_publico"
+                  checked={formData.perfil_publico}
+                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, perfil_publico: checked }))}
                 />
               </div>
             </div>
