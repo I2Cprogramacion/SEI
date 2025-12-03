@@ -93,6 +93,7 @@ interface InvestigadorData {
   nivel_tecnologo?: string
   nivel_tecnologo_id?: string | null
   es_admin: boolean
+  es_evaluador: boolean
   activo: boolean
 }
 
@@ -136,6 +137,7 @@ interface FormData {
   nivel_tecnologo?: string
   nivel_tecnologo_id?: string | null
   es_admin: boolean
+  es_evaluador: boolean
   activo: boolean
 }
 
@@ -191,6 +193,7 @@ export default function EditarInvestigadorPage() {
     nivel_tecnologo: "",
     nivel_tecnologo_id: "",
     es_admin: false,
+    es_evaluador: false,
     activo: true,
   })
 
@@ -259,6 +262,7 @@ export default function EditarInvestigadorPage() {
           nivel_tecnologo: data.nivel_tecnologo || "",
           nivel_tecnologo_id: data.nivel_tecnologo_id || "",
           es_admin: data.es_admin || false,
+          es_evaluador: data.es_evaluador || false,
           activo: data.activo !== undefined ? data.activo : true,
         })
       } catch (err) {
@@ -722,14 +726,14 @@ export default function EditarInvestigadorPage() {
               </div>
 
               {/* Controles de Administrador */}
-              <div className="space-y-4 bg-red-50 p-6 rounded-lg border border-red-200">
+              <div className="space-y-4 bg-red-50 p-6 rounded-lg border-2 border-red-200">
                 <h3 className="text-lg font-semibold text-red-900 border-b border-red-200 pb-2 flex items-center gap-2">
                   <Shield className="h-5 w-5" />
                   Controles de Administrador
                 </h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="flex items-center justify-between space-x-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="flex items-center justify-between space-x-4 p-4 bg-white rounded-lg border-2 border-red-100">
                     <div className="space-y-1">
                       <Label htmlFor="activo" className="text-red-900 font-medium flex items-center gap-2">
                         <Eye className="h-4 w-4" />
@@ -743,10 +747,11 @@ export default function EditarInvestigadorPage() {
                       id="activo"
                       checked={formData.activo}
                       onCheckedChange={(checked) => setFormData(prev => ({ ...prev, activo: checked }))}
+                      className="data-[state=checked]:bg-green-600 border-2 border-gray-300"
                     />
                   </div>
 
-                  <div className="flex items-center justify-between space-x-4">
+                  <div className="flex items-center justify-between space-x-4 p-4 bg-white rounded-lg border-2 border-red-100">
                     <div className="space-y-1">
                       <Label htmlFor="es_admin" className="text-red-900 font-medium flex items-center gap-2">
                         <Shield className="h-4 w-4" />
@@ -760,6 +765,25 @@ export default function EditarInvestigadorPage() {
                       id="es_admin"
                       checked={formData.es_admin}
                       onCheckedChange={(checked) => setFormData(prev => ({ ...prev, es_admin: checked }))}
+                      className="data-[state=checked]:bg-red-600 border-2 border-gray-300"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between space-x-4 p-4 bg-white rounded-lg border-2 border-red-100">
+                    <div className="space-y-1">
+                      <Label htmlFor="es_evaluador" className="text-red-900 font-medium flex items-center gap-2">
+                        <Award className="h-4 w-4" />
+                        Permisos de Evaluador
+                      </Label>
+                      <p className="text-sm text-red-600">
+                        {formData.es_evaluador ? "Usuario puede evaluar investigadores" : "Usuario sin permisos de evaluación"}
+                      </p>
+                    </div>
+                    <Switch
+                      id="es_evaluador"
+                      checked={formData.es_evaluador}
+                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, es_evaluador: checked }))}
+                      className="data-[state=checked]:bg-purple-600 border-2 border-gray-300"
                     />
                   </div>
                 </div>

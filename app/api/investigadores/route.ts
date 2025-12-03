@@ -75,6 +75,7 @@ export async function GET(request: NextRequest) {
         // Admin fields
         is_admin: inv.es_admin || false,
         es_admin: inv.es_admin || false,
+        es_evaluador: inv.es_evaluador || false,
         fecha_registro: inv.fecha_registro || null,
         activo: inv.activo !== false,
         // Additional fields for evaluation

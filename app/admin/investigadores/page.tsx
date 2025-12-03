@@ -54,6 +54,7 @@ interface Investigador {
   fecha_registro?: string
   is_admin?: boolean
   es_admin?: boolean
+  es_evaluador?: boolean
   activo?: boolean
   // Campos para evaluación SNII
   area_investigacion?: string
@@ -495,9 +496,22 @@ export default function InvestigadoresAdmin() {
                       <TableCell className="text-gray-700">{investigador.institucion || "N/A"}</TableCell>
                       <TableCell className="text-gray-700">{investigador.telefono || "N/A"}</TableCell>
                       <TableCell>
-                        {investigador.is_admin ? (
+                        {investigador.is_admin && investigador.es_evaluador ? (
+                          <div className="flex flex-col gap-1">
+                            <Badge className="bg-gradient-to-r from-red-500 to-pink-600 text-white border-0 shadow-sm text-xs">
+                              Admin
+                            </Badge>
+                            <Badge className="bg-gradient-to-r from-purple-500 to-violet-600 text-white border-0 shadow-sm text-xs">
+                              Evaluador
+                            </Badge>
+                          </div>
+                        ) : investigador.is_admin ? (
                           <Badge className="bg-gradient-to-r from-red-500 to-pink-600 text-white border-0 shadow-sm">
                             Admin
+                          </Badge>
+                        ) : investigador.es_evaluador ? (
+                          <Badge className="bg-gradient-to-r from-purple-500 to-violet-600 text-white border-0 shadow-sm">
+                            Evaluador
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50">
@@ -592,15 +606,30 @@ export default function InvestigadoresAdmin() {
                             </h3>
                             <p className="text-sm text-blue-600 truncate">{investigador.email || investigador.correo || "N/A"}</p>
                           </div>
-                          {investigador.is_admin ? (
-                            <Badge className="bg-red-600 text-white flex-shrink-0">
-                              Admin
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="border-blue-200 text-blue-700 flex-shrink-0">
-                              Usuario
-                            </Badge>
-                          )}
+                          <div className="flex flex-col gap-1">
+                            {investigador.is_admin && investigador.es_evaluador ? (
+                              <>
+                                <Badge className="bg-gradient-to-r from-red-500 to-pink-600 text-white flex-shrink-0 text-xs">
+                                  Admin
+                                </Badge>
+                                <Badge className="bg-gradient-to-r from-purple-500 to-violet-600 text-white flex-shrink-0 text-xs">
+                                  Evaluador
+                                </Badge>
+                              </>
+                            ) : investigador.is_admin ? (
+                              <Badge className="bg-gradient-to-r from-red-500 to-pink-600 text-white flex-shrink-0">
+                                Admin
+                              </Badge>
+                            ) : investigador.es_evaluador ? (
+                              <Badge className="bg-gradient-to-r from-purple-500 to-violet-600 text-white flex-shrink-0">
+                                Evaluador
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="border-blue-200 text-blue-700 flex-shrink-0">
+                                Usuario
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                         <div className="space-y-1 text-sm text-blue-700">
                           <p><span className="font-medium">Institución:</span> {investigador.institucion || "N/A"}</p>
