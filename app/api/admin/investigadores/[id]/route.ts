@@ -132,10 +132,13 @@ export async function PUT(
       'experiencia_docente', 'experiencia_laboral', 'proyectos_investigacion',
       'proyectos_vinculacion', 'libros', 'capitulos_libros', 'articulos',
       'premios_distinciones', 'idiomas', 'colaboracion_internacional',
-      'colaboracion_nacional', 'cv_url',
+      'colaboracion_nacional', 'cv_url', 'dictamen_url',
+      
+      // Tipo de perfil y nivel tecnólogo
+      'tipo_perfil', 'nivel_tecnologo_id', 'nivel_tecnologo',
       
       // Campos exclusivos de admin
-      'es_admin', 'activo', 'perfil_publico', 'correo'
+      'es_admin', 'activo', 'correo'
     ]
 
     // Construir query dinámicamente
