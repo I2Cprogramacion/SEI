@@ -143,15 +143,23 @@ export default function PublicacionesAdmin() {
   return (
     <div className="w-full">
       <div className="w-full py-4 md:py-8 px-4 md:px-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-        <Button variant="ghost" size="sm" asChild className="text-blue-700 hover:bg-blue-50">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
+        <Button variant="ghost" size="sm" asChild className="text-gray-700 hover:bg-gray-100">
           <Link href="/admin">
             <ArrowLeft className="mr-2 h-4 w-4" />
             <span className="hidden sm:inline">Volver al panel</span>
             <span className="sm:hidden">Volver</span>
           </Link>
         </Button>
-        <h1 className="text-xl sm:text-2xl font-bold text-blue-900">Administración de Publicaciones</h1>
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+            <BookOpen className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">Publicaciones</h1>
+            <p className="text-sm text-gray-600">Gestión de producción académica</p>
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -160,10 +168,13 @@ export default function PublicacionesAdmin() {
         </div>
       )}
 
-      <Card className="bg-white border-blue-100 mb-8 w-full">
-        <CardHeader>
-          <CardTitle className="text-blue-900">Publicaciones Académicas</CardTitle>
-          <CardDescription className="text-blue-600">
+      <Card className="bg-white border-0 shadow-xl hover:shadow-2xl transition-shadow mb-8 w-full">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-t-xl">
+          <CardTitle className="text-gray-900 flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-blue-600" />
+            Publicaciones Académicas
+          </CardTitle>
+          <CardDescription className="text-gray-600">
             Gestiona todas las publicaciones académicas registradas en la plataforma
           </CardDescription>
         </CardHeader>

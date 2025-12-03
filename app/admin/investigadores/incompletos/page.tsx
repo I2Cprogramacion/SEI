@@ -78,15 +78,25 @@ export default function InvestigadoresIncompletosAdmin() {
   }, [])
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex items-center mb-6">
-        <Button variant="ghost" asChild className="mr-4 text-blue-700 hover:bg-blue-50">
+    <div className="w-full">
+      <div className="w-full py-6 md:py-8 px-4 md:px-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
+        <Button variant="ghost" size="sm" asChild className="text-gray-700 hover:bg-gray-100">
           <Link href="/admin/investigadores">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver a investigadores
+            <span className="hidden sm:inline">Volver a investigadores</span>
+            <span className="sm:hidden">Volver</span>
           </Link>
         </Button>
-        <h1 className="text-2xl font-bold text-blue-900">Investigadores con Datos Incompletos</h1>
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
+            <AlertTriangle className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 bg-clip-text text-transparent">Perfiles Incompletos</h1>
+            <p className="text-sm text-gray-600">Investigadores que requieren completar información</p>
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -95,13 +105,15 @@ export default function InvestigadoresIncompletosAdmin() {
         </div>
       )}
 
-      <Card className="bg-white border-blue-100 mb-8">
-        <CardHeader>
+      <Card className="bg-white border-0 shadow-xl hover:shadow-2xl transition-shadow mb-8">
+        <CardHeader className="bg-gradient-to-r from-amber-50 to-amber-100 rounded-t-xl">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-amber-500" />
-            <CardTitle className="text-blue-900">Registros que requieren atención</CardTitle>
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
+              <AlertTriangle className="h-5 w-5 text-white" />
+            </div>
+            <CardTitle className="text-gray-900">Registros que requieren atención</CardTitle>
           </div>
-          <CardDescription className="text-blue-600">
+          <CardDescription className="text-gray-600">
             Estos registros tienen datos faltantes o no detectados que requieren revisión manual
           </CardDescription>
         </CardHeader>
@@ -189,6 +201,7 @@ export default function InvestigadoresIncompletosAdmin() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   )
 }

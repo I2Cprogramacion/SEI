@@ -224,27 +224,37 @@ export default function InstitucionesAdmin() {
   return (
     <div className="w-full">
       <div className="w-full py-4 md:py-8 px-4 md:px-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-          <Button variant="ghost" size="sm" asChild className="text-blue-700 hover:bg-blue-50">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
+          <Button variant="ghost" size="sm" asChild className="text-gray-700 hover:bg-gray-100">
             <Link href="/admin">
               <ArrowLeft className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">Volver al panel</span>
               <span className="sm:hidden">Volver</span>
             </Link>
           </Button>
-          <h1 className="text-xl sm:text-2xl font-bold text-blue-900">Administración de Instituciones</h1>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/30">
+              <Building className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 bg-clip-text text-transparent">Instituciones</h1>
+              <p className="text-sm text-gray-600">Gestión de organizaciones registradas</p>
+            </div>
+          </div>
         </div>
 
         {/* Estadísticas rápidas */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <Card className="bg-white border-blue-100">
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-0 shadow-md hover:shadow-lg transition-shadow">
             <CardContent className="pt-4 pb-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-blue-600">Total</p>
-                  <p className="text-2xl font-bold text-blue-900">{instituciones.length}</p>
+                  <p className="text-sm text-blue-700 font-medium">Total</p>
+                  <p className="text-3xl font-bold text-blue-900">{instituciones.length}</p>
                 </div>
-                <Building className="h-8 w-8 text-blue-400" />
+                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                  <Building className="h-6 w-6 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -290,10 +300,13 @@ export default function InstitucionesAdmin() {
           </div>
         )}
 
-        <Card className="bg-white border-blue-100 mb-8 w-full">
-          <CardHeader>
-            <CardTitle className="text-blue-900">Instituciones Registradas</CardTitle>
-            <CardDescription className="text-blue-600">
+        <Card className="bg-white border-0 shadow-xl hover:shadow-2xl transition-shadow mb-8 w-full">
+          <CardHeader className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-t-xl">
+            <CardTitle className="text-gray-900 flex items-center gap-2">
+              <Building className="h-5 w-5 text-orange-600" />
+              Instituciones Registradas
+            </CardTitle>
+            <CardDescription className="text-gray-600">
               Revisa y aprueba las instituciones que solicitan registro en el sistema
             </CardDescription>
           </CardHeader>
