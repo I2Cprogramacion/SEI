@@ -413,15 +413,29 @@ export default function EstadisticasAdmin() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex items-center mb-6">
-        <Button variant="ghost" asChild className="mr-4 text-blue-700 hover:bg-blue-50">
-          <Link href="/admin">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver al panel
-          </Link>
-        </Button>
-        <h1 className="text-2xl font-bold text-blue-900">Estadísticas de la Plataforma</h1>
+    <div className="w-full">
+      <div className="w-full py-6 md:py-8 px-4 md:px-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" asChild className="text-gray-700 hover:bg-gray-100">
+            <Link href="/admin">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Volver al panel</span>
+              <span className="sm:hidden">Volver</span>
+            </Link>
+          </Button>
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <BarChart3 className="h-5 w-5 text-white" />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+                Estadísticas de la Plataforma
+              </h1>
+            </div>
+            <p className="text-sm text-gray-600">Métricas y análisis del ecosistema de investigación</p>
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -432,62 +446,72 @@ export default function EstadisticasAdmin() {
 
       {/* Estadísticas Generales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-white border-blue-100">
+        <Card className="bg-white border-0 shadow-md hover:shadow-xl transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-900">Total Investigadores</CardTitle>
-            <Users className="h-4 w-4 text-blue-600" />
+            <CardTitle className="text-sm font-medium text-gray-700">Total Investigadores</CardTitle>
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+              <Users className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-900">{isLoading ? "..." : estadisticas.totalInvestigadores}</div>
-            <p className="text-xs text-blue-600">
+            <div className="text-3xl font-bold text-gray-900">{isLoading ? "..." : estadisticas.totalInvestigadores}</div>
+            <p className="text-xs text-gray-600 mt-1">
               +{isLoading ? "..." : estadisticas.investigadoresNuevos} nuevos este mes
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-white border-blue-100">
+        <Card className="bg-white border-0 shadow-md hover:shadow-xl transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-900">Proyectos Activos</CardTitle>
-            <FileText className="h-4 w-4 text-blue-600" />
+            <CardTitle className="text-sm font-medium text-gray-700">Proyectos Activos</CardTitle>
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+              <FileText className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-900">{isLoading ? "..." : estadisticas.proyectosActivos}</div>
-            <p className="text-xs text-blue-600">de {isLoading ? "..." : estadisticas.totalProyectos} totales</p>
+            <div className="text-3xl font-bold text-gray-900">{isLoading ? "..." : estadisticas.proyectosActivos}</div>
+            <p className="text-xs text-gray-600 mt-1">de {isLoading ? "..." : estadisticas.totalProyectos} totales</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-white border-blue-100">
+        <Card className="bg-white border-0 shadow-md hover:shadow-xl transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-900">Publicaciones</CardTitle>
-            <BookOpen className="h-4 w-4 text-blue-600" />
+            <CardTitle className="text-sm font-medium text-gray-700">Publicaciones</CardTitle>
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-green-500/30">
+              <BookOpen className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-900">{isLoading ? "..." : estadisticas.totalPublicaciones}</div>
-            <p className="text-xs text-blue-600">+{isLoading ? "..." : estadisticas.publicacionesRecientes} este mes</p>
+            <div className="text-3xl font-bold text-gray-900">{isLoading ? "..." : estadisticas.totalPublicaciones}</div>
+            <p className="text-xs text-gray-600 mt-1">+{isLoading ? "..." : estadisticas.publicacionesRecientes} este mes</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-white border-blue-100">
+        <Card className="bg-white border-0 shadow-md hover:shadow-xl transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-900">Instituciones</CardTitle>
-            <Building className="h-4 w-4 text-blue-600" />
+            <CardTitle className="text-sm font-medium text-gray-700">Instituciones</CardTitle>
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/30">
+              <Building className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-900">{isLoading ? "..." : estadisticas.totalInstituciones}</div>
-            <p className="text-xs text-blue-600">registradas</p>
+            <div className="text-3xl font-bold text-gray-900">{isLoading ? "..." : estadisticas.totalInstituciones}</div>
+            <p className="text-xs text-gray-600 mt-1">registradas</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Métricas de Crecimiento */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <Card className="bg-white border-blue-100">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-blue-900">
-              <TrendingUp className="h-5 w-5" />
-              Crecimiento Mensual
+        <Card className="bg-white border-0 shadow-md hover:shadow-xl transition-shadow">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-t-xl">
+            <CardTitle className="flex items-center gap-2 text-gray-900">
+              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg shadow-green-500/30">
+                <TrendingUp className="h-5 w-5 text-white" />
+              </div>
+              <span>Crecimiento Mensual</span>
             </CardTitle>
-            <CardDescription className="text-blue-600">
+            <CardDescription className="text-gray-600">
               Indicadores de crecimiento de la plataforma
             </CardDescription>
           </CardHeader>
@@ -554,13 +578,15 @@ export default function EstadisticasAdmin() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white border-blue-100">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-blue-900">
-              <BarChart3 className="h-5 w-5" />
-              Distribución por Áreas
+        <Card className="bg-white border-0 shadow-md hover:shadow-xl transition-shadow">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-t-xl">
+            <CardTitle className="flex items-center gap-2 text-gray-900">
+              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <BarChart3 className="h-5 w-5 text-white" />
+              </div>
+              <span>Distribución por Áreas</span>
             </CardTitle>
-            <CardDescription className="text-blue-600">
+            <CardDescription className="text-gray-600">
               Investigadores por área de especialización
             </CardDescription>
           </CardHeader>
@@ -608,13 +634,15 @@ export default function EstadisticasAdmin() {
       </div>
 
       {/* Estadísticas por Institución */}
-      <Card className="bg-white border-blue-100 mb-8">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-blue-900">
-            <Building className="h-5 w-5" />
-            Top Instituciones
+      <Card className="bg-white border-0 shadow-md hover:shadow-xl transition-shadow mb-8">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-t-xl">
+          <CardTitle className="flex items-center gap-2 text-gray-900">
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/30">
+              <Building className="h-5 w-5 text-white" />
+            </div>
+            <span>Top Instituciones</span>
           </CardTitle>
-          <CardDescription className="text-blue-600">
+          <CardDescription className="text-gray-600">
             Instituciones con mayor actividad en la plataforma
           </CardDescription>
         </CardHeader>
@@ -674,17 +702,17 @@ export default function EstadisticasAdmin() {
       <div className="flex justify-between items-center">
         <Button 
           variant="outline" 
-          className="border-blue-200 text-blue-700 hover:bg-blue-50"
+          className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 shadow-sm"
           onClick={() => window.location.reload()}
           disabled={isLoading}
         >
           <TrendingUp className="mr-2 h-4 w-4" />
           {isLoading ? "Actualizando..." : "Actualizar Estadísticas"}
         </Button>
-        <div className="flex gap-4">
+        <div className="flex gap-3">
           <Button 
             variant="outline" 
-            className="border-blue-200 text-blue-700 hover:bg-blue-50"
+            className="border-2 border-blue-300 text-blue-700 hover:bg-blue-50 shadow-sm"
             onClick={handleExportReport}
             disabled={isExporting || isLoading}
           >
@@ -701,7 +729,7 @@ export default function EstadisticasAdmin() {
             )}
           </Button>
           <Button 
-            className="bg-blue-700 text-white hover:bg-blue-800"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-md"
             onClick={handleGenerateCompleteReport}
             disabled={isExporting || isLoading}
           >
@@ -718,6 +746,7 @@ export default function EstadisticasAdmin() {
             )}
           </Button>
         </div>
+      </div>
       </div>
     </div>
   )
