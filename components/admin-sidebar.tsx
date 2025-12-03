@@ -203,7 +203,7 @@ export function AdminSidebar() {
       )}
 
       {/* Sidebar Desktop */}
-      <div className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 shadow-sm min-h-screen fixed left-0 top-16">
+      <div className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 shadow-sm h-[calc(100vh-4rem)] sticky left-0 top-16">
         <SidebarContent />
       </div>
 

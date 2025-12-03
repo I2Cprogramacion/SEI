@@ -72,7 +72,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50 pt-16">
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50">
       <AdminSidebar />
       <div className="flex-1 w-full md:ml-64 min-h-screen">{children}</div>
     </div>

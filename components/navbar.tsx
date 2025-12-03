@@ -3,6 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -45,6 +46,7 @@ export default function Navbar() {
   const { user, isSignedIn } = useUser()
   const { signOut } = useClerk()
   const { name: currentPageName, section: currentSection } = useCurrentPage()
+  const pathname = usePathname()
 
   const handleLogout = async () => {
     await signOut();
@@ -129,6 +131,11 @@ export default function Navbar() {
   useEffect(() => {
     const controlNavbar = () => {
       if (typeof window !== "undefined") {
+        // Siempre mantener navbar visible en rutas de admin
+        if (pathname?.startsWith('/admin')) {
+          setIsVisible(true)
+          return
+        }
         if (window.scrollY > lastScrollY && window.scrollY > 100) {
           setIsVisible(false)
         } else {
@@ -143,7 +150,7 @@ export default function Navbar() {
         window.removeEventListener("scroll", controlNavbar)
       }
     }
-  }, [lastScrollY])
+  }, [lastScrollY, pathname])
 
   return (
     <>
