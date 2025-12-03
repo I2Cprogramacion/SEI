@@ -150,52 +150,52 @@ export default function EvaluacionesPage() {
 
         {/* Tarjetas de resumen */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="border-l-4 border-l-blue-500">
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-0 shadow-md hover:shadow-xl transition-shadow">
             <CardHeader className="pb-2">
-              <CardDescription>Total Investigadores</CardDescription>
-              <CardTitle className="text-3xl">{estadisticas?.total || 0}</CardTitle>
+              <CardDescription className="text-blue-700 font-medium">Total Investigadores</CardDescription>
+              <CardTitle className="text-4xl text-blue-900">{estadisticas?.total || 0}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center text-xs text-gray-600">
+              <div className="flex items-center text-xs text-blue-700">
                 <Users className="mr-1 h-3 w-3" />
                 Registrados en el sistema
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-red-500">
+          <Card className="bg-gradient-to-br from-red-50 to-red-100 border-0 shadow-md hover:shadow-xl transition-shadow">
             <CardHeader className="pb-2">
-              <CardDescription>Alertas Prioritarias</CardDescription>
-              <CardTitle className="text-3xl text-red-600">{alertasStats.alta}</CardTitle>
+              <CardDescription className="text-red-700 font-medium">Alertas Prioritarias</CardDescription>
+              <CardTitle className="text-4xl text-red-700">{alertasStats.alta}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center text-xs text-gray-600">
+              <div className="flex items-center text-xs text-red-700">
                 <AlertTriangle className="mr-1 h-3 w-3" />
                 Requieren atención inmediata
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-yellow-500">
+          <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-0 shadow-md hover:shadow-xl transition-shadow">
             <CardHeader className="pb-2">
-              <CardDescription>Alertas Medias</CardDescription>
-              <CardTitle className="text-3xl text-yellow-600">{alertasStats.media}</CardTitle>
+              <CardDescription className="text-yellow-700 font-medium">Alertas Medias</CardDescription>
+              <CardTitle className="text-4xl text-yellow-700">{alertasStats.media}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center text-xs text-gray-600">
+              <div className="flex items-center text-xs text-yellow-700">
                 <TrendingDown className="mr-1 h-3 w-3" />
                 Por debajo de parámetros
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-green-500">
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-0 shadow-md hover:shadow-xl transition-shadow">
             <CardHeader className="pb-2">
-              <CardDescription>Áreas Activas</CardDescription>
-              <CardTitle className="text-3xl">{datosArea.length}</CardTitle>
+              <CardDescription className="text-green-700 font-medium">Áreas Activas</CardDescription>
+              <CardTitle className="text-4xl text-green-700">{datosArea.length}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center text-xs text-gray-600">
+              <div className="flex items-center text-xs text-green-700">
                 <BarChart3 className="mr-1 h-3 w-3" />
                 Áreas de conocimiento
               </div>
@@ -222,10 +222,15 @@ export default function EvaluacionesPage() {
           <TabsContent value="estadisticas" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Gráfico de Áreas */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Distribución por Área de Conocimiento</CardTitle>
-                  <CardDescription>
+              <Card className="bg-white border-0 shadow-xl hover:shadow-2xl transition-shadow">
+                <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-t-xl">
+                  <CardTitle className="text-gray-900 flex items-center gap-2">
+                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                      <BarChart3 className="h-5 w-5 text-white" />
+                    </div>
+                    Distribución por Área de Conocimiento
+                  </CardTitle>
+                  <CardDescription className="text-gray-600">
                     Investigadores clasificados por área SNII
                   </CardDescription>
                 </CardHeader>
@@ -276,10 +281,15 @@ export default function EvaluacionesPage() {
               </Card>
 
               {/* Gráfico de Niveles */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Distribución por Nivel SNII</CardTitle>
-                  <CardDescription>
+              <Card className="bg-white border-0 shadow-xl hover:shadow-2xl transition-shadow">
+                <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-t-xl">
+                  <CardTitle className="text-gray-900 flex items-center gap-2">
+                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                      <PieChart className="h-5 w-5 text-white" />
+                    </div>
+                    Distribución por Nivel SNII
+                  </CardTitle>
+                  <CardDescription className="text-gray-600">
                     Investigadores clasificados por nivel de reconocimiento
                   </CardDescription>
                 </CardHeader>
@@ -323,9 +333,9 @@ export default function EvaluacionesPage() {
             </div>
 
             {/* Leyenda de niveles */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Leyenda de Niveles SNII</CardTitle>
+            <Card className="bg-white border-0 shadow-md">
+              <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-t-xl">
+                <CardTitle className="text-gray-900">Leyenda de Niveles SNII</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -348,10 +358,15 @@ export default function EvaluacionesPage() {
 
           {/* Pestaña de Alertas */}
           <TabsContent value="alertas" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Investigadores que Requieren Atención</CardTitle>
-                <CardDescription>
+            <Card className="bg-white border-0 shadow-xl hover:shadow-2xl transition-shadow">
+              <CardHeader className="bg-gradient-to-r from-amber-50 to-red-50 rounded-t-xl">
+                <CardTitle className="text-gray-900 flex items-center gap-2">
+                  <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg shadow-red-500/30">
+                    <AlertTriangle className="h-5 w-5 text-white" />
+                  </div>
+                  Investigadores que Requieren Atención
+                </CardTitle>
+                <CardDescription className="text-gray-600">
                   Investigadores con producción por debajo de los parámetros SNII o perfiles desactualizados
                 </CardDescription>
               </CardHeader>
@@ -450,10 +465,15 @@ export default function EvaluacionesPage() {
 
           {/* Pestaña de Comparativa */}
           <TabsContent value="comparativa" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Comparativa Detallada</CardTitle>
-                <CardDescription>
+            <Card className="bg-white border-0 shadow-xl hover:shadow-2xl transition-shadow">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-t-xl">
+                <CardTitle className="text-gray-900 flex items-center gap-2">
+                  <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <BarChart3 className="h-5 w-5 text-white" />
+                  </div>
+                  Comparativa Detallada
+                </CardTitle>
+                <CardDescription className="text-gray-600">
                   Análisis de investigadores vs parámetros SNII por área y nivel
                 </CardDescription>
               </CardHeader>
