@@ -3,17 +3,17 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Check, X, User, Building, Mail, Loader2, ChevronsUpDown, Users } from "lucide-react"
+import { Check, X, Loader2, ChevronsUpDown, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface Investigador {
   id: number
   nombre: string
   email: string
-  institucion: string
-  area: string
+  foto: string | null
   slug: string
 }
 
@@ -22,7 +22,6 @@ interface InvestigadorAutocompleteProps {
   onSelect: (investigador: Investigador | null) => void
   placeholder?: string
   className?: string
-  showInstitucion?: boolean
   disabled?: boolean
 }
 
@@ -31,7 +30,6 @@ export function InvestigadorAutocomplete({
   onSelect,
   placeholder = "Buscar investigador...",
   className,
-  showInstitucion = true,
   disabled = false
 }: InvestigadorAutocompleteProps) {
   const [open, setOpen] = useState(false)
@@ -129,18 +127,18 @@ export function InvestigadorAutocomplete({
       {/* Investigador seleccionado */}
       {value && (
         <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="flex items-center gap-2 px-3 py-1.5">
-            <User className="h-3 w-3 flex-shrink-0" />
+          <Badge variant="secondary" className="flex items-center gap-2 px-2 py-1.5 pr-1">
+            <Avatar className="h-5 w-5">
+              <AvatarImage src={value.foto || undefined} alt={value.nombre} />
+              <AvatarFallback className="text-[10px]">
+                {value.nombre.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
             <span className="text-sm">{value.nombre}</span>
-            {showInstitucion && value.institucion && (
-              <span className="text-xs text-muted-foreground ml-1">
-                • {value.institucion}
-              </span>
-            )}
             <button
               type="button"
               onClick={handleClear}
-              className="ml-2 hover:bg-transparent p-0 h-4 w-4 flex items-center justify-center"
+              className="ml-1 hover:bg-red-100 hover:text-red-600 rounded-full p-0.5 h-5 w-5 flex items-center justify-center transition-colors"
             >
               <X className="h-3 w-3" />
             </button>
@@ -160,7 +158,12 @@ export function InvestigadorAutocomplete({
           >
             {value ? (
               <div className="flex items-center gap-2">
-                <User className="h-4 w-4" />
+                <Avatar className="h-5 w-5">
+                  <AvatarImage src={value.foto || undefined} alt={value.nombre} />
+                  <AvatarFallback className="text-[10px]">
+                    {value.nombre.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
                 <span className="font-medium">{value.nombre}</span>
               </div>
             ) : (
@@ -168,7 +171,7 @@ export function InvestigadorAutocomplete({
             )}
             {value && (
               <X 
-                className="absolute right-8 h-4 w-4 cursor-pointer text-muted-foreground hover:text-foreground" 
+                className="absolute right-8 h-4 w-4 cursor-pointer text-muted-foreground hover:text-red-500 transition-colors" 
                 onClick={(e) => {
                   e.stopPropagation()
                   handleClear()
@@ -181,7 +184,7 @@ export function InvestigadorAutocomplete({
         <PopoverContent className="w-full p-0" align="start">
           <Command shouldFilter={false}>
             <CommandInput
-              placeholder="Buscar por nombre, email o institución..."
+              placeholder="Buscar por nombre o correo..."
               value={searchTerm}
               onValueChange={setSearchTerm}
             />
@@ -229,31 +232,25 @@ export function InvestigadorAutocomplete({
                   {investigadores.map((investigador) => (
                     <CommandItem
                       key={investigador.id}
-                      value={`${investigador.nombre} ${investigador.email} ${investigador.institucion}`}
+                      value={`${investigador.nombre} ${investigador.email}`}
                       onSelect={() => handleSelect(investigador)}
-                      className="flex items-center justify-between cursor-pointer"
+                      className="flex items-center gap-3 cursor-pointer py-2"
                     >
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <Check
-                          className={cn(
-                            "h-4 w-4 flex-shrink-0",
-                            value?.id === investigador.id ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                        <div className="flex flex-col flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <User className="h-3 w-3 flex-shrink-0" />
-                            <span className="font-medium truncate">{investigador.nombre}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <Mail className="h-3 w-3 flex-shrink-0" />
-                            <span className="truncate">{investigador.email}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <Building className="h-3 w-3 flex-shrink-0" />
-                            <span className="truncate">{investigador.institucion}</span>
-                          </div>
-                        </div>
+                      <Check
+                        className={cn(
+                          "h-4 w-4 flex-shrink-0",
+                          value?.id === investigador.id ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarImage src={investigador.foto || undefined} alt={investigador.nombre} />
+                        <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
+                          {investigador.nombre.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <span className="font-medium text-sm">{investigador.nombre}</span>
+                        <span className="text-xs text-muted-foreground truncate">{investigador.email}</span>
                       </div>
                     </CommandItem>
                   ))}

@@ -58,8 +58,7 @@ export async function GET(request: NextRequest) {
           i.id,
           i.nombre_completo,
           i.correo,
-          i.institucion,
-          i.area_investigacion,
+          i.fotografia_url,
           i.slug
         FROM investigadores i
         INNER JOIN conexiones c ON (
@@ -73,7 +72,6 @@ export async function GET(request: NextRequest) {
           AND (
             LOWER(i.nombre_completo) LIKE LOWER(${searchPattern})
             OR LOWER(i.correo) LIKE LOWER(${searchPattern})
-            OR LOWER(i.institucion) LIKE LOWER(${searchPattern})
           )
         ORDER BY i.nombre_completo ASC
         LIMIT ${limit}
@@ -85,8 +83,7 @@ export async function GET(request: NextRequest) {
           i.id,
           i.nombre_completo,
           i.correo,
-          i.institucion,
-          i.area_investigacion,
+          i.fotografia_url,
           i.slug
         FROM investigadores i
         INNER JOIN conexiones c ON (
@@ -123,8 +120,7 @@ export async function GET(request: NextRequest) {
         id: inv.id,
         nombre: inv.nombre_completo || 'Sin nombre',
         email: inv.correo || '',
-        institucion: inv.institucion || 'Sin institución',
-        area: inv.area_investigacion || 'Sin área',
+        foto: inv.fotografia_url || null,
         slug: slug
       }
     })

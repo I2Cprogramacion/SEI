@@ -1,19 +1,20 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Check, ChevronsUpDown, X, User, Building, Mail, Users } from "lucide-react"
+import { Check, ChevronsUpDown, X, User, Mail, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface Investigador {
   id: number
   nombre: string
   email: string
-  institucion: string
-  area: string
+  foto: string | null
   slug: string
 }
 
@@ -138,14 +139,19 @@ export function InvestigadorSearch({
             <Badge
               key={investigador.id}
               variant="secondary"
-              className="flex items-center gap-2 px-3 py-1.5"
+              className="flex items-center gap-2 px-2 py-1.5 pr-1"
             >
-              <User className="h-3 w-3 flex-shrink-0" />
+              <Avatar className="h-5 w-5">
+                <AvatarImage src={investigador.foto || undefined} alt={investigador.nombre} />
+                <AvatarFallback className="text-[10px]">
+                  {investigador.nombre.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
               <span className="text-sm">{investigador.nombre}</span>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-4 w-4 p-0 hover:bg-transparent ml-1"
+                className="h-5 w-5 p-0 hover:bg-red-100 hover:text-red-600 rounded-full ml-1"
                 onClick={(e) => {
                   e.stopPropagation()
                   handleRemove(investigador.id)
@@ -177,7 +183,7 @@ export function InvestigadorSearch({
         <PopoverContent className="w-full p-0" align="start">
           <Command shouldFilter={false}>
             <CommandInput
-              placeholder="Buscar por nombre, email o institución..."
+              placeholder="Buscar por nombre o correo..."
               value={searchTerm}
               onValueChange={setSearchTerm}
             />
@@ -224,31 +230,25 @@ export function InvestigadorSearch({
                   {investigadores.map((investigador) => (
                     <CommandItem
                       key={investigador.id}
-                      value={`${investigador.nombre} ${investigador.email} ${investigador.institucion}`}
+                      value={`${investigador.nombre} ${investigador.email}`}
                       onSelect={() => handleSelect(investigador)}
-                      className="flex items-center justify-between cursor-pointer"
+                      className="flex items-center gap-3 cursor-pointer py-2"
                     >
-                      <div className="flex items-center gap-3 flex-1">
-                        <Check
-                          className={cn(
-                            "h-4 w-4 flex-shrink-0",
-                            isSelected(investigador) ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                        <div className="flex flex-col flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <User className="h-3 w-3 flex-shrink-0" />
-                            <span className="font-medium">{investigador.nombre}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <Mail className="h-3 w-3 flex-shrink-0" />
-                            <span className="truncate">{investigador.email}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <Building className="h-3 w-3 flex-shrink-0" />
-                            <span className="truncate">{investigador.institucion}</span>
-                          </div>
-                        </div>
+                      <Check
+                        className={cn(
+                          "h-4 w-4 flex-shrink-0",
+                          isSelected(investigador) ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarImage src={investigador.foto || undefined} alt={investigador.nombre} />
+                        <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
+                          {investigador.nombre.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <span className="font-medium text-sm">{investigador.nombre}</span>
+                        <span className="text-xs text-muted-foreground truncate">{investigador.email}</span>
                       </div>
                     </CommandItem>
                   ))}
