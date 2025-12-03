@@ -2,20 +2,18 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Check, X, User, Building, Mail, ExternalLink, Loader2, ChevronsUpDown } from "lucide-react"
+import { Check, X, Loader2, ChevronsUpDown, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
-import Link from "next/link"
 
 interface Investigador {
   id: number
   nombre: string
   email: string
-  institucion: string
-  area: string
+  foto: string | null
   slug: string
 }
 
@@ -24,7 +22,6 @@ interface InvestigadorAutocompleteProps {
   onSelect: (investigador: Investigador | null) => void
   placeholder?: string
   className?: string
-  showInstitucion?: boolean
   disabled?: boolean
 }
 
@@ -33,7 +30,6 @@ export function InvestigadorAutocomplete({
   onSelect,
   placeholder = "Buscar investigador...",
   className,
-  showInstitucion = true,
   disabled = false
 }: InvestigadorAutocompleteProps) {
   const [open, setOpen] = useState(false)
@@ -84,15 +80,22 @@ export function InvestigadorAutocomplete({
     setError("")
     
     try {
-      // Si el término está vacío o tiene menos de 2 caracteres, buscar todos (sin filtro)
+      // Buscar solo investigadores conectados con el usuario actual
       const queryParam = term.length >= 2 ? term : ""
-      const response = await fetch(`/api/investigadores/search?q=${encodeURIComponent(queryParam)}&limit=20`)
+      const response = await fetch(`/api/investigadores/conexiones?q=${encodeURIComponent(queryParam)}&limit=20`)
       const data = await response.json()
       
       if (response.ok) {
         setInvestigadores(data.investigadores || [])
+        // Mostrar mensaje si no tiene conexiones
+        if (data.mensaje) {
+          setError(data.mensaje)
+        }
+      } else if (response.status === 401) {
+        setError("Debes iniciar sesión para ver tus conexiones")
+        setInvestigadores([])
       } else {
-        setError("Error al buscar investigadores")
+        setError("Error al buscar conexiones")
         setInvestigadores([])
       }
     } catch (error) {
@@ -124,26 +127,18 @@ export function InvestigadorAutocomplete({
       {/* Investigador seleccionado */}
       {value && (
         <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="flex items-center gap-2 px-3 py-1.5 group">
-            <User className="h-3 w-3 flex-shrink-0" />
-            <Link
-              href={`/investigadores/${value.slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm hover:text-blue-600 hover:underline flex items-center gap-1 transition-colors"
-            >
-              {value.nombre}
-              <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </Link>
-            {showInstitucion && value.institucion && (
-              <span className="text-xs text-muted-foreground ml-1">
-                • {value.institucion}
-              </span>
-            )}
+          <Badge variant="secondary" className="flex items-center gap-2 px-2 py-1.5 pr-1">
+            <Avatar className="h-5 w-5">
+              <AvatarImage src={value.foto || undefined} alt={value.nombre} />
+              <AvatarFallback className="text-[10px]">
+                {value.nombre.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-sm">{value.nombre}</span>
             <button
               type="button"
               onClick={handleClear}
-              className="ml-2 hover:bg-transparent p-0 h-4 w-4 flex items-center justify-center"
+              className="ml-1 hover:bg-red-100 hover:text-red-600 rounded-full p-0.5 h-5 w-5 flex items-center justify-center transition-colors"
             >
               <X className="h-3 w-3" />
             </button>
@@ -163,7 +158,12 @@ export function InvestigadorAutocomplete({
           >
             {value ? (
               <div className="flex items-center gap-2">
-                <User className="h-4 w-4" />
+                <Avatar className="h-5 w-5">
+                  <AvatarImage src={value.foto || undefined} alt={value.nombre} />
+                  <AvatarFallback className="text-[10px]">
+                    {value.nombre.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
                 <span className="font-medium">{value.nombre}</span>
               </div>
             ) : (
@@ -171,7 +171,7 @@ export function InvestigadorAutocomplete({
             )}
             {value && (
               <X 
-                className="absolute right-8 h-4 w-4 cursor-pointer text-muted-foreground hover:text-foreground" 
+                className="absolute right-8 h-4 w-4 cursor-pointer text-muted-foreground hover:text-red-500 transition-colors" 
                 onClick={(e) => {
                   e.stopPropagation()
                   handleClear()
@@ -184,7 +184,7 @@ export function InvestigadorAutocomplete({
         <PopoverContent className="w-full p-0" align="start">
           <Command shouldFilter={false}>
             <CommandInput
-              placeholder="Buscar por nombre, email o institución..."
+              placeholder="Buscar por nombre o correo..."
               value={searchTerm}
               onValueChange={setSearchTerm}
             />
@@ -205,64 +205,52 @@ export function InvestigadorAutocomplete({
               {!isLoading && !error && investigadores.length === 0 && searchTerm.length >= 2 && (
                 <CommandEmpty>
                   <div className="py-4">
-                    <p className="text-sm text-muted-foreground mb-2">No se encontraron investigadores</p>
-                    <p className="text-xs text-muted-foreground">Puedes escribir el nombre manualmente</p>
+                    <Users className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground mb-2">No se encontraron conexiones con ese nombre</p>
+                    <p className="text-xs text-muted-foreground">Solo puedes seleccionar investigadores conectados</p>
                   </div>
                 </CommandEmpty>
               )}
               
               {!isLoading && !error && investigadores.length === 0 && searchTerm.length < 2 && (
                 <div className="p-4 text-center text-sm text-muted-foreground">
-                  <p className="mb-2">Escribe para buscar o selecciona de la lista</p>
-                  <p className="text-xs">Mostrando todos los investigadores disponibles</p>
+                  <Users className="h-8 w-8 mx-auto mb-2" />
+                  <p className="mb-2">No tienes conexiones aún</p>
+                  <p className="text-xs">Conecta con otros investigadores primero</p>
                 </div>
               )}
               
               {investigadores.length > 0 && (
                 <CommandGroup>
-                  <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                  <div className="px-2 py-1.5 text-xs text-muted-foreground flex items-center gap-1">
+                    <Users className="h-3 w-3" />
                     {searchTerm.length >= 2 
-                      ? `${investigadores.length} resultado${investigadores.length !== 1 ? 's' : ''} encontrado${investigadores.length !== 1 ? 's' : ''}`
-                      : `${investigadores.length} investigador${investigadores.length !== 1 ? 'es' : ''} disponible${investigadores.length !== 1 ? 's' : ''}`
+                      ? `${investigadores.length} conexión${investigadores.length !== 1 ? 'es' : ''} encontrada${investigadores.length !== 1 ? 's' : ''}`
+                      : `${investigadores.length} conexión${investigadores.length !== 1 ? 'es' : ''} disponible${investigadores.length !== 1 ? 's' : ''}`
                     }
                   </div>
                   {investigadores.map((investigador) => (
                     <CommandItem
                       key={investigador.id}
-                      value={`${investigador.nombre} ${investigador.email} ${investigador.institucion}`}
+                      value={`${investigador.nombre} ${investigador.email}`}
                       onSelect={() => handleSelect(investigador)}
-                      className="flex items-center justify-between group cursor-pointer"
+                      className="flex items-center gap-3 cursor-pointer py-2"
                     >
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <Check
-                          className={cn(
-                            "h-4 w-4 flex-shrink-0",
-                            value?.id === investigador.id ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                        <div className="flex flex-col flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <User className="h-3 w-3 flex-shrink-0" />
-                            <Link
-                              href={`/investigadores/${investigador.slug}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="font-medium hover:text-blue-600 hover:underline flex items-center gap-1 transition-colors truncate"
-                            >
-                              {investigador.nombre}
-                              <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-                            </Link>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <Mail className="h-3 w-3 flex-shrink-0" />
-                            <span className="truncate">{investigador.email}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <Building className="h-3 w-3 flex-shrink-0" />
-                            <span className="truncate">{investigador.institucion}</span>
-                          </div>
-                        </div>
+                      <Check
+                        className={cn(
+                          "h-4 w-4 flex-shrink-0",
+                          value?.id === investigador.id ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarImage src={investigador.foto || undefined} alt={investigador.nombre} />
+                        <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
+                          {investigador.nombre.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <span className="font-medium text-sm">{investigador.nombre}</span>
+                        <span className="text-xs text-muted-foreground truncate">{investigador.email}</span>
                       </div>
                     </CommandItem>
                   ))}
