@@ -41,70 +41,18 @@ export async function GET(
     const { id } = params
     const isNumeric = /^\d+$/.test(id)
     
+    console.log('Admin GET - Buscando investigador:', { id, isNumeric })
+    
+    // Usar SELECT * para evitar problemas con columnas que puedan no existir
     const query = `
-      SELECT 
-        id,
-        COALESCE(nombre_completo, '') AS nombre_completo,
-        COALESCE(nombres, '') AS nombres,
-        COALESCE(apellidos, '') AS apellidos,
-        COALESCE(correo, '') AS correo,
-        COALESCE(clerk_user_id, '') AS clerk_user_id,
-        COALESCE(curp, '') AS curp,
-        COALESCE(rfc, '') AS rfc,
-        COALESCE(no_cvu, '') AS no_cvu,
-        COALESCE(telefono, '') AS telefono,
-        COALESCE(fotografia_url, '') AS fotografia_url,
-        COALESCE(nacionalidad, 'Mexicana') AS nacionalidad,
-        fecha_nacimiento,
-        COALESCE(ultimo_grado_estudios, '') AS ultimo_grado_estudios,
-        COALESCE(grado_maximo_estudios, '') AS grado_maximo_estudios,
-        COALESCE(empleo_actual, '') AS empleo_actual,
-        COALESCE(linea_investigacion, '') AS linea_investigacion,
-        COALESCE(area_investigacion, '') AS area_investigacion,
-        COALESCE(institucion, '') AS institucion,
-        COALESCE(departamento, '') AS departamento,
-        COALESCE(sitio_web, '') AS sitio_web,
-        COALESCE(slug, '') AS slug,
-        COALESCE(cv_url, '') AS cv_url,
-        dictamen_url,
-        sni_url,
-        COALESCE(orcid, '') AS orcid,
-        COALESCE(nivel, '') AS nivel,
-        COALESCE(nivel_investigador, '') AS nivel_investigador,
-        COALESCE(nivel_sni, '') AS nivel_sni,
-        COALESCE(disciplina, '') AS disciplina,
-        COALESCE(especialidad, '') AS especialidad,
-        COALESCE(sni, '') AS sni,
-        anio_sni,
-        COALESCE(tipo_perfil, 'INVESTIGADOR') AS tipo_perfil,
-        COALESCE(nivel_tecnologo, '') AS nivel_tecnologo,
-        nivel_tecnologo_id,
-        COALESCE(experiencia_docente, '') AS experiencia_docente,
-        COALESCE(experiencia_laboral, '') AS experiencia_laboral,
-        COALESCE(proyectos_investigacion, '') AS proyectos_investigacion,
-        COALESCE(proyectos_vinculacion, '') AS proyectos_vinculacion,
-        COALESCE(libros, '') AS libros,
-        COALESCE(capitulos_libros, '') AS capitulos_libros,
-        COALESCE(articulos, '') AS articulos,
-        COALESCE(premios_distinciones, '') AS premios_distinciones,
-        COALESCE(idiomas, '') AS idiomas,
-        COALESCE(colaboracion_internacional, '') AS colaboracion_internacional,
-        COALESCE(colaboracion_nacional, '') AS colaboracion_nacional,
-        COALESCE(domicilio, '') AS domicilio,
-        COALESCE(cp, '') AS cp,
-        COALESCE(estado_nacimiento, '') AS estado_nacimiento,
-        COALESCE(municipio, '') AS municipio,
-        COALESCE(entidad_federativa, '') AS entidad_federativa,
-        COALESCE(genero, '') AS genero,
-        COALESCE(es_admin, false) AS es_admin,
-        COALESCE(activo, true) AS activo,
-        COALESCE(perfil_publico, true) AS perfil_publico
+      SELECT *
       FROM investigadores
       WHERE ${isNumeric ? 'id = $1' : 'slug = $1'}
       LIMIT 1
     `
 
     const result = await db.query(query, [isNumeric ? Number(id) : id])
+    console.log('Admin GET - Resultado query:', result ? 'OK' : 'NULL')
     const rows = Array.isArray(result) ? result : (result.rows || [])
 
     if (rows.length === 0) {
