@@ -2,13 +2,11 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Check, ChevronsUpDown, X, User, Building, Mail, ExternalLink } from "lucide-react"
+import { Check, ChevronsUpDown, X, User, Building, Mail, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
-import Link from "next/link"
 
 interface Investigador {
   id: number
@@ -80,15 +78,22 @@ export function InvestigadorSearch({
     setError("")
     
     try {
-      // Si el término está vacío o tiene menos de 2 caracteres, buscar todos (sin filtro)
+      // Buscar solo investigadores conectados con el usuario actual
       const queryParam = term.length >= 2 ? term : ""
-      const response = await fetch(`/api/investigadores/search?q=${encodeURIComponent(queryParam)}&limit=20`)
+      const response = await fetch(`/api/investigadores/conexiones?q=${encodeURIComponent(queryParam)}&limit=20`)
       const data = await response.json()
       
       if (response.ok) {
         setInvestigadores(data.investigadores || [])
+        // Mostrar mensaje si no tiene conexiones
+        if (data.mensaje) {
+          setError(data.mensaje)
+        }
+      } else if (response.status === 401) {
+        setError("Debes iniciar sesión para ver tus conexiones")
+        setInvestigadores([])
       } else {
-        setError("Error al buscar investigadores")
+        setError("Error al buscar conexiones")
         setInvestigadores([])
       }
     } catch (error) {
@@ -133,18 +138,10 @@ export function InvestigadorSearch({
             <Badge
               key={investigador.id}
               variant="secondary"
-              className="flex items-center gap-2 px-3 py-1 group"
+              className="flex items-center gap-2 px-3 py-1.5"
             >
               <User className="h-3 w-3 flex-shrink-0" />
-              <Link
-                href={`/investigadores/${investigador.slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm hover:text-blue-600 hover:underline flex items-center gap-1 transition-colors"
-              >
-                {investigador.nombre}
-                <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </Link>
+              <span className="text-sm">{investigador.nombre}</span>
               <Button
                 variant="ghost"
                 size="sm"
@@ -200,25 +197,28 @@ export function InvestigadorSearch({
               {!isLoading && !error && investigadores.length === 0 && searchTerm.length >= 2 && (
                 <CommandEmpty>
                   <div className="py-4">
-                    <p className="text-sm text-muted-foreground mb-2">No se encontraron investigadores</p>
-                    <p className="text-xs text-muted-foreground">Puedes escribir el nombre manualmente</p>
+                    <Users className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground mb-2">No se encontraron conexiones con ese nombre</p>
+                    <p className="text-xs text-muted-foreground">Solo puedes agregar investigadores con los que estés conectado</p>
                   </div>
                 </CommandEmpty>
               )}
               
               {!isLoading && !error && investigadores.length === 0 && searchTerm.length < 2 && (
                 <div className="p-4 text-center text-sm text-muted-foreground">
-                  <p className="mb-2">Escribe para buscar o selecciona de la lista</p>
-                  <p className="text-xs">Mostrando todos los investigadores disponibles</p>
+                  <Users className="h-8 w-8 mx-auto mb-2" />
+                  <p className="mb-2">No tienes conexiones aún</p>
+                  <p className="text-xs">Conecta con otros investigadores para poder agregarlos como autores</p>
                 </div>
               )}
               
               {investigadores.length > 0 && (
                 <CommandGroup>
-                  <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                  <div className="px-2 py-1.5 text-xs text-muted-foreground flex items-center gap-1">
+                    <Users className="h-3 w-3" />
                     {searchTerm.length >= 2 
-                      ? `${investigadores.length} resultado${investigadores.length !== 1 ? 's' : ''} encontrado${investigadores.length !== 1 ? 's' : ''}`
-                      : `${investigadores.length} investigador${investigadores.length !== 1 ? 'es' : ''} disponible${investigadores.length !== 1 ? 's' : ''}`
+                      ? `${investigadores.length} conexión${investigadores.length !== 1 ? 'es' : ''} encontrada${investigadores.length !== 1 ? 's' : ''}`
+                      : `${investigadores.length} conexión${investigadores.length !== 1 ? 'es' : ''} disponible${investigadores.length !== 1 ? 's' : ''}`
                     }
                   </div>
                   {investigadores.map((investigador) => (
@@ -226,7 +226,7 @@ export function InvestigadorSearch({
                       key={investigador.id}
                       value={`${investigador.nombre} ${investigador.email} ${investigador.institucion}`}
                       onSelect={() => handleSelect(investigador)}
-                      className="flex items-center justify-between group"
+                      className="flex items-center justify-between cursor-pointer"
                     >
                       <div className="flex items-center gap-3 flex-1">
                         <Check
@@ -238,16 +238,7 @@ export function InvestigadorSearch({
                         <div className="flex flex-col flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <User className="h-3 w-3 flex-shrink-0" />
-                            <Link
-                              href={`/investigadores/${investigador.slug}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="font-medium hover:text-blue-600 hover:underline flex items-center gap-1 transition-colors"
-                            >
-                              {investigador.nombre}
-                              <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </Link>
+                            <span className="font-medium">{investigador.nombre}</span>
                           </div>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <Mail className="h-3 w-3 flex-shrink-0" />
