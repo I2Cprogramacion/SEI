@@ -259,8 +259,8 @@ export default function Navbar() {
                 </Link>
               </Button>
 
-              {/* Admin Button - Solo visible para admins */}
-              {isSignedIn && isAdmin && (
+              {/* Admin Button - Solo visible para admins que NO sean evaluadores */}
+              {isSignedIn && isAdmin && !isEvaluador && (
                 <Button 
                   className="hidden lg:flex bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 shadow-md hover:shadow-lg transition-all px-4 h-10 gap-2" 
                   asChild
@@ -272,7 +272,7 @@ export default function Navbar() {
                 </Button>
               )}
 
-              {/* Evaluador Button - Solo visible para evaluadores */}
+              {/* Evaluador Button - Visible para evaluadores (prioridad sobre admin) */}
               {isSignedIn && isEvaluador && (
                 <Button 
                   className="hidden lg:flex bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 shadow-md hover:shadow-lg transition-all px-4 h-10 gap-2" 
@@ -526,8 +526,8 @@ export default function Navbar() {
                     <div className="space-y-2">
                       <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-3">Enlaces</h3>
                       
-                      {/* Admin Button móvil - Solo visible para admins */}
-                      {isSignedIn && isAdmin && (
+                      {/* Admin Button móvil - Solo visible para admins que NO sean evaluadores */}
+                      {isSignedIn && isAdmin && !isEvaluador && (
                         <Button className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 shadow-md h-11 font-medium rounded-lg" asChild>
                           <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
                             <LayoutDashboard className="mr-3 h-5 w-5" />
@@ -536,7 +536,7 @@ export default function Navbar() {
                         </Button>
                       )}
 
-                      {/* Evaluador Button móvil - Solo visible para evaluadores */}
+                      {/* Evaluador Button móvil - Visible para evaluadores (prioridad sobre admin) */}
                       {isSignedIn && isEvaluador && (
                         <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 shadow-md h-11 font-medium rounded-lg" asChild>
                           <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
