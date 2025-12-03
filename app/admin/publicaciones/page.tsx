@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -43,11 +44,37 @@ interface Publicacion {
 }
 
 export default function PublicacionesAdmin() {
+  const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
   const [tipoFilter, setTipoFilter] = useState("todos")
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([])
+
+  // Verificar que el usuario es admin (no evaluador)
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const response = await fetch('/api/admin/verificar-acceso')
+        if (response.ok) {
+          const data = await response.json()
+          // Si es evaluador pero no admin, redirigir a instituciones
+          if (data.esEvaluador && !data.esAdmin) {
+            router.push('/admin/instituciones')
+            return
+          }
+          // Si no tiene acceso, redirigir al dashboard
+          if (!data.tieneAcceso) {
+            router.push('/dashboard')
+            return
+          }
+        }
+      } catch (error) {
+        console.error('Error verificando acceso:', error)
+      }
+    }
+    checkAdmin()
+  }, [router])
   const [filteredData, setFilteredData] = useState<Publicacion[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
-import { Menu, User, LogOut, LayoutDashboard, FileText, Building2, Users, Telescope, BookOpen, Search } from "lucide-react"
+import { Menu, User, LogOut, LayoutDashboard, FileText, Building2, Users, Telescope, BookOpen, Search, Shield } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -42,6 +42,7 @@ export default function Navbar() {
   const [conexionesPendientes, setConexionesPendientes] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isEvaluador, setIsEvaluador] = useState(false)
   const router = useRouter()
   const { user, isSignedIn } = useUser()
   const { signOut } = useClerk()
@@ -117,6 +118,9 @@ export default function Navbar() {
             }
             if (result.data.es_admin) {
               setIsAdmin(true)
+            }
+            if (result.data.es_evaluador) {
+              setIsEvaluador(true)
             }
           }
         }
@@ -264,6 +268,19 @@ export default function Navbar() {
                   <Link href="/admin">
                     <LayoutDashboard className="h-4 w-4" />
                     <span className="font-semibold">Admin</span>
+                  </Link>
+                </Button>
+              )}
+
+              {/* Evaluador Button - Solo visible para evaluadores */}
+              {isSignedIn && isEvaluador && (
+                <Button 
+                  className="hidden lg:flex bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 shadow-md hover:shadow-lg transition-all px-4 h-10 gap-2" 
+                  asChild
+                >
+                  <Link href="/admin">
+                    <Shield className="h-4 w-4" />
+                    <span className="font-semibold">Evaluador</span>
                   </Link>
                 </Button>
               )}
@@ -515,6 +532,16 @@ export default function Navbar() {
                           <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
                             <LayoutDashboard className="mr-3 h-5 w-5" />
                             Panel de Administración
+                          </Link>
+                        </Button>
+                      )}
+
+                      {/* Evaluador Button móvil - Solo visible para evaluadores */}
+                      {isSignedIn && isEvaluador && (
+                        <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 shadow-md h-11 font-medium rounded-lg" asChild>
+                          <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
+                            <Shield className="mr-3 h-5 w-5" />
+                            Panel de Evaluador
                           </Link>
                         </Button>
                       )}

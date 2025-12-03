@@ -13,36 +13,43 @@ const sidebarItems = [
     title: "Dashboard",
     href: "/admin",
     icon: LayoutDashboard,
+    adminOnly: true, // Solo admin puede ver dashboard
   },
   {
     title: "Investigadores",
     href: "/admin/investigadores",
     icon: Users,
+    adminOnly: true,
   },
   {
     title: "Proyectos",
     href: "/admin/proyectos",
     icon: FileText,
+    adminOnly: true,
   },
   {
     title: "Publicaciones",
     href: "/admin/publicaciones",
     icon: Award,
+    adminOnly: true,
   },
   {
     title: "Instituciones",
     href: "/admin/instituciones",
     icon: GraduationCap,
+    adminOnly: false, // Evaluadores pueden ver
   },
   {
     title: "Evaluaciones SNII",
     href: "/admin/evaluaciones",
     icon: ClipboardCheck,
+    adminOnly: false, // Evaluadores pueden ver
   },
   {
     title: "Estadísticas",
     href: "/admin/estadisticas",
     icon: BarChart3,
+    adminOnly: false, // Evaluadores pueden ver
   },
 ]
 
@@ -60,21 +67,23 @@ export function AdminSidebar() {
   const { signOut } = useClerk()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [esAdmin, setEsAdmin] = useState(false)
+  const [esEvaluador, setEsEvaluador] = useState(false)
 
   useEffect(() => {
-    // Verificar si el usuario es admin
-    const checkAdmin = async () => {
+    // Verificar si el usuario es admin o evaluador
+    const checkRoles = async () => {
       try {
-        const response = await fetch('/api/admin/verificar')
+        const response = await fetch('/api/admin/verificar-acceso')
         if (response.ok) {
           const data = await response.json()
           setEsAdmin(data.esAdmin || false)
+          setEsEvaluador(data.esEvaluador || false)
         }
       } catch (error) {
-        console.error('Error verificando admin:', error)
+        console.error('Error verificando roles:', error)
       }
     }
-    checkAdmin()
+    checkRoles()
   }, [])
 
   const handleLogout = async () => {
@@ -95,36 +104,49 @@ export function AdminSidebar() {
           </div>
           <div>
             <span className="text-lg font-bold text-white block">SECCTI</span>
-            <span className="text-xs text-blue-100">Panel Admin</span>
+            <span className="text-xs text-blue-100">
+              {esEvaluador && !esAdmin ? "Panel Evaluador" : "Panel Admin"}
+            </span>
           </div>
         </Link>
       </div>
-      <div className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-        {sidebarItems.map((item) => {
-          const isActive = pathname === item.href
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onItemClick}
-              className={cn(
-                "flex items-center py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 group",
-                isActive
-                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/30"
-                  : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-              )}
-            >
-              <item.icon className={cn(
-                "mr-3 h-5 w-5 transition-transform group-hover:scale-110",
-                isActive ? "text-white" : "text-gray-500 group-hover:text-blue-600"
-              )} />
-              <span className={isActive ? "font-semibold" : ""}>{item.title}</span>
-              {isActive && (
-                <div className="ml-auto h-2 w-2 rounded-full bg-white"></div>
-              )}
-            </Link>
-          )
-        })}
+      <div className="flex-1 py-4 px-3 space-y-1 overflow-y-auto min-h-0">
+        {sidebarItems
+          .filter(item => {
+            // Si es admin, puede ver todo
+            if (esAdmin) return true
+            // Si es evaluador, solo puede ver items que no sean adminOnly
+            if (esEvaluador) return !item.adminOnly
+            // Si no es ni admin ni evaluador, no debería estar aquí
+            return false
+          })
+          .map((item) => {
+            const isActive = pathname === item.href
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onItemClick}
+                className={cn(
+                  "flex items-center py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 group",
+                  isActive
+                    ? esEvaluador && !esAdmin
+                      ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-500/30"
+                      : "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/30"
+                    : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                )}
+              >
+                <item.icon className={cn(
+                  "mr-3 h-5 w-5 transition-transform group-hover:scale-110",
+                  isActive ? "text-white" : "text-gray-500 group-hover:text-blue-600"
+                )} />
+                <span className={isActive ? "font-semibold" : ""}>{item.title}</span>
+                {isActive && (
+                  <div className="ml-auto h-2 w-2 rounded-full bg-white"></div>
+                )}
+              </Link>
+            )
+          })}
         {/* Separador para items solo de admin */}
         {esAdmin && adminOnlyItems.length > 0 && (
           <>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -23,6 +24,7 @@ interface DashboardStats {
 }
 
 export default function AdminDashboard() {
+  const router = useRouter()
   const [stats, setStats] = useState<DashboardStats>({
     totalInvestigadores: 0,
     totalProyectos: 0,
@@ -34,6 +36,31 @@ export default function AdminDashboard() {
     alertas: 0,
   })
   const [loading, setLoading] = useState(true)
+
+  // Verificar que el usuario es admin (no evaluador)
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const response = await fetch('/api/admin/verificar-acceso')
+        if (response.ok) {
+          const data = await response.json()
+          // Si es evaluador pero no admin, redirigir a instituciones
+          if (data.esEvaluador && !data.esAdmin) {
+            router.push('/admin/instituciones')
+            return
+          }
+          // Si no tiene acceso, redirigir al dashboard
+          if (!data.tieneAcceso) {
+            router.push('/dashboard')
+            return
+          }
+        }
+      } catch (error) {
+        console.error('Error verificando acceso:', error)
+      }
+    }
+    checkAdmin()
+  }, [router])
 
   // Cargar estadísticas reales desde las APIs
   useEffect(() => {
