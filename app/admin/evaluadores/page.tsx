@@ -9,7 +9,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Search, UserCheck, UserX, Shield, AlertCircle, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
-import { InvestigadorSearch } from "@/components/investigador-search"
 
 interface Evaluador {
   id: string
@@ -21,14 +20,6 @@ interface Evaluador {
   fechaRegistro: string | null
 }
 
-interface Investigador {
-  id: number
-  nombre: string
-  email: string
-  foto: string | null
-  slug: string
-}
-
 export default function GestionarEvaluadoresPage() {
   const router = useRouter()
   const [evaluadores, setEvaluadores] = useState<Evaluador[]>([])
@@ -36,7 +27,6 @@ export default function GestionarEvaluadoresPage() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [esAdmin, setEsAdmin] = useState(false)
-  const [investigadorSeleccionado, setInvestigadorSeleccionado] = useState<Investigador | null>(null)
 
   useEffect(() => {
     // Verificar que el usuario es admin
@@ -244,50 +234,6 @@ export default function GestionarEvaluadoresPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-6">
-            <label className="text-sm font-medium text-gray-700 mb-2 block">
-              Buscar Investigador
-            </label>
-            <InvestigadorSearch
-              selectedInvestigadores={investigadorSeleccionado ? [investigadorSeleccionado] : []}
-              onSelectionChange={(investigadores) => {
-                if (investigadores.length > 0) {
-                  const nuevoSeleccionado = investigadores[investigadores.length - 1]
-                  setInvestigadorSeleccionado(nuevoSeleccionado)
-                } else {
-                  setInvestigadorSeleccionado(null)
-                }
-              }}
-              placeholder="Buscar investigador para asignar como evaluador..."
-              excludeIds={evaluadores.map(e => {
-                const idNum = typeof e.id === 'string' ? parseInt(e.id) : e.id
-                return isNaN(idNum as number) ? 0 : (idNum as number)
-              })}
-            />
-            {investigadorSeleccionado && (
-              <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900">{investigadorSeleccionado.nombre}</p>
-                    <p className="text-sm text-gray-600">{investigadorSeleccionado.email}</p>
-                  </div>
-                  <Button
-                    onClick={async () => {
-                      if (investigadorSeleccionado) {
-                        await toggleEvaluador(investigadorSeleccionado.id.toString(), false)
-                        setInvestigadorSeleccionado(null)
-                      }
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    <UserCheck className="h-4 w-4 mr-2" />
-                    Asignar como Evaluador
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-
           <div className="mb-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
