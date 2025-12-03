@@ -19,7 +19,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ArrowLeft, Download, Eye, Filter, Search, UserCog, TrendingUp, TrendingDown, Minus } from "lucide-react"
+import { ArrowLeft, Download, Eye, Filter, Search, UserCog, TrendingUp, TrendingDown, Minus, Award } from "lucide-react"
 import { ExportDialog } from "@/components/export-dialog"
 import { InvestigadoresFiltrosAvanzados, type FiltrosInvestigador } from "@/components/investigadores-filtros-avanzados"
 import { getParametrosSNII, compararConParametros } from "@/lib/snii-parametros"
@@ -53,9 +53,12 @@ interface Investigador {
   fotografia_url?: string
   fecha_registro?: string
   is_admin?: boolean
+  es_admin?: boolean
+  activo?: boolean
   // Campos para evaluación SNII
   area_investigacion?: string
   nivel_investigador?: string
+  nivel_sni?: string
   articulos_publicados?: string | number
   libros_publicados?: string | number
   capitulos_publicados?: string | number
@@ -252,6 +255,28 @@ export default function InvestigadoresAdmin() {
 
   // Renderizar badge de estado SNII
   const renderEstadoBadge = (investigador: Investigador) => {
+    // Si tiene nivel_sni asignado, mostrarlo directamente
+    if (investigador.nivel_sni) {
+      const nivelTexto = investigador.nivel_sni
+      const badgeClasses = {
+        'Candidato': 'bg-blue-100 text-blue-700 border-blue-200',
+        'Nivel I': 'bg-green-100 text-green-700 border-green-200',
+        'Nivel II': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+        'Nivel III': 'bg-teal-100 text-teal-700 border-teal-200',
+        'Emérito': 'bg-purple-100 text-purple-700 border-purple-200'
+      }
+      
+      const className = badgeClasses[nivelTexto as keyof typeof badgeClasses] || 'bg-gray-100 text-gray-700 border-gray-200'
+      
+      return (
+        <Badge variant="outline" className={`${className} flex items-center gap-1 text-xs font-medium`}>
+          <Award className="h-3 w-3" />
+          <span>{nivelTexto}</span>
+        </Badge>
+      )
+    }
+
+    // Si no tiene nivel_sni, calcular estado respecto a parámetros
     const estado = calcularEstadoInvestigador(investigador)
     
     if (estado === "sin_datos") {
@@ -267,7 +292,11 @@ export default function InvestigadoresAdmin() {
           </Badge>
         )
       }
-      return null // No mostrar badge si no hay área/nivel
+      return (
+        <Badge variant="outline" className="bg-gray-50 text-gray-500 border-gray-200 flex items-center gap-1 text-xs">
+          <span>N/A</span>
+        </Badge>
+      )
     }
 
     const badgeConfig = {
@@ -301,7 +330,7 @@ export default function InvestigadoresAdmin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="w-full py-6 md:py-10 px-4 md:px-8 max-w-7xl mx-auto">
+      <div className="w-full py-6 md:py-10 px-4 md:px-8">
       {/* Header mejorado */}
       <div className="mb-8">
         <Button 

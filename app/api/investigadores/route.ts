@@ -50,18 +50,37 @@ export async function GET(request: NextRequest) {
       return {
         id: inv.id,
         nombre: inv.nombre_completo || (inv.nombres && inv.apellidos ? `${inv.nombres} ${inv.apellidos}` : null) || 'Sin nombre',
+        nombre_completo: inv.nombre_completo || (inv.nombres && inv.apellidos ? `${inv.nombres} ${inv.apellidos}` : null) || 'Sin nombre',
         email: inv.correo || '',
+        correo: inv.correo || '',
         fotografiaUrl: inv.fotografia_url || null,
+        fotografia_url: inv.fotografia_url || null,
         institucion: inv.institucion || null,
         area: inv.area_investigacion || null,
+        area_investigacion: inv.area_investigacion || null,
         ultimoGradoEstudios: inv.ultimo_grado_estudios || null,
+        ultimo_grado_estudios: inv.ultimo_grado_estudios || null,
         nivel: inv.nivel_investigador || inv.nivel || null,
+        nivel_investigador: inv.nivel_investigador || inv.nivel || null,
+        nivel_sni: inv.nivel_sni || null,
         estadoNacimiento: inv.estado_nacimiento || null,
+        estado_nacimiento: inv.estado_nacimiento || null,
         entidadFederativa: inv.entidad_federativa || null,
+        entidad_federativa: inv.entidad_federativa || null,
         municipio: inv.municipio || null,
         telefono: inv.telefono || null,
         lineaInvestigacion: inv.linea_investigacion || null,
-        slug: slug
+        linea_investigacion: inv.linea_investigacion || null,
+        slug: slug,
+        // Admin fields
+        is_admin: inv.es_admin || false,
+        es_admin: inv.es_admin || false,
+        fecha_registro: inv.fecha_registro || null,
+        activo: inv.activo !== false,
+        // Additional fields for evaluation
+        articulos_publicados: inv.articulos || null,
+        libros_publicados: inv.libros || null,
+        capitulos_publicados: inv.capitulos_libros || null
       }
     })
 
