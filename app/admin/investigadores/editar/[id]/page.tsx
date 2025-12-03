@@ -1,20 +1,37 @@
 "use client"
 
-import type React from "react"
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
+import { useUser } from "@clerk/nextjs"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowLeft, Loader2, Save, X, Plus, Award, Shield } from "lucide-react"
+import { UploadFotografia } from "@/components/upload-fotografia"
+import { TagsInput } from "@/components/ui/tags-input"
 import { AreaSNIISelector } from "@/components/area-snii-selector"
-import Link from "next/link"
+import { Switch } from "@/components/ui/switch"
+import {
+  Loader2,
+  CheckCircle,
+  User,
+  Phone,
+  GraduationCap,
+  Calendar,
+  Flag,
+  Hash,
+  CreditCard,
+  Briefcase,
+  AlertCircle,
+  ArrowLeft,
+  Save,
+  Edit,
+  Award,
+  Shield,
+  Eye,
+} from "lucide-react"
 
 // Niveles de investigador (mismo formato que registro)
 const NIVELES_INVESTIGADOR = [
@@ -32,102 +49,124 @@ const NIVELES_TECNOLOGO = [
   "Tecnólogo Nivel B"
 ] as const
 
-// Interface para el formulario de investigador (alineado con registro)
-interface InvestigadorForm {
-  // Información personal básica
+interface InvestigadorData {
+  id: number
+  nombre_completo: string
   nombres: string
   apellidos: string
-  nombre_completo: string
-  correo: string
-  telefono: string
-  fecha_nacimiento: string
-  nacionalidad: string
   curp: string
   rfc: string
   no_cvu: string
+  correo: string
+  telefono: string
+  fotografia_url?: string
+  nacionalidad: string
+  fecha_nacimiento: string
   genero: string
-
-  // Ubicación
   municipio: string
-  estado_nacimiento: string
-  entidad_federativa: string
-
-  // Información académica/institucional
-  institucion: string
-  departamento: string
-  ubicacion: string
-  sitio_web: string
+  estado_nacimiento?: string
+  entidad_federativa?: string
+  institucion_id?: string | null
+  institucion?: string
+  departamento?: string
+  ubicacion?: string
+  sitio_web?: string
   ultimo_grado_estudios: string
-  grado_maximo_estudios: string
+  grado_maximo_estudios?: string
   empleo_actual: string
-
-  // Investigación
-  linea_investigacion: string
-  area_investigacion: string
-  disciplina: string
-  especialidad: string
-  orcid: string
-
-  // Nivel y SNI
-  nivel: string
+  linea_investigacion: string | string[]
+  area_investigacion: string | string[]
+  disciplina?: string
+  area_investigacionRaw?: string
+  especialidad?: string
+  orcid?: string
+  nivel?: string
   nivel_investigador: string
+  nivel_actual_id?: string | null
+  fecha_asignacion_nivel?: string | null
+  fecha_registro: string
+  origen: string
   nivel_sni: string
-  sni: string
-  anio_sni: string
-  nivel_actual_id: string
-  fecha_asignacion_nivel: string
-
-  // Producción académica
-  experiencia_docente: string
-  experiencia_laboral: string
-  proyectos_investigacion: string
-  proyectos_vinculacion: string
-  libros: string
-  capitulos_libros: string
-  articulos: string
-  premios_distinciones: string
-  idiomas: string
-  colaboracion_internacional: string
-  colaboracion_nacional: string
-
-  // CV
-  cv_url: string
-
-  // Evaluación
-  puntaje_total: number
-  estado_evaluacion: string
-
-  // Campos de admin
+  sni?: string
+  anio_sni?: string | null
+  tipo_perfil: string
+  nivel_tecnologo?: string
+  nivel_tecnologo_id?: string | null
   es_admin: boolean
   activo: boolean
-  perfil_publico: boolean
+}
+
+interface FormData {
+  nombres: string
+  apellidos: string
+  nombre_completo: string
+  curp: string
+  rfc: string
+  no_cvu: string
+  telefono: string
+  fotografia_url?: string
+  nacionalidad: string
+  fecha_nacimiento: string
+  genero: string
+  municipio: string
+  estado_nacimiento?: string
+  entidad_federativa?: string
+  institucion_id?: string | null
+  institucion?: string
+  departamento?: string
+  ubicacion?: string
+  sitio_web?: string
+  ultimo_grado_estudios: string
+  grado_maximo_estudios?: string
+  empleo_actual: string
+  linea_investigacion: string[]
+  area_investigacion: string
+  disciplina?: string
+  area_investigacionRaw?: string
+  especialidad?: string
+  orcid?: string
+  nivel?: string
+  nivel_investigador: string
+  nivel_actual_id?: string | null
+  fecha_asignacion_nivel?: string | null
+  nivel_sni: string
+  sni?: string
+  anio_sni?: string | null
+  tipo_perfil: string
+  nivel_tecnologo?: string
+  nivel_tecnologo_id?: string | null
+  es_admin: boolean
+  activo: boolean
 }
 
 export default function EditarInvestigadorPage() {
+  const { user, isLoaded } = useUser()
   const router = useRouter()
   const params = useParams()
-  const slug = params?.id as string
-
+  const id = params.id as string
+  
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-
-  const [formData, setFormData] = useState<InvestigadorForm>({
+  const [investigadorId, setInvestigadorId] = useState<number | null>(null)
+  
+  const [formData, setFormData] = useState<FormData>({
     nombres: "",
     apellidos: "",
     nombre_completo: "",
-    correo: "",
-    telefono: "",
-    fecha_nacimiento: "",
-    nacionalidad: "Mexicana",
     curp: "",
     rfc: "",
     no_cvu: "",
+    telefono: "",
+    fotografia_url: "",
+    nacionalidad: "Mexicana",
+    fecha_nacimiento: "",
     genero: "",
     municipio: "",
     estado_nacimiento: "",
     entidad_federativa: "",
+    institucion_id: "",
     institucion: "",
     departamento: "",
     ubicacion: "",
@@ -135,70 +174,61 @@ export default function EditarInvestigadorPage() {
     ultimo_grado_estudios: "",
     grado_maximo_estudios: "",
     empleo_actual: "",
-    linea_investigacion: "",
+    linea_investigacion: [],
     area_investigacion: "",
     disciplina: "",
+    area_investigacionRaw: "",
     especialidad: "",
     orcid: "",
     nivel: "",
     nivel_investigador: "",
+    nivel_actual_id: "",
+    fecha_asignacion_nivel: "",
     nivel_sni: "",
     sni: "",
     anio_sni: "",
-    nivel_actual_id: "",
-    fecha_asignacion_nivel: "",
-    experiencia_docente: "",
-    experiencia_laboral: "",
-    proyectos_investigacion: "",
-    proyectos_vinculacion: "",
-    libros: "",
-    capitulos_libros: "",
-    articulos: "",
-    premios_distinciones: "",
-    idiomas: "",
-    colaboracion_internacional: "",
-    colaboracion_nacional: "",
-    cv_url: "",
-    puntaje_total: 0,
-    estado_evaluacion: "PENDIENTE",
+    tipo_perfil: "INVESTIGADOR",
+    nivel_tecnologo: "",
+    nivel_tecnologo_id: "",
     es_admin: false,
     activo: true,
-    perfil_publico: true,
   })
-
-  const [errors, setErrors] = useState<Record<string, string>>({})
 
   // Cargar datos del investigador
   useEffect(() => {
-    const fetchInvestigador = async () => {
-      if (!slug) return
+    const cargarDatos = async () => {
+      if (!isLoaded || !user) return
 
       try {
         setIsLoading(true)
-        const response = await fetch(`/api/admin/investigadores/${slug}`)
+        const response = await fetch(`/api/admin/investigadores/${id}`)
         
         if (!response.ok) {
-          throw new Error("Error al cargar el investigador")
+          throw new Error("No se pudo cargar el investigador")
         }
 
-        const data = await response.json()
+        const data = await response.json() as InvestigadorData
+        setInvestigadorId(data.id)
         
-        // Mapear datos del API al formulario (usando nombres exactos de la BD)
+        // Formatear fecha_nacimiento a YYYY-MM-DD (simplificado)
+        const fechaNacimiento = data.fecha_nacimiento?.split('T')[0] || ""
+        
         setFormData({
           nombres: data.nombres || "",
           apellidos: data.apellidos || "",
           nombre_completo: data.nombre_completo || "",
-          correo: data.correo || "",
-          telefono: data.telefono || "",
-          fecha_nacimiento: data.fecha_nacimiento || "",
-          nacionalidad: data.nacionalidad || "Mexicana",
           curp: data.curp || "",
           rfc: data.rfc || "",
           no_cvu: data.no_cvu || "",
+          telefono: data.telefono || "",
+          fotografia_url: data.fotografia_url || "",
+          nacionalidad: data.nacionalidad || "Mexicana",
+          fecha_nacimiento: fechaNacimiento,
           genero: data.genero || "",
           municipio: data.municipio || "",
           estado_nacimiento: data.estado_nacimiento || "",
           entidad_federativa: data.entidad_federativa || "",
+          institucion_id: data.institucion_id || "",
           institucion: data.institucion || "",
           departamento: data.departamento || "",
           ubicacion: data.ubicacion || "",
@@ -206,596 +236,565 @@ export default function EditarInvestigadorPage() {
           ultimo_grado_estudios: data.ultimo_grado_estudios || "",
           grado_maximo_estudios: data.grado_maximo_estudios || "",
           empleo_actual: data.empleo_actual || "",
-          linea_investigacion: data.linea_investigacion || "",
-          area_investigacion: data.area_investigacion || "",
+          linea_investigacion: typeof data.linea_investigacion === "string" 
+            ? (data.linea_investigacion.trim() === "" ? [] : data.linea_investigacion.split(",").map((l: string) => l.trim()).filter(Boolean))
+            : Array.isArray(data.linea_investigacion) ? data.linea_investigacion : [],
+          area_investigacion: typeof data.area_investigacion === "string" 
+            ? data.area_investigacion 
+            : Array.isArray(data.area_investigacion) 
+              ? data.area_investigacion.join(", ") 
+              : "",
           disciplina: data.disciplina || "",
+          area_investigacionRaw: data.area_investigacionRaw || "",
           especialidad: data.especialidad || "",
           orcid: data.orcid || "",
           nivel: data.nivel || "",
           nivel_investigador: data.nivel_investigador || "",
+          nivel_actual_id: data.nivel_actual_id || "",
+          fecha_asignacion_nivel: data.fecha_asignacion_nivel || "",
           nivel_sni: data.nivel_sni || "",
           sni: data.sni || "",
-          anio_sni: data.anio_sni?.toString() || "",
-          nivel_actual_id: data.nivel_actual_id?.toString() || "",
-          fecha_asignacion_nivel: data.fecha_asignacion_nivel || "",
-          experiencia_docente: data.experiencia_docente || "",
-          experiencia_laboral: data.experiencia_laboral || "",
-          proyectos_investigacion: data.proyectos_investigacion || "",
-          proyectos_vinculacion: data.proyectos_vinculacion || "",
-          libros: data.libros || "",
-          capitulos_libros: data.capitulos_libros || "",
-          articulos: data.articulos || "",
-          premios_distinciones: data.premios_distinciones || "",
-          idiomas: data.idiomas || "",
-          colaboracion_internacional: data.colaboracion_internacional || "",
-          colaboracion_nacional: data.colaboracion_nacional || "",
-          cv_url: data.cv_url || "",
-          puntaje_total: data.puntaje_total || 0,
-          estado_evaluacion: data.estado_evaluacion || "PENDIENTE",
+          anio_sni: data.anio_sni || "",
+          tipo_perfil: data.tipo_perfil || "INVESTIGADOR",
+          nivel_tecnologo: data.nivel_tecnologo || "",
+          nivel_tecnologo_id: data.nivel_tecnologo_id || "",
           es_admin: data.es_admin || false,
           activo: data.activo !== undefined ? data.activo : true,
-          perfil_publico: data.perfil_publico !== undefined ? data.perfil_publico : true,
         })
       } catch (err) {
-        console.error("Error fetching investigador:", err)
-        setError(err instanceof Error ? err.message : "Error desconocido")
+        console.error("Error al cargar datos:", err)
+        setError(err instanceof Error ? err.message : "Error al cargar los datos")
       } finally {
         setIsLoading(false)
       }
     }
 
-    fetchInvestigador()
-  }, [slug])
+    cargarDatos()
+  }, [isLoaded, user, id])
 
-  // Validar formulario
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {}
-
-    if (!formData.nombres) newErrors.nombres = "El nombre es requerido"
-    if (!formData.apellidos) newErrors.apellidos = "Los apellidos son requeridos"
-    if (!formData.correo) newErrors.correo = "El email es requerido"
-    if (!formData.curp) newErrors.curp = "El CURP es requerido"
-    if (!formData.rfc) newErrors.rfc = "El RFC es requerido"
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
   }
 
-  // Guardar cambios
-  const handleSave = async () => {
-    if (!validateForm()) return
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
 
-    setIsSaving(true)
+  const handleFotografiaUpload = (url: string) => {
+    setFormData(prev => ({
+      ...prev,
+      fotografia_url: url
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
     setError(null)
     setSuccess(null)
+    setIsSaving(true)
 
     try {
-      const response = await fetch(`/api/admin/investigadores/${slug}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          // Datos personales
-          nombres: formData.nombres,
-          apellidos: formData.apellidos,
-          nombre_completo: formData.nombre_completo || `${formData.nombres} ${formData.apellidos}`,
-          correo: formData.correo,
-          telefono: formData.telefono,
-          fecha_nacimiento: formData.fecha_nacimiento,
-          nacionalidad: formData.nacionalidad,
-          curp: formData.curp,
-          rfc: formData.rfc,
-          no_cvu: formData.no_cvu,
-          genero: formData.genero,
-          
-          // Ubicación
-          municipio: formData.municipio,
-          estado_nacimiento: formData.estado_nacimiento,
-          entidad_federativa: formData.entidad_federativa,
-          
-          // Información institucional
-          institucion: formData.institucion,
-          departamento: formData.departamento,
-          ubicacion: formData.ubicacion,
-          sitio_web: formData.sitio_web,
-          
-          // Formación académica
-          ultimo_grado_estudios: formData.ultimo_grado_estudios,
-          grado_maximo_estudios: formData.grado_maximo_estudios,
-          empleo_actual: formData.empleo_actual,
-          
-          // Investigación
-          linea_investigacion: formData.linea_investigacion,
-          area_investigacion: formData.area_investigacion,
-          disciplina: formData.disciplina,
-          especialidad: formData.especialidad,
-          orcid: formData.orcid,
-          
-          // Nivel y SNI
-          nivel: formData.nivel,
-          nivel_investigador: formData.nivel_investigador,
-          nivel_sni: formData.nivel_sni,
-          sni: formData.sni,
-          anio_sni: formData.anio_sni ? parseInt(formData.anio_sni) : null,
-          nivel_actual_id: formData.nivel_actual_id || null,
-          fecha_asignacion_nivel: formData.fecha_asignacion_nivel || null,
-          
-          // Producción académica
-          experiencia_docente: formData.experiencia_docente,
-          experiencia_laboral: formData.experiencia_laboral,
-          proyectos_investigacion: formData.proyectos_investigacion,
-          proyectos_vinculacion: formData.proyectos_vinculacion,
-          libros: formData.libros,
-          capitulos_libros: formData.capitulos_libros,
-          articulos: formData.articulos,
-          premios_distinciones: formData.premios_distinciones,
-          idiomas: formData.idiomas,
-          colaboracion_internacional: formData.colaboracion_internacional,
-          colaboracion_nacional: formData.colaboracion_nacional,
-          
-          // CV
-          cv_url: formData.cv_url,
-          
-          // Evaluación
-          puntaje_total: formData.puntaje_total,
-          estado_evaluacion: formData.estado_evaluacion,
-          
-          // Campos de admin
-          es_admin: formData.es_admin,
-          activo: formData.activo,
-          perfil_publico: formData.perfil_publico,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Error al actualizar el investigador")
+      // Validaciones básicas
+      if (!formData.nombres.trim()) {
+        throw new Error("El nombre es obligatorio")
       }
 
-      const result = await response.json()
-      setSuccess(result.message || "Investigador actualizado exitosamente")
+      if (!formData.apellidos.trim()) {
+        throw new Error("Los apellidos son obligatorios")
+      }
+
+      if (!formData.telefono.trim()) {
+        throw new Error("El teléfono es obligatorio")
+      }
+
+      // Preparar datos para envío
+      const dataToSend: any = {
+        ...formData,
+        nombre_completo: `${formData.nombres} ${formData.apellidos}`.trim(),
+        linea_investigacion: formData.linea_investigacion.join(", ")
+      }
       
+      // Limpiar campos vacíos o null antes de enviar
+      Object.keys(dataToSend).forEach(key => {
+        if (dataToSend[key] === "" || dataToSend[key] === null) {
+          // Mantener campos obligatorios aunque estén vacíos
+          if (!['nombres', 'apellidos', 'nombre_completo', 'telefono'].includes(key)) {
+            delete dataToSend[key]
+          }
+        }
+      })
+
+      // Enviar actualización
+      const response = await fetch(`/api/admin/investigadores/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToSend),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || "Error al actualizar el perfil")
+      }
+
+      setSuccess(result.message || "✅ Perfil actualizado exitosamente")
+      
+      // Redirigir a la lista de investigadores después de 2 segundos
       setTimeout(() => {
         router.push("/admin/investigadores")
       }, 2000)
-
     } catch (err) {
-      console.error("Error saving investigador:", err)
-      setError(err instanceof Error ? err.message : "Error al guardar los cambios")
+      console.error("Error al guardar:", err)
+      setError(err instanceof Error ? err.message : "Error desconocido")
     } finally {
       setIsSaving(false)
     }
   }
 
-  if (isLoading) {
+  if (!isLoaded || isLoading) {
     return (
-      <div className="container mx-auto py-8 px-4 flex items-center justify-center min-h-[60vh]">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-blue-600">Cargando datos del investigador...</p>
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto" />
+          <p className="mt-4 text-blue-600">Cargando investigador...</p>
         </div>
       </div>
     )
   }
 
-  if (error && !formData.nombres) {
-    return (
-      <div className="container mx-auto py-8 px-4">
-        <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold text-red-600">Error</h1>
-          <p className="text-red-600">{error}</p>
-          <Button asChild className="bg-blue-700 text-white hover:bg-blue-800">
-            <Link href="/admin/investigadores">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver a la lista
-            </Link>
-          </Button>
-        </div>
-      </div>
-    )
+  if (!user) {
+    router.push("/iniciar-sesion")
+    return null
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-6xl">
-      <div className="space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
+      <div className="container max-w-4xl mx-auto py-6 md:py-12 px-4">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" asChild className="text-blue-700 hover:bg-blue-50">
-                <Link href="/admin/investigadores">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Volver a la lista
-                </Link>
-              </Button>
-              <h1 className="text-3xl font-bold text-blue-900">
-                Editar Investigador: {formData.nombres} {formData.apellidos}
-              </h1>
+        <div className="mb-8">
+          <Button
+            onClick={() => router.push("/admin/investigadores")}
+            variant="outline"
+            className="mb-4 border-blue-200 text-blue-700 hover:bg-blue-50"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Volver a Investigadores
+          </Button>
+          
+          <div className="text-center space-y-2">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+              <Edit className="h-8 w-8 text-blue-600" />
             </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-blue-900">Editar Investigador (Admin)</h1>
             <p className="text-blue-600">Modifica la información del investigador</p>
           </div>
-          <Button 
-            onClick={handleSave} 
-            disabled={isSaving}
-            className="bg-blue-700 text-white hover:bg-blue-800"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Guardando...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                Guardar Cambios
-              </>
-            )}
-          </Button>
         </div>
 
-        {/* Mensajes de estado */}
-        {error && (
-          <Alert className="border-red-200 bg-red-50">
-            <AlertDescription className="text-red-800">{error}</AlertDescription>
-          </Alert>
-        )}
+        <Card className="bg-white border-blue-100 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-blue-900">Información del Investigador</CardTitle>
+            <CardDescription className="text-blue-600">
+              Modifica los campos que desees actualizar
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {error && (
+              <Alert variant="destructive" className="mb-6 bg-red-50 border-red-200">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-        {success && (
-          <Alert className="border-green-200 bg-green-50">
-            <AlertDescription className="text-green-800">{success}</AlertDescription>
-          </Alert>
-        )}
+            {success && (
+              <Alert className="mb-6 bg-green-50 border-green-200">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertTitle className="text-green-800">¡Éxito!</AlertTitle>
+                <AlertDescription className="text-green-700">{success}</AlertDescription>
+              </Alert>
+            )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Columna principal */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Información personal */}
-            <Card className="bg-white border-blue-100">
-              <CardHeader>
-                <CardTitle className="text-blue-900">Información Personal</CardTitle>
-                <CardDescription className="text-blue-600">
-                  Datos básicos del investigador
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Fotografía */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2">
+                  Fotografía de Perfil
+                </h3>
+                <UploadFotografia
+                  value={formData.fotografia_url}
+                  onChange={handleFotografiaUpload}
+                  nombreCompleto={formData.nombre_completo}
+                />
+              </div>
+
+              {/* Información Personal */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Información Personal
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="nombres">Nombre(s) *</Label>
+                    <Label htmlFor="nombres" className="text-blue-900 font-medium flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      Nombres *
+                    </Label>
                     <Input
                       id="nombres"
+                      name="nombres"
                       value={formData.nombres}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, nombres: e.target.value }))}
-                      className={errors.nombres ? "border-red-300" : ""}
+                      onChange={handleChange}
+                      placeholder="Ej: Juan Carlos"
+                      className="bg-white border-blue-200"
+                      required
                     />
-                    {errors.nombres && <p className="text-sm text-red-600">{errors.nombres}</p>}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="apellidos">Apellidos *</Label>
+                    <Label htmlFor="apellidos" className="text-blue-900 font-medium flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      Apellidos *
+                    </Label>
                     <Input
                       id="apellidos"
+                      name="apellidos"
                       value={formData.apellidos}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, apellidos: e.target.value }))}
-                      className={errors.apellidos ? "border-red-300" : ""}
+                      onChange={handleChange}
+                      placeholder="Ej: García López"
+                      className="bg-white border-blue-200"
+                      required
                     />
-                    {errors.apellidos && <p className="text-sm text-red-600">{errors.apellidos}</p>}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="correo">Correo Electrónico *</Label>
-                    <Input
-                      id="correo"
-                      type="email"
-                      value={formData.correo}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, correo: e.target.value }))}
-                      className={errors.correo ? "border-red-300" : ""}
-                    />
-                    {errors.correo && <p className="text-sm text-red-600">{errors.correo}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="telefono">Teléfono</Label>
+                    <Label htmlFor="telefono" className="text-blue-900 font-medium flex items-center gap-2">
+                      <Phone className="h-4 w-4" />
+                      Teléfono *
+                    </Label>
                     <Input
                       id="telefono"
+                      name="telefono"
                       value={formData.telefono}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, telefono: e.target.value }))}
+                      onChange={handleChange}
+                      placeholder="Teléfono"
+                      className="bg-white border-blue-200"
+                      required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="curp">CURP *</Label>
+                    <Label htmlFor="fecha_nacimiento" className="text-blue-900 font-medium flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      Fecha de Nacimiento
+                    </Label>
                     <Input
-                      id="curp"
-                      value={formData.curp}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, curp: e.target.value.toUpperCase() }))}
-                      className={errors.curp ? "border-red-300" : ""}
-                      maxLength={18}
+                      id="fecha_nacimiento"
+                      name="fecha_nacimiento"
+                      type="date"
+                      value={formData.fecha_nacimiento}
+                      onChange={handleChange}
+                      className="bg-white border-blue-200"
                     />
-                    {errors.curp && <p className="text-sm text-red-600">{errors.curp}</p>}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="rfc">RFC *</Label>
+                    <Label htmlFor="nacionalidad" className="text-blue-900 font-medium flex items-center gap-2">
+                      <Flag className="h-4 w-4" />
+                      Nacionalidad
+                    </Label>
                     <Input
-                      id="rfc"
-                      value={formData.rfc}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, rfc: e.target.value.toUpperCase() }))}
-                      className={errors.rfc ? "border-red-300" : ""}
-                      maxLength={13}
-                    />
-                    {errors.rfc && <p className="text-sm text-red-600">{errors.rfc}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="no_cvu">CVU/PU</Label>
-                    <Input
-                      id="no_cvu"
-                      value={formData.no_cvu}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, no_cvu: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="nacionalidad">Nacionalidad</Label>
-                    <Select
+                      id="nacionalidad"
+                      name="nacionalidad"
                       value={formData.nacionalidad}
-                      onValueChange={(value) => setFormData((prev) => ({ ...prev, nacionalidad: value }))}
+                      onChange={handleChange}
+                      placeholder="Nacionalidad"
+                      className="bg-white border-blue-200"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Tipo de Perfil y Nivel */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
+                  <Award className="h-5 w-5" />
+                  Tipo de Perfil y Nivel
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tipo_perfil" className="text-blue-900 font-medium flex items-center gap-2">
+                      <Award className="h-4 w-4" />
+                      Tipo de Perfil
+                    </Label>
+                    <Select
+                      value={formData.tipo_perfil}
+                      onValueChange={(value) => {
+                        handleSelectChange("tipo_perfil", value)
+                        // Limpiar el nivel cuando cambia el tipo
+                        if (value === "INVESTIGADOR") {
+                          handleSelectChange("nivel_tecnologo", "")
+                          handleSelectChange("nivel_tecnologo_id", "")
+                        } else {
+                          handleSelectChange("nivel_investigador", "")
+                          handleSelectChange("nivel_actual_id", "")
+                        }
+                      }}
                     >
-                      <SelectTrigger>
-                        <SelectValue />
+                      <SelectTrigger className="bg-white border-blue-200">
+                        <SelectValue placeholder="Selecciona tipo" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Mexicana">Mexicana</SelectItem>
-                        <SelectItem value="Extranjera">Extranjera</SelectItem>
+                        <SelectItem value="INVESTIGADOR">Investigador</SelectItem>
+                        <SelectItem value="TECNOLOGO">Tecnólogo</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
 
-            {/* Información académica */}
-            <Card className="bg-white border-blue-100">
-              <CardHeader>
-                <CardTitle className="text-blue-900">Información Académica</CardTitle>
-                <CardDescription className="text-blue-600">
-                  Datos sobre la formación y posición académica
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {formData.tipo_perfil === "INVESTIGADOR" ? (
+                    <div className="space-y-2">
+                      <Label htmlFor="nivel_investigador" className="text-blue-900 font-medium flex items-center gap-2">
+                        <Award className="h-4 w-4" />
+                        Nivel de Investigador
+                      </Label>
+                      <Select
+                        value={formData.nivel_investigador}
+                        onValueChange={(value) => handleSelectChange("nivel_investigador", value)}
+                      >
+                        <SelectTrigger className="bg-white border-blue-200">
+                          <SelectValue placeholder="Selecciona nivel" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {NIVELES_INVESTIGADOR.map((nivel) => (
+                            <SelectItem key={nivel} value={nivel}>
+                              {nivel}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Label htmlFor="nivel_tecnologo" className="text-blue-900 font-medium flex items-center gap-2">
+                        <Award className="h-4 w-4" />
+                        Nivel de Tecnólogo
+                      </Label>
+                      <Select
+                        value={formData.nivel_tecnologo || ""}
+                        onValueChange={(value) => handleSelectChange("nivel_tecnologo", value)}
+                      >
+                        <SelectTrigger className="bg-white border-blue-200">
+                          <SelectValue placeholder="Selecciona nivel" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {NIVELES_TECNOLOGO.map((nivel) => (
+                            <SelectItem key={nivel} value={nivel}>
+                              {nivel}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Identificación Oficial */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Identificación Oficial
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="ultimo_grado_estudios">Último Grado de Estudios</Label>
+                    <Label htmlFor="curp" className="text-blue-900 font-medium flex items-center gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      CURP
+                    </Label>
+                    <Input
+                      id="curp"
+                      name="curp"
+                      value={formData.curp}
+                      onChange={handleChange}
+                      placeholder="CURP"
+                      className="bg-white border-blue-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="rfc" className="text-blue-900 font-medium flex items-center gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      RFC
+                    </Label>
+                    <Input
+                      id="rfc"
+                      name="rfc"
+                      value={formData.rfc}
+                      onChange={handleChange}
+                      placeholder="RFC"
+                      className="bg-white border-blue-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="no_cvu" className="text-blue-900 font-medium flex items-center gap-2">
+                      <Hash className="h-4 w-4" />
+                      CVU/PU
+                    </Label>
+                    <Input
+                      id="no_cvu"
+                      name="no_cvu"
+                      value={formData.no_cvu}
+                      onChange={handleChange}
+                      placeholder="CVU/PU"
+                      className="bg-white border-blue-200"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Información Académica y Profesional */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
+                  <GraduationCap className="h-5 w-5" />
+                  Información Académica y Profesional
+                </h3>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="ultimo_grado_estudios" className="text-blue-900 font-medium flex items-center gap-2">
+                      <GraduationCap className="h-4 w-4" />
+                      Último Grado de Estudios
+                    </Label>
                     <Input
                       id="ultimo_grado_estudios"
-                      placeholder="Ej: Doctorado en Neurociencia"
+                      name="ultimo_grado_estudios"
                       value={formData.ultimo_grado_estudios}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, ultimo_grado_estudios: e.target.value }))}
+                      onChange={handleChange}
+                      placeholder="Ej: Doctorado en..."
+                      className="bg-white border-blue-200"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="institucion">Institución</Label>
+                    <Label htmlFor="empleo_actual" className="text-blue-900 font-medium flex items-center gap-2">
+                      <Briefcase className="h-4 w-4" />
+                      Empleo Actual
+                    </Label>
                     <Input
-                      id="institucion"
-                      value={formData.institucion}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, institucion: e.target.value }))}
+                      id="empleo_actual"
+                      name="empleo_actual"
+                      value={formData.empleo_actual}
+                      onChange={handleChange}
+                      placeholder="Puesto y lugar de trabajo"
+                      className="bg-white border-blue-200"
                     />
                   </div>
 
+                  {/* Área de Investigación SNII */}
+                  <AreaSNIISelector
+                    value={formData.area_investigacion}
+                    onChange={(value) => setFormData(prev => ({ ...prev, area_investigacion: value }))}
+                    required
+                  />
+
+                  {/* Línea de Investigación */}
                   <div className="space-y-2">
-                    <Label htmlFor="ubicacion">Ubicación</Label>
-                    <Input
-                      id="ubicacion"
-                      placeholder="Ciudad, Estado"
-                      value={formData.ubicacion}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, ubicacion: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="nivel">Nivel</Label>
-                    <Input
-                      id="nivel"
-                      value={formData.nivel}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, nivel: e.target.value }))}
+                    <TagsInput
+                      value={Array.isArray(formData.linea_investigacion) ? formData.linea_investigacion : []}
+                      onChange={(tags) => setFormData(prev => ({ ...prev, linea_investigacion: tags }))}
+                      label="Línea de Investigación Específica"
+                      placeholder="Escribe una línea de investigación y presiona Enter para agregarla"
+                      maxTags={5}
+                      className="bg-white border-blue-200"
                     />
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="linea_investigacion">Línea de Investigación Específica</Label>
-                  <Textarea
-                    id="linea_investigacion"
-                    placeholder="Describe tus líneas de investigación específicas (separadas por coma)..."
-                    value={formData.linea_investigacion}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, linea_investigacion: e.target.value }))}
-                    className="min-h-24"
-                  />
-                  <p className="text-xs text-gray-600">
-                    Ejemplos: Inteligencia Artificial, Biotecnología, Energías Renovables
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Experiencia y logros */}
-            <Card className="bg-white border-blue-100">
-              <CardHeader>
-                <CardTitle className="text-blue-900">Experiencia y Logros</CardTitle>
-                <CardDescription className="text-blue-600">
-                  Información sobre experiencia laboral y académica
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="experiencia_laboral">Experiencia Laboral</Label>
-                  <Textarea
-                    id="experiencia_laboral"
-                    placeholder="Describe tu experiencia laboral..."
-                    value={formData.experiencia_laboral}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, experiencia_laboral: e.target.value }))}
-                    className="min-h-24"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="proyectos_investigacion">Proyectos de Investigación</Label>
-                  <Textarea
-                    id="proyectos_investigacion"
-                    placeholder="Lista tus proyectos de investigación..."
-                    value={formData.proyectos_investigacion}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, proyectos_investigacion: e.target.value }))}
-                    className="min-h-24"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="articulos">Artículos Publicados</Label>
-                  <Textarea
-                    id="articulos"
-                    placeholder="Lista tus artículos publicados..."
-                    value={formData.articulos}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, articulos: e.target.value }))}
-                    className="min-h-24"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Columna lateral */}
-          <div className="space-y-6">
-            {/* SNI */}
-            <Card className="bg-white border-blue-100">
-              <CardHeader>
-                <CardTitle className="text-blue-900">Sistema Nacional de Investigadores</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="sni">Nivel SNI</Label>
-                  <Input
-                    id="sni"
-                    value={formData.sni}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, sni: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="anio_sni">Año SNI</Label>
-                  <Input
-                    id="anio_sni"
-                    type="number"
-                    value={formData.anio_sni}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, anio_sni: e.target.value }))}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Información adicional */}
-            <Card className="bg-white border-blue-100">
-              <CardHeader>
-                <CardTitle className="text-blue-900">Información Adicional</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="orcid">ORCID</Label>
-                  <Input
-                    id="orcid"
-                    value={formData.orcid}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, orcid: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="empleo_actual">Empleo Actual</Label>
-                  <Input
-                    id="empleo_actual"
-                    value={formData.empleo_actual}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, empleo_actual: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="idiomas">Idiomas</Label>
-                  <Input
-                    id="idiomas"
-                    value={formData.idiomas}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, idiomas: e.target.value }))}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* Sección de Controles de Administrador */}
-        <Card className="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200">
-          <CardHeader>
-            <CardTitle className="text-red-900 flex items-center gap-2">
-              <Shield className="h-5 w-5" />
-              Controles de Administrador
-            </CardTitle>
-            <CardDescription className="text-red-700">
-              Configuración sensible - Solo administradores
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Es Admin */}
-              <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-red-200">
-                <div className="space-y-1">
-                  <Label htmlFor="es_admin" className="font-semibold text-red-900">
-                    Permisos de Administrador
-                  </Label>
-                  <p className="text-sm text-red-600">
-                    {formData.es_admin ? "Usuario es administrador" : "Usuario estándar"}
-                  </p>
-                </div>
-                <Switch
-                  id="es_admin"
-                  checked={formData.es_admin}
-                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, es_admin: checked }))}
-                />
               </div>
 
-              {/* Perfil Activo */}
-              <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-red-200">
-                <div className="space-y-1">
-                  <Label htmlFor="activo" className="font-semibold text-red-900">
-                    Perfil Activo
-                  </Label>
-                  <p className="text-sm text-red-600">
-                    {formData.activo ? "Perfil visible" : "Perfil oculto"}
-                  </p>
+              {/* Controles de Administrador */}
+              <div className="space-y-4 bg-red-50 p-6 rounded-lg border border-red-200">
+                <h3 className="text-lg font-semibold text-red-900 border-b border-red-200 pb-2 flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  Controles de Administrador
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="flex items-center justify-between space-x-4">
+                    <div className="space-y-1">
+                      <Label htmlFor="activo" className="text-red-900 font-medium flex items-center gap-2">
+                        <Eye className="h-4 w-4" />
+                        Perfil Visible
+                      </Label>
+                      <p className="text-sm text-red-600">
+                        {formData.activo ? "El perfil es visible públicamente" : "El perfil está oculto"}
+                      </p>
+                    </div>
+                    <Switch
+                      id="activo"
+                      checked={formData.activo}
+                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, activo: checked }))}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between space-x-4">
+                    <div className="space-y-1">
+                      <Label htmlFor="es_admin" className="text-red-900 font-medium flex items-center gap-2">
+                        <Shield className="h-4 w-4" />
+                        Permisos de Administrador
+                      </Label>
+                      <p className="text-sm text-red-600">
+                        {formData.es_admin ? "Usuario tiene permisos de admin" : "Usuario regular"}
+                      </p>
+                    </div>
+                    <Switch
+                      id="es_admin"
+                      checked={formData.es_admin}
+                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, es_admin: checked }))}
+                    />
+                  </div>
                 </div>
-                <Switch
-                  id="activo"
-                  checked={formData.activo}
-                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, activo: checked }))}
-                />
               </div>
 
-              {/* Perfil Público */}
-              <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-red-200">
-                <div className="space-y-1">
-                  <Label htmlFor="perfil_publico" className="font-semibold text-red-900">
-                    Perfil Público
-                  </Label>
-                  <p className="text-sm text-red-600">
-                    {formData.perfil_publico ? "Visible en búsquedas" : "Privado"}
-                  </p>
-                </div>
-                <Switch
-                  id="perfil_publico"
-                  checked={formData.perfil_publico}
-                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, perfil_publico: checked }))}
-                />
+              {/* Botones de acción */}
+              <div className="flex gap-4 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push("/admin/investigadores")}
+                  className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
+                  disabled={isSaving}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSaving}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-5 w-5" />
+                      Guardar Cambios
+                    </>
+                  )}
+                </Button>
               </div>
-            </div>
-
-            <Alert className="bg-red-50 border-red-200">
-              <AlertDescription className="text-red-700">
-                <strong>⚠️ Advertencia:</strong> Cambiar estos valores puede afectar el acceso y visibilidad del investigador en el sistema.
-              </AlertDescription>
-            </Alert>
+            </form>
           </CardContent>
         </Card>
       </div>
