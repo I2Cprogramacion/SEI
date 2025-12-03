@@ -109,20 +109,31 @@ export async function PUT(
       return NextResponse.json({ error: "No hay datos para actualizar" }, { status: 400 })
     }
 
-    // Campos permitidos para actualizar (incluyendo campos de admin)
+    // Campos permitidos para actualizar (solo los que existen en el registro)
     const camposPermitidos = [
+      // Datos personales básicos
       'nombre_completo', 'nombres', 'apellidos', 'curp', 'rfc', 'no_cvu', 'telefono',
-      'ultimo_grado_estudios', 'grado_maximo_estudios', 'empleo_actual',
-      'linea_investigacion', 'area_investigacion', 'disciplina', 'especialidad',
       'nacionalidad', 'fecha_nacimiento', 'genero', 'municipio',
       'estado_nacimiento', 'entidad_federativa', 'fotografia_url',
+      
+      // Datos institucionales
       'institucion_id', 'institucion', 'departamento', 'ubicacion', 'sitio_web',
+      
+      // Formación académica
+      'ultimo_grado_estudios', 'grado_maximo_estudios', 'empleo_actual',
+      
+      // Investigación y nivel
+      'linea_investigacion', 'area_investigacion', 'disciplina', 'especialidad',
       'orcid', 'nivel', 'nivel_investigador', 'nivel_actual_id', 'fecha_asignacion_nivel',
-      'tipo_perfil', 'nivel_sni', 'sni', 'anio_sni', 'nivel_tecnologo', 'nivel_tecnologo_id',
+      'nivel_sni', 'sni', 'anio_sni',
+      'puntaje_total', 'estado_evaluacion',
+      
+      // Producción académica
       'experiencia_docente', 'experiencia_laboral', 'proyectos_investigacion',
       'proyectos_vinculacion', 'libros', 'capitulos_libros', 'articulos',
       'premios_distinciones', 'idiomas', 'colaboracion_internacional',
-      'colaboracion_nacional', 'domicilio', 'cp',
+      'colaboracion_nacional', 'cv_url',
+      
       // Campos exclusivos de admin
       'es_admin', 'activo', 'perfil_publico', 'correo'
     ]

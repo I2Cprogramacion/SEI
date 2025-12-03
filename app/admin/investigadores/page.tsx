@@ -408,7 +408,7 @@ export default function InvestigadoresAdmin() {
                     <TableRow key={investigador.id} className="hover:bg-gray-50 border-b border-gray-100 transition-colors">
                       <TableCell>
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={(investigador.fotografiaUrl || investigador.fotografia_url) || "/placeholder-user.jpg"} alt={investigador.nombre || investigador.nombre_completo} />
+                          <AvatarImage src={(investigador.fotografiaUrl || investigador.fotografia_url) || "/placeholder-user.svg"} alt={investigador.nombre || investigador.nombre_completo} />
                           <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white text-sm">
                             {(investigador.nombre || investigador.nombre_completo)
                               ?.split(" ")
@@ -507,9 +507,8 @@ export default function InvestigadoresAdmin() {
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
                       <Avatar className="h-12 w-12">
-                        <AvatarImage src={(investigador.fotografiaUrl || investigador.fotografia_url) || "/placeholder-user.jpg"} alt={investigador.nombre || investigador.nombre_completo} />
-                        <AvatarFallback className="bg-blue-100 text-blue-700">
-                          {(investigador.nombre || investigador.nombre_completo)
+                        <AvatarImage src={(investigador.fotografiaUrl || investigador.fotografia_url) || "/placeholder-user.svg"} alt={investigador.nombre || investigador.nombre_completo} />
+                        <AvatarFallback className="bg-blue-100 text-blue-700">{(investigador.nombre || investigador.nombre_completo)
                             ?.split(" ")
                             .map((n) => n[0])
                             .join("")

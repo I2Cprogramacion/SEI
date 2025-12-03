@@ -193,9 +193,8 @@ export default function InvestigadoresIncompletosPage() {
                   <CardHeader className="pb-4">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-16 w-16">
-                        <AvatarImage src="/placeholder-user.jpg" alt={investigador.nombre_completo} />
-                        <AvatarFallback className="bg-orange-100 text-orange-700">
-                          {investigador.nombre_completo
+                        <AvatarImage src="/placeholder-user.svg" alt={investigador.nombre_completo} />
+                        <AvatarFallback className="bg-orange-100 text-orange-700">{investigador.nombre_completo
                             .split(" ")
                             .map((n) => n[0])
                             .join("")

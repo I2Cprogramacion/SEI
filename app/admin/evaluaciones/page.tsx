@@ -373,7 +373,7 @@ export default function EvaluacionesPage() {
                       >
                         <div className="flex items-start gap-4">
                           <Avatar className="h-12 w-12">
-                            <AvatarImage src={alerta.fotografia_url || "/placeholder-user.jpg"} />
+                            <AvatarImage src={alerta.fotografia_url || "/placeholder-user.svg"} />
                             <AvatarFallback>
                               {alerta.nombre
                                 .split(" ")

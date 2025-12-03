@@ -286,9 +286,8 @@ export default function BuscarPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start space-x-4 flex-1">
                       <Avatar className="h-16 w-16 ring-2 ring-blue-100">
-                        <AvatarImage src={investigador.fotografiaUrl || "/placeholder-user.jpg"} alt={investigador.nombre} />
-                        <AvatarFallback className="bg-blue-100 text-blue-700">
-                          {investigador.nombre
+                        <AvatarImage src={investigador.fotografiaUrl || "/placeholder-user.svg"} alt={investigador.nombre} />
+                        <AvatarFallback className="bg-blue-100 text-blue-700">{investigador.nombre
                             .split(" ")
                             .map((n) => n[0])
                             .join("")
