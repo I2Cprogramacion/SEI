@@ -99,7 +99,7 @@ export function AdminSidebar() {
           </div>
         </Link>
       </div>
-      <div className="flex-1 py-4 px-3 space-y-1 overflow-y-auto min-h-0">
+      <div className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
         {sidebarItems.map((item) => {
           const isActive = pathname === item.href
           return (
@@ -203,7 +203,7 @@ export function AdminSidebar() {
       )}
 
       {/* Sidebar Desktop */}
-      <div className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 shadow-sm h-[calc(100vh-4rem)] sticky left-0 top-16">
+      <div className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 shadow-sm h-screen fixed left-0 top-0 pt-16">
         <SidebarContent />
       </div>
 
