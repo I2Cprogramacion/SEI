@@ -273,21 +273,31 @@ export default function InvestigadoresAdmin() {
   }
 
   return (
-    <div className="w-full">
-      <div className="w-full py-6 md:py-8 px-4 md:px-8">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
-        <Button variant="ghost" size="sm" asChild className="text-gray-700 hover:bg-gray-100 hover:text-blue-600">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="w-full py-6 md:py-10 px-4 md:px-8 max-w-7xl mx-auto">
+      {/* Header mejorado */}
+      <div className="mb-8">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          asChild 
+          className="mb-4 text-blue-700 hover:bg-blue-100 hover:text-blue-800 transition-colors"
+        >
           <Link href="/admin">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">Volver al panel</span>
-            <span className="sm:hidden">Volver</span>
+            <span>Volver al Panel</span>
           </Link>
         </Button>
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-            Administración de Investigadores
-          </h1>
-          <p className="text-sm text-gray-600 mt-1">Gestiona los perfiles de investigadores registrados</p>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl shadow-lg">
+            <UserCog className="h-7 w-7 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
+              Gestión de Investigadores
+            </h1>
+            <p className="text-gray-600 mt-1">Administra y supervisa los perfiles de investigadores</p>
+          </div>
         </div>
       </div>
 
@@ -297,45 +307,50 @@ export default function InvestigadoresAdmin() {
         </div>
       )}
 
-      <Card className="bg-white border-0 shadow-md mb-8 w-full">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-xl font-bold text-gray-900">Investigadores Registrados</CardTitle>
-          <CardDescription className="text-gray-500">
-            Gestiona los perfiles de investigadores registrados en la plataforma SECCTI
-          </CardDescription>
+      <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl overflow-hidden mb-8 w-full">
+        <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white pb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white/20 rounded-lg">
+              <UserCog className="h-6 w-6" />
+            </div>
+            <div>
+              <CardTitle className="text-2xl font-bold">Investigadores Registrados</CardTitle>
+              <CardDescription className="text-blue-100">
+                Total: {filteredData.length} investigadores en el sistema
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="w-full p-0 md:p-6">
           <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-6 px-4 md:px-0 pt-4 md:pt-0">
             <div className="flex-1 flex flex-col sm:flex-row gap-2">
               <div className="relative flex-grow">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-400 h-5 w-5" />
                 <Input
                   type="text"
-                  placeholder="Buscar por nombre, correo..."
-                  className="pl-10 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 text-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Buscar por nombre, correo, institución..."
+                  className="pl-12 h-12 bg-white border-2 border-blue-100 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-xl text-gray-900 placeholder:text-gray-400"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 />
               </div>
               <Button 
-                onClick={handleSearch} 
-                size="sm"
-                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all"
+                onClick={handleSearch}
+                className="h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl"
               >
-                <Search className="mr-2 h-4 w-4 sm:hidden" />
-                <span className="sm:inline">Buscar</span>
+                <Search className="mr-2 h-5 w-5" />
+                <span>Buscar</span>
               </Button>
               {searchTerm && (
                 <Button 
-                  variant="outline" 
-                  size="sm"
+                  variant="outline"
                   onClick={() => {
                     setSearchTerm("")
                     setFilteredData(investigadores)
                     setCurrentPage(1)
                   }}
-                  className="border-gray-200 text-gray-700 hover:bg-gray-50"
+                  className="h-12 border-2 border-blue-200 text-blue-700 hover:bg-blue-50 rounded-xl"
                 >
                   Limpiar
                 </Button>
@@ -348,43 +363,40 @@ export default function InvestigadoresAdmin() {
               />
               <Button
                 variant="outline"
-                size="sm"
-                className="border-gray-200 text-gray-700 hover:bg-gray-50 bg-white shadow-sm hover:shadow-md transition-all flex-1 sm:flex-initial"
+                className="h-12 border-2 border-blue-200 text-blue-700 hover:bg-blue-50 bg-white shadow-sm hover:shadow-md transition-all flex-1 sm:flex-initial rounded-xl"
                 onClick={() => setExportDialogOpen(true)}
               >
-                <Download className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Exportar</span>
+                <Download className="mr-2 h-5 w-5" />
+                <span>Exportar</span>
               </Button>
               <Button 
-                size="sm"
-                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all flex-1 sm:flex-initial" 
+                className="h-12 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all flex-1 sm:flex-initial rounded-xl" 
                 asChild
               >
                 <Link href="/investigadores/nuevo-perfil">
-                  <UserCog className="mr-2 h-4 w-4" />
-                  <span className="hidden sm:inline">Nuevo Investigador</span>
-                  <span className="sm:hidden">Nuevo</span>
+                  <UserCog className="mr-2 h-5 w-5" />
+                  <span>Nuevo Investigador</span>
                 </Link>
               </Button>
             </div>
           </div>
 
           {/* Vista de tabla para desktop */}
-          <div className="hidden lg:block w-full -mx-4 md:mx-0">
-            <div className="rounded-lg border border-gray-200 overflow-x-auto w-full shadow-sm">
+          <div className="hidden lg:block w-full">
+            <div className="rounded-xl border-2 border-blue-100 overflow-hidden shadow-md">
               <Table className="w-full min-w-full">
-                <TableHeader className="bg-gradient-to-r from-gray-50 to-gray-100">
-                  <TableRow className="hover:bg-gray-50 border-b border-gray-200">
-                  <TableHead className="text-gray-700 font-semibold">Foto</TableHead>
-                  <TableHead className="text-gray-700 font-semibold">ID</TableHead>
-                  <TableHead className="text-gray-700 font-semibold">Nombre Completo</TableHead>
-                  <TableHead className="text-gray-700 font-semibold">Correo</TableHead>
-                  <TableHead className="text-gray-700 font-semibold">Institución</TableHead>
-                  <TableHead className="text-gray-700 font-semibold">Teléfono</TableHead>
-                  <TableHead className="text-gray-700 font-semibold">Rol</TableHead>
-                  <TableHead className="text-gray-700 font-semibold">Estado SNII</TableHead>
-                  <TableHead className="text-gray-700 font-semibold">Fecha Registro</TableHead>
-                  <TableHead className="text-gray-700 font-semibold text-right">Acciones</TableHead>
+                <TableHeader className="bg-gradient-to-r from-blue-50 to-purple-50">
+                  <TableRow className="border-b-2 border-blue-100">
+                  <TableHead className="text-blue-900 font-bold">Foto</TableHead>
+                  <TableHead className="text-blue-900 font-bold">ID</TableHead>
+                  <TableHead className="text-blue-900 font-bold">Nombre Completo</TableHead>
+                  <TableHead className="text-blue-900 font-bold">Correo</TableHead>
+                  <TableHead className="text-blue-900 font-bold">Institución</TableHead>
+                  <TableHead className="text-blue-900 font-bold">Teléfono</TableHead>
+                  <TableHead className="text-blue-900 font-bold">Rol</TableHead>
+                  <TableHead className="text-blue-900 font-bold">Estado SNII</TableHead>
+                  <TableHead className="text-blue-900 font-bold">Fecha Registro</TableHead>
+                  <TableHead className="text-blue-900 font-bold text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -405,11 +417,11 @@ export default function InvestigadoresAdmin() {
                   </TableRow>
                 ) : currentItems.length > 0 ? (
                   currentItems.map((investigador) => (
-                    <TableRow key={investigador.id} className="hover:bg-gray-50 border-b border-gray-100 transition-colors">
+                    <TableRow key={investigador.id} className="hover:bg-blue-50/50 border-b border-blue-50 transition-colors duration-150">
                       <TableCell>
-                        <Avatar className="h-10 w-10">
+                        <Avatar className="h-12 w-12 border-2 border-blue-200">
                           <AvatarImage src={(investigador.fotografiaUrl || investigador.fotografia_url) || "/placeholder-user.svg"} alt={investigador.nombre || investigador.nombre_completo} />
-                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white text-sm">
+                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-semibold">
                             {(investigador.nombre || investigador.nombre_completo)
                               ?.split(" ")
                               .map((n) => n[0])
@@ -428,11 +440,11 @@ export default function InvestigadoresAdmin() {
                       <TableCell className="text-gray-700">{investigador.telefono || "N/A"}</TableCell>
                       <TableCell>
                         {investigador.is_admin ? (
-                          <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white border-0">
+                          <Badge className="bg-gradient-to-r from-red-500 to-pink-600 text-white border-0 shadow-sm">
                             Admin
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="border-gray-200 text-gray-700">
+                          <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50">
                             Usuario
                           </Badge>
                         )}
@@ -451,7 +463,7 @@ export default function InvestigadoresAdmin() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-blue-700 hover:bg-blue-50"
+                            className="h-9 w-9 text-blue-600 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-colors"
                             asChild
                           >
                             <Link href={`/investigadores/${investigador.slug || investigador.id}`}>
@@ -462,7 +474,7 @@ export default function InvestigadoresAdmin() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-blue-700 hover:bg-blue-50"
+                            className="h-9 w-9 text-purple-600 hover:bg-purple-100 hover:text-purple-700 rounded-lg transition-colors"
                             asChild
                           >
                             <Link href={`/admin/investigadores/editar/${investigador.id}`}>
@@ -503,12 +515,12 @@ export default function InvestigadoresAdmin() {
               </div>
             ) : currentItems.length > 0 ? (
               currentItems.map((investigador) => (
-                <Card key={investigador.id} className="bg-white border-blue-100 w-full">
-                  <CardContent className="p-4">
+                <Card key={investigador.id} className="bg-white border-2 border-blue-100 hover:border-blue-300 transition-all duration-200 hover:shadow-lg rounded-xl w-full">
+                  <CardContent className="p-5">
                     <div className="flex items-start gap-4">
-                      <Avatar className="h-12 w-12">
+                      <Avatar className="h-14 w-14 border-2 border-blue-200">
                         <AvatarImage src={(investigador.fotografiaUrl || investigador.fotografia_url) || "/placeholder-user.svg"} alt={investigador.nombre || investigador.nombre_completo} />
-                        <AvatarFallback className="bg-blue-100 text-blue-700">{(investigador.nombre || investigador.nombre_completo)
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">{(investigador.nombre || investigador.nombre_completo)
                             ?.split(" ")
                             .map((n) => n[0])
                             .join("")
@@ -553,7 +565,7 @@ export default function InvestigadoresAdmin() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50"
+                            className="flex-1 border-2 border-blue-300 text-blue-700 hover:bg-blue-50 rounded-lg font-medium"
                             asChild
                           >
                             <Link href={`/investigadores/${investigador.slug || investigador.id}`}>
@@ -562,9 +574,8 @@ export default function InvestigadoresAdmin() {
                             </Link>
                           </Button>
                           <Button
-                            variant="outline"
                             size="sm"
-                            className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50"
+                            className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg font-medium"
                             asChild
                           >
                             <Link href={`/admin/investigadores/editar/${investigador.id}`}>
