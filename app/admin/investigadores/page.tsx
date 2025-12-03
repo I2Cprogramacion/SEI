@@ -321,8 +321,8 @@ export default function InvestigadoresAdmin() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="w-full p-0 md:p-6">
-          <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-6 px-4 md:px-0 pt-4 md:pt-0">
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-6">
             <div className="flex-1 flex flex-col sm:flex-row gap-2">
               <div className="relative flex-grow">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-400 h-5 w-5" />
@@ -382,7 +382,7 @@ export default function InvestigadoresAdmin() {
           </div>
 
           {/* Vista de tabla para desktop */}
-          <div className="hidden lg:block w-full">
+          <div className="hidden lg:block overflow-x-auto">
             <div className="rounded-xl border-2 border-blue-100 overflow-hidden shadow-md">
               <Table className="w-full min-w-full">
                 <TableHeader className="bg-gradient-to-r from-blue-50 to-purple-50">
@@ -501,7 +501,7 @@ export default function InvestigadoresAdmin() {
           </div>
 
           {/* Vista de cards para móvil/tablet */}
-          <div className="lg:hidden space-y-4 w-full px-4 md:px-0 pb-4 md:pb-0">
+          <div className="lg:hidden space-y-4">
             {isLoading ? (
               <div className="text-center py-8 text-blue-600">
                 <div className="flex items-center justify-center">
@@ -599,8 +599,8 @@ export default function InvestigadoresAdmin() {
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
-            <div className="flex items-center gap-2 flex-wrap">
-              <p className="text-sm text-blue-600 hidden sm:inline">Mostrar</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-gray-600">Mostrar</p>
               <Select
                 value={itemsPerPage.toString()}
                 onValueChange={(value) => {
@@ -608,19 +608,19 @@ export default function InvestigadoresAdmin() {
                   setCurrentPage(1)
                 }}
               >
-                <SelectTrigger className="w-[70px] bg-white border-blue-200 text-blue-900">
+                <SelectTrigger className="w-[70px] bg-white border-2 border-blue-200">
                   <SelectValue placeholder="5" />
                 </SelectTrigger>
-                <SelectContent className="bg-white border-blue-100 text-blue-900">
+                <SelectContent className="bg-white">
                   <SelectItem value="5">5</SelectItem>
                   <SelectItem value="10">10</SelectItem>
                   <SelectItem value="20">20</SelectItem>
                   <SelectItem value="50">50</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-sm text-blue-600 hidden sm:inline">por página</p>
+              <p className="text-sm text-gray-600">por página</p>
               {Array.isArray(filteredData) && filteredData.length > 0 && (
-                <p className="text-xs sm:text-sm text-blue-600 ml-2">
+                <p className="text-sm text-gray-600">
                   Mostrando {indexOfFirstItem + 1} - {Math.min(indexOfLastItem, filteredData.length)} de {filteredData.length}
                 </p>
               )}
@@ -638,7 +638,7 @@ export default function InvestigadoresAdmin() {
                       }}
                       className={`${
                         currentPage === 1 ? "pointer-events-none opacity-50" : ""
-                      } text-blue-700 hover:bg-blue-50`}
+                      } text-blue-600 hover:bg-blue-50`}
                     />
                   </PaginationItem>
                   {Array.from({ length: Math.ceil((Array.isArray(filteredData) ? filteredData.length : 0) / itemsPerPage) }).map((_, index) => {
@@ -658,7 +658,7 @@ export default function InvestigadoresAdmin() {
                             }}
                             isActive={currentPage === index + 1}
                             className={`${
-                              currentPage === index + 1 ? "bg-blue-700 text-white" : "text-blue-700 hover:bg-blue-50"
+                              currentPage === index + 1 ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white" : "text-gray-700 hover:bg-blue-50"
                             }`}
                           >
                             {index + 1}
@@ -668,7 +668,7 @@ export default function InvestigadoresAdmin() {
                     } else if (index === 1 || index === Math.ceil((Array.isArray(filteredData) ? filteredData.length : 0) / itemsPerPage) - 2) {
                       return (
                         <PaginationItem key={index}>
-                          <PaginationEllipsis className="text-blue-600" />
+                          <PaginationEllipsis className="text-gray-400" />
                         </PaginationItem>
                       )
                     }
@@ -685,7 +685,7 @@ export default function InvestigadoresAdmin() {
                         currentPage === Math.ceil((Array.isArray(filteredData) ? filteredData.length : 0) / itemsPerPage)
                           ? "pointer-events-none opacity-50"
                           : ""
-                      } text-blue-700 hover:bg-blue-50`}
+                      } text-blue-600 hover:bg-blue-50`}
                     />
                   </PaginationItem>
                 </PaginationContent>
