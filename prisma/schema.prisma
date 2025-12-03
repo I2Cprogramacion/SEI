@@ -157,6 +157,7 @@ model Profile {
   archivoProcesado    String?                       @map("archivo_procesado")
   fechaRegistro       DateTime?   @default(now())  @map("fecha_registro")
   isAdmin             Boolean?    @default(false)  @map("es_admin")
+  isEvaluador         Boolean?    @default(false)  @map("es_evaluador")
   activo              Boolean?    @default(true)   @map("activo")
 
   // Académico y profesional

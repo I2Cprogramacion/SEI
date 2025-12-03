@@ -38,7 +38,7 @@ export async function GET() {
     let result
     try {
       result = await sql`
-        SELECT id, nombre_completo, correo, es_admin 
+        SELECT id, nombre_completo, correo, es_admin, es_evaluador 
         FROM investigadores 
         WHERE LOWER(correo) = ${emailLower}
       `
@@ -101,6 +101,7 @@ export async function GET() {
     // Usuario es admin
     return NextResponse.json({
       esAdmin: true,
+      esEvaluador: usuario.es_evaluador === true,
       usuario: {
         id: usuario.id,
         nombre: usuario.nombre_completo,

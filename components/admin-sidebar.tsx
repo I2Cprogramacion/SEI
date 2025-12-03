@@ -4,8 +4,8 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useClerk } from "@clerk/nextjs"
 import { cn } from "@/lib/utils"
-import { BarChart3, FileText, GraduationCap, Home, LayoutDashboard, LogOut, Users, Award, Menu, X, ClipboardCheck } from "lucide-react"
-import { useState } from "react"
+import { BarChart3, FileText, GraduationCap, Home, LayoutDashboard, LogOut, Users, Award, Menu, X, ClipboardCheck, Shield } from "lucide-react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 
 const sidebarItems = [
@@ -46,11 +46,36 @@ const sidebarItems = [
   },
 ]
 
+const adminOnlyItems = [
+  {
+    title: "Gestionar Evaluadores",
+    href: "/admin/evaluadores",
+    icon: Shield,
+  },
+]
+
 export function AdminSidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { signOut } = useClerk()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [esAdmin, setEsAdmin] = useState(false)
+
+  useEffect(() => {
+    // Verificar si el usuario es admin
+    const checkAdmin = async () => {
+      try {
+        const response = await fetch('/api/admin/verificar')
+        if (response.ok) {
+          const data = await response.json()
+          setEsAdmin(data.esAdmin || false)
+        }
+      } catch (error) {
+        console.error('Error verificando admin:', error)
+      }
+    }
+    checkAdmin()
+  }, [])
 
   const handleLogout = async () => {
     try {
@@ -100,6 +125,37 @@ export function AdminSidebar() {
             </Link>
           )
         })}
+        {/* Separador para items solo de admin */}
+        {esAdmin && adminOnlyItems.length > 0 && (
+          <>
+            <div className="my-2 border-t border-gray-200"></div>
+            {adminOnlyItems.map((item) => {
+              const isActive = pathname === item.href
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={onItemClick}
+                  className={cn(
+                    "flex items-center py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 group",
+                    isActive
+                      ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-500/30"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-purple-600"
+                  )}
+                >
+                  <item.icon className={cn(
+                    "mr-3 h-5 w-5 transition-transform group-hover:scale-110",
+                    isActive ? "text-white" : "text-gray-500 group-hover:text-purple-600"
+                  )} />
+                  <span className={isActive ? "font-semibold" : ""}>{item.title}</span>
+                  {isActive && (
+                    <div className="ml-auto h-2 w-2 rounded-full bg-white"></div>
+                  )}
+                </Link>
+              )
+            })}
+          </>
+        )}
       </div>
       <div className="p-3 border-t border-gray-200 space-y-1 bg-gray-50 flex-shrink-0">
         <Link

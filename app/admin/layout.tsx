@@ -16,21 +16,21 @@ export default function AdminLayout({
   const router = useRouter()
 
   useEffect(() => {
-    // Verificar si el usuario es admin desde el servidor
+    // Verificar si el usuario tiene acceso (admin o evaluador) desde el servidor
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/admin/verificar')
+        const response = await fetch('/api/admin/verificar-acceso')
         
         if (!response.ok) {
-          console.warn('Acceso denegado: Usuario no es administrador')
+          console.warn('Acceso denegado: Usuario no tiene permisos de admin o evaluador')
           router.push("/dashboard")
           return
         }
 
         const data = await response.json()
         
-        if (!data.esAdmin) {
-          console.warn('Acceso denegado: Usuario no es administrador')
+        if (!data.tieneAcceso) {
+          console.warn('Acceso denegado: Usuario no tiene permisos de admin o evaluador')
           router.push("/dashboard")
           return
         }
