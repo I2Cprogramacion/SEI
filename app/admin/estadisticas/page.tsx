@@ -313,7 +313,7 @@ export default function EstadisticasAdmin() {
       // Crear reporte completo con más detalles
       const completeReport = {
         metadata: {
-          titulo: "Reporte Completo de Estadísticas - SECCTI",
+          titulo: "Reporte Completo de Estadísticas - SEI",
           fechaGeneracion: new Date().toLocaleString('es-MX'),
           periodo: "Último mes",
           totalRegistros: {
@@ -358,7 +358,7 @@ export default function EstadisticasAdmin() {
 
   // Función para generar CSV
   const generateCSVReport = (data: any) => {
-    let csv = 'REPORTE DE ESTADÍSTICAS - SECCTI\n'
+    let csv = 'REPORTE DE ESTADÍSTICAS - SEI\n'
     csv += `Fecha de generación,${data.fechaGeneracion}\n\n`
     
     csv += 'ESTADÍSTICAS GENERALES\n'

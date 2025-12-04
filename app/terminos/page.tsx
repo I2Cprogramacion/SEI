@@ -18,7 +18,7 @@ export default function TerminosPage() {
       <div className="space-y-6">
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-bold text-blue-900">Términos de Servicio</h1>
-          <p className="text-blue-600">Sistema Estatal de Ciencia, Tecnología e Innovación de Chihuahua (SECCTI)</p>
+          <p className="text-blue-600">Sistema Estatal de Ciencia, Tecnología e Innovación de Chihuahua (SEI)</p>
           <div className="flex items-center justify-center gap-2">
             <Calendar className="h-4 w-4 text-blue-500" />
             <span className="text-sm text-blue-600">Última actualización: 22 de octubre de 2025</span>
@@ -135,7 +135,7 @@ export default function TerminosPage() {
           <CardContent className="space-y-4">
             <p className="text-blue-700">
               Los usuarios conservan todos los derechos de propiedad intelectual sobre el contenido que publican. Al
-              publicar contenido, otorgan a SECCTI una licencia no exclusiva para mostrar, distribuir y promover dicho
+              publicar contenido, otorgan a SEI una licencia no exclusiva para mostrar, distribuir y promover dicho
               contenido dentro de la plataforma.
             </p>
             <Badge className="bg-blue-100 text-blue-800">Respeto a la Propiedad Intelectual</Badge>
@@ -151,7 +151,7 @@ export default function TerminosPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-blue-700">
-              SECCTI no será responsable por daños directos, indirectos, incidentales o consecuentes que resulten del
+              SEI no será responsable por daños directos, indirectos, incidentales o consecuentes que resulten del
               uso de esta plataforma. El servicio se proporciona "tal como está" sin garantías de ningún tipo.
             </p>
           </CardContent>

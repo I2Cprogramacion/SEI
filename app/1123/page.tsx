@@ -67,7 +67,7 @@ export default function Page1123() {
 
         <div className="text-center space-y-2">
           <p className="text-sm text-gray-400">
-            Este sitio fue desarrollado como parte de nuestro servicio social para SECCTI
+            Este sitio fue desarrollado como parte de nuestro servicio social para SEI
           </p>
           <p className="text-xs text-purple-400">
             Si encuentras un bug, probablemente ya lo sabemos (y ya estamos llorando por él)

@@ -282,7 +282,7 @@ export default function NuevoPerfilPage() {
         {/* Header */}
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-bold text-blue-900">Crear Nuevo Perfil de Investigador</h1>
-          <p className="text-blue-600">Completa la información para crear tu perfil en la plataforma SECCTI</p>
+          <p className="text-blue-600">Completa la información para crear tu perfil en la plataforma SEI</p>
           <div className="space-y-2">
             <Progress value={progress} className="w-full" />
             <p className="text-sm text-blue-600">

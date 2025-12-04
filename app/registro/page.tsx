@@ -1297,7 +1297,7 @@ export default function RegistroPage() {
             <div className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-blue-100 rounded-full mb-3 md:mb-4">
               <FileText className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
             </div>
-            <h1 className="text-2xl md:text-4xl font-bold text-blue-900">Regístrate en SECCTI</h1>
+            <h1 className="text-2xl md:text-4xl font-bold text-blue-900">Regístrate en SEI</h1>
             <p className="text-sm md:text-lg text-blue-600 max-w-2xl mx-auto px-2">
               Sube tu Perfil Único (PU) en PDF para crear tu cuenta de investigador de forma automática
             </p>

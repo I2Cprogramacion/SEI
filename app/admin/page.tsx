@@ -166,7 +166,7 @@ export default function AdminDashboard() {
             <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
               Panel de Administración
             </h1>
-            <p className="text-sm md:text-base text-gray-600 mt-1">Gestiona la plataforma SECCTI desde aquí</p>
+            <p className="text-sm md:text-base text-gray-600 mt-1">Gestiona la plataforma SEI desde aquí</p>
           </div>
           <div className="flex flex-wrap gap-3 w-full sm:w-auto">
             <Button 

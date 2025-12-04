@@ -9,7 +9,7 @@ export default function PrivacidadPage() {
       <div className="space-y-6">
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-bold text-blue-900">Política de Privacidad</h1>
-          <p className="text-blue-600">Sistema Estatal de Ciencia, Tecnología e Innovación de Chihuahua (SECCTI)</p>
+          <p className="text-blue-600">Sistema Estatal de Ciencia, Tecnología e Innovación de Chihuahua (SEI)</p>
           <div className="flex items-center justify-center gap-2">
             <Calendar className="h-4 w-4 text-blue-500" />
             <span className="text-sm text-blue-600">Última actualización: 15 de enero de 2024</span>
@@ -25,7 +25,7 @@ export default function PrivacidadPage() {
           </CardHeader>
           <CardContent>
             <p className="text-blue-700">
-              SECCTI se compromete a proteger su privacidad y cumplir con la Ley Federal de Protección de Datos
+              SEI se compromete a proteger su privacidad y cumplir con la Ley Federal de Protección de Datos
               Personales en Posesión de los Particulares (LFPDPPP) y demás normativas aplicables en México.
             </p>
           </CardContent>

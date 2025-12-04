@@ -51,7 +51,7 @@ export default function ExitoRegistroPage() {
                 : "Registro completado"}
           </h1>
           <p className="text-blue-600 max-w-md">
-            {mensaje || "Tu perfil de investigador ha sido creado exitosamente en la plataforma SECCTI."}
+            {mensaje || "Tu perfil de investigador ha sido creado exitosamente en la plataforma SEI."}
           </p>
         </div>
 

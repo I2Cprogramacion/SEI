@@ -103,7 +103,7 @@ export function AdminSidebar() {
             <LayoutDashboard className="h-6 w-6 text-white" />
           </div>
           <div>
-            <span className="text-lg font-bold text-white block">SECCTI</span>
+            <span className="text-lg font-bold text-white block">SEI</span>
             <span className="text-xs text-blue-100">
               {esEvaluador && !esAdmin ? "Panel Evaluador" : "Panel Admin"}
             </span>

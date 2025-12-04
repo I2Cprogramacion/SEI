@@ -94,7 +94,7 @@ export default function Footer() {
           {/* Copyright */}
           <div className="text-center text-blue-600">
             <p>
-              © {new Date().getFullYear()} SECCTI - Sistema Estatal de Ciencia, Tecnología e Innovación de Chihuahua.
+              © {new Date().getFullYear()} SEI - Sistema de Evaluación de Investigadores.
               Todos los derechos reservados.
             </p>
             <p className="text-xs text-gray-400 mt-2">Versión 1.0</p>

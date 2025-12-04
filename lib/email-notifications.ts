@@ -262,8 +262,8 @@ function generateEmailHTML(notificationData: EmailNotificationData): string {
       return baseTemplate(
         'Notificación',
         `
-          <h2>🔔 Nueva Notificación</h2>
-          <p>Tienes una nueva notificación en SECCTI.</p>
+          <h2>Nueva Notificación</h2>
+          <p>Tienes una nueva notificación en SEI.</p>
         `,
         'Ver Notificaciones',
         `${baseURL}/dashboard`
