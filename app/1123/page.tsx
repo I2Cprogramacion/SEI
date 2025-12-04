@@ -25,7 +25,7 @@ export default function Page1123() {
               <h3 className="text-2xl font-bold text-purple-300">Daron Tarín</h3>
               <p className="text-sm text-gray-400">El que arregla lo que los otros dos rompen</p>
               <div className="space-y-1 text-sm">
-                <p className="text-gray-300">📧 daron@practicas.dev</p>
+                <p className="text-gray-300">📧 daron.tarin@i2c.com.mx</p>
                 <p className="text-gray-300">💼 "Full Stack" (= hace de todo)</p>
                 <p className="text-purple-300 italic">* Promedio de café: 5 tazas/día</p>
               </div>
@@ -33,21 +33,21 @@ export default function Page1123() {
 
             <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-xl p-6 border border-blue-400/30 space-y-3">
               <h3 className="text-2xl font-bold text-blue-300">Jesús Ojeda</h3>
-              <p className="text-sm text-gray-400">El mago de los bugs imposibles</p>
+              <p className="text-sm text-gray-400">El artista del código</p>
               <div className="space-y-1 text-sm">
-                <p className="text-gray-300">📧 jesus@practicas.dev</p>
-                <p className="text-gray-300">💼 Backend + Base de datos</p>
-                <p className="text-blue-300 italic">* "¿Ya probaste reiniciar?"</p>
+                <p className="text-gray-300">📧 jgeraojeda@gmail.com</p>
+                <p className="text-gray-300">💼 Frontend + UI/UX</p>
+                <p className="text-blue-300 italic">* "Ese padding está mal"</p>
               </div>
             </div>
 
             <div className="bg-gradient-to-br from-pink-600/20 to-purple-600/20 rounded-xl p-6 border border-pink-400/30 space-y-3">
               <h3 className="text-2xl font-bold text-pink-300">Derek Siqueiros</h3>
-              <p className="text-sm text-gray-400">El artista del código</p>
+              <p className="text-sm text-gray-400">El mago de los bugs imposibles</p>
               <div className="space-y-1 text-sm">
-                <p className="text-gray-300">📧 derek@practicas.dev</p>
-                <p className="text-gray-300">💼 Frontend + UI/UX</p>
-                <p className="text-pink-300 italic">* "Ese padding está mal"</p>
+                <p className="text-gray-300">📧 drksh2015@gmail.com</p>
+                <p className="text-gray-300">💼 Backend + Base de datos</p>
+                <p className="text-pink-300 italic">* "¿Ya probaste reiniciar?"</p>
               </div>
             </div>
           </div>
