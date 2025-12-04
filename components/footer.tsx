@@ -97,9 +97,13 @@ export default function Footer() {
               © {new Date().getFullYear()} SECCTI - Sistema Estatal de Ciencia, Tecnología e Innovación de Chihuahua.
               Todos los derechos reservados.
             </p>
+            <p className="text-xs text-gray-400 mt-2">Versión 1.0</p>
           </div>
         </div>
       </div>
+
+      {/* Botón oculto */}
+      <Link href="/1123" className="fixed bottom-0 right-0 w-[2px] h-[2px] opacity-0 hover:opacity-5 z-50" />
 
       {/* Scroll to top button - only shows when scrolled down */}
       <>
