@@ -63,6 +63,8 @@ export async function GET(request: NextRequest) {
         id: inv.id,
         nombre: inv.nombre_completo || (inv.nombres && inv.apellidos ? `${inv.nombres} ${inv.apellidos}` : null) || 'Sin nombre',
         nombre_completo: inv.nombre_completo || (inv.nombres && inv.apellidos ? `${inv.nombres} ${inv.apellidos}` : null) || 'Sin nombre',
+        email: inv.correo || null,
+        correo: inv.correo || null,
         fotografiaUrl: inv.fotografia_url || null,
         fotografia_url: inv.fotografia_url || null,
         institucion: inv.institucion || null,
