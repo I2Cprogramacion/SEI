@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     const { destinatarioId, asunto, mensaje } = await request.json()
 
-    console.log('📧 POST /api/mensajes:', { userEmail, destinatarioId, asunto })
+    console.log('📧 POST /api/mensajes:', { destinatarioId, asunto })
 
     if (!destinatarioId || !asunto || !mensaje) {
       return NextResponse.json(

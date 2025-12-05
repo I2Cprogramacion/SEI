@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     if (!correo) {
       return NextResponse.json({ error: "No se encontró el correo del usuario" }, { status: 400 })
     }
-    console.log("🟢 Reactivando perfil para correo:", correo)
+    console.log("🟢 Reactivando perfil")
     
     // Conexión directa a PostgreSQL
     const databaseUrl = process.env.DATABASE_URL

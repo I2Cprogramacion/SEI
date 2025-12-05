@@ -62,8 +62,6 @@ export async function GET(request: NextRequest) {
         id: inv.id,
         nombre: inv.nombre_completo || (inv.nombres && inv.apellidos ? `${inv.nombres} ${inv.apellidos}` : null) || 'Sin nombre',
         nombre_completo: inv.nombre_completo || (inv.nombres && inv.apellidos ? `${inv.nombres} ${inv.apellidos}` : null) || 'Sin nombre',
-        email: inv.correo || '',
-        correo: inv.correo || '',
         fotografiaUrl: inv.fotografia_url || null,
         fotografia_url: inv.fotografia_url || null,
         institucion: inv.institucion || null,
@@ -83,10 +81,6 @@ export async function GET(request: NextRequest) {
         lineaInvestigacion: inv.linea_investigacion || null,
         linea_investigacion: inv.linea_investigacion || null,
         slug: slug,
-        // Admin fields
-        is_admin: inv.es_admin || false,
-        es_admin: inv.es_admin || false,
-        es_evaluador: inv.es_evaluador || false,
         fecha_registro: inv.fecha_registro || null,
         activo: inv.activo !== false,
         // Additional fields for evaluation

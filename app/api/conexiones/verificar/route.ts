@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Email del investigador requerido" }, { status: 400 })
     }
 
-    console.log(`[VERIFICAR CONEXION] Usuario: ${userEmail}, Investigador: ${investigadorEmail}`)
+    console.log(`[VERIFICAR CONEXION] Verificando conexión`)
 
     // Buscar el investigador actual por email
     const investigadorActual = await sql`
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     `
 
     if (investigadorActual.rows.length === 0) {
-      console.log(`[VERIFICAR CONEXION] Usuario no encontrado en BD: ${userEmail}`)
+      console.log(`[VERIFICAR CONEXION] Usuario no encontrado en BD`)
       return NextResponse.json({ conectados: false }, { status: 200 })
     }
 

@@ -137,9 +137,6 @@ export default function InvestigadorPage() {
         
         console.log('=== 🔍 DIAGNÓSTICO DE REDIRECCIÓN ===')
         console.log('Clerk isLoaded:', isLoaded)
-        console.log('Email del usuario actual:', userEmail)
-        console.log('Email del perfil:', perfilEmail)
-        console.log('¿Son iguales?', userEmail === perfilEmail)
         
         if (userEmail && perfilEmail && userEmail === perfilEmail) {
           console.log('✅ Condición cumplida - Es tu propio perfil - Redirigiendo al dashboard')
@@ -148,11 +145,6 @@ export default function InvestigadorPage() {
           return
         } else {
           console.log('❌ Condición NO cumplida - Mostrando perfil público')
-          if (!userEmail) console.log('   Razón: No hay email del usuario (Clerk no ha cargado)')
-          if (!perfilEmail) console.log('   Razón: El perfil no tiene correo')
-          if (userEmail && perfilEmail && userEmail !== perfilEmail) {
-            console.log('   Razón: Los emails NO coinciden')
-          }
         }
 
         // Procesar linea_investigacion (puede ser string o array)

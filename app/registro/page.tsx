@@ -1055,10 +1055,6 @@ export default function RegistroPage() {
             password: formData.password,
           })
 
-          console.log("✅ [REGISTRO] Usuario creado en Clerk")
-          console.log("📊 [REGISTRO] SignUp status:", signUpAttempt.status)
-          console.log("📊 [REGISTRO] SignUp object keys:", Object.keys(signUpAttempt))
-
           // Obtener el clerk_user_id - puede estar en diferentes lugares según el estado
           // Intentar en orden: createdUserId, id del usuario, o id del signUp
           let clerkUserId: string | null = null
@@ -1067,55 +1063,36 @@ export default function RegistroPage() {
           // Opción 1: createdUserId (cuando está completo)
           if (signUpAttempt.createdUserId) {
             clerkUserId = signUpAttempt.createdUserId
-            console.log("🔑 [REGISTRO] Usando createdUserId:", clerkUserId)
           }
           // Opción 2: verificar si tiene propiedad user con id
           else if (signUpObj.user?.id) {
             clerkUserId = signUpObj.user.id
-            console.log("🔑 [REGISTRO] Usando user.id:", clerkUserId)
           }
           // Opción 3: usar el id del signUp mismo
           else if (signUpAttempt.id) {
             clerkUserId = signUpAttempt.id
-            console.log("🔑 [REGISTRO] Usando signUpAttempt.id:", clerkUserId)
           }
           // Opción 4: buscar en el objeto cualquier campo que parezca un user ID
           else {
-            console.error("❌ [REGISTRO] No se encontró clerk_user_id en ningún campo esperado")
-            console.log("📋 [REGISTRO] Explorando objeto signUpAttempt...")
             
             // Intentar encontrar cualquier campo que contenga "user" y "id"
             for (const key of Object.keys(signUpObj)) {
               const value = signUpObj[key]
               if (typeof value === 'string' && value.startsWith('user_')) {
                 clerkUserId = value
-                console.log(`🔑 [REGISTRO] Encontrado ID en campo "${key}":`, clerkUserId)
                 break
               }
             }
           }
 
-          console.log("🔑 [REGISTRO] Clerk User ID final obtenido:", clerkUserId)
-
           if (!clerkUserId) {
-            console.error("❌ [REGISTRO] No se pudo obtener clerk_user_id después de todos los intentos")
-            console.error("📋 [REGISTRO] Claves disponibles:", Object.keys(signUpObj))
-            console.error("📋 [REGISTRO] Algunos valores:", {
-              id: signUpObj.id,
-              createdUserId: signUpObj.createdUserId,
-              status: signUpObj.status,
-              hasUser: !!signUpObj.user
-            })
+            console.error("❌ [REGISTRO] No se pudo obtener clerk_user_id")
             throw new Error("Error al crear usuario en Clerk: no se obtuvo ID del usuario. Por favor, intenta de nuevo.")
           }
-
-          console.log("🔵 [REGISTRO] Paso 2: Preparando verificación de email...")
           
           await signUp.prepareEmailAddressVerification({
             strategy: "email_code",
           })
-
-          console.log("✅ [REGISTRO] Verificación de email preparada")
 
           // PASO 2: Guardar datos en tabla temporal registros_pendientes
           // ✅ IMPORTANTE: Los datos se guardan en la BD temporal (no en sessionStorage)
@@ -1192,8 +1169,6 @@ export default function RegistroPage() {
 
           // ✅ PASO 3: Guardar en tabla temporal registros_pendientes (PostgreSQL)
           // Estos datos permanecerán en la BD hasta que el usuario verifique su email
-          console.log("🔵 [REGISTRO] Paso 3: Guardando en tabla temporal (registros_pendientes)...")
-          console.log("📊 [REGISTRO] Total de campos preparados:", Object.keys(dataToSend).length)
           
           try {
             const response = await fetch("/api/registro", {
@@ -1208,44 +1183,28 @@ export default function RegistroPage() {
 
             if (!response.ok || !responseData.success) {
               console.error("❌ [REGISTRO] ERROR AL GUARDAR EN TABLA TEMPORAL")
-              console.error("   Status:", response.status)
-              console.error("   Mensaje:", responseData.error || responseData.message)
               
               // ✅ FALLBACK: Guardar en sessionStorage si falla la BD
-              console.warn("⚠️ [REGISTRO] Usando sessionStorage como respaldo...")
               sessionStorage.setItem('registro_pendiente', JSON.stringify(dataToSend))
-              console.log("✅ [REGISTRO] Datos guardados en sessionStorage (respaldo)")
             } else {
               console.log("✅ [REGISTRO] Datos guardados en tabla temporal")
-              console.log("   ID temporal:", responseData.id)
-              console.log("   Clerk User ID:", clerkUserId)
-              console.log("   Estado: Pendiente de verificación")
             }
           } catch (storageError) {
             console.error("❌ [REGISTRO] Error al guardar en tabla temporal:", storageError)
             
             // ✅ FALLBACK: Guardar en sessionStorage
-            console.warn("⚠️ [REGISTRO] Usando sessionStorage como respaldo de emergencia...")
             sessionStorage.setItem('registro_pendiente', JSON.stringify(dataToSend))
-            console.log("✅ [REGISTRO] Datos guardados en sessionStorage (respaldo de emergencia)")
           }
 
           // PASO 4: Redirigir a verificación de email
           // El guardado en tabla 'investigadores' ocurrirá DESPUÉS de verificar el código
-          console.log("🔵 [REGISTRO] Paso 4: Redirigiendo a verificación de email...")
-          console.log("   Status de signUp:", signUpAttempt.status)
-          console.log("   ⚠️  IMPORTANTE: Los datos se moverán a tabla 'investigadores' después de verificar")
           
           if (signUpAttempt.status === "complete") {
-            console.log("✅ [REGISTRO] Registro completo, activando sesión...")
             await clerk.setActive({ session: signUpAttempt.createdSessionId });
-            console.log("🎉 [REGISTRO] Redirigiendo a /admin")
             router.push("/admin");
           } else if (signUpAttempt.status === "missing_requirements") {
-            console.log("⚠️  [REGISTRO] Faltan requisitos, redirigiendo a verificar email")
             router.push("/verificar-email");
           } else {
-            console.log("ℹ️  [REGISTRO] Estado no completo, redirigiendo a verificar email")
             router.push("/verificar-email");
           }
         } catch (clerkError: any) {
@@ -2153,7 +2112,7 @@ export default function RegistroPage() {
                   {/* <div className="flex justify-center my-6">
                     <ReCAPTCHA
                       ref={recaptchaRef}
-                      sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}
+                      sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE!}
                       onChange={(value) => {
                         console.log("🔵 CAPTCHA onChange triggered. Value:", value)
                         console.log("🔵 Setting captchaValue state to:", value)

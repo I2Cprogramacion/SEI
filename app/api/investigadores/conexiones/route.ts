@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     `
 
     if (investigadorActual.rows.length === 0) {
-      console.log(`[CONEXIONES API] Usuario no encontrado en BD: ${userEmail}`)
+      console.log(`[CONEXIONES API] Usuario no encontrado en BD`)
       return NextResponse.json({ 
         investigadores: [],
         total: 0,
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     }
 
     const miId = investigadorActual.rows[0].id
-    console.log(`[CONEXIONES API] Usuario ID: ${miId}, Email: ${userEmail}`)
+    console.log(`[CONEXIONES API] Usuario encontrado`)
 
     // Obtener investigadores conectados (conexiones aceptadas en ambas direcciones)
     let investigadoresConectados

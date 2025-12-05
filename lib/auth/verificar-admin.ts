@@ -31,7 +31,6 @@ export async function verificarAdmin() {
     // Verificar si el usuario es admin en la BD
     // Buscar con email en minúsculas para evitar problemas de case sensitivity
     const emailLower = email.toLowerCase().trim()
-    console.log('🔍 [verificarAdmin] Buscando usuario con email:', emailLower)
     
     let result
     try {
@@ -45,20 +44,7 @@ export async function verificarAdmin() {
       throw sqlError
     }
 
-    console.log('📊 [verificarAdmin] Resultado de la consulta:', {
-      rowsCount: result.rows.length,
-      rows: result.rows.map(r => ({
-        id: r.id,
-        correo: r.correo,
-        es_admin: r.es_admin,
-        tipo_es_admin: typeof r.es_admin,
-        es_admin_es_true: r.es_admin === true
-      }))
-    })
-
     if (result.rows.length === 0) {
-      console.log('❌ [verificarAdmin] Usuario no encontrado en la base de datos con email:', emailLower)
-      return {
         esAdmin: false,
         usuario: null,
         redirect: '/dashboard'
@@ -66,8 +52,6 @@ export async function verificarAdmin() {
     }
 
     const usuario = result.rows[0]
-    console.log('👤 [verificarAdmin] Usuario encontrado:', {
-      id: usuario.id,
       nombre: usuario.nombre_completo,
       correo: usuario.correo,
       es_admin: usuario.es_admin,

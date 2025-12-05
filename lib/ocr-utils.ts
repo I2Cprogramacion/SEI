@@ -159,7 +159,6 @@ export class OCRProcessor {
       const curpMatch = cleanText.match(pattern)
       if (curpMatch) {
         data.curp = curpMatch[1] || curpMatch[0]
-        console.log('✅ CURP encontrado:', data.curp)
         break
       }
     }
@@ -175,7 +174,6 @@ export class OCRProcessor {
       const rfcMatch = cleanText.match(pattern)
       if (rfcMatch) {
         data.rfc = rfcMatch[1] || rfcMatch[0]
-        console.log('✅ RFC encontrado:', data.rfc)
         break
       }
     }
@@ -191,7 +189,6 @@ export class OCRProcessor {
       const emailMatch = cleanText.match(pattern)
       if (emailMatch) {
         data.correo = emailMatch[1] || emailMatch[0]
-        console.log('✅ Email encontrado:', data.correo)
         break
       }
     }
@@ -207,7 +204,6 @@ export class OCRProcessor {
       const phoneMatch = cleanText.match(pattern)
       if (phoneMatch) {
         data.telefono = (phoneMatch[2] || phoneMatch[0]).replace(/\s+/g, ' ').trim()
-        console.log('✅ Teléfono encontrado:', data.telefono)
         break
       }
     }
@@ -223,7 +219,6 @@ export class OCRProcessor {
       const nameMatch = cleanText.match(pattern)
       if (nameMatch) {
         data.nombre_completo = nameMatch[1] || nameMatch[0]
-        console.log('✅ Nombre encontrado:', data.nombre_completo)
         break
       }
     }

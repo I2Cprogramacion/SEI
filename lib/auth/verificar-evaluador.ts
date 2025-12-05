@@ -30,7 +30,6 @@ export async function verificarEvaluador() {
 
     // Verificar si el usuario es evaluador en la BD
     const emailLower = email.toLowerCase().trim()
-    console.log('🔍 [verificarEvaluador] Buscando usuario con email:', emailLower)
     
     let result
     try {
@@ -45,7 +44,6 @@ export async function verificarEvaluador() {
     }
 
     if (result.rows.length === 0) {
-      console.log('❌ [verificarEvaluador] Usuario no encontrado en la base de datos con email:', emailLower)
       return {
         esEvaluador: false,
         usuario: null,
@@ -118,7 +116,6 @@ export async function verificarAdminOEvaluador() {
     }
 
     const emailLower = email.toLowerCase().trim()
-    console.log('🔍 [verificarAdminOEvaluador] Buscando usuario con email:', emailLower)
     
     let result
     try {

@@ -151,7 +151,7 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url)
     const clerkUserId = url.searchParams.get('clerk_user_id')
     
-    console.log('📌 [GET Publicaciones v2] Solicitadas para clerk_user_id:', clerkUserId)
+    console.log('📌 [GET Publicaciones v2] Solicitadas para usuario autenticado')
 
     // Si hay clerk_user_id, obtener los datos del investigador para buscar también por nombre y correo
     let investigador: { nombre_completo?: string; correo?: string } | null = null
@@ -165,13 +165,9 @@ export async function GET(request: NextRequest) {
         const invRows = Array.isArray(invResult) ? invResult : invResult.rows
         if (invRows && invRows.length > 0) {
           investigador = invRows[0]
-          console.log('👤 [GET Publicaciones] Investigador encontrado:', {
-            nombre: investigador?.nombre_completo,
-            correo: investigador?.correo,
-            clerk_id: clerkUserId
-          })
+          console.log('👤 [GET Publicaciones] Investigador encontrado')
         } else {
-          console.log('⚠️ [GET Publicaciones] No se encontró investigador con clerk_user_id:', clerkUserId)
+          console.log('⚠️ [GET Publicaciones] No se encontró investigador')
         }
       } catch (err) {
         console.error('⚠️ Error al buscar investigador:', err)

@@ -85,13 +85,19 @@ export async function GET(request: NextRequest) {
         const nivel = searchParams.get("nivel")
 
         let whereConditions = ["activo = true OR activo IS NULL"]
+        const params: any[] = []
+        let paramCount = 1
         
         if (area && area !== "todas") {
-          whereConditions.push(`area_investigacion ILIKE '%${area}%'`)
+          whereConditions.push(`area_investigacion ILIKE $${paramCount}`)
+          params.push(`%${area}%`)
+          paramCount++
         }
         
         if (nivel && nivel !== "todos") {
-          whereConditions.push(`nivel_investigador = '${nivel}'`)
+          whereConditions.push(`nivel_investigador = $${paramCount}`)
+          params.push(nivel)
+          paramCount++
         }
 
         const query = `
@@ -109,7 +115,7 @@ export async function GET(request: NextRequest) {
           ORDER BY nombre_completo
         `
 
-        const result = await db.query(query)
+        const result = await db.query(query, params)
         const investigadores = Array.isArray(result) ? result : result.rows || []
 
         // Por ahora, retornar investigadores sin evaluación detallada
@@ -235,11 +241,11 @@ export async function GET(request: NextRequest) {
             SELECT COUNT(*) as total
             FROM investigadores
             WHERE (activo = true OR activo IS NULL)
-              AND area_investigacion ILIKE '%${areaData.nombre}%'
+              AND area_investigacion ILIKE $1
           `
           
           try {
-            const result = await db.query(areaQuery)
+            const result = await db.query(areaQuery, [`%${areaData.nombre}%`])
             const total = Array.isArray(result) 
               ? (result[0]?.total || 0)
               : (result.rows?.[0]?.total || 0)

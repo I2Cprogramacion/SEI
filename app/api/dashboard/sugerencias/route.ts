@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     `
 
     if (!miPerfil || miPerfil.rows.length === 0 || !miPerfil.rows[0]) {
-      console.log(`⚠️ No hay perfil de investigador para sugerencias: ${email}`)
+      console.log(`⚠️ No hay perfil de investigador para sugerencias`)
       return NextResponse.json([]) // Retornar array vacío en lugar de error
     }
 

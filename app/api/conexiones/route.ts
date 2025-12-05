@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     const { destinatarioId, mensaje } = await request.json()
 
-    console.log('🔵 POST /api/conexiones:', { userEmail, destinatarioId, mensaje: mensaje?.substring(0, 50) })
+    console.log('🔵 POST /api/conexiones:', { destinatarioId, mensaje: mensaje?.substring(0, 50) })
 
     if (!destinatarioId) {
       return NextResponse.json(
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Obtener ID del investigador origen solo por email (Clerk solo para auth)
-    console.log('🔵 Buscando investigador origen con email:', userEmail)
+    console.log('🔵 Buscando investigador origen')
     const origenQuery = await sql`
       SELECT id, nombre_completo, correo FROM investigadores 
       WHERE correo = ${userEmail} 
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     console.log('🔵 Resultado origen:', origenQuery.rows)
 
     if (origenQuery.rows.length === 0) {
-      console.log('❌ Usuario origen no encontrado con email:', userEmail)
+      console.log('❌ Usuario origen no encontrado')
       return NextResponse.json(
         { 
           error: `No se encontró un investigador registrado con el email ${userEmail}. Por favor completa tu registro primero.`,

@@ -147,7 +147,7 @@ export async function GET(
       ? publicacionesResult
       : publicacionesResult.rows
 
-    console.log(`✅ [Publicaciones Perfil] Encontradas ${publicaciones?.length || 0} publicaciones para ${inv.nombre_completo}`)
+    console.log(`✅ [Publicaciones Perfil] Encontradas ${publicaciones?.length || 0} publicaciones`)
     
     if (publicaciones?.length > 0) {
       console.log('🔵 [Publicaciones Perfil] IDs encontradas:', 

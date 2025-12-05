@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { currentUser } from "@clerk/nextjs/server"
 import { getDatabase } from "@/lib/database-config"
+import { actualizarPerfilSchema } from "@/lib/validations/registro"
+import { z } from "zod"
 
 // Forzar rendering dinámico (usa Clerk auth)
 export const dynamic = 'force-dynamic'
@@ -41,14 +43,28 @@ export async function PUT(request: NextRequest) {
 
     const investigadorId = investigadorRows[0].id
 
-    const data = await request.json()
+    const rawData = await request.json()
 
     // Validar que al menos un campo se esté actualizando
-    if (!data || Object.keys(data).length === 0) {
+    if (!rawData || Object.keys(rawData).length === 0) {
       return NextResponse.json({ error: "No hay datos para actualizar" }, { status: 400 })
     }
 
-    // Campos permitidos para actualizar (no incluimos correo ni password aquí)
+    // SEGURIDAD: Validar datos con Zod antes de procesar
+    let data
+    try {
+      data = actualizarPerfilSchema.parse(rawData)
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return NextResponse.json({
+          error: "Datos inválidos",
+          details: error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+        }, { status: 400 })
+      }
+      throw error
+    }
+
+    // Campos permitidos para actualizar (excluye es_admin, activo, correo para seguridad)
     const camposPermitidos = [
       'nombre_completo', 'nombres', 'apellidos', 'curp', 'rfc', 'no_cvu', 'telefono',
       'ultimo_grado_estudios', 'grado_maximo_estudios', 'empleo_actual', 

@@ -20,11 +20,6 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
       COALESCE(nombre_completo, '') AS nombre_completo,
       COALESCE(nombres, '') AS nombres,
       COALESCE(apellidos, '') AS apellidos,
-      COALESCE(correo, '') AS correo,
-      COALESCE(clerk_user_id, '') AS clerk_user_id,
-      COALESCE(curp, '') AS curp,
-      COALESCE(rfc, '') AS rfc,
-      COALESCE(no_cvu, '') AS no_cvu,
       COALESCE(telefono, '') AS telefono,
       COALESCE(fotografia_url, '') AS fotografia_url,
       COALESCE(nacionalidad, '') AS nacionalidad,
@@ -39,7 +34,8 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
       COALESCE(cv_url, '') AS cv_url,
       dictamen_url,
       sni_url,
-      COALESCE(perfil_publico, true) AS perfil_publico
+      COALESCE(perfil_publico, true) AS perfil_publico,
+      COALESCE(clerk_user_id, '') AS clerk_user_id
       FROM investigadores
       WHERE ${isNumeric ? 'id = $1' : `(slug = $1 OR LOWER(REPLACE(REPLACE(nombre_completo, ' ', '-'), '.', '')) = $1)`}
       LIMIT 1
@@ -62,11 +58,6 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
       COALESCE(nombre_completo, '') AS nombre_completo,
       COALESCE(nombres, '') AS nombres,
       COALESCE(apellidos, '') AS apellidos,
-      COALESCE(correo, '') AS correo,
-      COALESCE(clerk_user_id, '') AS clerk_user_id,
-      COALESCE(curp, '') AS curp,
-      COALESCE(rfc, '') AS rfc,
-      COALESCE(no_cvu, '') AS no_cvu,
       COALESCE(telefono, '') AS telefono,
       COALESCE(fotografia_url, '') AS fotografia_url,
       COALESCE(nacionalidad, '') AS nacionalidad,
@@ -81,7 +72,8 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
       COALESCE(cv_url, '') AS cv_url,
       dictamen_url,
       sni_url,
-      COALESCE(perfil_publico, true) AS perfil_publico
+      COALESCE(perfil_publico, true) AS perfil_publico,
+      COALESCE(clerk_user_id, '') AS clerk_user_id
       FROM investigadores
       WHERE LOWER(nombre_completo) ILIKE $1 OR LOWER(slug) ILIKE $2
       LIMIT 1`
@@ -101,11 +93,33 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
 
   const perfil = rows[0]
 
+    // Remover campos sensibles del perfil público
+    const perfilPublico = {
+      id: perfil.id,
+      nombre_completo: perfil.nombre_completo,
+      nombres: perfil.nombres,
+      apellidos: perfil.apellidos,
+      telefono: perfil.telefono,
+      fotografia_url: perfil.fotografia_url,
+      nacionalidad: perfil.nacionalidad,
+      fecha_nacimiento: perfil.fecha_nacimiento,
+      ultimo_grado_estudios: perfil.ultimo_grado_estudios,
+      empleo_actual: perfil.empleo_actual,
+      linea_investigacion: perfil.linea_investigacion,
+      area_investigacion: perfil.area_investigacion,
+      institucion: perfil.institucion,
+      departamento: perfil.departamento,
+      slug: perfil.slug,
+      cv_url: perfil.cv_url,
+      dictamen_url: perfil.dictamen_url,
+      sni_url: perfil.sni_url,
+      perfil_publico: perfil.perfil_publico === undefined ? true : Boolean(perfil.perfil_publico)
+    }
+
     // Devolver el objeto del perfil en el nivel superior para que el cliente
-    // pueda acceder directamente a propiedades como `nombre_completo`, `correo`, etc.
+    // pueda acceder directamente a propiedades como `nombre_completo`, etc.
     const result: any = {
-      ...perfil,
-      perfil_publico: perfil.perfil_publico === undefined ? true : Boolean(perfil.perfil_publico),
+      ...perfilPublico,
     }
 
     if (includePublications) {

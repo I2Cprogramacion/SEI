@@ -283,7 +283,7 @@ export async function sendEmailNotification(
 
     // Si no hay transporter configurado, solo logear (no es error crítico)
     if (!transporter) {
-      console.log(`📧 [EMAIL DISABLED] Notificación a ${notificationData.to}: ${notificationData.subject}`)
+      console.log(`📧 [EMAIL DISABLED] Notificación: ${notificationData.subject}`)
       return false
     }
 
@@ -306,10 +306,10 @@ export async function sendEmailNotification(
       html: htmlContent,
     })
 
-    console.log(`✅ Email enviado a ${notificationData.to}: ${info.messageId}`)
+    console.log(`✅ Email enviado: ${info.messageId}`)
     return true
   } catch (error) {
-    console.error(`❌ Error enviando email a ${notificationData.to}:`, error)
+    console.error(`❌ Error enviando email:`, error instanceof Error ? error.message : 'Error desconocido')
     return false
   }
 }

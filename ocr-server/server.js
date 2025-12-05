@@ -91,7 +91,6 @@ function extractData(text) {
       // Validar que no sea parte de otra palabra
       if (curp.length === 18) {
         data.curp = curp;
-        console.log('✅ CURP encontrado:', data.curp);
         break;
       }
     }
@@ -114,7 +113,6 @@ function extractData(text) {
       // Evitar confusión con CURP - RFC debe ser exactamente 13 caracteres
       if (rfc.length === 13 && rfc !== data.curp?.substring(0, 13)) {
         data.rfc = rfc;
-        console.log('✅ RFC encontrado:', data.rfc);
         break;
       }
     }
@@ -161,7 +159,6 @@ function extractData(text) {
   if (cvuCandidates.length > 0) {
     cvuCandidates.sort((a, b) => a.priority - b.priority);
     data.no_cvu = cvuCandidates[0].value;
-    console.log('✅ CVU encontrado:', data.no_cvu);
   }
 
   // =========================================================================
@@ -187,7 +184,6 @@ function extractData(text) {
       // Validar que el dominio sea válido
       if (email.match(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/)) {
         data.correo = email;
-        console.log('✅ Email encontrado:', data.correo);
         break;
       }
     }
@@ -238,7 +234,6 @@ function extractData(text) {
   if (phoneCandidates.length > 0) {
     phoneCandidates.sort((a, b) => a.priority - b.priority);
     data.telefono = phoneCandidates[0].value;
-    console.log('✅ Teléfono encontrado:', data.telefono);
   }
 
   // =========================================================================
@@ -300,7 +295,6 @@ function extractData(text) {
   if (nameCandidates.length > 0) {
     nameCandidates.sort((a, b) => a.priority - b.priority);
     data.nombre_completo = nameCandidates[0].value;
-    console.log('✅ Nombre encontrado:', data.nombre_completo);
   }
 
   // =========================================================================
@@ -325,7 +319,6 @@ function extractData(text) {
         if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && 
             year >= 1940 && year <= 2010) {
           data.fecha_nacimiento = dateStr;
-          console.log('✅ Fecha nacimiento encontrada:', data.fecha_nacimiento);
           break;
         }
       }
@@ -345,7 +338,6 @@ function extractData(text) {
     const match = cleanText.match(pattern);
     if (match) {
       data.institucion = match[0].trim();
-      console.log('✅ Institución encontrada:', data.institucion);
       break;
     }
   }
@@ -362,7 +354,6 @@ function extractData(text) {
     const match = cleanText.match(pattern);
     if (match) {
       data.grado_maximo_estudios = match[0].trim().substring(0, 100);
-      console.log('✅ Grado encontrado:', data.grado_maximo_estudios);
       break;
     }
   }
@@ -379,7 +370,6 @@ function extractData(text) {
     const match = cleanText.match(pattern);
     if (match) {
       data.experiencia_laboral = match[0].trim().substring(0, 100);
-      console.log('✅ Experiencia encontrada:', data.experiencia_laboral);
       break;
     }
   }

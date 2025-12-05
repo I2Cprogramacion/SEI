@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     `
 
     if (!miPerfil || miPerfil.rows.length === 0 || !miPerfil.rows[0]) {
-      console.log(`⚠️ No hay perfil de investigador para: ${email}`)
+      console.log(`⚠️ No hay perfil de investigador`)
       return NextResponse.json({
         publicaciones: 0,
         proyectos: 0,

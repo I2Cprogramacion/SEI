@@ -203,7 +203,6 @@ export default function DashboardPage() {
     );
   }
   if (!investigadorData) {
-    console.log('API /api/investigadores/perfil no devolvió datos para el usuario:', user?.primaryEmailAddress?.emailAddress || user.id);
     return <div className="text-center p-10 text-orange-700">No se encontraron datos de tu perfil en la base de datos.<br/>Verifica que tu usuario esté correctamente registrado.<br/>Si el problema persiste, contacta a soporte.</div>;
   }
 

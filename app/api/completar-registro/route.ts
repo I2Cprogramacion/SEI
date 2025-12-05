@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
     const data = await request.json()
     
     console.log("📥 ========== COMPLETANDO REGISTRO DESPUÉS DE VERIFICACIÓN ==========")
-    console.log("Clerk User ID recibido:", data.clerk_user_id)
     
     // VALIDACIÓN CRÍTICA: Debe tener clerk_user_id
     if (!data.clerk_user_id) {
@@ -64,11 +63,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log("✅ [COMPLETAR REGISTRO] Registro pendiente encontrado:")
-    console.log("   ID temporal:", registroPendiente.id)
-    console.log("   Correo:", registroPendiente.correo)
-    console.log("   Fecha creación:", registroPendiente.fecha_creacion)
-    console.log("   Intentos verificación:", registroPendiente.intentos_verificacion)
+    console.log("✅ [COMPLETAR REGISTRO] Registro pendiente encontrado")
 
     // Usar los datos del registro pendiente
     const datosRegistro = registroPendiente.datos_registro
@@ -107,10 +102,6 @@ export async function POST(request: NextRequest) {
       
       if (resultado.success) {
         console.log("✅ [COMPLETAR REGISTRO] Guardado exitosamente en investigadores")
-        console.log("   ID asignado:", resultado.id)
-        console.log("   Nombre:", nombreCompleto)
-        console.log("   Correo:", datosRegistro.correo)
-        console.log("   Clerk User ID:", datosRegistro.clerk_user_id)
         
         // ✅ PASO 3: Eliminar de la tabla registros_pendientes
         console.log("🔵 [COMPLETAR REGISTRO] Paso 3: Limpiando tabla temporal...")

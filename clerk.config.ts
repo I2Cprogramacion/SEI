@@ -67,17 +67,11 @@ export const clerkConfig = {
     "/dashboard/(.*)",
   ],
   
-  // Redirecciones después de autenticación (API actualizada de Clerk)
+  // Redirecciones después de autenticación
   redirects: {
-    // Propiedades nuevas (recomendadas)
     signInFallbackRedirectUrl: "/admin",
     signUpFallbackRedirectUrl: "/admin",
     signOutUrl: "/",
-    
-    // Propiedades legacy (deprecadas - mantener solo para referencia)
-    // afterSignIn: "/admin", // ❌ Deprecado - usar signInFallbackRedirectUrl
-    // afterSignUp: "/admin", // ❌ Deprecado - usar signUpFallbackRedirectUrl
-    // afterSignOut: "/",     // ❌ Deprecado - usar signOutUrl
   },
 }
 

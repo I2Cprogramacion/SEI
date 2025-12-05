@@ -67,12 +67,6 @@ export async function obtenerInvestigadorPorId(id: number) {
   return await db.obtenerInvestigadorPorId(id)
 }
 
-// Función para verificar credenciales (mantiene compatibilidad)
-export async function verificarCredenciales(email: string, password: string) {
-  const db = await getDatabase()
-  return await db.verificarCredenciales(email, password)
-}
-
 // Función para obtener proyectos (nueva)
 
 export async function obtenerProyectos() {

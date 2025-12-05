@@ -11,8 +11,6 @@ export async function POST(request: NextRequest) {
     const datos = await request.json()
     
     console.log("📥 [REGISTRO DIRECTO] Guardando en investigadores...")
-    console.log("   Clerk User ID:", datos.clerk_user_id)
-    console.log("   Correo:", datos.correo)
     
     // Validación básica
     if (!datos.clerk_user_id) {
