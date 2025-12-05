@@ -218,12 +218,20 @@ export default function FAQPage() {
           <p className="text-sm text-muted-foreground mb-4">
             Nuestro equipo de soporte está disponible para ayudarte con cualquier duda o problema que tengas.
           </p>
-          <a
-            href="mailto:daron.tarin@i2c.com.mx"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            Enviar Email
-          </a>
+          <div className="flex flex-col gap-4">
+            <a
+              href="mailto:daron.tarin@i2c.com.mx"
+              className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              Enviar Email
+            </a>
+            <p className="text-sm text-center text-muted-foreground">
+              O escríbenos directamente a:{" "}
+              <a href="mailto:daron.tarin@i2c.com.mx" className="text-primary hover:underline font-medium">
+                daron.tarin@i2c.com.mx
+              </a>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>
