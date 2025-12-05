@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { guardarRegistroPendiente } from "@/lib/db"
-import { verifyJWT } from "@/lib/auth/verify-jwt"
 import { registroInvestigadorSchema } from "@/lib/validations/registro"
 import { z } from "zod"
 
@@ -58,17 +57,6 @@ async function verificarCaptcha(token: string): Promise<boolean> {
 }
 
 export async function POST(request: NextRequest) {
-  // Permitir registro abierto, pero si se envía token, verificarlo
-  const authHeader = request.headers.get("authorization")
-  let payload = null
-  if (authHeader) {
-    const token = authHeader.replace("Bearer ", "")
-    payload = verifyJWT(token)
-    if (!payload) {
-      return NextResponse.json({ error: "Token inválido o expirado" }, { status: 401 })
-    }
-  }
-  
   try {
     const rawData = await request.json()
     
