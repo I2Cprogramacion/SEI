@@ -8,9 +8,9 @@
 ![Clerk](https://img.shields.io/badge/Clerk-Auth-6C47FF?style=for-the-badge)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind-3.x-38B2AC?style=for-the-badge&logo=tailwind-css)
 
-**Plataforma integral para la gestión de investigadores, publicaciones científicas y proyectos de investigación**
+Plataforma integral para la gestión de investigadores, publicaciones científicas y proyectos de investigación
 
-[✨ Características Principales](#-características-principales) · [🚀 Instalación](#-instalación) · [📖 Uso](#-uso) · [🔌 API](#-api) · [🚢 Despliegue](#-despliegue)
+[Características](#-características-principales) • [Instalación](#-instalación) • [Uso](#-uso) • [API](#-api) • [Despliegue](#-despliegue)
 
 </div>
 
@@ -36,55 +36,55 @@ Proporciona herramientas avanzadas para investigadores, instituciones y administ
 
 ### 👥 Gestión de Investigadores
 
-* ✅ **Perfiles completos** con información académica, profesional y de contacto
-* ✅ **Validación automática** de datos
-* ✅ Sistema de niveles (SNI similar)
-* ✅ Detección de perfiles incompletos
-* ✅ **Perfiles públicos** accesibles sin autenticación
+- Perfiles completos con información académica, profesional y de contacto
+- Validación automática de datos
+- Sistema de niveles (SNI similar)
+- Detección de perfiles incompletos
+- Perfiles públicos accesibles sin autenticación
 
 ### 📚 Publicaciones Científicas
 
-* ✅ Gestión completa de publicaciones
-* ✅ **Generación automática de DOI**
-* ✅ Subida de archivos PDF y ZIP
-* ✅ Búsqueda por título, autores, DOI, palabras clave
-* ✅ Categorización y etiquetado
+- Gestión completa de publicaciones
+- Generación automática de DOI
+- Subida de archivos PDF y ZIP
+- Búsqueda por título, autores, DOI, palabras clave
+- Categorización y etiquetado
 
 ### 🔬 Proyectos de Investigación
 
-* ✅ **Seguimiento de proyectos** desde inicio hasta finalización
-* ✅ Colaboración entre investigadores e instituciones
-* ✅ Estados y clasificación de proyectos
-* ✅ Gestión de documentación relacionada
+- Seguimiento de proyectos desde inicio hasta finalización
+- Colaboración entre investigadores e instituciones
+- Estados y clasificación de proyectos
+- Gestión de documentación relacionada
 
 ### 🔍 Búsqueda Avanzada
 
-* ✅ **Búsqueda global** en investigadores, proyectos y publicaciones
-* ✅ Filtros por tipo, área, institución, fecha
-* ✅ Autocompletado en **tiempo real**
-* ✅ Resultados organizados y paginados
+- Búsqueda global en investigadores, proyectos y publicaciones
+- Filtros por tipo, área, institución, fecha
+- Autocompletado en tiempo real
+- Resultados organizados y paginados
 
 ### 📄 OCR Automatizado
 
-* ✅ **Extracción automática de datos** desde PDFs
-* ✅ Microservicio dedicado en Railway
-* ✅ Integración transparente con el sistema principal
-* ✅ Validación de datos extraídos
+- Extracción automática de datos desde PDFs
+- Microservicio dedicado en Railway
+- Integración transparente con el sistema principal
+- Validación de datos extraídos
 
 ### 🔐 Autenticación Segura
 
-* ✅ Integración con **Clerk** para autenticación
-* ✅ Verificación de email con código de 6 dígitos
-* ✅ Sesiones de 12 horas con **renovación automática**
-* ✅ Rutas públicas y protegidas
-* ✅ Gestión de permisos y roles
+- Integración con Clerk para autenticación
+- Verificación de email con código de 6 dígitos
+- Sesiones de 12 horas con renovación automática
+- Rutas públicas y protegidas
+- Gestión de permisos y roles
 
 ### 📊 Panel Administrativo
 
-* ✅ Dashboard con **estadísticas** del sistema
-* ✅ Gestión de usuarios y permisos
-* ✅ Configuración del sistema
-* ✅ Monitoreo de actividad
+- Dashboard con estadísticas del sistema
+- Gestión de usuarios y permisos
+- Configuración del sistema
+- Monitoreo de actividad
 
 ---
 
@@ -92,28 +92,28 @@ Proporciona herramientas avanzadas para investigadores, instituciones y administ
 
 ### Frontend
 
-* **Next.js 15.5.4** - Framework React con App Router
-* **TypeScript** - Tipado estático
-* **TailwindCSS** - Estilos utility-first
-* **shadcn/ui** - Componentes UI modernos
-* **Lucide React** - Iconos
+- **Next.js 15.5.4** - Framework React con App Router
+- **TypeScript** - Tipado estático
+- **TailwindCSS** - Estilos utility-first
+- **shadcn/ui** - Componentes UI modernos
+- **Lucide React** - Iconos
 
 ### Backend & API
 
-* **Next.js API Routes** - Endpoints RESTful
-* **Clerk** - Autenticación y gestión de usuarios
-* **Node.js** - Microservicio OCR
+- **Next.js API Routes** - Endpoints RESTful
+- **Clerk** - Autenticación y gestión de usuarios
+- **Node.js** - Microservicio OCR
 
 ### Base de Datos
 
-* **PostgreSQL** - Base de datos principal (**Neon**)
-* **Prisma** - ORM para TypeScript
+- **PostgreSQL** - Base de datos principal (Neon)
+- **Prisma** - ORM para TypeScript
 
 ### Deployment
 
-* **Vercel** - Aplicación principal
-* **Railway** - Microservicio OCR
-* **Neon** - Base de datos PostgreSQL
+- **Vercel** - Aplicación principal
+- **Railway** - Microservicio OCR
+- **Neon** - Base de datos PostgreSQL
 
 ---
 
@@ -121,10 +121,10 @@ Proporciona herramientas avanzadas para investigadores, instituciones y administ
 
 ### Prerrequisitos
 
-* **Node.js** 18.x o superior
-* **pnpm** 8.x o superior (o npm/yarn)
-* **PostgreSQL** (o cuenta en Neon)
-* **Cuenta Clerk** para autenticación
+- **Node.js** 18.x o superior
+- **pnpm** 8.x o superior (o npm/yarn)
+- **PostgreSQL** (o cuenta en Neon)
+- **Cuenta Clerk** para autenticación
 
 ### Pasos
 
