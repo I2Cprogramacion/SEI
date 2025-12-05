@@ -43,6 +43,7 @@ export async function GET() {
     }
 
     if (result.rows.length === 0) {
+      return NextResponse.json(
         { esAdmin: false, error: 'Usuario no encontrado en la base de datos' },
         { status: 404 }
       )
