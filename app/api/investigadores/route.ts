@@ -35,7 +35,8 @@ export async function GET(request: NextRequest) {
       if (incluirInactivos) return true
       
       // Si no, solo mostrar activos (modo público)
-      const estaActivo = inv.activo !== false && inv.activo !== null
+      // Consideramos activo si NO es explícitamente false
+      const estaActivo = inv.activo !== false
       return estaActivo
     })
 
