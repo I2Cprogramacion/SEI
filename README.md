@@ -10,7 +10,7 @@
 
 Plataforma integral para la gestión de investigadores, publicaciones científicas y proyectos de investigación
 
-[Características](#-características-principales) • [Instalación](#-instalación) • [Uso](#-uso) • [API](#-api) • [Despliegue](#-despliegue)
+[Características](#-características-principales) • [Instalación](#-instalación) • [Uso](#-uso) • [API](#-api) • [FAQ](#-preguntas-frecuentes-faq) • [Despliegue](#-despliegue)
 
 </div>
 
@@ -378,6 +378,58 @@ Verifica las variables `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` y `CLERK_SECRET_KEY` 
 pnpm prisma migrate reset
 pnpm prisma migrate dev
 ```
+
+---
+
+## ❓ Preguntas Frecuentes (FAQ)
+
+### ¿Qué es el Sistema Estatal de Investigadores?
+
+Es una plataforma web integral diseñada para gestionar perfiles académicos, publicaciones científicas y proyectos de investigación de manera centralizada y eficiente.
+
+### ¿Necesito conocimientos técnicos para usar la plataforma?
+
+No. La plataforma está diseñada para ser intuitiva y fácil de usar. Los investigadores pueden registrarse, crear perfiles y gestionar sus publicaciones sin necesidad de conocimientos técnicos avanzados.
+
+### ¿Cómo puedo registrarme?
+
+Visita la página de registro, completa el formulario con tus datos académicos y profesionales, verifica tu email con el código de 6 dígitos que recibirás, y listo. Opcionalmente, puedes subir tu CV en PDF para extracción automática de datos.
+
+### ¿La plataforma es gratuita?
+
+Sí, el SEI es una plataforma de acceso gratuito para investigadores e instituciones académicas.
+
+### ¿Mis datos están seguros?
+
+Absolutamente. Utilizamos Clerk para autenticación segura, encriptación de datos sensibles, y seguimos las mejores prácticas de seguridad. Los datos personales como CURP y RFC no son accesibles públicamente.
+
+### ¿Puedo ver perfiles de otros investigadores sin registrarme?
+
+Sí, los perfiles públicos de investigadores son accesibles sin necesidad de crear una cuenta. Sin embargo, para acceder a funcionalidades completas necesitas registrarte.
+
+### ¿Qué es el OCR automatizado?
+
+Es una funcionalidad que extrae automáticamente información de tu CV en PDF (nombre, institución, grados académicos, etc.) para facilitar el proceso de registro y ahorrarte tiempo.
+
+### ¿Puedo subir mis publicaciones?
+
+Sí, puedes gestionar tus publicaciones científicas, agregar archivos PDF, asignar DOI, y hacerlas visibles en tu perfil público.
+
+### ¿Cómo funciona el sistema de niveles SNI?
+
+El sistema clasifica a los investigadores en niveles similares al Sistema Nacional de Investigadores, permitiendo identificar trayectorias y reconocimiento académico.
+
+### ¿La plataforma está disponible 24/7?
+
+Sí, está desplegada en Vercel con alta disponibilidad. En caso de mantenimiento programado, se notificará con anticipación.
+
+### ¿Puedo exportar mis datos?
+
+Sí, puedes exportar tu información y publicaciones en diferentes formatos desde tu panel de usuario.
+
+### ¿Quién puede ser administrador?
+
+Los administradores son designados por el equipo técnico. No es posible auto-asignarse permisos de administrador por razones de seguridad.
 
 ---
 
