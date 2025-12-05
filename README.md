@@ -18,7 +18,9 @@
 
 ## 📋 Descripción
 
-El **Sistema Estatal de Investigadores (SEI)** es una plataforma web moderna diseñada para facilitar la gestión integral de perfiles académicos, publicaciones científicas y proyectos de investigación. Proporciona herramientas avanzadas para investigadores, instituciones y administradores del sistema.
+El **Sistema Estatal de Investigadores (SEI)** es una plataforma web moderna diseñada para facilitar la gestión integral de perfiles académicos, publicaciones científicas y proyectos de investigación. 
+
+Proporciona herramientas avanzadas para investigadores, instituciones y administradores del sistema.
 
 ### 🎓 Casos de Uso
 
