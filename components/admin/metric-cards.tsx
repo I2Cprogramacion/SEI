@@ -27,7 +27,7 @@ export function MetricCard({
   description
 }: MetricCardProps) {
   return (
-    <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-white group cursor-pointer hover:-translate-y-1">
+    <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-white group cursor-pointer hover:-translate-y-1 min-h-[180px] flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
         <CardTitle className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
           {title}
@@ -36,7 +36,7 @@ export function MetricCard({
           <Icon className={`h-6 w-6 text-white`} />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 flex flex-col justify-between">
         <div className="text-3xl font-bold text-gray-900 mb-2">{value.toLocaleString()}</div>
         {change && (
           <Badge 
@@ -78,7 +78,7 @@ export function ProgressCard({
   const percentage = total > 0 ? Math.round((current / total) * 100) : 0
 
   return (
-    <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-white group cursor-pointer hover:-translate-y-1">
+    <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-white group cursor-pointer hover:-translate-y-1 min-h-[180px] flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
         <CardTitle className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
           {title}
@@ -87,7 +87,7 @@ export function ProgressCard({
           <Icon className={`h-6 w-6 text-white`} />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 flex flex-col justify-between">
         <div className="text-3xl font-bold text-gray-900 mb-3">{current.toLocaleString()}</div>
         <div className="mt-2 w-full bg-gray-100 rounded-full h-3 overflow-hidden">
           <div

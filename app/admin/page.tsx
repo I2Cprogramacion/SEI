@@ -117,7 +117,7 @@ export default function AdminDashboard() {
         ).length;
 
         const publicacionesRecientes = publicaciones.filter((pub: any) => 
-          new Date(pub.fecha_publicacion || pub.createdAt) >= haceUnMes
+          new Date(pub.fecha_creacion || pub.fecha_publicacion || pub.createdAt) >= haceUnMes
         ).length;
 
         // Calcular alertas (perfiles incompletos)
