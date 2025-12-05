@@ -45,6 +45,7 @@ export async function verificarAdmin() {
     }
 
     if (result.rows.length === 0) {
+      return {
         esAdmin: false,
         usuario: null,
         redirect: '/dashboard'
@@ -52,14 +53,6 @@ export async function verificarAdmin() {
     }
 
     const usuario = result.rows[0]
-      nombre: usuario.nombre_completo,
-      correo: usuario.correo,
-      es_admin: usuario.es_admin,
-      tipo_es_admin: typeof usuario.es_admin,
-      es_admin_es_true: usuario.es_admin === true,
-      es_admin_es_false: usuario.es_admin === false,
-      es_admin_es_null: usuario.es_admin === null
-    })
 
     // Verificar directamente si es_admin es true (boolean)
     // El campo es BOOLEAN en la BD, así que verificamos directamente
