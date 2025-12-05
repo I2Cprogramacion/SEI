@@ -10,7 +10,7 @@
 
 **Plataforma integral para la gestión de investigadores, publicaciones científicas y proyectos de investigación**
 
-[Características](#-características-principales) · [Instalación](#-instalación) · [Documentación](#-documentación) · [API](#-api) · [Despliegue](#-despliegue)
+[✨ Características Principales](#-características-principales) · [🚀 Instalación](#-instalación) · [📖 Uso](#-uso) · [🔌 API](#-api) · [🚢 Despliegue](#-despliegue)
 
 </div>
 
@@ -18,17 +18,17 @@
 
 ## 📋 Descripción
 
-El **Sistema Estatal de Investigadores (SEI)** es una plataforma web moderna diseñada para facilitar la gestión integral de perfiles académicos, publicaciones científicas y proyectos de investigación. 
+El **Sistema Estatal de Investigadores (SEI)** es una plataforma web moderna diseñada para facilitar la gestión integral de perfiles académicos, publicaciones científicas y proyectos de investigación.
 
 Proporciona herramientas avanzadas para investigadores, instituciones y administradores del sistema.
 
 ### 🎓 Casos de Uso
 
-- Universidades e instituciones académicas
-- Centros de investigación
-- Sistemas estatales de ciencia y tecnología
-- Conacyt y organismos similares
-- Plataformas de colaboración científica
+* Universidades e instituciones académicas
+* Centros de investigación
+* Sistemas estatales de ciencia y tecnología
+* Conacyt y organismos similares
+* Plataformas de colaboración científica
 
 ---
 
@@ -36,55 +36,55 @@ Proporciona herramientas avanzadas para investigadores, instituciones y administ
 
 ### 👥 Gestión de Investigadores
 
-- ✅ Perfiles completos con información académica, profesional y de contacto
-- ✅ Validación automática de datos
-- ✅ Sistema de niveles (SNI similar)
-- ✅ Detección de perfiles incompletos
-- ✅ Perfiles públicos accesibles sin autenticación
+* ✅ **Perfiles completos** con información académica, profesional y de contacto
+* ✅ **Validación automática** de datos
+* ✅ Sistema de niveles (SNI similar)
+* ✅ Detección de perfiles incompletos
+* ✅ **Perfiles públicos** accesibles sin autenticación
 
 ### 📚 Publicaciones Científicas
 
-- ✅ Gestión completa de publicaciones
-- ✅ Generación automática de DOI
-- ✅ Subida de archivos PDF y ZIP
-- ✅ Búsqueda por título, autores, DOI, palabras clave
-- ✅ Categorización y etiquetado
+* ✅ Gestión completa de publicaciones
+* ✅ **Generación automática de DOI**
+* ✅ Subida de archivos PDF y ZIP
+* ✅ Búsqueda por título, autores, DOI, palabras clave
+* ✅ Categorización y etiquetado
 
 ### 🔬 Proyectos de Investigación
 
-- ✅ Seguimiento de proyectos desde inicio hasta finalización
-- ✅ Colaboración entre investigadores e instituciones
-- ✅ Estados y clasificación de proyectos
-- ✅ Gestión de documentación relacionada
+* ✅ **Seguimiento de proyectos** desde inicio hasta finalización
+* ✅ Colaboración entre investigadores e instituciones
+* ✅ Estados y clasificación de proyectos
+* ✅ Gestión de documentación relacionada
 
 ### 🔍 Búsqueda Avanzada
 
-- ✅ Búsqueda global en investigadores, proyectos y publicaciones
-- ✅ Filtros por tipo, área, institución, fecha
-- ✅ Autocompletado en tiempo real
-- ✅ Resultados organizados y paginados
+* ✅ **Búsqueda global** en investigadores, proyectos y publicaciones
+* ✅ Filtros por tipo, área, institución, fecha
+* ✅ Autocompletado en **tiempo real**
+* ✅ Resultados organizados y paginados
 
 ### 📄 OCR Automatizado
 
-- ✅ Extracción automática de datos desde PDFs
-- ✅ Microservicio dedicado en Railway
-- ✅ Integración transparente con el sistema principal
-- ✅ Validación de datos extraídos
+* ✅ **Extracción automática de datos** desde PDFs
+* ✅ Microservicio dedicado en Railway
+* ✅ Integración transparente con el sistema principal
+* ✅ Validación de datos extraídos
 
 ### 🔐 Autenticación Segura
 
-- ✅ Integración con Clerk para autenticación
-- ✅ Verificación de email con código de 6 dígitos
-- ✅ Sesiones de 12 horas con renovación automática
-- ✅ Rutas públicas y protegidas
-- ✅ Gestión de permisos y roles
+* ✅ Integración con **Clerk** para autenticación
+* ✅ Verificación de email con código de 6 dígitos
+* ✅ Sesiones de 12 horas con **renovación automática**
+* ✅ Rutas públicas y protegidas
+* ✅ Gestión de permisos y roles
 
 ### 📊 Panel Administrativo
 
-- ✅ Dashboard con estadísticas del sistema
-- ✅ Gestión de usuarios y permisos
-- ✅ Configuración del sistema
-- ✅ Monitoreo de actividad
+* ✅ Dashboard con **estadísticas** del sistema
+* ✅ Gestión de usuarios y permisos
+* ✅ Configuración del sistema
+* ✅ Monitoreo de actividad
 
 ---
 
@@ -92,28 +92,28 @@ Proporciona herramientas avanzadas para investigadores, instituciones y administ
 
 ### Frontend
 
-- **Next.js 15.5.4** - Framework React con App Router
-- **TypeScript** - Tipado estático
-- **TailwindCSS** - Estilos utility-first
-- **shadcn/ui** - Componentes UI modernos
-- **Lucide React** - Iconos
+* **Next.js 15.5.4** - Framework React con App Router
+* **TypeScript** - Tipado estático
+* **TailwindCSS** - Estilos utility-first
+* **shadcn/ui** - Componentes UI modernos
+* **Lucide React** - Iconos
 
 ### Backend & API
 
-- **Next.js API Routes** - Endpoints RESTful
-- **Clerk** - Autenticación y gestión de usuarios
-- **Node.js** - Microservicio OCR
+* **Next.js API Routes** - Endpoints RESTful
+* **Clerk** - Autenticación y gestión de usuarios
+* **Node.js** - Microservicio OCR
 
 ### Base de Datos
 
-- **PostgreSQL** - Base de datos principal (Neon)
-- **Prisma** - ORM para TypeScript
+* **PostgreSQL** - Base de datos principal (**Neon**)
+* **Prisma** - ORM para TypeScript
 
 ### Deployment
 
-- **Vercel** - Aplicación principal
-- **Railway** - Microservicio OCR
-- **Neon** - Base de datos PostgreSQL
+* **Vercel** - Aplicación principal
+* **Railway** - Microservicio OCR
+* **Neon** - Base de datos PostgreSQL
 
 ---
 
@@ -121,10 +121,10 @@ Proporciona herramientas avanzadas para investigadores, instituciones y administ
 
 ### Prerrequisitos
 
-- **Node.js** 18.x o superior
-- **pnpm** 8.x o superior (o npm/yarn)
-- **PostgreSQL** (o cuenta en Neon)
-- **Cuenta Clerk** para autenticación
+* **Node.js** 18.x o superior
+* **pnpm** 8.x o superior (o npm/yarn)
+* **PostgreSQL** (o cuenta en Neon)
+* **Cuenta Clerk** para autenticación
 
 ### Pasos
 
@@ -217,8 +217,8 @@ CLOUDINARY_API_SECRET=tu_api_secret
 1. Ve a [Clerk Dashboard](https://dashboard.clerk.com/)
 2. Crea una nueva aplicación
 3. En **Configure → Sessions**:
-   - Session token lifetime: `43200` segundos (12 horas)
-   - Automatically renew: ✓ Habilitado
+   * Session token lifetime: `43200` segundos (12 horas)
+   * Automatically renew: ✓ Habilitado
 4. Copia las claves a tu `.env.local`
 
 Ver [CONFIGURAR_CLERK_LOCAL.md](./CONFIGURAR_CLERK_LOCAL.md) para configuración completa.
@@ -238,30 +238,30 @@ Ver [CONFIGURAR_CLERK_LOCAL.md](./CONFIGURAR_CLERK_LOCAL.md) para configuración
 
 ```
 SEI/
-├── app/                          # Next.js App Router
-│   ├── admin/                    # Panel administrativo
-│   ├── api/                      # API Routes
-│   ├── buscar/                   # Búsqueda
-│   ├── registro/                 # Registro de usuarios
-│   └── layout.tsx                # Layout principal
-├── components/                   # Componentes React
-│   ├── ui/                       # shadcn/ui components
+├── app/                      # Next.js App Router
+│   ├── admin/                # Panel administrativo
+│   ├── api/                  # API Routes
+│   ├── buscar/               # Búsqueda
+│   ├── registro/             # Registro de usuarios
+│   └── layout.tsx            # Layout principal
+├── components/               # Componentes React
+│   ├── ui/                   # shadcn/ui components
 │   ├── navbar.tsx
 │   └── footer.tsx
-├── lib/                          # Utilidades y configuración
-│   ├── auth/                     # Utilidades de autenticación
-│   ├── databases/                # Configuración de base de datos
-│   ├── db.ts                     # Cliente de base de datos
-│   └── utils.ts                  # Funciones auxiliares
-├── hooks/                        # Custom React hooks
-├── prisma/                       # Prisma ORM
-│   ├── schema.prisma             # Esquema de base de datos
-│   └── migrations/               # Migraciones
-├── docs/                         # Documentación técnica
-├── scripts/                      # Scripts de utilidad
-├── public/                       # Archivos estáticos
-├── middleware.ts                 # Clerk middleware
-└── package.json                  # Dependencias
+├── lib/                      # Utilidades y configuración
+│   ├── auth/                 # Utilidades de autenticación
+│   ├── databases/            # Configuración de base de datos
+│   ├── db.ts                 # Cliente de base de datos
+│   └── utils.ts              # Funciones auxiliares
+├── hooks/                    # Custom React hooks
+├── prisma/                   # Prisma ORM
+│   ├── schema.prisma         # Esquema de base de datos
+│   └── migrations/           # Migraciones
+├── docs/                     # Documentación técnica
+├── scripts/                  # Scripts de utilidad
+├── public/                   # Archivos estáticos
+├── middleware.ts             # Clerk middleware
+└── package.json              # Dependencias
 ```
 
 ---
@@ -272,7 +272,7 @@ SEI/
 
 1. Ve a `/registro`
 2. Llena el formulario completo
-3. (Opcional) Sube un PDF con tu CV para extracción automática
+3. (Opcional) Sube un PDF con tu CV para **extracción automática**
 4. Haz clic en "Registrarse"
 5. Revisa tu email y copia el código de verificación
 6. Ingresa el código en `/verificar-email`
@@ -282,9 +282,9 @@ SEI/
 
 Accede a `/admin` para ver:
 
-- Estadísticas del sistema
-- Gestión de investigadores
-- Gestión de proyectos y publicaciones
+* Estadísticas del sistema
+* Gestión de investigadores
+* Gestión de proyectos y publicaciones
 
 ### Búsqueda
 
@@ -295,14 +295,14 @@ Usa la barra de búsqueda global en la navbar para encontrar investigadores, pro
 ## 📝 Scripts Disponibles
 
 ```bash
-pnpm dev              # Servidor de desarrollo
-pnpm build            # Build de producción
-pnpm start            # Servidor de producción
-pnpm lint             # Ejecutar linter
-pnpm test             # Tests
-pnpm prisma:generate  # Generar cliente Prisma
-pnpm prisma:migrate   # Ejecutar migraciones
-pnpm prisma:studio    # Abrir Prisma Studio
+pnpm dev                # Servidor de desarrollo
+pnpm build              # Build de producción
+pnpm start              # Servidor de producción
+pnpm lint               # Ejecutar linter
+pnpm test               # Tests
+pnpm prisma:generate    # Generar cliente Prisma
+pnpm prisma:migrate     # Ejecutar migraciones
+pnpm prisma:studio      # Abrir Prisma Studio
 ```
 
 ---
@@ -347,16 +347,16 @@ POST   /api/registro                # Registro de usuario
 
 ---
 
-## 📚 Documentación
+## 📚 Documentación Adicional
 
 Documentación adicional disponible en el repositorio:
 
-- **[CONFIGURAR_CLERK_LOCAL.md](./CONFIGURAR_CLERK_LOCAL.md)** - Configuración de Clerk
-- **[CONFIGURAR_VERCEL.md](./CONFIGURAR_VERCEL.md)** - Configuración de Vercel
-- **[VERCEL_SETUP.md](./VERCEL_SETUP.md)** - Guía de despliegue en Vercel
-- **[README-TESTING.md](./README-TESTING.md)** - Guía de pruebas E2E
-- **[docs/auditoria-sistema.md](./docs/auditoria-sistema.md)** - Auditoría del sistema
-- **[docs/testing-e2e-report.md](./docs/testing-e2e-report.md)** - Reporte de pruebas
+* [CONFIGURAR_CLERK_LOCAL.md](./CONFIGURAR_CLERK_LOCAL.md) - Configuración de Clerk
+* [CONFIGURAR_VERCEL.md](./CONFIGURAR_VERCEL.md) - Configuración de Vercel
+* [VERCEL_SETUP.md](./VERCEL_SETUP.md) - Guía de despliegue en Vercel
+* [README-TESTING.md](./README-TESTING.md) - Guía de pruebas E2E
+* [docs/auditoria-sistema.md](./docs/auditoria-sistema.md) - Auditoría del sistema
+* [docs/testing-e2e-report.md](./docs/testing-e2e-report.md) - Reporte de pruebas
 
 ---
 
@@ -398,7 +398,7 @@ pnpm prisma migrate dev
 
 ### Base de Datos
 
-Usa Neon PostgreSQL para una configuración sin servidor y escalable.
+Usa **Neon PostgreSQL** para una configuración sin servidor y escalable.
 
 ---
 
@@ -410,17 +410,17 @@ Desarrollado por **[I2Cprogramacion](https://github.com/I2Cprogramacion)**
 
 ## 📄 Licencia
 
-Este proyecto está bajo licencia privada. Todos los derechos reservados.
+Este proyecto está bajo **licencia privada**. Todos los derechos reservados.
 
 ---
 
 ## 🙏 Agradecimientos
 
-- [Next.js](https://nextjs.org/) - Framework React
-- [Clerk](https://clerk.com/) - Autenticación
-- [shadcn/ui](https://ui.shadcn.com/) - Componentes UI
-- [Neon](https://neon.tech/) - Base de datos PostgreSQL
-- [Vercel](https://vercel.com/) - Hosting y deployment
+* [Next.js](https://nextjs.org/) - Framework React
+* [Clerk](https://clerk.com/) - Autenticación
+* [shadcn/ui](https://ui.shadcn.com/) - Componentes UI
+* [Neon](https://neon.tech/) - Base de datos PostgreSQL
+* [Vercel](https://vercel.com/) - Hosting y deployment
 
 ---
 
