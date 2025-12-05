@@ -229,7 +229,7 @@ export default function FAQPage() {
               <p className="text-sm text-muted-foreground mb-1">O escríbenos directamente a:</p>
               <a 
                 href="mailto:daron.tarin@i2c.com.mx" 
-                className="text-base font-semibold text-primary hover:underline"
+                className="text-base font-semibold text-blue-600 hover:text-blue-700 hover:underline"
               >
                 daron.tarin@i2c.com.mx
               </a>
