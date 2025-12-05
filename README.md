@@ -341,19 +341,20 @@ PUT    /api/publicaciones/[id]      # Actualizar publicación
 
 ```
 POST   /api/registro                # Registro de usuario
-POST   /api/auth/verify-token       # Verificar token JWT
 ```
 
 ---
 
 ## 📚 Documentación
 
-Documentación adicional disponible en [`docs/`](./docs/):
+Documentación adicional disponible en el repositorio:
 
 - **[CONFIGURAR_CLERK_LOCAL.md](./CONFIGURAR_CLERK_LOCAL.md)** - Configuración de Clerk
 - **[CONFIGURAR_VERCEL.md](./CONFIGURAR_VERCEL.md)** - Configuración de Vercel
-- **[FLUJO_DATOS_REGISTRO.md](./FLUJO_DATOS_REGISTRO.md)** - Flujo de registro
-- **[ANALISIS_FLUJOS_DE_DATOS.md](./ANALISIS_FLUJOS_DE_DATOS.md)** - Análisis completo de flujos
+- **[VERCEL_SETUP.md](./VERCEL_SETUP.md)** - Guía de despliegue en Vercel
+- **[README-TESTING.md](./README-TESTING.md)** - Guía de pruebas E2E
+- **[docs/auditoria-sistema.md](./docs/auditoria-sistema.md)** - Auditoría del sistema
+- **[docs/testing-e2e-report.md](./docs/testing-e2e-report.md)** - Reporte de pruebas
 
 ---
 
@@ -428,5 +429,6 @@ Este proyecto está bajo licencia privada. Todos los derechos reservados.
 [⬆ Volver arriba](#-sei---sistema-estatal-de-investigadores)
 
 </div>
-#   f o r c e   d e p l o y  
+
+ 
  
