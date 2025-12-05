@@ -71,8 +71,13 @@ export default function Footer() {
 
           {/* Términos Legales */}
           <div className="flex flex-col items-center">
-            <h4 className="font-semibold mb-4 text-blue-900">Términos Legales</h4>
+            <h4 className="font-semibold mb-4 text-blue-900">Información</h4>
             <ul className="flex flex-wrap gap-6 justify-center mb-6">
+              <li>
+                <Link href="/faq" className="text-blue-600 hover:text-blue-900 transition-colors">
+                  Preguntas Frecuentes
+                </Link>
+              </li>
               <li>
                 <Link href="/terminos" className="text-blue-600 hover:text-blue-900 transition-colors">
                   Términos de servicio
