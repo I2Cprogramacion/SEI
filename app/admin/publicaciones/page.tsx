@@ -351,7 +351,8 @@ export default function PublicacionesAdmin() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-blue-900">
-                        {publicacion.fecha_publicacion ? new Date(publicacion.fecha_publicacion).toLocaleDateString() : "N/A"}
+                        {(publicacion.fecha_publicacion || publicacion.fecha_creacion) ? 
+                          new Date(publicacion.fecha_publicacion || publicacion.fecha_creacion).toLocaleDateString() : "N/A"}
                       </TableCell>
                       <TableCell className="text-blue-900">
                         {publicacion.doi ? (
@@ -437,8 +438,8 @@ export default function PublicacionesAdmin() {
                         {publicacion.revista && (
                           <p><span className="font-medium">Revista:</span> {publicacion.revista}</p>
                         )}
-                        {publicacion.fecha_publicacion && (
-                          <p><span className="font-medium">Fecha:</span> {new Date(publicacion.fecha_publicacion).toLocaleDateString()}</p>
+                        {(publicacion.fecha_publicacion || publicacion.fecha_creacion) && (
+                          <p><span className="font-medium">Fecha:</span> {new Date(publicacion.fecha_publicacion || publicacion.fecha_creacion).toLocaleDateString()}</p>
                         )}
                         {publicacion.doi && (
                           <p>
