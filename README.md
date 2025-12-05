@@ -10,7 +10,7 @@
 
 **Plataforma integral para la gestión de investigadores, publicaciones científicas y proyectos de investigación**
 
-[Características](#-características-principales) · [Instalación](#-instalación) · [Documentación](#-documentación)
+[Características](#-características-principales) · [Instalación](#-instalación) · [Documentación](#-documentación) · [API](#-api) · [Despliegue](#-despliegue)
 
 </div>
 
