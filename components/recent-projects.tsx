@@ -47,16 +47,24 @@ export function RecentProjects() {
 
   return (
     <Card className="glass-effect card-hover">
-      <CardContent className="pt-4 pb-4">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg font-bold text-blue-900">Proyectos recientes</CardTitle>
+          <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50" asChild>
+            <Link href="/proyectos">Ver todos</Link>
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
         {loading ? (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="space-y-2 animate-pulse">
-                <div className="h-4 bg-blue-100 rounded w-3/4"></div>
+              <div key={i} className="space-y-2 animate-pulse p-3 bg-blue-50/50 rounded-lg">
+                <div className="h-5 bg-blue-100 rounded w-3/4"></div>
                 <div className="h-3 bg-blue-100 rounded w-1/2"></div>
                 <div className="flex gap-2">
-                  <div className="h-5 bg-blue-100 rounded w-16"></div>
                   <div className="h-5 bg-blue-100 rounded w-20"></div>
+                  <div className="h-5 bg-blue-100 rounded w-16"></div>
                 </div>
               </div>
             ))}
@@ -64,22 +72,32 @@ export function RecentProjects() {
         ) : projects.length > 0 ? (
           <div className="space-y-3">
             {projects.map((project) => (
-              <div key={project.id} className="border-b border-blue-100 pb-3 last:border-0 last:pb-0 transition-colors hover:bg-blue-50/30 -mx-2 px-2 py-2 rounded">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h4 className="font-medium text-blue-900 mb-1">{project.title}</h4>
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge className="bg-blue-700 text-white text-xs">{project.category}</Badge>
-                      <Badge variant="outline" className="border-blue-200 text-blue-700 text-xs">
+              <div 
+                key={project.id} 
+                className="border border-blue-100 rounded-lg p-3 transition-all hover:shadow-md hover:border-blue-300 bg-white"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-blue-900 mb-2 line-clamp-2">{project.title}</h4>
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <Badge className="bg-blue-700 text-white text-xs hover:bg-blue-800">
+                        {project.category}
+                      </Badge>
+                      <Badge variant="outline" className="border-blue-300 text-blue-700 text-xs">
                         {project.status}
                       </Badge>
                     </div>
                     <div className="flex items-center text-xs text-blue-600">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      {project.startDate}
+                      <Calendar className="h-3 w-3 mr-1.5" />
+                      <span>{project.startDate}</span>
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm" className="text-blue-700 hover:bg-blue-50" asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-blue-700 hover:bg-blue-100 hover:text-blue-800 shrink-0" 
+                    asChild
+                  >
                     <Link href={`/proyectos/${project.slug}`}>
                       <Eye className="h-4 w-4" />
                     </Link>
@@ -89,8 +107,8 @@ export function RecentProjects() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-6">
-            <p className="text-blue-600">No hay proyectos recientes aún.</p>
+          <div className="text-center py-8 bg-blue-50/30 rounded-lg">
+            <p className="text-blue-600 text-sm">No hay proyectos recientes aún.</p>
           </div>
         )}
       </CardContent>
