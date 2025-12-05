@@ -226,7 +226,7 @@ export default function FAQPage() {
               Formulario de Contacto
             </a>
             <a
-              href="mailto:soporte@sei.gob.mx"
+              href="mailto:daron.tarin@i2c.com.mx"
               className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
             >
               Enviar Email
