@@ -47,15 +47,7 @@ export function RecentProjects() {
 
   return (
     <Card className="glass-effect card-hover">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-bold text-blue-900">Proyectos recientes</CardTitle>
-          <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50" asChild>
-            <Link href="/proyectos">Ver todos</Link>
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent className="pt-6">
         {loading ? (
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
