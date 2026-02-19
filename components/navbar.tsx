@@ -168,15 +168,6 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 lg:gap-3 hover:opacity-80 transition-opacity">
-              <div className="relative h-8 w-8 lg:h-10 lg:w-10 flex-shrink-0">
-                <Image
-                  src="/images/IIC_logo_letras-removebg-preview.png"
-                  alt="SEI Logo"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
               <div className="flex flex-col">
                 <span className="font-bold text-sm lg:text-lg text-gray-900 leading-tight">
                   Sistema Estatal de Investigadores

@@ -47,12 +47,6 @@ export default function IniciarSesionPage() {
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#f6f8fc] px-2">
       <div className="flex flex-col items-center w-full max-w-md mx-auto">
-        <img
-          src="/images/IIC_logo_letras-removebg-preview.png"
-          alt="Logo SEI Chihuahua"
-          className="w-24 h-24 object-contain mb-6 drop-shadow-lg"
-          draggable="false"
-        />
         <h1 className="text-3xl md:text-4xl font-extrabold text-blue-900 mb-1 text-center">Bienvenido de vuelta</h1>
         <p className="text-gray-600 font-medium mb-8 text-center">Sistema Estatal de Investigadores de Chihuahua</p>
         <div key={key} className="w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden p-6">
