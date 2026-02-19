@@ -34,10 +34,6 @@ export default function Home() {
                   alt: "Cuenta Conmigo"
                 },
                 {
-                  src: "/images/sei-logo.png",
-                  alt: "Sistema Estatal de Investigadores"
-                },
-                {
                   src: "/images/IIC_logo_letras-removebg-preview.png",
                   alt: "IIC - Instituto de Innovación y Competitividad"
                 },

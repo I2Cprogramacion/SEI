@@ -170,7 +170,7 @@ export default function Navbar() {
             <Link href="/" className="flex items-center gap-2 lg:gap-3 hover:opacity-80 transition-opacity">
               <div className="relative h-8 w-8 lg:h-10 lg:w-10 flex-shrink-0">
                 <Image
-                  src="/images/sei-logo.png"
+                  src="/images/sistema-estatal-investigadores.png"
                   alt="SEI Logo"
                   fill
                   className="object-contain"
