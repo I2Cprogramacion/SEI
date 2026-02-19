@@ -48,7 +48,7 @@ export default function IniciarSesionPage() {
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#f6f8fc] px-2">
       <div className="flex flex-col items-center w-full max-w-md mx-auto">
         <img
-          src="/images/sistema-estatal-investigadores.png"
+          src="/images/IIC_logo_letras-removebg-preview.png"
           alt="Logo SEI Chihuahua"
           className="w-24 h-24 object-contain mb-6 drop-shadow-lg"
           draggable="false"

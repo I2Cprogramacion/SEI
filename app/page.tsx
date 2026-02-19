@@ -36,10 +36,6 @@ export default function Home() {
                 {
                   src: "/images/IIC_logo_letras-removebg-preview.png",
                   alt: "IIC - Instituto de Innovación y Competitividad"
-                },
-                {
-                  src: "/images/sistema-estatal-investigadores.png",
-                  alt: "Sistema Estatal de Investigadores"
                 }
               ]}
               interval={5000}
