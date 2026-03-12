@@ -19,8 +19,9 @@ export async function verificarAdmin() {
     }
 
     const email = user.emailAddresses[0]?.emailAddress
+    const clerkUserId = user.id
 
-    if (!email) {
+    if (!email && !clerkUserId) {
       return {
         esAdmin: false,
         usuario: null,
@@ -30,15 +31,27 @@ export async function verificarAdmin() {
 
     // Verificar si el usuario es admin en la BD
     // Buscar con email en minúsculas para evitar problemas de case sensitivity
-    const emailLower = email.toLowerCase().trim()
+    const emailLower = email?.toLowerCase().trim()
     
     let result
     try {
+      // Intento 1: Buscar por email
       result = await sql`
-        SELECT id, nombre_completo, correo, es_admin 
+        SELECT id, nombre_completo, correo, es_admin, clerk_user_id
         FROM investigadores 
         WHERE LOWER(correo) = ${emailLower}
+        LIMIT 1
       `
+      
+      // Intento 2: Si no se encontró por email, buscar por clerk_user_id
+      if (result.rows.length === 0 && clerkUserId) {
+        result = await sql`
+          SELECT id, nombre_completo, correo, es_admin, clerk_user_id
+          FROM investigadores 
+          WHERE clerk_user_id = ${clerkUserId}
+          LIMIT 1
+        `
+      }
     } catch (sqlError) {
       console.error('❌ [verificarAdmin] Error en la consulta SQL:', sqlError)
       throw sqlError

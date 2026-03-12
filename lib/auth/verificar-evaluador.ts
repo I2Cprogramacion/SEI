@@ -19,8 +19,9 @@ export async function verificarEvaluador() {
     }
 
     const email = user.emailAddresses[0]?.emailAddress
+    const clerkUserId = user.id
 
-    if (!email) {
+    if (!email && !clerkUserId) {
       return {
         esEvaluador: false,
         usuario: null,
@@ -29,15 +30,27 @@ export async function verificarEvaluador() {
     }
 
     // Verificar si el usuario es evaluador en la BD
-    const emailLower = email.toLowerCase().trim()
+    const emailLower = email?.toLowerCase().trim()
     
     let result
     try {
+      // Intento 1: Buscar por email
       result = await sql`
-        SELECT id, nombre_completo, correo, es_evaluador 
+        SELECT id, nombre_completo, correo, es_evaluador, clerk_user_id
         FROM investigadores 
         WHERE LOWER(correo) = ${emailLower}
+        LIMIT 1
       `
+      
+      // Intento 2: Si no se encontró por email, buscar por clerk_user_id
+      if (result.rows.length === 0 && clerkUserId) {
+        result = await sql`
+          SELECT id, nombre_completo, correo, es_evaluador, clerk_user_id
+          FROM investigadores 
+          WHERE clerk_user_id = ${clerkUserId}
+          LIMIT 1
+        `
+      }
     } catch (sqlError) {
       console.error('❌ [verificarEvaluador] Error en la consulta SQL:', sqlError)
       throw sqlError
@@ -104,8 +117,9 @@ export async function verificarAdminOEvaluador() {
     }
 
     const email = user.emailAddresses[0]?.emailAddress
+    const clerkUserId = user.id
 
-    if (!email) {
+    if (!email && !clerkUserId) {
       return {
         tieneAcceso: false,
         esAdmin: false,
@@ -115,21 +129,37 @@ export async function verificarAdminOEvaluador() {
       }
     }
 
-    const emailLower = email.toLowerCase().trim()
+    console.log(`🔍 [verificarAdminOEvaluador] Buscando para: email=${email}, clerkUserId=${clerkUserId}`)
+
+    const emailLower = email?.toLowerCase().trim()
     
     let result
     try {
+      // Intento 1: Buscar por email (case-insensitive)
       result = await sql`
-        SELECT id, nombre_completo, correo, es_admin, es_evaluador 
+        SELECT id, nombre_completo, correo, es_admin, es_evaluador, clerk_user_id
         FROM investigadores 
         WHERE LOWER(correo) = ${emailLower}
+        LIMIT 1
       `
+      
+      // Intento 2: Si no se encontró por email, buscar por clerk_user_id
+      if (result.rows.length === 0 && clerkUserId) {
+        console.log(`⚠️ [verificarAdminOEvaluador] No encontrado por email. Intentando con clerk_user_id...`)
+        result = await sql`
+          SELECT id, nombre_completo, correo, es_admin, es_evaluador, clerk_user_id
+          FROM investigadores 
+          WHERE clerk_user_id = ${clerkUserId}
+          LIMIT 1
+        `
+      }
     } catch (sqlError) {
       console.error('❌ [verificarAdminOEvaluador] Error en la consulta SQL:', sqlError)
       throw sqlError
     }
 
     if (result.rows.length === 0) {
+      console.warn(`⚠️ [verificarAdminOEvaluador] Usuario no encontrado en BD`)
       return {
         tieneAcceso: false,
         esAdmin: false,
@@ -145,6 +175,7 @@ export async function verificarAdminOEvaluador() {
     const tieneAcceso = esAdmin || esEvaluador
     
     console.log('✅ [verificarAdminOEvaluador] Verificación final:', {
+      usuario: usuario.nombre_completo,
       esAdmin,
       esEvaluador,
       tieneAcceso
