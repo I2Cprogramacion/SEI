@@ -118,15 +118,23 @@ export async function POST(request: NextRequest) {
     try {
       const { guardarInvestigador } = await import("@/lib/db")
       
+      console.log("📝 [REGISTRO] Datos a guardar:")
+      console.log(`   - Email: ${data.correo}`)
+      console.log(`   - Clerk User ID: ${data.clerk_user_id}`)
+      console.log(`   - Nombre completo: ${data.nombre_completo}`)
+      
       const resultado = await guardarInvestigador(data)
       
       if (resultado.success) {
         console.log("✅ [REGISTRO] Guardado exitosamente en PostgreSQL")
+        console.log(`   - ID de investigador: ${resultado.id}`)
         
         return NextResponse.json({
           success: true,
           message: "Registro completado exitosamente",
-          id: resultado.id
+          id: resultado.id,
+          clerk_user_id: data.clerk_user_id,
+          correo: data.correo
         })
       } else {
         console.error("❌ [REGISTRO] Error al guardar")

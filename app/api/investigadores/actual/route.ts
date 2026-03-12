@@ -4,8 +4,7 @@ import { sql } from "@vercel/postgres"
 
 /**
  * GET /api/investigadores/actual
- * Obtiene los datos del investigador actual basado en su email de Clerk
- * Sin usar clerk_user_id, solo email
+ * Obtiene los datos del investigador actual basado en su email o clerk_user_id de Clerk
  */
 export async function GET(request: NextRequest) {
   try {
@@ -16,35 +15,66 @@ export async function GET(request: NextRequest) {
     }
 
     const userEmail = user.emailAddresses[0]?.emailAddress
+    const clerkUserId = user.id
 
-    if (!userEmail) {
-      return NextResponse.json({ error: "Email no disponible" }, { status: 400 })
+    if (!userEmail && !clerkUserId) {
+      return NextResponse.json({ error: "Email y Clerk ID no disponibles" }, { status: 400 })
     }
 
-    // Buscar investigador por email
-    const result = await sql`
-      SELECT 
-        id,
-        nombre_completo,
-        correo,
-        slug,
-        fotografia_url,
-        institucion,
-        area_investigacion
-      FROM investigadores 
-      WHERE correo = ${userEmail} 
-      LIMIT 1
-    `
+    console.log(`🔍 Buscando investigador para: email=${userEmail}, clerkUserId=${clerkUserId}`)
 
-    if (result.rows.length === 0) {
+    let result = null
+
+    // Intento 1: Buscar por email (case-insensitive)
+    if (userEmail) {
+      result = await sql`
+        SELECT 
+          id,
+          nombre_completo,
+          correo,
+          slug,
+          fotografia_url,
+          institucion,
+          area_investigacion,
+          clerk_user_id
+        FROM investigadores 
+        WHERE LOWER(correo) = LOWER(${userEmail}) 
+        LIMIT 1
+      `
+    }
+
+    // Intento 2: Si no se encontró por email, buscar por clerk_user_id
+    if (result?.rows.length === 0 && clerkUserId) {
+      console.log(`⚠️ No encontrado por email. Intentando con clerk_user_id...`)
+      result = await sql`
+        SELECT 
+          id,
+          nombre_completo,
+          correo,
+          slug,
+          fotografia_url,
+          institucion,
+          area_investigacion,
+          clerk_user_id
+        FROM investigadores 
+        WHERE clerk_user_id = ${clerkUserId}
+        LIMIT 1
+      `
+    }
+
+    if (!result || result.rows.length === 0) {
+      console.error(`❌ No se encontró investigador. Email: ${userEmail}, ClerkID: ${clerkUserId}`)
       return NextResponse.json(
         { 
-          error: "No se encontró un investigador con este email",
-          email: userEmail 
+          error: "No se encontró un investigador con este usuario. Por favor, completa tu registro.",
+          email: userEmail,
+          clerkUserId: clerkUserId
         },
         { status: 404 }
       )
     }
+
+    console.log(`✅ Investigador encontrado: ${result.rows[0].nombre_completo}`)
 
     return NextResponse.json({
       success: true,
