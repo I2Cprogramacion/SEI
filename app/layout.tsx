@@ -31,6 +31,9 @@ export default async function RootLayout({
         },
       }}
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      fallbackRedirectUrl="/admin"
+      signInFallbackRedirectUrl="/admin"
+      signUpFallbackRedirectUrl="/dashboard"
     >
       <html lang="es">
         <body className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50/30">

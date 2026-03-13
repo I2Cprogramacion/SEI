@@ -84,49 +84,66 @@ export default function DashboardPage() {
   // Cargar datos del investigador
   useEffect(() => {
     const cargarDatos = async () => {
-      if (!isLoaded || !user) {
-        console.log('⏳ Esperando datos del investigador...')
-        return;
+      if (!isLoaded) {
+        console.log('⏳ Clerk todavía cargando...')
+        return
       }
+      
+      if (!user) {
+        console.log('⏳ Esperando datos del investigador...')
+        return
+      }
+      
       try {
         console.log('🔄 [Dashboard] Iniciando carga del perfil...')
-        const response = await fetch("/api/investigadores/perfil");
+        const response = await fetch("/api/investigadores/perfil")
+        
+        if (response.status === 404) {
+          console.warn(`⚠️ [Dashboard] Perfil no encontrado para: ${user.emailAddresses[0]?.emailAddress}`)
+          setErrorMessage(
+            "No se encontraron datos de tu perfil en la base de datos.\n" +
+            "Verifica que tu usuario esté correctamente registrado.\n" +
+            "Si el problema persiste, contacta a soporte."
+          )
+          setIsLoadingData(false)
+          return
+        }
         
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}))
           console.error(`❌ [Dashboard] Error HTTP ${response.status}:`, errorData)
-          setErrorMessage(`Error al cargar el perfil (${response.status}). Por favor, intenta recargar la página.`);
-          setIsLoadingData(false);
-          return;
+          setErrorMessage(`Error al cargar el perfil (${response.status}). Por favor, intenta recargar la página.`)
+          setIsLoadingData(false)
+          return
         }
         
-        const result = await response.json();
+        const result = await response.json()
         if (result.success && result.data) {
-          let data = result.data;
+          let data = result.data
           // linea_investigacion es el campo de etiquetas (TagsInput)
           if (typeof data.linea_investigacion === "string") {
-            data.linea_investigacion = data.linea_investigacion.split(",").map((l: string) => l.trim()).filter(Boolean);
+            data.linea_investigacion = data.linea_investigacion.split(",").map((l: string) => l.trim()).filter(Boolean)
           }
           // area_investigacion es texto libre (Textarea), NO convertir a array
-          setInvestigadorData(data);
+          setInvestigadorData(data)
           console.log(`✅ [Dashboard] Perfil cargado exitosamente para: ${data.nombre_completo}`)
         } else {
-          console.warn(`⚠️ [Dashboard] Respuesta no válida:`, result);
-          setErrorMessage("Los datos del perfil no están en el formato esperado.");
+          console.warn(`⚠️ [Dashboard] Respuesta no válida:`, result)
+          setErrorMessage("Los datos del perfil no están en el formato esperado. Por favor, contacta a soporte.")
         }
       } catch (error) {
         console.error("❌ [Dashboard] Error al cargar datos del investigador:", {
           error: error instanceof Error ? error.message : String(error),
           timestamp: new Date().toISOString(),
           user: user?.emailAddresses[0]?.emailAddress
-        });
-        setErrorMessage("Error al cargar los datos de tu perfil. Por favor, recarga la página.");
+        })
+        setErrorMessage("Error al cargar los datos de tu perfil. Por favor, recarga la página.")
       } finally {
-        setIsLoadingData(false);
+        setIsLoadingData(false)
       }
-    };
-    cargarDatos();
-  }, [isLoaded, user]);
+    }
+    cargarDatos()
+  }, [isLoaded, user])
 
   // Cargar sugerencias de colaboración
   useEffect(() => {
