@@ -166,8 +166,16 @@ export async function GET(request: NextRequest) {
       data: { ...perfil, perfil_completo: perfilCompleto }
     })
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error(`❌ [PERFIL] Error al obtener el perfil:`, {
+      error: errorMessage,
+      email: user?.emailAddresses[0]?.emailAddress,
+      timestamp: new Date().toISOString()
+    })
     return NextResponse.json({
-      error: `Error al obtener el perfil: ${error instanceof Error ? error.message : "Error desconocido"}`,
+      success: false,
+      error: `Error al obtener el perfil: ${errorMessage}`,
+      details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
     }, { status: 500 })
   }
 }

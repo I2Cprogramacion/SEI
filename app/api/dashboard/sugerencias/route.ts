@@ -107,9 +107,18 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(sugerenciasFormateadas)
   } catch (error) {
-    console.error("Error al obtener sugerencias:", error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error("❌ [Sugerencias] Error al obtener sugerencias:", {
+      error: errorMessage,
+      email: user?.emailAddresses[0]?.emailAddress,
+      timestamp: new Date().toISOString(),
+      stack: error instanceof Error ? error.stack : undefined
+    })
     return NextResponse.json(
-      { error: "Error al obtener sugerencias de colaboración" },
+      { 
+        error: "Error al obtener sugerencias de colaboración",
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+      },
       { status: 500 }
     )
   }

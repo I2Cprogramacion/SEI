@@ -84,26 +84,42 @@ export default function DashboardPage() {
   // Cargar datos del investigador
   useEffect(() => {
     const cargarDatos = async () => {
-      if (!isLoaded || !user) return;
+      if (!isLoaded || !user) {
+        console.log('⏳ Esperando datos del investigador...')
+        return;
+      }
       try {
+        console.log('🔄 [Dashboard] Iniciando carga del perfil...')
         const response = await fetch("/api/investigadores/perfil");
-        if (response.ok) {
-          const result = await response.json();
-          if (result.success && result.data) {
-            let data = result.data;
-            // linea_investigacion es el campo de etiquetas (TagsInput)
-            if (typeof data.linea_investigacion === "string") {
-              data.linea_investigacion = data.linea_investigacion.split(",").map((l: string) => l.trim()).filter(Boolean);
-            }
-            // area_investigacion es texto libre (Textarea), NO convertir a array
-            setInvestigadorData(data);
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          console.error(`❌ [Dashboard] Error HTTP ${response.status}:`, errorData)
+          setErrorMessage(`Error al cargar el perfil (${response.status}). Por favor, intenta recargar la página.`);
+          setIsLoadingData(false);
+          return;
+        }
+        
+        const result = await response.json();
+        if (result.success && result.data) {
+          let data = result.data;
+          // linea_investigacion es el campo de etiquetas (TagsInput)
+          if (typeof data.linea_investigacion === "string") {
+            data.linea_investigacion = data.linea_investigacion.split(",").map((l: string) => l.trim()).filter(Boolean);
           }
+          // area_investigacion es texto libre (Textarea), NO convertir a array
+          setInvestigadorData(data);
+          console.log(`✅ [Dashboard] Perfil cargado exitosamente para: ${data.nombre_completo}`)
         } else {
-          console.warn("No se pudieron cargar los datos del perfil desde PostgreSQL");
-          setErrorMessage("No se pudo cargar tu perfil. Intenta recargar la página.");
+          console.warn(`⚠️ [Dashboard] Respuesta no válida:`, result);
+          setErrorMessage("Los datos del perfil no están en el formato esperado.");
         }
       } catch (error) {
-        console.error("Error al cargar datos del investigador:", error);
+        console.error("❌ [Dashboard] Error al cargar datos del investigador:", {
+          error: error instanceof Error ? error.message : String(error),
+          timestamp: new Date().toISOString(),
+          user: user?.emailAddresses[0]?.emailAddress
+        });
         setErrorMessage("Error al cargar los datos de tu perfil. Por favor, recarga la página.");
       } finally {
         setIsLoadingData(false);
