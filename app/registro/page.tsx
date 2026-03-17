@@ -1922,6 +1922,24 @@ export default function RegistroPage() {
                       <CreditCard className="h-5 w-5" />
                       Información Fiscal y de Registro
                     </h3>
+                    {ocrCompleted && (!formData.curp.trim() || !formData.rfc.trim() || !formData.no_cvu.trim()) && (
+                      <Alert className="bg-gradient-to-r from-orange-50 to-amber-50 border-orange-300 shadow-sm">
+                        <AlertCircle className="h-5 w-5 text-orange-600" />
+                        <AlertTitle className="text-orange-800 font-semibold">
+                          ⚠️ CAMPOS OBLIGATORIOS VACÍOS
+                        </AlertTitle>
+                        <AlertDescription className="text-orange-700">
+                          El OCR no pudo extraer tu CURP, RFC o CVU. <strong>Debes completarlos manualmente</strong> para continuar con el registro.
+                          <br />
+                          <br />
+                          <strong>• CURP:</strong> Debe tener exactamente 18 caracteres (ej: TARC800101HDGRRL00)
+                          <br />
+                          <strong>• RFC:</strong> Debe tener 10-13 caracteres (ej: TARC800101XYZ)
+                          <br />
+                          <strong>• CVU/PU:</strong> Tu número de identidad académica
+                        </AlertDescription>
+                      </Alert>
+                    )}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="no_cvu" className="text-blue-900 font-medium flex items-center gap-2">
