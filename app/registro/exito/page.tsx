@@ -8,6 +8,9 @@ import { CheckCircle, AlertTriangle, Info } from "lucide-react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 
+// Desactivar prerendering de esta página (requiere Clerk en build time)
+export const dynamic = "force-dynamic"
+
 export default function ExitoRegistroPage() {
   const searchParams = useSearchParams()
   const [mensaje, setMensaje] = useState<string | null>(null)
