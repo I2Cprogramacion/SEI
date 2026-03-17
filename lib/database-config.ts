@@ -18,18 +18,27 @@ const parseDatabaseUrl = (url: string): DatabaseConfig => {
   }
 };
 
-const dbUrl = process.env.DATABASE_URL || '';
-if (!dbUrl) throw new Error('DATABASE_URL no definida');
-// Usa Neon Auth si está presente
-export const currentDatabaseConfig: DatabaseConfig = parseDatabaseUrl(dbUrl);
+// ✅ LAZY LOADING: No parsear en compile-time, solo cuando se use
+let parsedConfig: DatabaseConfig | null = null;
+
+export function getCurrentDatabaseConfig(): DatabaseConfig {
+  if (parsedConfig) return parsedConfig;
+  
+  const dbUrl = process.env.DATABASE_URL || '';
+  if (!dbUrl) throw new Error('DATABASE_URL no definida');
+  
+  parsedConfig = parseDatabaseUrl(dbUrl);
+  return parsedConfig;
+}
 
 // Usa Neon de I2C
 let dbInstance: any = null;
 
 export async function getDatabase() {
   // Siempre usar la configuración de DATABASE_URL (PostgreSQL/Neon)
+  const config = getCurrentDatabaseConfig();
   if (!dbInstance) {
-    dbInstance = await DatabaseFactory.create(currentDatabaseConfig)
+    dbInstance = await DatabaseFactory.create(config)
     // ✅ CRÍTICO: Inicializar la base de datos (crea tablas si no existen)
     await dbInstance.inicializar()
   }
@@ -38,7 +47,5 @@ export async function getDatabase() {
 
 // (Opcional) Para debug
 export function getCurrentConfigString(): string {
-  return `${currentDatabaseConfig.type}@${currentDatabaseConfig.host}/${currentDatabaseConfig.database}`
-}
-
-
+  const config = getCurrentDatabaseConfig();
+  return `${config.type}@${config.host}/${config.database}`
