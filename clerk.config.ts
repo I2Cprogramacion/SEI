@@ -69,8 +69,8 @@ export const clerkConfig = {
   
   // Redirecciones después de autenticación
   redirects: {
-    signInFallbackRedirectUrl: "/admin",
-    signUpFallbackRedirectUrl: "/admin",
+    signInFallbackRedirectUrl: "/dashboard",
+    signUpFallbackRedirectUrl: "/dashboard",
     signOutUrl: "/",
   },
 }
