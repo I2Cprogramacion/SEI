@@ -46,6 +46,7 @@ export default clerkMiddleware(async (auth, req) => {
   response.headers.set('Permissions-Policy', 'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()');
   
   return response;
+}, {
   // Configuración de duración de sesión (12 horas)
   // Nota: La duración exacta se configura en el dashboard de Clerk
   // Esta es la configuración del lado del servidor

@@ -1167,8 +1167,8 @@ export default function RegistroPage() {
             es_admin: false
           };
 
-          // ✅ PASO 3: Guardar en tabla temporal registros_pendientes (PostgreSQL)
-          // Estos datos permanecerán en la BD hasta que el usuario verifique su email
+          // ✅ PASO 3: Guardar en Neon (PostgreSQL)
+          // CRÍTICO: El usuario DEBE guardarse en la BD
           
           try {
             const response = await fetch("/api/registro", {
@@ -1181,23 +1181,40 @@ export default function RegistroPage() {
 
             const responseData = await response.json();
 
+            // 🔴 SI FALLA, MOSTRAR ERROR Y DETENER
             if (!response.ok || !responseData.success) {
-              console.error("❌ [REGISTRO] ERROR AL GUARDAR EN TABLA TEMPORAL")
+              console.error("❌ [REGISTRO] ERROR AL GUARDAR EN NEON")
+              console.error("   Status HTTP:", response.status)
+              console.error("   Respuesta:", responseData)
+              console.error("   Detalles técnicos:", responseData.error || responseData.message)
               
-              // ✅ FALLBACK: Guardar en sessionStorage si falla la BD
-              sessionStorage.setItem('registro_pendiente', JSON.stringify(dataToSend))
+              // LANZAR error para detener el flujo
+              throw new Error(
+                responseData.message || 
+                responseData.error || 
+                `No se pudo guardar el registro (error ${response.status}). Por favor, verifica tus datos e intenta de nuevo.`
+              )
             } else {
-              console.log("✅ [REGISTRO] Datos guardados en tabla temporal")
+              console.log("✅ [REGISTRO] Datos guardados en Neon exitosamente")
+              console.log("   - ID de investigador:", responseData.id)
+              console.log("   - Correo:", responseData.correo)
             }
-          } catch (storageError) {
-            console.error("❌ [REGISTRO] Error al guardar en tabla temporal:", storageError)
+          } catch (dbError) {
+            console.error("❌ [REGISTRO] Error crítico al guardar en BD:", dbError)
             
-            // ✅ FALLBACK: Guardar en sessionStorage
-            sessionStorage.setItem('registro_pendiente', JSON.stringify(dataToSend))
+            // MOSTRAR ERROR AL USUARIO Y DETENER FLUJO
+            setError(
+              dbError instanceof Error ? dbError.message :
+              "No se pudo guardar tu registro en la base de datos. Por favor, intenta más tarde."
+            )
+            
+            // IMPORTANTE: Salir aquí, NO continuar con verificación de email
+            setIsLoading(false)
+            return
           }
 
           // PASO 4: Redirigir a verificación de email
-          // El guardado en tabla 'investigadores' ocurrirá DESPUÉS de verificar el código
+          // El usuario ya está en Neon, ahora falta verificar email en Clerk
           
           if (signUpAttempt.status === "complete") {
             await clerk.setActive({ session: signUpAttempt.createdSessionId });
