@@ -70,9 +70,20 @@ export async function POST(request: NextRequest) {
       data = registroInvestigadorSchema.parse(rawData)
     } catch (error) {
       if (error instanceof z.ZodError) {
+        const errorDetails = error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+        
+        // Mensaje específico para campos faltantes
+        const camposFaltantes = error.errors
+          .filter(e => e.message.includes('requerido'))
+          .map(e => e.path[0])
+        
         return NextResponse.json({
           error: "Datos de registro inválidos",
-          details: error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+          message: camposFaltantes.length > 0 
+            ? `Los siguientes campos son obligatorios y están vacíos: ${camposFaltantes.join(', ')}. Por favor, completa todos los campos.`
+            : "Verifica que todos los datos sean correctos.",
+          details: errorDetails,
+          camposFaltantes: camposFaltantes
         }, { status: 400 })
       }
       throw error

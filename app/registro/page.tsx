@@ -1188,10 +1188,16 @@ export default function RegistroPage() {
               console.error("   Respuesta:", responseData)
               console.error("   Detalles técnicos:", responseData.error || responseData.message)
               
+              // Mensaje más específico para campos faltantes
+              let mensajeError = responseData.message || responseData.error
+              
+              if (responseData.camposFaltantes && responseData.camposFaltantes.length > 0) {
+                mensajeError = `❌ CAMPOS OBLIGATORIOS VACÍOS:\n\n${responseData.camposFaltantes.join(', ')}\n\nPor favor, completa todos los campos requeridos.`
+              }
+              
               // LANZAR error para detener el flujo
               throw new Error(
-                responseData.message || 
-                responseData.error || 
+                mensajeError || 
                 `No se pudo guardar el registro (error ${response.status}). Por favor, verifica tus datos e intenta de nuevo.`
               )
             } else {
@@ -2111,8 +2117,10 @@ export default function RegistroPage() {
                   {error && (
                     <Alert variant="destructive" className="bg-red-50 border-red-200 text-red-700">
                       <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>Error</AlertTitle>
-                      <AlertDescription>{error}</AlertDescription>
+                      <AlertTitle>Error en el registro</AlertTitle>
+                      <AlertDescription className="whitespace-pre-wrap break-words">
+                        {error}
+                      </AlertDescription>
                     </Alert>
                   )}
 
