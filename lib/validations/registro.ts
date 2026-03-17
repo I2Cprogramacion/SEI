@@ -16,10 +16,10 @@ export const registroInvestigadorSchema = z.object({
   nombres: z.string().optional(),
   apellidos: z.string().optional(),
   
-  // Identificación oficial (longitud exacta)
-  curp: z.string().length(18, 'CURP debe tener 18 caracteres').optional().or(z.literal('')),
-  rfc: z.string().max(13, 'RFC debe tener máximo 13 caracteres').optional().or(z.literal('')),
-  no_cvu: z.string().optional(),
+  // Identificación oficial (longitud exacta) - OBLIGATORIOS
+  curp: z.string().min(1, 'CURP es requerido').length(18, 'CURP debe tener 18 caracteres'),
+  rfc: z.string().min(1, 'RFC es requerido').max(13, 'RFC debe tener máximo 13 caracteres'),
+  no_cvu: z.string().min(1, 'CVU es requerido'),
   
   // Contacto
   telefono: z.string().optional(),

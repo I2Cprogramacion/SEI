@@ -31,8 +31,8 @@ export default async function RootLayout({
         },
       }}
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-      fallbackRedirectUrl="/admin"
-      signInFallbackRedirectUrl="/admin"
+      fallbackRedirectUrl="/dashboard"
+      signInFallbackRedirectUrl="/dashboard"
       signUpFallbackRedirectUrl="/dashboard"
     >
       <html lang="es">
