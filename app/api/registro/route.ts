@@ -72,18 +72,40 @@ export async function POST(request: NextRequest) {
       if (error instanceof z.ZodError) {
         const errorDetails = error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
         
-        // Mensaje específico para campos faltantes
+        // Extraer TODOS los campos que fallaron en la validación
         const camposFaltantes = error.errors
-          .filter(e => e.message.includes('requerido'))
-          .map(e => e.path[0])
+          .map(e => ({
+            campo: String(e.path[0]),
+            mensaje: e.message
+          }))
+          .filter(e => 
+            // Campos obligatorios que están vacíos o inválidos
+            e.campo === 'curp' || 
+            e.campo === 'rfc' || 
+            e.campo === 'no_cvu' ||
+            e.campo === 'nombre_completo' ||
+            e.campo === 'clerk_user_id'
+          )
+          .map(e => e.campo)
+        
+        console.error("❌ [REGISTRO] Errores de validación Zod:", {
+          totalErrores: error.errors.length,
+          errorDetails,
+          camposFaltantes
+        })
         
         return NextResponse.json({
           error: "Datos de registro inválidos",
           message: camposFaltantes.length > 0 
-            ? `Los siguientes campos son obligatorios y están vacíos: ${camposFaltantes.join(', ')}. Por favor, completa todos los campos.`
-            : "Verifica que todos los datos sean correctos.",
+            ? `Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposFaltantes.join(', ')}. Por favor, completa todos estos campos para continuar.`
+            : "Verifica que todos los datos sean correctos. Es posible que algunos campos obligatorios estén faltando.",
           details: errorDetails,
-          camposFaltantes: camposFaltantes
+          camposFaltantes: camposFaltantes,
+          todosLosErrores: error.errors.map(e => ({
+            campo: e.path.join('.'),
+            mensaje: e.message,
+            codigo: e.code
+          }))
         }, { status: 400 })
       }
       throw error
