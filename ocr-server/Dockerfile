@@ -5,10 +5,10 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 
 # Copiar package files
-COPY package.json package-lock.json* ./
+COPY package.json ./
 
-# Instalar dependencias (incluyendo dev si existen)
-RUN npm ci --only=production
+# Instalar dependencias de producción
+RUN npm install --omit=dev
 
 # Etapa 2: Runtime
 FROM node:18-alpine
