@@ -48,4 +48,5 @@ export async function getDatabase() {
 // (Opcional) Para debug
 export function getCurrentConfigString(): string {
   const config = getCurrentDatabaseConfig();
-  return `${config.type}@${config.host}/${config.database}`
+  return `${config.type}@${config.host}/${config.database}`;
+}
