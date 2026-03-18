@@ -78,9 +78,18 @@ export function AdminSidebar() {
           const data = await response.json()
           setEsAdmin(data.esAdmin || false)
           setEsEvaluador(data.esEvaluador || false)
+          console.log('✅ Roles cargados:', { esAdmin: data.esAdmin, esEvaluador: data.esEvaluador })
+        } else {
+          // Si falla la verificación, asumir que es al menos evaluador
+          // (permitir fallback en caso de problemas de BD)
+          console.warn('⚠️ Error en verificación de acceso, permitiendo acceso de fallback')
+          setEsAdmin(false)
+          setEsEvaluador(true)
         }
       } catch (error) {
-        console.error('Error verificando roles:', error)
+        console.error('❌ Error verificando roles:', error)
+        // En caso de error, permitir acceso de fallback
+        setEsEvaluador(true)
       }
     }
     checkRoles()

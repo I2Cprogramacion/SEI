@@ -19,10 +19,22 @@ export default function AdminLayout({
     // Verificar si el usuario tiene acceso (admin o evaluador) desde el servidor
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/admin/verificar-acceso')
+        const response = await fetch('/api/admin/verificar-acceso', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
         
         if (!response.ok) {
-          console.warn('Acceso denegado: Usuario no tiene permisos de admin o evaluador')
+          const errorData = await response.json().catch(() => ({}))
+          console.warn('⚠️ Acceso denegado:', response.status, errorData.error)
+          
+          // Si es 401 (no autenticado), redirigir a login
+          if (response.status === 401) {
+            router.push("/iniciar-sesion")
+            return
+          }
+          
+          // Si es 403 (prohibido) o 500 (error BD), redirigir a dashboard
           router.push("/dashboard")
           return
         }
@@ -30,15 +42,26 @@ export default function AdminLayout({
         const data = await response.json()
         
         if (!data.tieneAcceso) {
-          console.warn('Acceso denegado: Usuario no tiene permisos de admin o evaluador')
+          console.warn('⚠️ Usuario no tiene permisos de admin o evaluador')
           router.push("/dashboard")
           return
         }
         
+        console.log('✅ Acceso de admin verificado:', {
+          esAdmin: data.esAdmin,
+          esEvaluador: data.esEvaluador,
+          usuario: data.usuario?.nombre
+        })
+        
         setIsAuthorized(true)
       } catch (error) {
-        console.error("Error checking auth:", error)
-        router.push("/iniciar-sesion")
+        console.error("❌ Error checking admin auth:", error)
+        // No redirigir inmediatamente en caso de error de red
+        // Permitir reintentos
+        setTimeout(() => {
+          console.log("⏳ Reintentando verificación de acceso...")
+          checkAuth()
+        }, 2000)
       } finally {
         setIsLoading(false)
       }
