@@ -14,6 +14,7 @@ export default function AdminLayout({
   const [isLoading, setIsLoading] = useState(true)
   const [isAuthorized, setIsAuthorized] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [debugInfo, setDebugInfo] = useState<any>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -35,6 +36,9 @@ export default function AdminLayout({
           error: data.error,
           debug: data.debug
         })
+        
+        // Guardar debug info para mostrar en pantalla
+        setDebugInfo(data.debug)
         
         if (!response.ok) {
           const errorMsg = data.error || 'Error desconocido'
@@ -98,10 +102,17 @@ export default function AdminLayout({
           <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-600" />
           <p className="text-blue-600 font-medium">Verificando acceso...</p>
           {error && (
-            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg max-w-lg">
               <p className="text-red-600 text-sm">
                 <span className="font-semibold">Error:</span> {error}
               </p>
+              {debugInfo && (
+                <div className="mt-3 p-3 bg-red-100 rounded border border-red-300 text-left">
+                  <p className="text-red-700 text-xs font-mono whitespace-pre-wrap break-words">
+                    {JSON.stringify(debugInfo, null, 2)}
+                  </p>
+                </div>
+              )}
               <p className="text-red-500 text-xs mt-2">
                 Revisar consola del navegador para más detalles
               </p>
