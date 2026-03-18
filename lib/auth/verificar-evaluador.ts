@@ -135,6 +135,8 @@ export async function verificarAdminOEvaluador() {
     
     let result
     try {
+      console.log(`⏱️ [verificarAdminOEvaluador] Iniciando consulta SQL por email: ${emailLower}`)
+      
       // Intento 1: Buscar por email (case-insensitive)
       result = await sql`
         SELECT id, nombre_completo, correo, es_admin, es_evaluador, clerk_user_id
@@ -143,15 +145,18 @@ export async function verificarAdminOEvaluador() {
         LIMIT 1
       `
       
+      console.log(`✅ [verificarAdminOEvaluador] Consulta SQL completada. Filas encontradas: ${result.rows.length}`)
+      
       // Intento 2: Si no se encontró por email, buscar por clerk_user_id
       if (result.rows.length === 0 && clerkUserId) {
-        console.log(`⚠️ [verificarAdminOEvaluador] No encontrado por email. Intentando con clerk_user_id...`)
+        console.log(`⚠️ [verificarAdminOEvaluador] No encontrado por email. Intentando con clerk_user_id: ${clerkUserId}`)
         result = await sql`
           SELECT id, nombre_completo, correo, es_admin, es_evaluador, clerk_user_id
           FROM investigadores 
           WHERE clerk_user_id = ${clerkUserId}
           LIMIT 1
         `
+        console.log(`✅ [verificarAdminOEvaluador] Consulta por clerk_user_id completada. Filas encontradas: ${result.rows.length}`)
       }
     } catch (sqlError) {
       console.error('❌ [verificarAdminOEvaluador] Error en la consulta SQL:', sqlError)

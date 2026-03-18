@@ -7,7 +7,17 @@ import { verificarAdminOEvaluador } from '@/lib/auth/verificar-evaluador'
  */
 export async function GET() {
   try {
-    const resultado = await verificarAdminOEvaluador()
+    console.log('⏱️ [API verificar-acceso] Iniciando verificación...')
+    
+    // Timeout de 10 segundos para evitar que se quede colgado
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout en verificarAdminOEvaluador')), 10000)
+    )
+    
+    const resultado = await Promise.race([
+      verificarAdminOEvaluador(),
+      timeoutPromise
+    ]) as any
     
     console.log('📋 [API verificar-acceso] Resultado:', {
       tieneAcceso: resultado.tieneAcceso,
