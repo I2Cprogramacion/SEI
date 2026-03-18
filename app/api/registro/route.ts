@@ -77,51 +77,35 @@ export async function POST(request: NextRequest) {
     let data
     try {
       data = registroInvestigadorSchema.parse(rawData)
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const errorDetails = error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+    } catch (zodError) {
+      if (zodError instanceof z.ZodError) {
+        // Extraer todos los campos que tienen errores
+        const camposFaltantes = zodError.errors.map(e => String(e.path[0])).filter(Boolean)
         
-        // Extraer TODOS los campos únicos que fallaron en la validación
-        const camposConError = new Set<string>()
-        error.errors.forEach(e => {
-          const nombreCampo = String(e.path[0])
-          if (nombreCampo) {
-            camposConError.add(nombreCampo)
-          }
+        console.error("❌ [REGISTRO VALIDACION] Error Zod:", {
+          totalErrores: zodError.errors.length,
+          camposConError: camposFaltantes,
+          todosLosErroresDetallados: zodError.errors.map(e => ({
+            campo: e.path.join('.'),
+            mensaje: e.message,
+            codigo: e.code
+          }))
         })
-        
-        console.error("❌ [REGISTRO] Campos con error (sin filtrar):", Array.from(camposConError))
-        
-        // Lista de campos obligatorios que el usuario debe completar
-        const CAMPOS_OBLIGATORIOS = ['curp', 'rfc', 'no_cvu', 'nombre_completo', 'clerk_user_id', 'correo']
-        
-        // Filtrar solo los campos obligatorios
-        const camposFaltantes = Array.from(camposConError).filter(campo => 
-          CAMPOS_OBLIGATORIOS.includes(campo)
-        )
-        
-        console.error("❌ [REGISTRO] Campos obligatorios con error:", camposFaltantes)
-        console.error("❌ [REGISTRO] Todos los errores:", error.errors.map(e => ({
-          campo: String(e.path[0]),
-          mensaje: e.message,
-          codigo: e.code
-        })))
         
         return NextResponse.json({
           error: "Datos de registro inválidos",
           message: camposFaltantes.length > 0 
-            ? `Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposFaltantes.join(', ')}. Por favor, completa todos estos campos para continuar.`
-            : "Verifica que todos los datos sean correctos. Es posible que algunos campos obligatorios estén faltando.",
-          details: errorDetails,
+            ? `Campos con error: ${camposFaltantes.join(', ')}`
+            : "Error de validación en los datos",
           camposFaltantes: camposFaltantes,
-          todosLosErrores: error.errors.map(e => ({
+          todosLosErrores: zodError.errors.map(e => ({
             campo: e.path.join('.'),
             mensaje: e.message,
             codigo: e.code
           }))
         }, { status: 400 })
       }
-      throw error
+      throw zodError
     }
     
     // VALIDACIÓN CRÍTICA: Debe tener clerk_user_id
