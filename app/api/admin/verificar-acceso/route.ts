@@ -45,14 +45,21 @@ export async function GET() {
       }
     })
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
     console.error('❌ [API] Error al verificar acceso:', error)
+    console.error('❌ [API] Error completo:', JSON.stringify(error, null, 2))
+    
     return NextResponse.json(
       { 
         tieneAcceso: false,
         esAdmin: false,
         esEvaluador: false,
         error: 'Error al verificar permisos',
-        details: error instanceof Error ? error.message : String(error)
+        debug: {
+          errorMessage,
+          errorType: error instanceof Error ? error.constructor.name : typeof error,
+          fullError: errorMessage
+        }
       },
       { status: 500 }
     )

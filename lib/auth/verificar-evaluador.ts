@@ -200,6 +200,7 @@ export async function verificarAdminOEvaluador() {
     }
   } catch (error) {
     console.error('❌ [verificarAdminOEvaluador] Error al verificar:', error)
+    console.error('❌ [verificarAdminOEvaluador] Error completo:', JSON.stringify(error, null, 2))
     
     // 🔧 FALLBACK: Si la BD está caída, verificar por email de admin en Clerk
     // Emails permitidos para acceso de emergencia a admin
@@ -231,13 +232,9 @@ export async function verificarAdminOEvaluador() {
       }
     }
     
-    return {
-      tieneAcceso: false,
-      esAdmin: false,
-      esEvaluador: false,
-      usuario: null,
-      redirect: '/dashboard'
-    }
+    // Si no es admin de emergencia, re-lanzar el error para que se maneje en el nivel superior
+    console.error('❌ [verificarAdminOEvaluador] FALLBACK no aplicable, lanzando error...')
+    throw error
   }
 }
 
