@@ -101,11 +101,6 @@ export async function POST(request: NextRequest) {
     
     // ✅ SEGURIDAD: Enmascarar datos sensibles en logs
     console.log("📥 [REGISTRO API] Datos recibidos (enmascarados):", enmascararDatos(rawData))
-      no_cvu: rawData.no_cvu,
-      nombre_completo: rawData.nombre_completo,
-      correo: rawData.correo,
-      clerk_user_id: rawData.clerk_user_id
-    })
     
     // SEGURIDAD NIVEL 1: Remover campos admin que el usuario no debe poder establecer
     const camposProhibidos = ['es_admin', 'es_evaluador', 'activo', 'es_aprobado', 'aprobado']
