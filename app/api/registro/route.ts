@@ -81,42 +81,31 @@ export async function POST(request: NextRequest) {
       if (error instanceof z.ZodError) {
         const errorDetails = error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
         
-        // Extraer TODOS los campos que fallaron
-        const todosLosCampos = new Set<string>()
+        // Extraer TODOS los campos únicos que fallaron en la validación
+        const camposConError = new Set<string>()
         error.errors.forEach(e => {
           const nombreCampo = String(e.path[0])
-          if (nombreCampo && nombreCampo !== 'undefined') {
-            todosLosCampos.add(nombreCampo)
+          if (nombreCampo) {
+            camposConError.add(nombreCampo)
           }
         })
         
-        // Filtrar solo los campos obligatorios que realmente importan
-        const camposFaltantes = Array.from(todosLosCampos).filter(campo => 
-          ['curp', 'rfc', 'no_cvu', 'nombre_completo', 'clerk_user_id', 'correo'].includes(campo)
+        console.error("❌ [REGISTRO] Campos con error (sin filtrar):", Array.from(camposConError))
+        
+        // Lista de campos obligatorios que el usuario debe completar
+        const CAMPOS_OBLIGATORIOS = ['curp', 'rfc', 'no_cvu', 'nombre_completo', 'clerk_user_id', 'correo']
+        
+        // Filtrar solo los campos obligatorios
+        const camposFaltantes = Array.from(camposConError).filter(campo => 
+          CAMPOS_OBLIGATORIOS.includes(campo)
         )
         
-        // Logging detallado para debugging
-        const logDetallado = error.errors.map((e, i) => ({
-          index: i,
+        console.error("❌ [REGISTRO] Campos obligatorios con error:", camposFaltantes)
+        console.error("❌ [REGISTRO] Todos los errores:", error.errors.map(e => ({
           campo: String(e.path[0]),
           mensaje: e.message,
-          codigo: e.code,
-          valoresEnviadosParaEste: {
-            curp: rawData.curp,
-            rfc: rawData.rfc,
-            no_cvu: rawData.no_cvu,
-            nombre_completo: rawData.nombre_completo,
-            correo: rawData.correo,
-            clerk_user_id: rawData.clerk_user_id
-          }
-        }))
-        
-        console.error("❌ [REGISTRO] ERRORES DE VALIDACIÓN ZOD DETALLADOS:", JSON.stringify(logDetallado, null, 2))
-        console.error("❌ [REGISTRO] Resumen:", {
-          totalErrores: error.errors.length,
-          camposUnicosConError: Array.from(todosLosCampos),
-          camposFaltantes
-        })
+          codigo: e.code
+        })))
         
         return NextResponse.json({
           error: "Datos de registro inválidos",
