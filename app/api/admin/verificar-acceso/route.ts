@@ -9,13 +9,26 @@ export async function GET() {
   try {
     const resultado = await verificarAdminOEvaluador()
     
+    console.log('📋 [API verificar-acceso] Resultado:', {
+      tieneAcceso: resultado.tieneAcceso,
+      esAdmin: resultado.esAdmin,
+      esEvaluador: resultado.esEvaluador,
+      usuario: resultado.usuario?.correo,
+      redirect: resultado.redirect
+    })
+    
     if (!resultado.tieneAcceso) {
       return NextResponse.json(
         { 
           tieneAcceso: false,
           esAdmin: false,
           esEvaluador: false,
-          error: resultado.redirect === '/iniciar-sesion' ? 'No autenticado' : 'Acceso denegado'
+          error: resultado.redirect === '/iniciar-sesion' ? 'No autenticado' : 'Acceso denegado',
+          debug: {
+            redirect: resultado.redirect,
+            usuarioEncontrado: !!resultado.usuario,
+            razon: resultado.usuario ? 'Usuario no tiene permisos' : 'Usuario no encontrado en BD'
+          }
         },
         { status: resultado.redirect === '/iniciar-sesion' ? 401 : 403 }
       )

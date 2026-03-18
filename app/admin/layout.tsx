@@ -13,6 +13,7 @@ export default function AdminLayout({
 }>) {
   const [isLoading, setIsLoading] = useState(true)
   const [isAuthorized, setIsAuthorized] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -24,26 +25,46 @@ export default function AdminLayout({
           headers: { 'Content-Type': 'application/json' }
         })
         
+        const data = await response.json()
+        
+        console.log('🔍 [AdminLayout] Respuesta de verificar-acceso:', {
+          status: response.status,
+          tieneAcceso: data.tieneAcceso,
+          esAdmin: data.esAdmin,
+          esEvaluador: data.esEvaluador,
+          error: data.error,
+          debug: data.debug
+        })
+        
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}))
-          console.warn('⚠️ Acceso denegado:', response.status, errorData.error)
+          const errorMsg = data.error || 'Error desconocido'
+          console.warn('⚠️ Acceso denegado:', response.status, errorMsg)
+          setError(errorMsg)
           
           // Si es 401 (no autenticado), redirigir a login
           if (response.status === 401) {
-            router.push("/iniciar-sesion")
+            setTimeout(() => router.push("/iniciar-sesion"), 1500)
             return
           }
           
-          // Si es 403 (prohibido) o 500 (error BD), redirigir a dashboard
-          router.push("/dashboard")
-          return
+          // Si es 403 (prohibido), redirigir a dashboard
+          if (response.status === 403) {
+            setTimeout(() => router.push("/dashboard"), 1500)
+            return
+          }
+          
+          // Si es 500 (error BD), esperar y reintentar
+          if (response.status === 500) {
+            console.log("⏳ Error de BD, reintentando en 3s...")
+            setTimeout(() => checkAuth(), 3000)
+            return
+          }
         }
-
-        const data = await response.json()
         
         if (!data.tieneAcceso) {
-          console.warn('⚠️ Usuario no tiene permisos de admin o evaluador')
-          router.push("/dashboard")
+          console.warn('⚠️ Usuario no tiene permisos:', data.debug?.razon)
+          setError(data.debug?.razon || 'Sin permisos de admin')
+          setTimeout(() => router.push("/dashboard"), 1500)
           return
         }
         
@@ -56,8 +77,8 @@ export default function AdminLayout({
         setIsAuthorized(true)
       } catch (error) {
         console.error("❌ Error checking admin auth:", error)
-        // No redirigir inmediatamente en caso de error de red
-        // Permitir reintentos
+        setError(error instanceof Error ? error.message : 'Error de conexión')
+        // Reintentar en caso de error de red
         setTimeout(() => {
           console.log("⏳ Reintentando verificación de acceso...")
           checkAuth()
@@ -72,10 +93,20 @@ export default function AdminLayout({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-600 mb-4" />
-          <p className="text-blue-600">Verificando acceso...</p>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-600" />
+          <p className="text-blue-600 font-medium">Verificando acceso...</p>
+          {error && (
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">
+                <span className="font-semibold">Error:</span> {error}
+              </p>
+              <p className="text-red-500 text-xs mt-2">
+                Revisar consola del navegador para más detalles
+              </p>
+            </div>
+          )}
         </div>
       </div>
     )
