@@ -3,9 +3,15 @@ import type { NextRequest } from "next/server"
 import { guardarRegistroPendiente } from "@/lib/db"
 import { registroInvestigadorSchema } from "@/lib/validations/registro"
 import { z } from "zod"
+import { auth } from "@clerk/nextjs/server"
 
 /**
  * API para guardar un registro PENDIENTE de verificación
+ * 
+ * SEGURIDAD: 
+ * - Requiere autenticación Clerk
+ * - Valida que clerk_user_id coincida con usuario autenticado
+ * - Enmasca datos sensibles en logs
  * 
  * Este endpoint guarda los datos en una tabla temporal después de crear
  * el usuario en Clerk, pero ANTES de que verifique su email.
@@ -13,6 +19,17 @@ import { z } from "zod"
  * El registro completo en la tabla 'investigadores' ocurre en /api/completar-registro
  * después de que el usuario verifique su email.
  */
+
+// Helper para enmascarar datos sensibles en logs
+const enmascararDatos = (data: any) => ({
+  curp: data.curp ? data.curp.substring(0, 3) + '****' : 'vacío',
+  rfc: data.rfc ? data.rfc.substring(0, 2) + '****' : 'vacío',
+  no_cvu: data.no_cvu ? '****' : 'vacío',
+  correo: data.correo ? data.correo.split('@')[0] + '@****' : 'vacío',
+  clerk_user_id: data.clerk_user_id ? '****' + data.clerk_user_id.slice(-4) : 'vacío',
+  nombre_completo: data.nombre_completo ? '[ENMASCARADO]' : 'vacío'
+});
+
 async function verificarCaptcha(token: string): Promise<boolean> {
   const secretKey = process.env.RECAPTCHA_SECRET
   
@@ -58,11 +75,32 @@ async function verificarCaptcha(token: string): Promise<boolean> {
 
 export async function POST(request: NextRequest) {
   try {
+    // ✅ SEGURIDAD: Verificar autenticación
+    const { userId } = await auth()
+    
+    if (!userId) {
+      console.error("❌ [REGISTRO] No autenticado")
+      return NextResponse.json(
+        { error: "No autenticado. Por favor inicia sesión primero." },
+        { status: 401 }
+      )
+    }
+    
     const rawData = await request.json()
     
-    console.log("📥 [REGISTRO API] Datos recibidos:", {
-      curp: rawData.curp,
-      rfc: rawData.rfc,
+    // ✅ SEGURIDAD: Validar que clerk_user_id coincida
+    if (rawData.clerk_user_id && rawData.clerk_user_id !== userId) {
+      console.error("❌ [REGISTRO] Intento de crear registro para otro usuario")
+      console.error(`   Usuario autenticado: ${userId}`)
+      console.error(`   Usuario en datos: ${rawData.clerk_user_id}`)
+      return NextResponse.json(
+        { error: "No autorizado para crear registro de otro usuario" },
+        { status: 403 }
+      )
+    }
+    
+    // ✅ SEGURIDAD: Enmascarar datos sensibles en logs
+    console.log("📥 [REGISTRO API] Datos recibidos (enmascarados):", enmascararDatos(rawData))
       no_cvu: rawData.no_cvu,
       nombre_completo: rawData.nombre_completo,
       correo: rawData.correo,
