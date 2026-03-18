@@ -108,9 +108,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(sugerenciasFormateadas)
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
+    const userEmail = (() => {
+      try {
+        return user?.emailAddresses[0]?.emailAddress
+      } catch {
+        return 'unknown'
+      }
+    })()
+    
     console.error("❌ [Sugerencias] Error al obtener sugerencias:", {
       error: errorMessage,
-      email: user?.emailAddresses[0]?.emailAddress,
+      email: userEmail,
       timestamp: new Date().toISOString(),
       stack: error instanceof Error ? error.stack : undefined
     })
