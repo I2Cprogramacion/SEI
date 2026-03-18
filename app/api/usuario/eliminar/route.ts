@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth, clerkClient } from "@clerk/nextjs/server"
-import { neon } from "@neondatabase/serverless"
-
-const sql = neon(process.env.DATABASE_URL!)
+import { sql } from "@vercel/postgres"
 
 export async function DELETE(request: NextRequest) {
   try {
