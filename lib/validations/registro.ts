@@ -49,7 +49,7 @@ export const registroInvestigadorSchema = z.object({
   entidad_federativa: z.string().optional(),
   
   // Institucional
-  institucion_id: z.string().optional(),
+  institucion_id: z.string().nullable().optional(),
   institucion: z.string().optional(),
   departamento: z.string().optional(),
   ubicacion: z.string().optional(),
@@ -61,20 +61,20 @@ export const registroInvestigadorSchema = z.object({
   // Nivel
   nivel: z.string().optional(),
   nivel_investigador: z.string().optional(),
-  nivel_actual_id: z.string().optional(),
-  fecha_asignacion_nivel: z.string().optional(),
+  nivel_actual_id: z.string().nullable().optional(),
+  fecha_asignacion_nivel: z.string().nullable().optional(),
   nivel_sni: z.string().optional(),
   sni: z.string().optional(),
-  anio_sni: z.number().optional(),
+  anio_sni: z.number().nullable().optional(),
   
   // Tipo perfil
   tipo_perfil: z.enum(['INVESTIGADOR', 'TECNOLOGO', 'AMBOS']).optional(),
   nivel_tecnologo: z.string().optional(),
-  nivel_tecnologo_id: z.string().optional(),
+  nivel_tecnologo_id: z.string().nullable().optional(),
   
   // URLs
   fotografia_url: z.string().url().optional().or(z.literal('')),
-  cv_url: z.string().url().optional().or(z.literal('')),
+  cv_url: z.string().url().optional().or(z.literal('')).nullable(),
   
   // Metadata
   fecha_registro: z.string().optional(),
