@@ -103,10 +103,15 @@ export async function verificarEvaluador() {
  * Útil para páginas que permiten acceso a ambos roles
  */
 export async function verificarAdminOEvaluador() {
+  console.log('🚀 [verificarAdminOEvaluador] INICIO - Obteniendo usuario de Clerk...')
+  
   try {
+    console.log('⏳ [verificarAdminOEvaluador] Esperando currentUser()...')
     const user = await currentUser()
+    console.log('✅ [verificarAdminOEvaluador] currentUser() completado. User:', !!user ? user.id : 'NULL')
     
     if (!user) {
+      console.log('⚠️ [verificarAdminOEvaluador] No hay usuario (no autenticado)')
       return {
         tieneAcceso: false,
         esAdmin: false,
@@ -118,6 +123,7 @@ export async function verificarAdminOEvaluador() {
 
     const email = user.emailAddresses[0]?.emailAddress
     const clerkUserId = user.id
+    console.log('📧 [verificarAdminOEvaluador] Email:', email, 'ClerkID:', clerkUserId)
 
     if (!email && !clerkUserId) {
       return {
