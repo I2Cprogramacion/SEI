@@ -1,6 +1,6 @@
 import { DatabaseConfig, DatabaseFactory } from './database-interface'
 
-// Configuración fija para Neon de I2C (usa DATABASE_URL)
+// Configuración fija para Neon de I2C (usa DATABASE_URL_UNPOOLED para Vercel)
 const parseDatabaseUrl = (url: string): DatabaseConfig => {
   try {
     const u = new URL(url);
@@ -24,8 +24,8 @@ let parsedConfig: DatabaseConfig | null = null;
 export function getCurrentDatabaseConfig(): DatabaseConfig {
   if (parsedConfig) return parsedConfig;
   
-  const dbUrl = process.env.DATABASE_URL || '';
-  if (!dbUrl) throw new Error('DATABASE_URL no definida');
+  const dbUrl = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL || '';
+  if (!dbUrl) throw new Error('DATABASE_URL_UNPOOLED o DATABASE_URL no definida');
   
   parsedConfig = parseDatabaseUrl(dbUrl);
   return parsedConfig;
@@ -35,7 +35,7 @@ export function getCurrentDatabaseConfig(): DatabaseConfig {
 let dbInstance: any = null;
 
 export async function getDatabase() {
-  // Siempre usar la configuración de DATABASE_URL (PostgreSQL/Neon)
+  // Siempre usar la configuración de DATABASE_URL_UNPOOLED (PostgreSQL/Neon en Vercel)
   const config = getCurrentDatabaseConfig();
   if (!dbInstance) {
     dbInstance = await DatabaseFactory.create(config)
