@@ -6,7 +6,13 @@ import { verificarAdminOEvaluador } from '@/lib/auth/verificar-evaluador'
  * GET /api/admin/verificar-acceso
  */
 export async function GET() {
+  const debugInfo = {
+    timestamp: new Date().toISOString(),
+    steps: [] as string[]
+  }
+  
   try {
+    debugInfo.steps.push('Iniciando verificación')
     console.log('⏱️ [API verificar-acceso] Iniciando verificación...')
     
     // Timeout de 10 segundos para evitar que se quede colgado
@@ -14,11 +20,13 @@ export async function GET() {
       setTimeout(() => reject(new Error('Timeout en verificarAdminOEvaluador')), 10000)
     )
     
+    debugInfo.steps.push('Llamando a verificarAdminOEvaluador')
     const resultado = await Promise.race([
       verificarAdminOEvaluador(),
       timeoutPromise
     ]) as any
     
+    debugInfo.steps.push('Resultado recibido')
     console.log('📋 [API verificar-acceso] Resultado:', {
       tieneAcceso: resultado.tieneAcceso,
       esAdmin: resultado.esAdmin,
@@ -37,7 +45,8 @@ export async function GET() {
           debug: {
             redirect: resultado.redirect,
             usuarioEncontrado: !!resultado.usuario,
-            razon: resultado.usuario ? 'Usuario no tiene permisos' : 'Usuario no encontrado en BD'
+            razon: resultado.usuario ? 'Usuario no tiene permisos' : 'Usuario no encontrado en BD',
+            debugInfo
           }
         },
         { status: resultado.redirect === '/iniciar-sesion' ? 401 : 403 }
@@ -52,9 +61,12 @@ export async function GET() {
         id: resultado.usuario?.id,
         nombre: resultado.usuario?.nombre_completo,
         email: resultado.usuario?.correo
-      }
+      },
+      debugInfo
     })
   } catch (error) {
+    debugInfo.steps.push(`Error capturado: ${error instanceof Error ? error.message : String(error)}`)
+    
     const errorMessage = error instanceof Error ? error.message : String(error)
     console.error('❌ [API] Error al verificar acceso:', error)
     console.error('❌ [API] Error completo:', JSON.stringify(error, null, 2))
@@ -68,7 +80,8 @@ export async function GET() {
         debug: {
           errorMessage,
           errorType: error instanceof Error ? error.constructor.name : typeof error,
-          fullError: errorMessage
+          fullError: errorMessage,
+          debugInfo
         }
       },
       { status: 500 }
