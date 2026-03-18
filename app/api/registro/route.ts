@@ -60,6 +60,15 @@ export async function POST(request: NextRequest) {
   try {
     const rawData = await request.json()
     
+    console.log("📥 [REGISTRO API] Datos recibidos:", {
+      curp: rawData.curp,
+      rfc: rawData.rfc,
+      no_cvu: rawData.no_cvu,
+      nombre_completo: rawData.nombre_completo,
+      correo: rawData.correo,
+      clerk_user_id: rawData.clerk_user_id
+    })
+    
     // SEGURIDAD NIVEL 1: Remover campos admin que el usuario no debe poder establecer
     const camposProhibidos = ['es_admin', 'es_evaluador', 'activo', 'es_aprobado', 'aprobado']
     camposProhibidos.forEach(campo => delete rawData[campo])
@@ -72,25 +81,40 @@ export async function POST(request: NextRequest) {
       if (error instanceof z.ZodError) {
         const errorDetails = error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
         
-        // Extraer TODOS los campos que fallaron en la validación
-        const camposFaltantes = error.errors
-          .map(e => ({
-            campo: String(e.path[0]),
-            mensaje: e.message
-          }))
-          .filter(e => 
-            // Campos obligatorios que están vacíos o inválidos
-            e.campo === 'curp' || 
-            e.campo === 'rfc' || 
-            e.campo === 'no_cvu' ||
-            e.campo === 'nombre_completo' ||
-            e.campo === 'clerk_user_id'
-          )
-          .map(e => e.campo)
+        // Extraer TODOS los campos que fallaron
+        const todosLosCampos = new Set<string>()
+        error.errors.forEach(e => {
+          const nombreCampo = String(e.path[0])
+          if (nombreCampo && nombreCampo !== 'undefined') {
+            todosLosCampos.add(nombreCampo)
+          }
+        })
         
-        console.error("❌ [REGISTRO] Errores de validación Zod:", {
+        // Filtrar solo los campos obligatorios que realmente importan
+        const camposFaltantes = Array.from(todosLosCampos).filter(campo => 
+          ['curp', 'rfc', 'no_cvu', 'nombre_completo', 'clerk_user_id', 'correo'].includes(campo)
+        )
+        
+        // Logging detallado para debugging
+        const logDetallado = error.errors.map((e, i) => ({
+          index: i,
+          campo: String(e.path[0]),
+          mensaje: e.message,
+          codigo: e.code,
+          valoresEnviadosParaEste: {
+            curp: rawData.curp,
+            rfc: rawData.rfc,
+            no_cvu: rawData.no_cvu,
+            nombre_completo: rawData.nombre_completo,
+            correo: rawData.correo,
+            clerk_user_id: rawData.clerk_user_id
+          }
+        }))
+        
+        console.error("❌ [REGISTRO] ERRORES DE VALIDACIÓN ZOD DETALLADOS:", JSON.stringify(logDetallado, null, 2))
+        console.error("❌ [REGISTRO] Resumen:", {
           totalErrores: error.errors.length,
-          errorDetails,
+          camposUnicosConError: Array.from(todosLosCampos),
           camposFaltantes
         })
         
