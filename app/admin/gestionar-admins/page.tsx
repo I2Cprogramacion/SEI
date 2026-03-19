@@ -9,29 +9,32 @@ interface Investigador {
   id: string
   nombre_completo: string
   correo: string
-  es_admin?: boolean
-  es_evaluador?: boolean
   clerk_user_id?: string
+}
+
+interface InvestigadorConClaims extends Investigador {
+  es_admin: boolean // Estado real en Clerk
 }
 
 export default function GestionarAdminsPage() {
   const { userId } = useAuth()
-  const [investigadores, setInvestigadores] = useState<Investigador[]>([])
+  const [investigadores, setInvestigadores] = useState<InvestigadorConClaims[]>([])
   const [loading, setLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
 
-  // Obtener lista de investigadores
+  // Obtener lista de investigadores y sus claims en Clerk
   useEffect(() => {
     const fetchInvestigadores = async () => {
       try {
         setLoading(true)
-        const response = await fetch('/api/investigadores?incluirInactivos=true')
+        // Usar endpoint que retorna investigadores con su estado de BD
+        const response = await fetch('/api/admin/investigadores-with-claims')
         if (!response.ok) throw new Error('Error cargando investigadores')
         const data = await response.json()
-        // El endpoint retorna { investigadores: [...], filtros: {...} }
-        const listaInvestigadores = data.investigadores || data || []
+        
+        const listaInvestigadores = data.investigadores || []
         setInvestigadores(listaInvestigadores)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error desconocido')
