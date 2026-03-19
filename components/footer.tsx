@@ -42,7 +42,7 @@ export default function Footer() {
   }
 
   return (
-    <footer className="border-t border-blue-100 py-8 bg-gradient-to-b from-blue-50/50 to-white backdrop-blur-sm relative">
+    <footer className="border-t border-blue-100 dark:border-slate-700 py-8 bg-gradient-to-b from-blue-50/50 to-white dark:from-slate-800/50 dark:to-slate-900 backdrop-blur-sm relative">
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center justify-center space-y-6">
           {/* Logos Institucionales */}
@@ -71,25 +71,25 @@ export default function Footer() {
 
           {/* Términos Legales */}
           <div className="flex flex-col items-center">
-            <h4 className="font-semibold mb-4 text-blue-900">Información</h4>
+            <h4 className="font-semibold mb-4 text-blue-900 dark:text-white">Información</h4>
             <ul className="flex flex-wrap gap-6 justify-center mb-6">
               <li>
-                <Link href="/faq" className="text-blue-600 hover:text-blue-900 transition-colors">
+                <Link href="/faq" className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors">
                   Preguntas Frecuentes
                 </Link>
               </li>
               <li>
-                <Link href="/terminos" className="text-blue-600 hover:text-blue-900 transition-colors">
+                <Link href="/terminos" className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors">
                   Términos de servicio
                 </Link>
               </li>
               <li>
-                <Link href="/privacidad" className="text-blue-600 hover:text-blue-900 transition-colors">
+                <Link href="/privacidad" className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors">
                   Política de privacidad
                 </Link>
               </li>
               <li>
-                <Link href="/cookies" className="text-blue-600 hover:text-blue-900 transition-colors">
+                <Link href="/cookies" className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors">
                   Política de cookies
                 </Link>
               </li>
@@ -97,7 +97,7 @@ export default function Footer() {
           </div>
 
           {/* Copyright */}
-          <div className="text-center text-blue-600">
+          <div className="text-center text-blue-600 dark:text-blue-400">
             <p>
               © {new Date().getFullYear()} SEI - Sistema de Evaluación de Investigadores.
               Todos los derechos reservados.

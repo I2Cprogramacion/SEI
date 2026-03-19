@@ -170,10 +170,10 @@ export default function Navbar() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 lg:gap-3 hover:opacity-80 transition-opacity">
               <div className="flex flex-col">
-                <span className="font-bold text-sm lg:text-lg text-gray-900 leading-tight">
+                <span className="font-bold text-sm lg:text-lg text-gray-900 dark:text-white leading-tight">
                   Sistema Estatal de Investigadores
                 </span>
-                <span className="text-xs text-gray-500 hidden sm:block">Chihuahua</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Chihuahua</span>
               </div>
             </Link>
 
@@ -186,8 +186,8 @@ export default function Navbar() {
                       href="/investigadores" 
                       className={cn(
                         navigationMenuTriggerStyle(), 
-                        "text-gray-700 hover:text-blue-600 font-medium",
-                        currentSection === 'investigadores' && "bg-blue-50 text-blue-700 border-blue-200"
+                        "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium",
+                        currentSection === 'investigadores' && "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800"
                       )}
                     > 
                       Investigadores
@@ -201,8 +201,8 @@ export default function Navbar() {
                       href="/proyectos" 
                       className={cn(
                         navigationMenuTriggerStyle(), 
-                        "text-gray-700 hover:text-blue-600 font-medium",
-                        currentSection === 'proyectos' && "bg-blue-50 text-blue-700 border-blue-200"
+                        "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium",
+                        currentSection === 'proyectos' && "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800"
                       )}
                     > 
                       Proyectos
@@ -212,7 +212,7 @@ export default function Navbar() {
                 
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
-                    <Link href="/publicaciones" className={cn(navigationMenuTriggerStyle(), "text-gray-700 hover:text-blue-600 font-medium")}> 
+                    <Link href="/publicaciones" className={cn(navigationMenuTriggerStyle(), "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium")}> 
                       Publicaciones
                     </Link>
                   </NavigationMenuLink>
@@ -224,8 +224,8 @@ export default function Navbar() {
                       href="/instituciones"
                       className={cn(
                         navigationMenuTriggerStyle(),
-                        "text-gray-700 hover:text-blue-600 font-medium",
-                        currentSection === 'instituciones' && "bg-blue-50 text-blue-700 border-blue-200"
+                        "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium",
+                        currentSection === 'instituciones' && "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800"
                       )}
                     >
                       Instituciones
@@ -245,7 +245,7 @@ export default function Navbar() {
               <Button 
                 variant="ghost" 
                 size="icon"
-                className="h-9 w-9 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                className="h-9 w-9 hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 asChild
               >
                 <Link href="/explorar">
@@ -298,8 +298,8 @@ export default function Navbar() {
               {isSignedIn && user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="hidden md:flex items-center gap-2 hover:bg-gray-100 h-10 px-3">
-                      <Avatar className="h-8 w-8 ring-2 ring-blue-100">
+                    <Button variant="ghost" className="hidden md:flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-slate-800 h-10 px-3">
+                      <Avatar className="h-8 w-8 ring-2 ring-blue-100 dark:ring-blue-800">
                         <AvatarImage 
                           src={fotografiaUrl || user.imageUrl} 
                           alt={getDisplayName()} 
@@ -308,30 +308,30 @@ export default function Navbar() {
                           {(getDisplayName().charAt(0) || "U").toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-sm font-medium text-gray-700 max-w-[120px] truncate">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-200 max-w-[120px] truncate">
                         {getDisplayName()}
                       </span>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 bg-white shadow-lg">
+                  <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-slate-950 shadow-lg dark:shadow-slate-900/50">
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-semibold text-gray-900">{getDisplayName()}</p>
-                        <p className="text-xs text-gray-500">{user.primaryEmailAddress?.emailAddress}</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{getDisplayName()}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{user.primaryEmailAddress?.emailAddress}</p>
                       </div>
                     </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => router.push("/dashboard")} className="cursor-pointer">
+                    <DropdownMenuSeparator className="dark:bg-slate-700" />
+                    <DropdownMenuItem onClick={() => router.push("/dashboard")} className="cursor-pointer dark:focus:bg-slate-800">
                       <LayoutDashboard className="mr-2 h-4 w-4 text-blue-600" />
-                      <span>Dashboard</span>
+                      <span className="dark:text-gray-200">Dashboard</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push("/dashboard/editar-perfil")} className="cursor-pointer">
+                    <DropdownMenuItem onClick={() => router.push("/dashboard/editar-perfil")} className="cursor-pointer dark:focus:bg-slate-800">
                       <User className="mr-2 h-4 w-4 text-blue-600" />
-                      <span>Editar Perfil</span>
+                      <span className="dark:text-gray-200">Editar Perfil</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push("/dashboard/mensajes")} className="cursor-pointer">
+                    <DropdownMenuItem onClick={() => router.push("/dashboard/mensajes")} className="cursor-pointer dark:focus:bg-slate-800">
                       <FileText className="mr-2 h-4 w-4 text-blue-600" />
-                      <span>Mensajes</span>
+                      <span className="dark:text-gray-200">Mensajes</span>
                       {mensajesNoLeidos > 0 && (
                         <Badge className="ml-auto bg-orange-500 text-white">
                           {mensajesNoLeidos}
