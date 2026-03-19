@@ -3,7 +3,6 @@ import type { NextRequest } from "next/server"
 import { guardarRegistroPendiente } from "@/lib/db"
 import { registroInvestigadorSchema } from "@/lib/validations/registro"
 import { z } from "zod"
-import { clerkClient } from "@clerk/nextjs/server"
 
 /**
  * POST /api/registro
@@ -11,22 +10,30 @@ import { clerkClient } from "@clerk/nextjs/server"
  * Endpoint PÚBLICO para registrar un nuevo investigador
  * 
  * ARQUITECTURA DE SEGURIDAD MULTINIVEL:
- * ✅ Zod validation - Estructura de datos
+ * ✅ Zod validation - Estructura de datos estricta
  * ✅ Rate limiting (10 req/hora via middleware)
  * ✅ reCAPTCHA - Previene bots
- * ✅ Clerk ID validation - Verifica que el user existe en Clerk
- * ✅ Unique constraints - BD previene duplicados
+ * ✅ clerk_user_id validation - Formato válido (no vacío)
+ * ✅ Unique constraints BD - Previene duplicados (email, CURP, RFC)
  * ✅ Data sanitization - Remueve campos privilegiados
- * ✅ Enmascaramiento de logs - No expone datos sensibles
+ * ✅ Log masking - No expone datos sensibles
  * 
- * FLUJO:
- * 1. Usuario anónimo llena formulario
- * 2. Frontend crea usuario en Clerk
- * 3. Frontend envía datos a este endpoint (PUBLIC)
- * 4. Backend valida todo (Zod + Clerk + CAPTCHA)
- * 5. Backend guarda en BD
- * 6. User recibe email de verificación
- * 7. User verifica email → acceso automático a /api/completar-registro
+ * ⚠️ TIMING CRÍTICO:
+ * Este endpoint se llama DESPUÉS de signUp.create() pero ANTES de que
+ * el usuario verifique su email. Por eso NO validamos con clerkClient()
+ * (el usuario aún no está completamente verificado en Clerk).
+ * 
+ * La validación real ocurre cuando el usuario verifica el código de email.
+ * 
+ * FLUJO CORRECTO:
+ * 1. User anónimo llena formulario
+ * 2. Frontend crea usuario en Clerk: signUp.create()
+ * 3. Frontend prepara verificación: prepareEmailAddressVerification()
+ * 4. Frontend envía datos a /api/registro (AQUÍ ESTAMOS)
+ * 5. Backend valida Zod + CAPTCHA + guarda en BD
+ * 6. Clerk envía email con código
+ * 7. User verifica código en app
+ * 8. User accede a completar registro: /api/completar-registro
  */
 
 // Helper para enmascarar datos sensibles en logs
@@ -114,51 +121,18 @@ export async function POST(request: NextRequest) {
     }
 
     // ============================================
-    // CAPA 3: Validar que clerk_user_id existe en Clerk
+    // CAPA 3: Validar clerk_user_id
     // ============================================
-    if (!data.clerk_user_id) {
-      console.error("❌ [REGISTRO] Falta clerk_user_id")
+    // ⚠️ ARQUITECTURA: No validamos con Clerk aquí porque:
+    // - El user acaba de ser creado pero AÚN NO verificó email
+    // - Clerk aún no lo ha completamente inicializado
+    // - Solo verificamos que tiene un formato válido (no vacío)
+    // - La verdadera validación ocurre cuando el user verifica email
+    
+    if (!data.clerk_user_id || typeof data.clerk_user_id !== 'string' || data.clerk_user_id.trim().length === 0) {
+      console.error("❌ [REGISTRO] clerk_user_id inválido o vacío")
       return NextResponse.json(
-        { error: "No se recibió el ID de usuario de Clerk" },
-        { status: 400 }
-      )
-    }
-
-    // CRÍTICO: Verificar que el user existe REALMENTE en Clerk
-    // Previene spoofing de IDs
-    let clerkUserExists = false
-    try {
-      const client = await clerkClient()
-      const clerkUser = await client.users.getUser(data.clerk_user_id)
-      clerkUserExists = !!clerkUser
-      
-      // Validar que el email en Clerk coincida con lo que envía
-      if (clerkUser && clerkUser.emailAddresses?.length > 0) {
-        const clerkEmail = clerkUser.emailAddresses[0].emailAddress?.toLowerCase()
-        const submittedEmail = data.correo?.toLowerCase()
-        
-        if (clerkEmail !== submittedEmail) {
-          console.error("❌ [REGISTRO] Email mismatch entre formulario y Clerk")
-          console.error(`   Clerk: ${clerkEmail}`)
-          console.error(`   Formulario: ${submittedEmail}`)
-          return NextResponse.json(
-            { error: "El email no coincide con tu cuenta de Clerk" },
-            { status: 400 }
-          )
-        }
-      }
-    } catch (clerkError) {
-      console.error("❌ [REGISTRO] Error validando en Clerk:", clerkError)
-      return NextResponse.json(
-        { error: "No se pudo validar tu usuario de Clerk. Por favor, intenta de nuevo." },
-        { status: 400 }
-      )
-    }
-
-    if (!clerkUserExists) {
-      console.error("❌ [REGISTRO] Clerk user ID no existe:", data.clerk_user_id)
-      return NextResponse.json(
-        { error: "El ID de usuario de Clerk no es válido" },
+        { error: "No se recibió un ID de usuario válido" },
         { status: 400 }
       )
     }
