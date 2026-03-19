@@ -79,10 +79,10 @@ export function ContactForm({ recipientName, recipientId, recipientType, open, o
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-white border-blue-100">
+      <DialogContent className="sm:max-w-[500px] bg-white dark:bg-slate-950 border-blue-100 dark:border-slate-700">
         <DialogHeader>
-          <DialogTitle className="text-blue-900">Contactar a {recipientName}</DialogTitle>
-          <DialogDescription className="text-blue-600">
+          <DialogTitle className="text-blue-900 dark:text-white">Contactar a {recipientName}</DialogTitle>
+          <DialogDescription className="text-blue-600 dark:text-blue-400">
             {recipientType === "investigador"
               ? "Envía un mensaje al investigador para consultas o posibles colaboraciones."
               : recipientType === "proyecto"

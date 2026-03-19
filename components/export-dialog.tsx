@@ -383,18 +383,18 @@ export function ExportDialog({ title, description, dataType, data, filename, ope
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] bg-white border-blue-100">
+      <DialogContent className="sm:max-w-[550px] bg-white dark:bg-slate-950 border-blue-100 dark:border-slate-700">
         <DialogHeader>
-          <DialogTitle className="text-blue-900">{title}</DialogTitle>
-          <DialogDescription className="text-blue-600">{description}</DialogDescription>
+          <DialogTitle className="text-blue-900 dark:text-white">{title}</DialogTitle>
+          <DialogDescription className="text-blue-600 dark:text-blue-400">{description}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-blue-900">Formato de exportación</h3>
+            <h3 className="text-sm font-medium text-blue-900 dark:text-blue-300">Formato de exportación</h3>
             <RadioGroup value={exportFormat} onValueChange={setExportFormat} className="flex space-x-4">
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="csv" id="csv" />
-                <Label htmlFor="csv" className="text-blue-900 cursor-pointer">
+                <Label htmlFor="csv" className="text-blue-900 dark:text-blue-300 cursor-pointer">
                   <div className="flex items-center">
                     <FileSpreadsheet className="h-4 w-4 mr-1 text-green-600" />
                     CSV
@@ -403,7 +403,7 @@ export function ExportDialog({ title, description, dataType, data, filename, ope
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="excel" id="excel" />
-                <Label htmlFor="excel" className="text-blue-900 cursor-pointer">
+                <Label htmlFor="excel" className="text-blue-900 dark:text-blue-300 cursor-pointer">
                   <div className="flex items-center">
                     <FileSpreadsheet className="h-4 w-4 mr-1 text-green-700" />
                     Excel
@@ -412,7 +412,7 @@ export function ExportDialog({ title, description, dataType, data, filename, ope
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="pdf" id="pdf" />
-                <Label htmlFor="pdf" className="text-blue-900 cursor-pointer">
+                <Label htmlFor="pdf" className="text-blue-900 dark:text-blue-300 cursor-pointer">
                   <div className="flex items-center">
                     <FileText className="h-4 w-4 mr-1 text-red-600" />
                     PDF
@@ -424,9 +424,9 @@ export function ExportDialog({ title, description, dataType, data, filename, ope
 
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <h3 className="text-sm font-medium text-blue-900">
+              <h3 className="text-sm font-medium text-blue-900 dark:text-blue-300">
                 Campos a exportar 
-                <span className="text-blue-500 font-normal ml-2">
+                <span className="text-blue-500 dark:text-blue-400 font-normal ml-2">
                   ({selectedFields.length} seleccionados)
                 </span>
               </h3>
@@ -436,7 +436,7 @@ export function ExportDialog({ title, description, dataType, data, filename, ope
                   variant="outline"
                   size="sm"
                   onClick={handleSelectAll}
-                  className="h-7 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"
+                  className="h-7 text-xs border-blue-200 dark:border-slate-700 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-slate-800"
                 >
                   Seleccionar todos
                 </Button>
@@ -445,28 +445,28 @@ export function ExportDialog({ title, description, dataType, data, filename, ope
                   variant="outline"
                   size="sm"
                   onClick={handleClearAll}
-                  className="h-7 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"
+                  className="h-7 text-xs border-blue-200 dark:border-slate-700 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-slate-800"
                 >
                   Limpiar
                 </Button>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2 max-h-[250px] overflow-y-auto p-2 border border-blue-100 rounded-lg bg-blue-50/30">
+            <div className="grid grid-cols-2 gap-2 max-h-[250px] overflow-y-auto p-2 border border-blue-100 dark:border-slate-700 rounded-lg bg-blue-50/30 dark:bg-slate-800/30">
               {dataType && availableFields[dataType] ? (
                 availableFields[dataType].map((field) => (
-                  <div key={field.id} className="flex items-center space-x-2 p-1.5 rounded hover:bg-blue-100/50 transition-colors">
+                  <div key={field.id} className="flex items-center space-x-2 p-1.5 rounded hover:bg-blue-100/50 dark:hover:bg-slate-700/50 transition-colors">
                     <Checkbox
                       id={field.id}
                       checked={selectedFields.includes(field.id)}
                       onCheckedChange={() => handleFieldToggle(field.id)}
                     />
-                    <Label htmlFor={field.id} className="text-blue-900 text-sm cursor-pointer flex-1">
+                    <Label htmlFor={field.id} className="text-blue-900 dark:text-blue-300 text-sm cursor-pointer flex-1">
                       {field.label}
                     </Label>
                   </div>
                 ))
               ) : (
-                <div className="col-span-2 text-center text-blue-600 py-4">
+                <div className="col-span-2 text-center text-blue-600 dark:text-blue-400 py-4">
                   No hay campos disponibles para exportar
                 </div>
               )}
