@@ -38,11 +38,11 @@ export default async function RootLayout({
       signUpFallbackRedirectUrl="/dashboard"
     >
       <html lang="es">
-        <body className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50/30">
+        <body className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
           <PerfilProvider>
             <Navbar />
             <main className="pt-16 relative">
-              <div className="absolute inset-0 bg-gradient-to-b from-blue-100/20 via-transparent to-white/50 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-b from-blue-100/20 via-transparent to-white/50 dark:from-blue-900/10 dark:via-transparent dark:to-slate-950/50 pointer-events-none" />
               <div className="relative z-10">{children}</div>
             </main>
             <Footer />

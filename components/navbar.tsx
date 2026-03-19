@@ -6,6 +6,7 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { ModeToggle } from "@/components/mode-toggle"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -159,7 +160,7 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`border-b border-blue-100 shadow-md fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md transition-all duration-300 ${
+        className={`border-b border-blue-100 dark:border-blue-900/30 shadow-md fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md transition-all duration-300 ${
           isVisible ? "translate-y-0" : "-translate-y-full"
         }`}
       >
@@ -237,6 +238,9 @@ export default function Navbar() {
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-2 lg:gap-3">
+              {/* Theme Toggle */}
+              <ModeToggle />
+
               {/* Explorar Button */}
               <Button 
                 variant="ghost" 

@@ -23,35 +23,43 @@ const config = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "#ffffff", // White as main background
-        foreground: "#0056b3", // Blue text instead of dark gray
+        background: {
+          light: "#ffffff",
+          dark: "hsl(var(--background))",
+          DEFAULT: "#ffffff",
+        },
+        foreground: {
+          light: "#0056b3",
+          dark: "hsl(var(--foreground))",
+          DEFAULT: "#0056b3",
+        },
         primary: {
-          DEFAULT: "#ffffff", // White
-          foreground: "#0056b3", // Blue text on white
+          DEFAULT: "#ffffff",
+          foreground: "#0056b3",
         },
         secondary: {
-          DEFAULT: "#f8f9fa", // Light gray
-          foreground: "#0056b3", // Blue text
+          DEFAULT: "#f8f9fa",
+          foreground: "#0056b3",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {
-          DEFAULT: "#f1f3f5", // Very light gray
-          foreground: "#4a86c7", // Medium blue text
+          DEFAULT: "#f1f3f5",
+          foreground: "#4a86c7",
         },
         accent: {
-          DEFAULT: "#f8f9fa", // Light gray
-          foreground: "#0056b3", // Blue text
+          DEFAULT: "#f8f9fa",
+          foreground: "#0056b3",
         },
         popover: {
-          DEFAULT: "#ffffff", // White
-          foreground: "#0056b3", // Blue text
+          DEFAULT: "#ffffff",
+          foreground: "#0056b3",
         },
         card: {
-          DEFAULT: "#ffffff", // White
-          foreground: "#0056b3", // Blue text
+          DEFAULT: "#ffffff",
+          foreground: "#0056b3",
         },
       },
       borderRadius: {

@@ -7,5 +7,16 @@ import {
 } from 'next-themes'
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>
+  return (
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="light"
+      enableSystem
+      storageKey="sei-theme-preference"
+      themes={['light', 'dark']}
+      {...props}
+    >
+      {children}
+    </NextThemesProvider>
+  )
 }
