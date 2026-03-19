@@ -15,6 +15,7 @@ import { UploadFotografia } from "@/components/upload-fotografia"
 import { TagsInput } from "@/components/ui/tags-input"
 import { AreaSNIISelector } from "@/components/area-snii-selector"
 import { RequisitosNivelInvestigador } from "@/components/requisitos-nivel-investigador"
+import { TermsAndConditionsModal } from "@/components/terms-and-conditions-modal"
 import {
   Info,
   AlertCircle,
@@ -741,6 +742,12 @@ export default function RegistroPage() {
   const [submitAttempts, setSubmitAttempts] = useState(0)
   const [lastAttempt, setLastAttempt] = useState(0)
   const [nacionalidadOtro, setNacionalidadOtro] = useState(false)
+  
+  // ============================================
+  // TÉRMINOS Y CONDICIONES
+  // ============================================
+  const [showTermsModal, setShowTermsModal] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
 
   // Hydration fix effect
   useEffect(() => {
@@ -993,6 +1000,15 @@ export default function RegistroPage() {
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault()
+
+      // ============================================
+      // VALIDACIÓN 1: TÉRMINOS Y CONDICIONES
+      // ============================================
+      if (!termsAccepted) {
+        console.log("⚠️ [REGISTRO] Usuario intenta registrarse sin aceptar T&C")
+        setShowTermsModal(true)
+        return
+      }
 
       // Rate limiting check
       const now = Date.now()
@@ -2189,14 +2205,36 @@ export default function RegistroPage() {
                   {/* Clerk CAPTCHA Container */}
                   <div id="clerk-captcha" className="flex justify-center"></div>
 
+                  {/* TÉRMINOS Y CONDICIONES - Status */}
+                  <div className="flex items-center gap-3 p-4 rounded-lg bg-blue-50 border border-blue-200">
+                    <div className={`h-5 w-5 rounded-full flex items-center justify-center ${
+                      termsAccepted 
+                        ? 'bg-green-500' 
+                        : 'bg-gray-300'
+                    }`}>
+                      {termsAccepted && (
+                        <span className="text-white text-xs font-bold">✓</span>
+                      )}
+                    </div>
+                    <span className={`text-sm font-medium ${
+                      termsAccepted 
+                        ? 'text-green-700' 
+                        : 'text-gray-600'
+                    }`}>
+                      {termsAccepted 
+                        ? 'Términos y Condiciones aceptados' 
+                        : 'Debes aceptar los Términos y Condiciones para continuar'}
+                    </span>
+                  </div>
+
                   <Button
                     type="submit"
                     disabled={
-                      isLoading || !ocrCompleted || !isFormComplete || !passwordValidation.isValid || !passwordsMatch
+                      isLoading || !ocrCompleted || !isFormComplete || !passwordValidation.isValid || !passwordsMatch || !termsAccepted
                       // || !captchaValue // CAPTCHA DESHABILITADO
                     }
                     className={`w-full shadow-md hover:shadow-lg transition-all duration-300 h-10 md:h-12 text-sm md:text-base ${
-                      isFormComplete && passwordValidation.isValid && passwordsMatch
+                      isFormComplete && passwordValidation.isValid && passwordsMatch && termsAccepted
                       // && captchaValue // CAPTCHA DESHABILITADO
                         ? "bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800"
                         : "bg-gray-400 text-gray-200 cursor-not-allowed"
@@ -2237,6 +2275,26 @@ export default function RegistroPage() {
           </div>
         </div>
       </div>
+
+      {/* ============================================ */}
+      {/* MODAL - TÉRMINOS Y CONDICIONES */}
+      {/* ============================================ */}
+      <TermsAndConditionsModal
+        open={showTermsModal}
+        onOpenChange={setShowTermsModal}
+        onAccept={() => {
+          setTermsAccepted(true)
+          setShowTermsModal(false)
+          console.log("✅ [REGISTRO] Términos y Condiciones aceptados")
+        }}
+        onDecline={() => {
+          setTermsAccepted(false)
+          setShowTermsModal(false)
+          setError("Debes aceptar los Términos y Condiciones para continuar el registro")
+          console.log("❌ [REGISTRO] Registro cancelado - Términos y Condiciones rechazados")
+        }}
+        isLoading={isLoading}
+      />
     </div>
   )
 }
