@@ -3,21 +3,30 @@ import type { NextRequest } from "next/server"
 import { guardarRegistroPendiente } from "@/lib/db"
 import { registroInvestigadorSchema } from "@/lib/validations/registro"
 import { z } from "zod"
-import { auth } from "@clerk/nextjs/server"
+import { clerkClient } from "@clerk/nextjs/server"
 
 /**
- * API para guardar un registro PENDIENTE de verificación
+ * POST /api/registro
  * 
- * SEGURIDAD: 
- * - Requiere autenticación Clerk
- * - Valida que clerk_user_id coincida con usuario autenticado
- * - Enmasca datos sensibles en logs
+ * Endpoint PÚBLICO para registrar un nuevo investigador
  * 
- * Este endpoint guarda los datos en una tabla temporal después de crear
- * el usuario en Clerk, pero ANTES de que verifique su email.
+ * ARQUITECTURA DE SEGURIDAD MULTINIVEL:
+ * ✅ Zod validation - Estructura de datos
+ * ✅ Rate limiting (10 req/hora via middleware)
+ * ✅ reCAPTCHA - Previene bots
+ * ✅ Clerk ID validation - Verifica que el user existe en Clerk
+ * ✅ Unique constraints - BD previene duplicados
+ * ✅ Data sanitization - Remueve campos privilegiados
+ * ✅ Enmascaramiento de logs - No expone datos sensibles
  * 
- * El registro completo en la tabla 'investigadores' ocurre en /api/completar-registro
- * después de que el usuario verifique su email.
+ * FLUJO:
+ * 1. Usuario anónimo llena formulario
+ * 2. Frontend crea usuario en Clerk
+ * 3. Frontend envía datos a este endpoint (PUBLIC)
+ * 4. Backend valida todo (Zod + Clerk + CAPTCHA)
+ * 5. Backend guarda en BD
+ * 6. User recibe email de verificación
+ * 7. User verifica email → acceso automático a /api/completar-registro
  */
 
 // Helper para enmascarar datos sensibles en logs
@@ -75,122 +84,162 @@ async function verificarCaptcha(token: string): Promise<boolean> {
 
 export async function POST(request: NextRequest) {
   try {
-    // ✅ SEGURIDAD: Verificar autenticación
-    const { userId } = await auth()
-    
-    if (!userId) {
-      console.error("❌ [REGISTRO] No autenticado")
-      return NextResponse.json(
-        { error: "No autenticado. Por favor inicia sesión primero." },
-        { status: 401 }
-      )
-    }
-    
+    // ============================================
+    // CAPA 1: Obtener y parsear datos
+    // ============================================
     const rawData = await request.json()
-    
-    // ✅ SEGURIDAD: Validar que clerk_user_id coincida
-    if (rawData.clerk_user_id && rawData.clerk_user_id !== userId) {
-      console.error("❌ [REGISTRO] Intento de crear registro para otro usuario")
-      console.error(`   Usuario autenticado: ${userId}`)
-      console.error(`   Usuario en datos: ${rawData.clerk_user_id}`)
-      return NextResponse.json(
-        { error: "No autorizado para crear registro de otro usuario" },
-        { status: 403 }
-      )
-    }
-    
-    // ✅ SEGURIDAD: Enmascarar datos sensibles en logs
-    console.log("📥 [REGISTRO API] Datos recibidos (enmascarados):", enmascararDatos(rawData))
-    
-    // SEGURIDAD NIVEL 1: Remover campos admin que el usuario no debe poder establecer
-    const camposProhibidos = ['es_admin', 'es_evaluador', 'activo', 'es_aprobado', 'aprobado']
-    camposProhibidos.forEach(campo => delete rawData[campo])
-    
-    // SEGURIDAD NIVEL 2: Validación con Zod para asegurar estructura y tipos
+
+    // ============================================
+    // CAPA 2: Validar estructura con Zod
+    // ============================================
     let data
     try {
       data = registroInvestigadorSchema.parse(rawData)
     } catch (zodError) {
       if (zodError instanceof z.ZodError) {
-        // Extraer todos los campos que tienen errores
         const camposFaltantes = zodError.errors.map(e => String(e.path[0])).filter(Boolean)
-        
         console.error("❌ [REGISTRO VALIDACION] Error Zod:", {
           totalErrores: zodError.errors.length,
           camposConError: camposFaltantes,
-          todosLosErroresDetallados: zodError.errors.map(e => ({
-            campo: e.path.join('.'),
-            mensaje: e.message,
-            codigo: e.code
-          }))
         })
-        
         return NextResponse.json({
           error: "Datos de registro inválidos",
           message: camposFaltantes.length > 0 
             ? `Campos con error: ${camposFaltantes.join(', ')}`
             : "Error de validación en los datos",
           camposFaltantes: camposFaltantes,
-          todosLosErrores: zodError.errors.map(e => ({
-            campo: e.path.join('.'),
-            mensaje: e.message,
-            codigo: e.code
-          }))
         }, { status: 400 })
       }
       throw zodError
     }
-    
-    // VALIDACIÓN CRÍTICA: Debe tener clerk_user_id
+
+    // ============================================
+    // CAPA 3: Validar que clerk_user_id existe en Clerk
+    // ============================================
     if (!data.clerk_user_id) {
-      console.error("❌ [REGISTRO PENDIENTE] Falta clerk_user_id")
+      console.error("❌ [REGISTRO] Falta clerk_user_id")
       return NextResponse.json(
-        { 
-          error: "No se recibió el ID de usuario de Clerk",
-          details: "El usuario debe ser creado en Clerk primero"
-        },
+        { error: "No se recibió el ID de usuario de Clerk" },
         { status: 400 }
       )
     }
 
-    // VALIDACIÓN: Debe tener correo
-    if (!data.correo) {
-      console.error("❌ [REGISTRO PENDIENTE] Falta correo electrónico")
-      return NextResponse.json({ error: "El correo electrónico es obligatorio" }, { status: 400 })
+    // CRÍTICO: Verificar que el user existe REALMENTE en Clerk
+    // Previene spoofing de IDs
+    let clerkUserExists = false
+    try {
+      const client = await clerkClient()
+      const clerkUser = await client.users.getUser(data.clerk_user_id)
+      clerkUserExists = !!clerkUser
+      
+      // Validar que el email en Clerk coincida con lo que envía
+      if (clerkUser && clerkUser.emailAddresses?.length > 0) {
+        const clerkEmail = clerkUser.emailAddresses[0].emailAddress?.toLowerCase()
+        const submittedEmail = data.correo?.toLowerCase()
+        
+        if (clerkEmail !== submittedEmail) {
+          console.error("❌ [REGISTRO] Email mismatch entre formulario y Clerk")
+          console.error(`   Clerk: ${clerkEmail}`)
+          console.error(`   Formulario: ${submittedEmail}`)
+          return NextResponse.json(
+            { error: "El email no coincide con tu cuenta de Clerk" },
+            { status: 400 }
+          )
+        }
+      }
+    } catch (clerkError) {
+      console.error("❌ [REGISTRO] Error validando en Clerk:", clerkError)
+      return NextResponse.json(
+        { error: "No se pudo validar tu usuario de Clerk. Por favor, intenta de nuevo." },
+        { status: 400 }
+      )
     }
-    
-    // Construir nombre_completo si no existe
+
+    if (!clerkUserExists) {
+      console.error("❌ [REGISTRO] Clerk user ID no existe:", data.clerk_user_id)
+      return NextResponse.json(
+        { error: "El ID de usuario de Clerk no es válido" },
+        { status: 400 }
+      )
+    }
+
+    // ============================================
+    // CAPA 4: CAPTCHA Verification (si está configurado)
+    // ============================================
+    if (rawData.captchaToken) {
+      const captchaValid = await verificarCaptcha(rawData.captchaToken)
+      if (!captchaValid) {
+        console.error("❌ [REGISTRO] CAPTCHA inválido")
+        return NextResponse.json(
+          { error: "Verificación CAPTCHA fallida" },
+          { status: 400 }
+        )
+      }
+    } else if (process.env.RECAPTCHA_SECRET) {
+      // Si reCAPTCHA está configurado, es REQUERIDO
+      console.warn("⚠️ [REGISTRO] CAPTCHA token no recibido pero reCAPTCHA está configurado")
+      return NextResponse.json(
+        { error: "Se requiere completar la verificación CAPTCHA" },
+        { status: 400 }
+      )
+    }
+
+    // ============================================
+    // CAPA 5: Sanitización - Remover campos que usuario no debe establecer
+    // ============================================
+    const camposProhibidos = ['es_admin', 'es_evaluador', 'activo', 'es_aprobado', 'aprobado']
+    camposProhibidos.forEach(campo => {
+      if (campo in data) {
+        delete (data as any)[campo]
+      }
+    })
+
+    // ============================================
+    // CAPA 6: Enmascaramiento para logs
+    // ============================================
+    console.log("📥 [REGISTRO API] Datos recibidos (enmascarados):", enmascararDatos(data))
+
+    // ============================================
+    // CAPA 7: Datos opcionales
+    // ============================================
     if (!data.nombre_completo && data.nombres && data.apellidos) {
       data.nombre_completo = `${data.nombres} ${data.apellidos}`.trim()
     }
-    
-    // Validar que ahora sí tengamos nombre_completo
+
     if (!data.nombre_completo) {
-      console.error("❌ [REGISTRO PENDIENTE] Falta nombre completo")
-      return NextResponse.json({ error: "El nombre completo es obligatorio" }, { status: 400 })
+      return NextResponse.json(
+        { error: "El nombre completo es obligatorio" },
+        { status: 400 }
+      )
     }
 
-    // Añadir fecha de registro si no existe
+    if (!data.correo) {
+      return NextResponse.json(
+        { error: "El correo electrónico es obligatorio" },
+        { status: 400 }
+      )
+    }
+
     if (!data.fecha_registro) {
       data.fecha_registro = new Date().toISOString()
     }
 
-    // ✅ SOLUCIÓN TEMPORAL: Guardar directo en investigadores
-    // TODO: Volver a usar registros_pendientes cuando la tabla esté lista
-    
+    // ============================================
+    // CAPA 8: Guardar en BD
+    // ============================================
     try {
       const { guardarInvestigador } = await import("@/lib/db")
       
-      console.log("📝 [REGISTRO] Datos a guardar:")
+      console.log("📝 [REGISTRO] Guardando investigador:")
       console.log(`   - Email: ${data.correo}`)
       console.log(`   - Clerk User ID: ${data.clerk_user_id}`)
-      console.log(`   - Nombre completo: ${data.nombre_completo}`)
+      console.log(`   - Nombre: ${data.nombre_completo}`)
       
       const resultado = await guardarInvestigador(data)
       
       if (resultado.success) {
-        console.log("✅ [REGISTRO] Guardado exitosamente en PostgreSQL")
-        console.log(`   - ID de investigador: ${resultado.id}`)
+        console.log("✅ [REGISTRO] Guardado exitosamente")
+        console.log(`   - ID: ${resultado.id}`)
         
         return NextResponse.json({
           success: true,
@@ -198,41 +247,34 @@ export async function POST(request: NextRequest) {
           id: resultado.id,
           clerk_user_id: data.clerk_user_id,
           correo: data.correo
-        })
+        }, { status: 200 })
       } else {
-        console.error("❌ [REGISTRO] Error al guardar")
+        console.error("❌ [REGISTRO] Error al guardar:", resultado.message)
         return NextResponse.json({
           success: false,
           message: resultado.message || 'Error al guardar en la base de datos'
         }, { status: 409 })
       }
     } catch (dbError) {
-      console.error("❌ [REGISTRO] Error crítico en guardarInvestigador")
-      console.error("   Tipo:", dbError instanceof Error ? dbError.constructor.name : typeof dbError)
-      console.error("   Mensaje:", dbError instanceof Error ? dbError.message : String(dbError))
+      console.error("❌ [REGISTRO] Error en BD:", dbError)
       
-      // Detectar errores específicos y dar mensajes útiles
       let mensajeUsuario = "Error al guardar en la base de datos"
       const mensajeError = dbError instanceof Error ? dbError.message : String(dbError)
       
-      if (mensajeError.includes('value too long for type character varying(13)')) {
-        mensajeUsuario = "El RFC debe tener máximo 13 caracteres. Por favor, verifica que tu RFC sea correcto."
-      } else if (mensajeError.includes('value too long for type character varying(18)')) {
-        mensajeUsuario = "La CURP debe tener exactamente 18 caracteres. Por favor, verifica que tu CURP sea correcta."
-      } else if (mensajeError.includes('duplicate key')) {
-        mensajeUsuario = "Ya existe un registro con estos datos (CURP, RFC o correo duplicado)."
+      if (mensajeError.includes('duplicate key')) {
+        mensajeUsuario = "Ya existe un registro con estos datos (email, CURP o RFC duplicado)."
+      } else if (mensajeError.includes('value too long')) {
+        mensajeUsuario = "Algunos de tus datos son demasiado largos. Por favor, verifica CURP y RFC."
       }
       
       return NextResponse.json({
         error: mensajeUsuario,
-        errorTecnico: mensajeError,
-        type: dbError instanceof Error ? dbError.constructor.name : typeof dbError
       }, { status: 500 })
     }
   } catch (error) {
-    console.error("❌ [REGISTRO PENDIENTE] Error al procesar solicitud:", error)
+    console.error("❌ [REGISTRO] Error no manejado:", error)
     return NextResponse.json({
-      error: `Error al procesar el registro: ${error instanceof Error ? error.message : "Error desconocido"}`,
+      error: "Error al procesar tu registro. Por favor, intenta de nuevo.",
     }, { status: 500 })
   }
 }
