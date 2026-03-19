@@ -118,6 +118,7 @@ export function TermsAndConditionsModal({
               checked={accepted}
               onCheckedChange={(checked) => setAccepted(checked as boolean)}
               disabled={!scrolledToBottom || isLoading}
+              className="h-5 w-5 border-2 border-gray-400"
             />
             <Label htmlFor="accept-terms" className="text-sm cursor-pointer">
               Acepto los Términos y Condiciones y he leído toda la información
@@ -138,14 +139,14 @@ export function TermsAndConditionsModal({
               variant="outline"
               onClick={handleDecline}
               disabled={isLoading}
-              className="px-6"
+              className="px-6 hover:bg-red-50 hover:border-red-300 hover:text-red-700 transition-colors duration-200"
             >
               Rechazar
             </Button>
             <Button
               onClick={handleAccept}
               disabled={!accepted || !scrolledToBottom || isLoading}
-              className="px-6"
+              className="px-6 bg-green-600 hover:bg-green-700 hover:shadow-lg transition-all duration-200 disabled:bg-gray-400"
             >
               {isLoading ? 'Procesando...' : 'Aceptar y Continuar'}
             </Button>
