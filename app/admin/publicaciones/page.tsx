@@ -51,11 +51,11 @@ export default function PublicacionesAdmin() {
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([])
 
-  // Verificar que el usuario es admin (no evaluador)
+  // Verificar que el usuario es admin desde Clerk claims
   useEffect(() => {
     const checkAdmin = async () => {
       try {
-        const response = await fetch('/api/admin/verificar-acceso')
+        const response = await fetch('/api/auth/verify-admin')
         if (response.ok) {
           const data = await response.json()
           // Si es evaluador pero no admin, redirigir a instituciones

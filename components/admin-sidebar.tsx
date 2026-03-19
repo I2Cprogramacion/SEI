@@ -70,21 +70,20 @@ export function AdminSidebar() {
   const [esEvaluador, setEsEvaluador] = useState(false)
 
   useEffect(() => {
-    // Verificar si el usuario es admin o evaluador
+    // Verificar si el usuario es admin o evaluador desde Clerk claims
     const checkRoles = async () => {
       try {
-        const response = await fetch('/api/admin/verificar-acceso')
+        const response = await fetch('/api/auth/verify-admin')
         if (response.ok) {
           const data = await response.json()
           setEsAdmin(data.esAdmin || false)
           setEsEvaluador(data.esEvaluador || false)
-          console.log('✅ Roles cargados:', { esAdmin: data.esAdmin, esEvaluador: data.esEvaluador })
+          console.log('✅ Roles cargados desde Clerk:', { esAdmin: data.esAdmin, esEvaluador: data.esEvaluador })
         } else {
-          // Si falla la verificación, asumir que es al menos evaluador
-          // (permitir fallback en caso de problemas de BD)
-          console.warn('⚠️ Error en verificación de acceso, permitiendo acceso de fallback')
+          // Si falla la verificación
+          console.warn('⚠️ Error en verificación de acceso')
           setEsAdmin(false)
-          setEsEvaluador(true)
+          setEsEvaluador(false)
         }
       } catch (error) {
         console.error('❌ Error verificando roles:', error)
