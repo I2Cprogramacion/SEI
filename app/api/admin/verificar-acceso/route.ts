@@ -81,10 +81,21 @@ export async function GET() {
     })
 
   } catch (error) {
-    console.error('❌ [admin] Error:', error instanceof Error ? error.message : error)
+    const errorMsg = error instanceof Error ? error.message : String(error)
+    const errorStack = error instanceof Error ? error.stack : ''
+    
+    console.error('❌ [admin] Error COMPLETO:')
+    console.error('  Mensaje:', errorMsg)
+    console.error('  Stack:', errorStack)
+    console.error('  Raw:', JSON.stringify(error, null, 2))
+    
     return NextResponse.json({
       tieneAcceso: false,
-      error: 'Error al verificar'
+      error: 'Error al verificar',
+      debug: {
+        errorMsg,
+        errorType: error instanceof Error ? error.constructor.name : typeof error
+      }
     }, { status: 500 })
   }
 }

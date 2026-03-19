@@ -20,14 +20,12 @@ export default function AdminLayout({
   useEffect(() => {
     console.log('🚀 [AdminLayout] useEffect iniciado')
     
-    // Verificar si el usuario tiene acceso (admin o evaluador) desde el servidor
     const checkAuth = async () => {
       console.log('🔍 [AdminLayout] checkAuth iniciado')
       
       try {
-        console.log('📡 [AdminLayout] Haciendo fetch a /api/admin/verificar-acceso...')
-        
-        const response = await fetch('/api/admin/verificar-acceso', {
+        // Verificar permisos directamente del token de Clerk (sin BD)
+        const response = await fetch('/api/auth/verify-admin', {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
@@ -36,16 +34,12 @@ export default function AdminLayout({
         
         const data = await response.json()
         
-        console.log('🔍 [AdminLayout] Respuesta de verificar-acceso:', {
-          status: response.status,
+        console.log('✅ [AdminLayout] Verificación:', {
           tieneAcceso: data.tieneAcceso,
           esAdmin: data.esAdmin,
-          esEvaluador: data.esEvaluador,
-          error: data.error,
-          debugInfo: data.debugInfo
+          source: data.source
         })
         
-        // Guardar debug info para mostrar en pantalla
         setDebugInfo(data.debugInfo)
         
         if (!response.ok) {
@@ -53,46 +47,32 @@ export default function AdminLayout({
           console.warn('⚠️ Acceso denegado:', response.status, errorMsg)
           setError(errorMsg)
           
-          // Si es 401 (no autenticado), redirigir a login
           if (response.status === 401) {
             setTimeout(() => router.push("/iniciar-sesion"), 1500)
             return
           }
           
-          // Si es 403 (prohibido), redirigir a dashboard
           if (response.status === 403) {
             setTimeout(() => router.push("/dashboard"), 1500)
-            return
-          }
-          
-          // Si es 500 (error BD), esperar y reintentar
-          if (response.status === 500) {
-            console.log("⏳ Error de BD, reintentando en 3s...")
-            setTimeout(() => checkAuth(), 3000)
             return
           }
         }
         
         if (!data.tieneAcceso) {
-          console.warn('⚠️ Usuario no tiene permisos:', data.debug?.razon)
-          setError(data.debug?.razon || 'Sin permisos de admin')
+          console.warn('⚠️ Sin permisos de admin')
+          setError(data.error || 'Sin permisos')
           setTimeout(() => router.push("/dashboard"), 1500)
           return
         }
         
-        console.log('✅ Acceso de admin verificado:', {
-          esAdmin: data.esAdmin,
-          esEvaluador: data.esEvaluador,
-          usuario: data.usuario?.nombre
-        })
-        
+        console.log('✅ Acceso de admin permitido')
         setIsAuthorized(true)
+        
       } catch (error) {
-        console.error("❌ [AdminLayout] Error en checkAuth:", error)
+        console.error("❌ [AdminLayout] Error:", error)
         setError(error instanceof Error ? error.message : 'Error de conexión')
-        // Reintentar en caso de error de red
         setTimeout(() => {
-          console.log("⏳ [AdminLayout] Reintentando verificación de acceso...")
+          console.log("⏳ [AdminLayout] Reintentando...")
           checkAuth()
         }, 2000)
       } finally {
@@ -101,7 +81,7 @@ export default function AdminLayout({
       }
     }
 
-    console.log('⏱️ [AdminLayout] Llamando a checkAuth()')
+    console.log('⏱️ [AdminLayout] Llamando checkAuth()')
     checkAuth()
   }, [router])
 
