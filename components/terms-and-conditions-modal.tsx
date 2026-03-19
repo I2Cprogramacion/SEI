@@ -5,7 +5,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { AlertCircle, CheckCircle } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { TERMS_AND_CONDITIONS } from '@/constants/terms-and-conditions'
@@ -72,9 +71,9 @@ export function TermsAndConditionsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col p-0">
-        {/* Header */}
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+      <DialogContent className="max-w-3xl h-[90vh] flex flex-col gap-0 p-0 overflow-hidden">
+        {/* Header - Fixed */}
+        <DialogHeader className="px-6 pt-6 pb-4 border-b flex-shrink-0">
           <DialogTitle className="text-2xl font-bold">
             Términos y Condiciones
           </DialogTitle>
@@ -88,17 +87,20 @@ export function TermsAndConditionsModal({
           </div>
         </DialogHeader>
 
-        {/* Content - Scrollable */}
-        <ScrollArea className="flex-1 px-6" onScroll={handleScroll}>
-          <div className="pr-4 space-y-4 py-4">
+        {/* Content - Scrollable with proper height */}
+        <div 
+          className="flex-1 overflow-y-auto px-6 py-4 min-h-0"
+          onScroll={handleScroll}
+        >
+          <div className="space-y-4 pr-4">
             <div className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
               {TERMS_AND_CONDITIONS.content}
             </div>
           </div>
-        </ScrollArea>
+        </div>
 
-        {/* Footer - Acceptance */}
-        <div className="border-t px-6 py-4 space-y-4 bg-muted/30">
+        {/* Footer - Fixed */}
+        <div className="border-t px-6 py-4 space-y-4 bg-muted/30 flex-shrink-0">
           {/* Alert si no ha leído todo */}
           {!scrolledToBottom && (
             <Alert className="bg-amber-50 border-amber-200">
