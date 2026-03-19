@@ -24,64 +24,45 @@ export default function AdminLayout({
       console.log('🔍 [AdminLayout] checkAuth iniciado')
       
       try {
-        // Verificar permisos directamente del token de Clerk (sin BD)
-        const response = await fetch('/api/auth/verify-admin', {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        })
+        // Verificar permisos desde endpoint simple
+        const response = await fetch('/api/auth/verify-admin')
         
-        console.log('📬 [AdminLayout] Respuesta recibida, status:', response.status)
+        console.log('📬 [AdminLayout] Response status:', response.status)
+        
+        if (!response.ok) {
+          console.warn('⚠️ Access denied, status:', response.status)
+          
+          if (response.status === 401) {
+            router.push("/iniciar-sesion")
+            return
+          }
+          
+          // 403 = no permissions
+          if (response.status === 403) {
+            router.push("/dashboard")
+            return
+          }
+        }
         
         const data = await response.json()
         
-        console.log('✅ [AdminLayout] Verificación:', {
-          tieneAcceso: data.tieneAcceso,
-          esAdmin: data.esAdmin,
-          source: data.source
-        })
-        
-        setDebugInfo(data.debugInfo)
-        
-        if (!response.ok) {
-          const errorMsg = data.error || 'Error desconocido'
-          console.warn('⚠️ Acceso denegado:', response.status, errorMsg)
-          setError(errorMsg)
-          
-          if (response.status === 401) {
-            setTimeout(() => router.push("/iniciar-sesion"), 1500)
-            return
-          }
-          
-          if (response.status === 403) {
-            setTimeout(() => router.push("/dashboard"), 1500)
-            return
-          }
-        }
-        
         if (!data.tieneAcceso) {
-          console.warn('⚠️ Sin permisos de admin')
-          setError(data.error || 'Sin permisos')
-          setTimeout(() => router.push("/dashboard"), 1500)
+          console.warn('⚠️ Usuario sin permisos')
+          router.push("/dashboard")
           return
         }
         
-        console.log('✅ Acceso de admin permitido')
+        console.log('✅ Acceso permitido')
         setIsAuthorized(true)
         
       } catch (error) {
-        console.error("❌ [AdminLayout] Error:", error)
-        setError(error instanceof Error ? error.message : 'Error de conexión')
-        setTimeout(() => {
-          console.log("⏳ [AdminLayout] Reintentando...")
-          checkAuth()
-        }, 2000)
+        console.error("❌ Error:", error)
+        setError(error instanceof Error ? error.message : 'Error desconocido')
       } finally {
-        console.log('✅ [AdminLayout] checkAuth finalizado')
         setIsLoading(false)
       }
     }
 
-    console.log('⏱️ [AdminLayout] Llamando checkAuth()')
     checkAuth()
   }, [router])
 
