@@ -55,6 +55,11 @@ const sidebarItems = [
 
 const adminOnlyItems = [
   {
+    title: "Gestionar Admins",
+    href: "/admin/gestionar-admins",
+    icon: Shield,
+  },
+  {
     title: "Gestionar Evaluadores",
     href: "/admin/evaluadores",
     icon: Shield,
