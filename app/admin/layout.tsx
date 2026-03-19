@@ -18,13 +18,21 @@ export default function AdminLayout({
   const router = useRouter()
 
   useEffect(() => {
+    console.log('🚀 [AdminLayout] useEffect iniciado')
+    
     // Verificar si el usuario tiene acceso (admin o evaluador) desde el servidor
     const checkAuth = async () => {
+      console.log('🔍 [AdminLayout] checkAuth iniciado')
+      
       try {
+        console.log('📡 [AdminLayout] Haciendo fetch a /api/admin/verificar-acceso...')
+        
         const response = await fetch('/api/admin/verificar-acceso', {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
+        
+        console.log('📬 [AdminLayout] Respuesta recibida, status:', response.status)
         
         const data = await response.json()
         
@@ -34,11 +42,11 @@ export default function AdminLayout({
           esAdmin: data.esAdmin,
           esEvaluador: data.esEvaluador,
           error: data.error,
-          debug: data.debug
+          debugInfo: data.debugInfo
         })
         
         // Guardar debug info para mostrar en pantalla
-        setDebugInfo(data.debug)
+        setDebugInfo(data.debugInfo)
         
         if (!response.ok) {
           const errorMsg = data.error || 'Error desconocido'
@@ -80,18 +88,20 @@ export default function AdminLayout({
         
         setIsAuthorized(true)
       } catch (error) {
-        console.error("❌ Error checking admin auth:", error)
+        console.error("❌ [AdminLayout] Error en checkAuth:", error)
         setError(error instanceof Error ? error.message : 'Error de conexión')
         // Reintentar en caso de error de red
         setTimeout(() => {
-          console.log("⏳ Reintentando verificación de acceso...")
+          console.log("⏳ [AdminLayout] Reintentando verificación de acceso...")
           checkAuth()
         }, 2000)
       } finally {
+        console.log('✅ [AdminLayout] checkAuth finalizado')
         setIsLoading(false)
       }
     }
 
+    console.log('⏱️ [AdminLayout] Llamando a checkAuth()')
     checkAuth()
   }, [router])
 
