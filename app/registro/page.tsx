@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { UploadFotografia } from "@/components/upload-fotografia"
 import { TagsInput } from "@/components/ui/tags-input"
@@ -2205,26 +2206,50 @@ export default function RegistroPage() {
                   {/* Clerk CAPTCHA Container */}
                   <div id="clerk-captcha" className="flex justify-center"></div>
 
-                  {/* TÉRMINOS Y CONDICIONES - Status */}
-                  <div className="flex items-center gap-3 p-4 rounded-lg bg-blue-50 border border-blue-200">
-                    <div className={`h-5 w-5 rounded-full flex items-center justify-center ${
-                      termsAccepted 
-                        ? 'bg-green-500' 
-                        : 'bg-gray-300'
-                    }`}>
-                      {termsAccepted && (
-                        <span className="text-white text-xs font-bold">✓</span>
-                      )}
+                  {/* TÉRMINOS Y CONDICIONES - Checkbox + Link */}
+                  <div className="space-y-3 p-4 rounded-lg bg-blue-50 border border-blue-200">
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        id="accept-terms-checkbox"
+                        checked={termsAccepted}
+                        onCheckedChange={(checked) => {
+                          setTermsAccepted(checked as boolean)
+                          console.log(`[TÉRMINOS] Checkbox: ${checked ? 'Aceptado' : 'No aceptado'}`)
+                        }}
+                        className="mt-1"
+                      />
+                      <label htmlFor="accept-terms-checkbox" className="text-sm cursor-pointer flex-1 leading-relaxed">
+                        <span className="text-gray-700">
+                          He leído y acepto los{" "}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              console.log("[TÉRMINOS] Usuario abre modal")
+                              setShowTermsModal(true)
+                            }}
+                            className="text-blue-600 hover:text-blue-800 font-medium underline underline-offset-2 hover:underline-offset-4 transition-all"
+                          >
+                            Términos y Condiciones
+                          </button>
+                          {" "}de la Plataforma
+                        </span>
+                      </label>
                     </div>
-                    <span className={`text-sm font-medium ${
-                      termsAccepted 
-                        ? 'text-green-700' 
-                        : 'text-gray-600'
-                    }`}>
-                      {termsAccepted 
-                        ? 'Términos y Condiciones aceptados' 
-                        : 'Debes aceptar los Términos y Condiciones para continuar'}
-                    </span>
+                    
+                    {/* Visual feedback */}
+                    {termsAccepted && (
+                      <div className="flex items-center gap-2 text-green-600 text-xs pl-8">
+                        <CheckCircle className="h-4 w-4" />
+                        <span>✓ Términos aceptados</span>
+                      </div>
+                    )}
+                    
+                    {!termsAccepted && (
+                      <div className="flex items-center gap-2 text-amber-600 text-xs pl-8">
+                        <AlertCircle className="h-4 w-4" />
+                        <span>Debes aceptar los Términos para continuar</span>
+                      </div>
+                    )}
                   </div>
 
                   <Button
