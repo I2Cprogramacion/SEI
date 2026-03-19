@@ -22,7 +22,7 @@ export async function GET() {
     try {
       user = await Promise.race([
         currentUser(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout Clerk')), 5000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout Clerk - 10s')), 10000))
       ])
     } catch (e) {
       debugInfo.steps.push('❌ Timeout en Clerk')
@@ -69,7 +69,7 @@ export async function GET() {
     try {
       result = await Promise.race([
         sql`SELECT id, nombre_completo, correo, es_admin, es_evaluador FROM investigadores WHERE LOWER(correo) = LOWER(${email}) LIMIT 1`,
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout SQL')), 5000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout SQL - 15s')), 15000))
       ])
     } catch (e) {
       debugInfo.steps.push('❌ Timeout en SQL')
