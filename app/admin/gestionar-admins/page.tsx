@@ -9,8 +9,8 @@ interface Investigador {
   id: string
   nombre_completo: string
   correo: string
-  es_admin: boolean
-  es_evaluador: boolean
+  es_admin?: boolean
+  es_evaluador?: boolean
   clerk_user_id?: string
 }
 
@@ -30,7 +30,9 @@ export default function GestionarAdminsPage() {
         const response = await fetch('/api/investigadores?incluirInactivos=true')
         if (!response.ok) throw new Error('Error cargando investigadores')
         const data = await response.json()
-        setInvestigadores(data)
+        // El endpoint retorna { investigadores: [...], filtros: {...} }
+        const listaInvestigadores = data.investigadores || data || []
+        setInvestigadores(listaInvestigadores)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error desconocido')
       } finally {
@@ -166,7 +168,7 @@ export default function GestionarAdminsPage() {
                   </td>
                   <td className="px-6 py-3 text-center">
                     <Button
-                      onClick={() => handleToggleAdmin(inv.id, inv.es_admin)}
+                      onClick={() => handleToggleAdmin(inv.id, inv.es_admin === true)}
                       disabled={updatingId === inv.id}
                       variant={inv.es_admin ? 'destructive' : 'default'}
                       size="sm"
