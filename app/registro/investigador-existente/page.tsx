@@ -404,7 +404,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
             Archivo PDF del Perfil Único Completo (PUC) * (Máximo {FILE_CONSTRAINTS.MAX_SIZE_MB}MB)
           </Label>
           <p className="text-xs text-blue-600">
-            Este documento se procesar\u00e9 autom\u00e9ticamente para extraer tu informaci\u00f3n y se guardar\u00e9 como tu Perfil \u00danico Completo (PUC) en el perfil.
+            Este documento se procesará automáticamente para extraer tu información y se guardará como tu Perfil Único Completo (PUC) en el perfil.
           </p>
           <div className="relative">
             <Input
@@ -412,7 +412,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
               type="file"
               accept=".pdf"
               onChange={onFileChange}
-              aria-label="Subir archivo PDF del Perfil \u00danico Completo (PUC)"
+              aria-label="Subir archivo PDF del Perfil Único Completo (PUC)"
               aria-required="true"
               className="bg-white border-blue-200 text-blue-900 file:bg-blue-50 file:text-blue-700 file:border-0 file:rounded-md file:px-4 file:py-2 file:mr-4 hover:file:bg-blue-100 transition-colors h-14 py-2.5"
               required
@@ -431,7 +431,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
               <div className="flex-1">
                 <span className="text-sm text-green-700 font-medium block">{selectedFile.name}</span>
                 <span className="text-xs text-green-600">
-                  Archivo v\u00e9lido - Tama\u00f1o: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                  Archivo vélido - Tamaño: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                 </span>
               </div>
             </div>
@@ -451,7 +451,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
           ) : (
             <>
               <Upload className="mr-2 h-5 w-5" />
-              Procesar Perfil \u00danico Completo (PUC)
+              Procesar Perfil Único Completo (PUC)
             </>
           )}
         </Button>
@@ -460,29 +460,29 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
           <div className="space-y-3">
             <Alert className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 shadow-sm">
               <CheckCircle className="h-5 w-5 text-green-600" />
-              <AlertTitle className="text-green-800 font-semibold">┬íDatos extra\u00e1dos exitosamente!</AlertTitle>
+              <AlertTitle className="text-green-800 font-semibold">┬íDatos extraádos exitosamente!</AlertTitle>
               <AlertDescription className="text-green-700">
-                Se han extra\u00e1do los datos de tu Perfil \u00danico. Revisa cuidadosamente la informaci\u00f3n en el formulario
+                Se han extraádo los datos de tu Perfil Único. Revisa cuidadosamente la información en el formulario
                 antes de continuar.
               </AlertDescription>
             </Alert>
 
             <Alert className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 shadow-sm">
               <AlertTriangle className="h-5 w-5 text-amber-600" />
-              <AlertTitle className="text-amber-800 font-semibold">\u26a0\ufe0f Importante: Verificaci\u00f3n requerida</AlertTitle>
+              <AlertTitle className="text-amber-800 font-semibold">\u26a0\ufe0f Importante: Verificación requerida</AlertTitle>
               <AlertDescription className="text-amber-700">
                 <div className="space-y-2">
                   <p>
-                    El OCR puede contener errores de interpretaci\u00f3n. Es <strong>fundamental</strong> que revises y
+                    El OCR puede contener errores de interpretación. Es <strong>fundamental</strong> que revises y
                     corrijas:
                   </p>
                   <ul className="list-disc list-inside space-y-1 text-sm">
-                    <li>N\u00fameros de identificaci\u00f3n (CURP, RFC, CVU)</li>
+                    <li>Números de identificación (CURP, RFC, CVU)</li>
                     <li>
-                      <strong>L\u00e1nea de investigaci\u00f3n (captura manual requerida)</strong>
+                      <strong>Lánea de investigación (captura manual requerida)</strong>
                     </li>
                     <li>
-                      <strong>Contrase\u00f1a segura (captura manual requerida)</strong>
+                      <strong>Contraseña segura (captura manual requerida)</strong>
                     </li>
                   </ul>
                 </div>
@@ -506,19 +506,19 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
             <li className="flex items-center gap-2">
               <CheckCircle className="h-3 w-3 text-green-600" />
               <span>
-                <strong>Tama\u00f1o m\u00e9ximo:</strong> {FILE_CONSTRAINTS.MAX_SIZE_MB}MB
+                <strong>Tamaño méximo:</strong> {FILE_CONSTRAINTS.MAX_SIZE_MB}MB
               </span>
             </li>
             <li className="flex items-center gap-2">
               <CheckCircle className="h-3 w-3 text-green-600" />
               <span>
-                <strong>Contenido:</strong> Perfil \u00danico (PU) actualizado
+                <strong>Contenido:</strong> Perfil Único (PU) actualizado
               </span>
             </li>
             <li className="flex items-center gap-2">
               <AlertTriangle className="h-3 w-3 text-amber-600" />
               <span>
-                <strong>Verificaci\u00f3n necesaria:</strong> Siempre revisa los datos extra\u00e1dos
+                <strong>Verificación necesaria:</strong> Siempre revisa los datos extraádos
               </span>
             </li>
           </ul>
@@ -581,7 +581,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
           className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
           onClick={onTogglePassword}
           disabled={disabled}
-          aria-label={showPassword ? "Ocultar contrase\u00f1a" : "Mostrar contrase\u00f1a"}
+          aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
         >
           {showPassword ? <EyeOff className="h-4 w-4 text-gray-500" /> : <Eye className="h-4 w-4 text-gray-500" />}
         </Button>
@@ -604,7 +604,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
   return (
     <div className="space-y-3">
       <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-        <h4 className="text-sm font-medium text-gray-700 mb-2">Requisitos de contrase\u00f1a:</h4>
+        <h4 className="text-sm font-medium text-gray-700 mb-2">Requisitos de contraseña:</h4>
         <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 text-xs">
           <div
             className={`flex items-center gap-2 ${
@@ -616,7 +616,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
             ) : (
               <AlertCircle className="h-3 w-3" />
             )}
-            M\u00e1nimo 8 caracteres
+            Mánimo 8 caracteres
           </div>
           <div
             className={`flex items-center gap-2 ${
@@ -628,7 +628,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
             ) : (
               <AlertCircle className="h-3 w-3" />
             )}
-            Una may\u00fascula (A-Z)
+            Una mayúscula (A-Z)
           </div>
           <div
             className={`flex items-center gap-2 ${
@@ -640,7 +640,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
             ) : (
               <AlertCircle className="h-3 w-3" />
             )}
-            Una min\u00fascula (a-z)
+            Una minúscula (a-z)
           </div>
           <div
             className={`flex items-center gap-2 ${
@@ -652,7 +652,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
             ) : (
               <AlertCircle className="h-3 w-3" />
             )}
-            Un n\u00famero (0-9)
+            Un número (0-9)
           </div>
           <div
             className={`flex items-center gap-2 ${
@@ -664,7 +664,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
             ) : (
               <AlertCircle className="h-3 w-3" />
             )}
-            Un car\u00e9cter especial
+            Un carécter especial
           </div>
         </div>
         <div className="mt-3">
@@ -675,7 +675,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
                 validation.score >= 4 ? "text-green-600" : validation.score >= 3 ? "text-yellow-600" : "text-red-600"
               }`}
             >
-              {validation.score >= 4 ? "Fuerte" : validation.score >= 3 ? "Media" : "D\u00e9bil"}
+              {validation.score >= 4 ? "Fuerte" : validation.score >= 3 ? "Media" : "Débil"}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
@@ -689,7 +689,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
         </div>
       </div>
 
-      {/* Indicador de coincidencia de contrase\u00f1as */}
+      {/* Indicador de coincidencia de contraseñas */}
       {showMatchIndicator && (
         <div
           className={`rounded-lg p-3 border ${
@@ -703,14 +703,14 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
               <>
                 <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
                 <span className="text-sm font-medium text-green-700">
-                  \u2713 Las contrase\u00f1as coinciden
+                  \u2713 Las contraseñas coinciden
                 </span>
               </>
             ) : (
               <>
                 <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
                 <span className="text-sm font-medium text-red-700">
-                  \u2717 Las contrase\u00f1as no coinciden
+                  \u2717 Las contraseñas no coinciden
                 </span>
               </>
             )}
@@ -745,7 +745,7 @@ export default function RegistroPage() {
   const [nacionalidadOtro, setNacionalidadOtro] = useState(false)
   
   // ============================================
-  // T\u00c9RMINOS Y CONDICIONES
+  // TÉRMINOS Y CONDICIONES
   // ============================================
   const [showTermsModal, setShowTermsModal] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
@@ -767,37 +767,37 @@ export default function RegistroPage() {
 
   const passwordsMatch = formData.password === formData.confirm_password
 
-  // Campos requeridos din\u00e9micos seg\u00fan tipo de perfil
+  // Campos requeridos dinémicos según tipo de perfil
   // Definir exactamente 17 campos requeridos, contando solo linea_investigacion y area_investigacion como un campo cada uno
   const requiredFields = [
     { field: "nombres", label: "Nombre(s)" },
     { field: "apellidos", label: "Apellidos" },
-    { field: "correo", label: "Correo Electr\u00f3nico" },
-    { field: "telefono", label: "Tel\u00e9fono" },
-    { field: "ultimo_grado_estudios", label: "\u00daltimo Grado de Estudios" },
+    { field: "correo", label: "Correo Electrónico" },
+    { field: "telefono", label: "Teléfono" },
+    { field: "ultimo_grado_estudios", label: "Último Grado de Estudios" },
     { field: "empleo_actual", label: "Empleo Actual" },
-    { field: "linea_investigacion", label: "L\u00e1nea de Investigaci\u00f3n" },
-    { field: "area_investigacion", label: "\u00darea de Investigaci\u00f3n" },
+    { field: "linea_investigacion", label: "Lánea de Investigación" },
+    { field: "area_investigacion", label: "Úrea de Investigación" },
     { field: "nacionalidad", label: "Nacionalidad" },
     { field: "fecha_nacimiento", label: "Fecha de Nacimiento" },
-    { field: "genero", label: "G\u00e9nero" },
+    { field: "genero", label: "Género" },
     { field: "tipo_perfil", label: "Tipo de Perfil" },
     ...(formData.tipo_perfil === "INVESTIGADOR" 
       ? [{ field: "nivel_investigador", label: "Nivel de Investigador" }]
-      : [{ field: "nivel_tecnologo", label: "Nivel de Tecn\u00f3logo" }]
+      : [{ field: "nivel_tecnologo", label: "Nivel de Tecnólogo" }]
     ),
     { field: "municipio", label: "Municipio" },
     { field: "no_cvu", label: "CVU/PU" },
     { field: "curp", label: "CURP" },
     { field: "rfc", label: "RFC" },
-    { field: "password", label: "Contrase\u00f1a" },
-    { field: "confirm_password", label: "Confirmar Contrase\u00f1a" },
+    { field: "password", label: "Contraseña" },
+    { field: "confirm_password", label: "Confirmar Contraseña" },
   ];
 
   const emptyFields = requiredFields.filter((field) => {
     const value = formData[field.field as keyof FormData];
     if (field.field === "ultimo_grado_estudios") {
-      // Validar expl\u00e1citamente que no est\u00e9 vac\u00e1o ni sea solo espacios
+      // Validar explácitamente que no esté vacáo ni sea solo espacios
       return !value || (typeof value === 'string' && value.trim() === '');
     }
     if (Array.isArray(value)) {
@@ -820,7 +820,7 @@ export default function RegistroPage() {
         [name]: value,
       }
       
-      // Generar nombre_completo autom\u00e9ticamente cuando cambien nombres o apellidos
+      // Generar nombre_completo autométicamente cuando cambien nombres o apellidos
       if (name === 'nombres' || name === 'apellidos') {
         const nombres = name === 'nombres' ? value : prev.nombres
         const apellidos = name === 'apellidos' ? value : prev.apellidos
@@ -843,7 +843,7 @@ export default function RegistroPage() {
       const file = e.target.files?.[0]
       if (file) {
         if (file.type !== FILE_CONSTRAINTS.ACCEPTED_TYPE) {
-          setError("Por favor selecciona un archivo PDF v\u00e9lido")
+          setError("Por favor selecciona un archivo PDF vélido")
           setSelectedFile(null)
           setOcrCompleted(false)
           e.target.value = ""
@@ -853,7 +853,7 @@ export default function RegistroPage() {
         const fileSizeMB = (file.size / 1024 / 1024).toFixed(2)
         if (file.size > FILE_CONSTRAINTS.MAX_SIZE_BYTES) {
           setError(
-            `El archivo es demasiado grande. El tama\u00f1o m\u00e9ximo permitido es ${FILE_CONSTRAINTS.MAX_SIZE_MB}MB. Tu archivo pesa ${fileSizeMB}MB`
+            `El archivo es demasiado grande. El tamaño méximo permitido es ${FILE_CONSTRAINTS.MAX_SIZE_MB}MB. Tu archivo pesa ${fileSizeMB}MB`
           )
           setSelectedFile(null)
           setOcrCompleted(false)
@@ -884,7 +884,7 @@ export default function RegistroPage() {
       // Subir a Vercel Blob
       let cvUrl: string | null = null
       try {
-        console.log("💾 Subiendo Perfil \u00danico a Vercel Blob...")
+        console.log("💾 Subiendo Perfil Único a Vercel Blob...")
         const response = await fetch("/api/upload-cv-vercel", {
           method: "POST",
           body: formDataCV,
@@ -893,25 +893,25 @@ export default function RegistroPage() {
         if (response.ok) {
           const result = await response.json()
           cvUrl = result.url as string
-          console.log("✅ Perfil \u00danico subido a Vercel Blob:", cvUrl)
+          console.log("✅ Perfil Único subido a Vercel Blob:", cvUrl)
           
           // Guardar la URL del CV en el estado del formulario
           setFormData((prev) => ({
             ...prev,
             cv_url: cvUrl!,
           }))
-          console.log("✅ Perfil \u00danico URL guardada en formulario:", cvUrl)
+          console.log("✅ Perfil Único URL guardada en formulario:", cvUrl)
         } else {
           const errorData = await response.json()
           console.error("❌ Error en respuesta:", errorData)
           throw new Error(errorData.error || "Error al subir el archivo")
         }
       } catch (error) {
-        console.error("❌ Error subiendo Perfil \u00danico a Vercel Blob:", error)
-        setError(`Error al subir el Perfil \u00danico: ${error instanceof Error ? error.message : "Error desconocido"}`)
+        console.error("❌ Error subiendo Perfil Único a Vercel Blob:", error)
+        setError(`Error al subir el Perfil Único: ${error instanceof Error ? error.message : "Error desconocido"}`)
       }
     } catch (error) {
-      console.error("❌ Error guardando PDF como Perfil \u00danico:", error)
+      console.error("❌ Error guardando PDF como Perfil Único:", error)
     }
   }, [selectedFile])
 
@@ -948,7 +948,7 @@ export default function RegistroPage() {
         return
       }
 
-      // ✅ El OCR ahora solo retorna datos extra\u00e1dos, no guarda en BD
+      // ✅ El OCR ahora solo retorna datos extraádos, no guarda en BD
       // Extraer los datos de la respuesta (pueden estar en result directamente o en result.data)
       const ocrData = result.data || result
       
@@ -957,11 +957,11 @@ export default function RegistroPage() {
 
       console.log("✅ [OCR] Datos sanitizados:", sanitizedData)
 
-      // Verificar si se extrajeron datos \u00fatiles
+      // Verificar si se extrajeron datos útiles
       if (sanitizedData.curp || sanitizedData.rfc || sanitizedData.no_cvu || sanitizedData.telefono || sanitizedData.correo) {
-        console.log("✅ [OCR] Datos extra\u00e1dos exitosamente, actualizando formulario...")
+        console.log("✅ [OCR] Datos extraádos exitosamente, actualizando formulario...")
         
-        // Actualizar el formulario con los datos extra\u00e1dos
+        // Actualizar el formulario con los datos extraádos
         setFormData((prev) => ({
           ...prev,
           ...sanitizedData,
@@ -971,7 +971,7 @@ export default function RegistroPage() {
         setError(null)
         setIsProcessingPDF(false)
         
-        // Guardar el PDF como Perfil \u00danico autom\u00e9ticamente
+        // Guardar el PDF como Perfil Único autométicamente
         await handleSavePDFAsCV()
         
         console.log("✅ [OCR] Proceso completado. El usuario debe completar los campos faltantes.")
@@ -988,7 +988,7 @@ export default function RegistroPage() {
       console.error("❌ [OCR] Error durante el procesamiento:", error)
       
       if (error.name === "AbortError") {
-        setError("La solicitud tard\u00f3 demasiado tiempo. Por favor intenta de nuevo.")
+        setError("La solicitud tardó demasiado tiempo. Por favor intenta de nuevo.")
       } else {
         setError("Error al procesar el PDF. Por favor, completa los campos manualmente.")
       }
@@ -1028,23 +1028,23 @@ export default function RegistroPage() {
       // console.log("✅ CAPTCHA verificado. Continuando con el registro...")
 
       if (!ocrCompleted) {
-  setError("El procesamiento autom\u00e9tico de perfil (OCR) no est\u00e9 disponible temporalmente. Por favor, captura tus datos manualmente. Puedes continuar con el registro.")
-  // Permitir continuar aunque el OCR no est\u00e9 disponible
+  setError("El procesamiento automético de perfil (OCR) no esté disponible temporalmente. Por favor, captura tus datos manualmente. Puedes continuar con el registro.")
+  // Permitir continuar aunque el OCR no esté disponible
       }
 
       if (emptyFields.length > 0) {
         const fieldNames = emptyFields.map((field) => field.label).join(", ")
-        setError(`Los siguientes campos son obligatorios y no pueden estar vac\u00e1os: ${fieldNames}`)
+        setError(`Los siguientes campos son obligatorios y no pueden estar vacáos: ${fieldNames}`)
         return
       }
 
       if (!passwordValidation.isValid) {
-        setError("La contrase\u00f1a no cumple con los requisitos de seguridad m\u00e1nimos")
+        setError("La contraseña no cumple con los requisitos de seguridad mánimos")
         return
       }
 
       if (formData.password !== formData.confirm_password) {
-        setError("Las contrase\u00f1as no coinciden")
+        setError("Las contraseñas no coinciden")
         return
       }
 
@@ -1055,41 +1055,41 @@ export default function RegistroPage() {
 
       try {
         if (!formData.correo.includes("@")) {
-          throw new Error("El correo electr\u00f3nico debe tener un formato v\u00e9lido")
+          throw new Error("El correo electrónico debe tener un formato vélido")
         }
 
-        // PRIMERO: Verificar que signUp est\u00e9 cargado y disponible
+        // PRIMERO: Verificar que signUp esté cargado y disponible
         if (!isLoaded || !signUp) {
-          throw new Error("El sistema de registro no est\u00e9 listo. Intenta de nuevo.")
+          throw new Error("El sistema de registro no esté listo. Intenta de nuevo.")
         }
 
         try {
           console.log("✅ [REGISTRO] Paso 1: Creando usuario en Clerk...")
           
-          // PASO 1: Crear el usuario en Clerk primero (valida duplicados autom\u00e9ticamente)
+          // PASO 1: Crear el usuario en Clerk primero (valida duplicados autométicamente)
           const signUpAttempt = await signUp.create({
             emailAddress: formData.correo,
             password: formData.password,
           })
 
-          // Obtener el clerk_user_id - puede estar en diferentes lugares seg\u00fan el estado
+          // Obtener el clerk_user_id - puede estar en diferentes lugares según el estado
           // Intentar en orden: createdUserId, id del usuario, o id del signUp
           let clerkUserId: string | null = null
-          const signUpObj = signUpAttempt as any // Cast para acceder a propiedades din\u00e9micas
+          const signUpObj = signUpAttempt as any // Cast para acceder a propiedades dinémicas
           
-          // Opci\u00f3n 1: createdUserId (cuando est\u00e9 completo)
+          // Opción 1: createdUserId (cuando esté completo)
           if (signUpAttempt.createdUserId) {
             clerkUserId = signUpAttempt.createdUserId
           }
-          // Opci\u00f3n 2: verificar si tiene propiedad user con id
+          // Opción 2: verificar si tiene propiedad user con id
           else if (signUpObj.user?.id) {
             clerkUserId = signUpObj.user.id
           }
-          // Opci\u00f3n 3: usar el id del signUp mismo
+          // Opción 3: usar el id del signUp mismo
           else if (signUpAttempt.id) {
             clerkUserId = signUpAttempt.id
           }
-          // Opci\u00f3n 4: buscar en el objeto cualquier campo que parezca un user ID
+          // Opción 4: buscar en el objeto cualquier campo que parezca un user ID
           else {
             
             // Intentar encontrar cualquier campo que contenga "user" y "id"
@@ -1113,7 +1113,7 @@ export default function RegistroPage() {
 
           // PASO 2: Guardar datos en tabla temporal registros_pendientes
           // ✅ IMPORTANTE: Los datos se guardan en la BD temporal (no en sessionStorage)
-          // y se mover\u00e9n a la tabla investigadores DESPU\u00c9S de verificar el email
+          // y se moverén a la tabla investigadores DESPUÉS de verificar el email
           const dataToSend = {
             // Datos personales
             nombre_completo: formData.nombre_completo || `${formData.nombres || ''} ${formData.apellidos || ''}`.trim(),
@@ -1132,7 +1132,7 @@ export default function RegistroPage() {
             estado_nacimiento: formData.estado_nacimiento || "",
             entidad_federativa: formData.entidad_federativa || "",
 
-            // Datos acad\u00e9micos/profesionales
+            // Datos académicos/profesionales
             institucion_id: formData.institucion_id || null,
             institucion: formData.institucion || "",
             departamento: formData.departamento || "",
@@ -1154,7 +1154,7 @@ export default function RegistroPage() {
             puntaje_total: formData.puntaje_total || 0,
             estado_evaluacion: formData.estado_evaluacion || "PENDIENTE",
 
-            // Producci\u00f3n y experiencia
+            // Producción y experiencia
             articulos: formData.articulos || "",
             libros: formData.libros || "",
             capitulos_libros: formData.capitulos_libros || "",
@@ -1168,7 +1168,7 @@ export default function RegistroPage() {
             colaboracion_nacional: formData.colaboracion_nacional || "",
             sni: formData.sni || "",
             anio_sni: formData.anio_sni || null,
-            // Si se subi\u00f3 un archivo PDF, usarlo como CV principal
+            // Si se subió un archivo PDF, usarlo como CV principal
             cv_url: formData.cv_url || (selectedFile ? `/uploads/${selectedFile.name}` : ""),
 
             // Control y sistema
@@ -1203,9 +1203,9 @@ export default function RegistroPage() {
               console.error("❌ [REGISTRO] ERROR AL GUARDAR EN NEON")
               console.error("   Status HTTP:", response.status)
               console.error("   Respuesta:", responseData)
-              console.error("   Detalles t\u00e9cnicos:", responseData.error || responseData.message)
+              console.error("   Detalles técnicos:", responseData.error || responseData.message)
               
-              // Mensaje m\u00e9s espec\u00e1fico para campos faltantes
+              // Mensaje més especáfico para campos faltantes
               let mensajeError = responseData.message || responseData.error
               
               if (responseData.camposFaltantes && responseData.camposFaltantes.length > 0) {
@@ -1223,21 +1223,21 @@ export default function RegistroPage() {
               console.log("   - Correo:", responseData.correo)
             }
           } catch (dbError) {
-            console.error("❌ [REGISTRO] Error cr\u00e1tico al guardar en BD:", dbError)
+            console.error("❌ [REGISTRO] Error crático al guardar en BD:", dbError)
             
             // MOSTRAR ERROR AL USUARIO Y DETENER FLUJO
             setError(
               dbError instanceof Error ? dbError.message :
-              "No se pudo guardar tu registro en la base de datos. Por favor, intenta m\u00e9s tarde."
+              "No se pudo guardar tu registro en la base de datos. Por favor, intenta més tarde."
             )
             
-            // IMPORTANTE: Salir aqu\u00e1, NO continuar con verificaci\u00f3n de email
+            // IMPORTANTE: Salir aquá, NO continuar con verificación de email
             setIsLoading(false)
             return
           }
 
-          // PASO 4: Redirigir a verificaci\u00f3n de email
-          // El usuario ya est\u00e9 en Neon, ahora falta verificar email en Clerk
+          // PASO 4: Redirigir a verificación de email
+          // El usuario ya esté en Neon, ahora falta verificar email en Clerk
           
           if (signUpAttempt.status === "complete") {
             await clerk.setActive({ session: signUpAttempt.createdSessionId });
@@ -1250,7 +1250,7 @@ export default function RegistroPage() {
         } catch (clerkError: any) {
           const errorMessage = clerkError.errors?.[0]?.message || ""
           if (errorMessage.toLowerCase().includes("email address is taken")) {
-            throw new Error("Este correo electr\u00f3nico ya est\u00e9 registrado en el sistema. Por favor, inicia sesi\u00f3n.")
+            throw new Error("Este correo electrónico ya esté registrado en el sistema. Por favor, inicia sesión.")
           }
           throw new Error(errorMessage || "Error al crear la cuenta")
         }
@@ -1296,9 +1296,9 @@ export default function RegistroPage() {
             <div className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-blue-100 rounded-full mb-3 md:mb-4">
               <FileText className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
             </div>
-            <h1 className="text-2xl md:text-4xl font-bold text-blue-900 dark:text-white">Reg\u00e1strate en SEI</h1>
+            <h1 className="text-2xl md:text-4xl font-bold text-blue-900 dark:text-white">Regístrate en SEI</h1>
             <p className="text-sm md:text-lg text-blue-600 max-w-2xl mx-auto px-2">
-              Sube tu Perfil \u00danico (PU) en PDF para crear tu cuenta de investigador de forma autom\u00e9tica
+              Sube tu Perfil Único (PU) en PDF para crear tu cuenta de investigador de forma automática
             </p>
           </div>
 
@@ -1333,8 +1333,8 @@ export default function RegistroPage() {
                 </CardTitle>
                 <CardDescription className="text-blue-600">
                   {ocrCompleted
-                    ? "\u26a0\ufe0f IMPORTANTE: Revisa todos los datos y completa la informaci\u00f3n faltante"
-                    : "Primero debes procesar un Perfil \u00danico para continuar"}
+                    ? "\u26a0\ufe0f IMPORTANTE: Revisa todos los datos y completa la información faltante"
+                    : "Primero debes procesar un Perfil Único para continuar"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -1344,16 +1344,16 @@ export default function RegistroPage() {
                     ✅ Todos los campos son obligatorios
                   </AlertTitle>
                   <AlertDescription className="text-red-700">
-                    <strong>No puedes completar el registro si alg\u00fan campo est\u00e9 vac\u00e1o.</strong> Revisa cada campo cuidadosamente y aseg\u00farate de que toda la informaci\u00f3n est\u00e9 completa y correcta.
+                    <strong>No puedes completar el registro si algún campo esté vacáo.</strong> Revisa cada campo cuidadosamente y asegúrate de que toda la información esté completa y correcta.
                   </AlertDescription>
                 </Alert>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Informaci\u00f3n Personal */}
+                  {/* Información Personal */}
                   <div className="space-y-3 md:space-y-4">
                     <h3 className="text-base md:text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
                       <User className="h-4 w-4 md:h-5 md:w-5" />
-                      Informaci\u00f3n Personal
+                      Información Personal
                       {(
                         <span className="text-xs md:text-sm text-amber-600 font-normal">(Verificar datos)</span>
                       )}
@@ -1407,14 +1407,14 @@ export default function RegistroPage() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Columna 1: Tel\u00e9fono */}
+                      {/* Columna 1: Teléfono */}
                       <div className="space-y-2">
                         <Label
                           htmlFor="telefono"
                           className="text-blue-900 text-sm font-medium flex items-center gap-2"
                         >
                           <Phone className="h-4 w-4" />
-                          Tel\u00e9fono *
+                          Teléfono *
                         </Label>
                         <Input
                           id="telefono"
@@ -1423,7 +1423,7 @@ export default function RegistroPage() {
                           inputMode="numeric"
                           value={formData.telefono}
                           onChange={handleChange}
-                          placeholder="Tel\u00e9fono"
+                          placeholder="Teléfono"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.telefono.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
@@ -1457,14 +1457,14 @@ export default function RegistroPage() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Columna 1: Correo Electr\u00f3nico */}
+                      {/* Columna 1: Correo Electrónico */}
                       <div className="space-y-2">
                         <Label
                           htmlFor="correo"
                           className="text-blue-900 text-sm font-medium flex items-center gap-2"
                         >
                           <Mail className="h-4 w-4" />
-                          Correo Electr\u00f3nico *
+                          Correo Electrónico *
                         </Label>
                         <Input
                           id="correo"
@@ -1472,7 +1472,7 @@ export default function RegistroPage() {
                           type="email"
                           value={formData.correo}
                           onChange={handleChange}
-                          placeholder="Correo electr\u00f3nico"
+                          placeholder="Correo electrónico"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.correo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
@@ -1533,14 +1533,14 @@ export default function RegistroPage() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Columna 1: G\u00e9nero */}
+                      {/* Columna 1: Género */}
                       <div className="space-y-2">
                         <Label
                           htmlFor="genero"
                           className="text-blue-900 text-sm font-medium flex items-center gap-2"
                         >
                           <Users2 className="h-4 w-4" />
-                          G\u00e9nero *
+                          Género *
                         </Label>
                         <Select 
                           value={formData.genero} 
@@ -1551,7 +1551,7 @@ export default function RegistroPage() {
                               !formData.genero && ocrCompleted ? "border-red-300 bg-red-50" : ""
                             }`}
                           >
-                            <SelectValue placeholder="Selecciona g\u00e9nero" />
+                            <SelectValue placeholder="Selecciona género" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Masculino">Masculino</SelectItem>
@@ -1591,13 +1591,13 @@ export default function RegistroPage() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="INVESTIGADOR">Investigador</SelectItem>
-                            <SelectItem value="TECNOLOGO">Tecn\u00f3logo</SelectItem>
+                            <SelectItem value="TECNOLOGO">Tecnólogo</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
 
-                    {/* Nivel din\u00e9mico seg\u00fan tipo de perfil */}
+                    {/* Nivel dinémico según tipo de perfil */}
                     <div className="grid grid-cols-1 gap-4">
                       {formData.tipo_perfil === "INVESTIGADOR" ? (
                         <div className="space-y-2">
@@ -1627,19 +1627,19 @@ export default function RegistroPage() {
                               <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                                 <DialogHeader>
                                   <DialogTitle className="text-2xl font-bold text-blue-900">
-                                    Informaci\u00f3n de Niveles
+                                    Información de Niveles
                                   </DialogTitle>
                                   <DialogDescription>
-                                    Conoce los diferentes niveles de tecn\u00f3logos e investigadores disponibles en el sistema
+                                    Conoce los diferentes niveles de tecnólogos e investigadores disponibles en el sistema
                                   </DialogDescription>
                                 </DialogHeader>
                                 
                                 <div className="space-y-6 mt-4">
-                                  {/* Tecn\u00f3logos */}
+                                  {/* Tecnólogos */}
                                   <div>
                                     <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
                                       <Users2 className="h-5 w-5" />
-                                      Niveles de Tecn\u00f3logo
+                                      Niveles de Tecnólogo
                                     </h3>
                                     <div className="space-y-4">
                                       {nivelesCompletos.tecnologos.map((tecnologo, index) => (
@@ -1706,7 +1706,7 @@ export default function RegistroPage() {
                             </SelectContent>
                           </Select>
                           <p className="text-xs text-blue-600 mt-1">
-                            Selecciona el nivel que corresponda a tu trayectoria cient\u00e1fica
+                            Selecciona el nivel que corresponda a tu trayectoria cientáfica
                           </p>
                         </div>
                       ) : (
@@ -1717,7 +1717,7 @@ export default function RegistroPage() {
                               className="text-blue-900 text-sm font-medium flex items-center gap-2"
                             >
                               <Award className="h-4 w-4" />
-                              Nivel de Tecn\u00f3logo *
+                              Nivel de Tecnólogo *
                             </Label>
                             <Dialog open={showNivelesModal} onOpenChange={setShowNivelesModal}>
                               <DialogTrigger asChild>
@@ -1737,19 +1737,19 @@ export default function RegistroPage() {
                               <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                                 <DialogHeader>
                                   <DialogTitle className="text-2xl font-bold text-blue-900">
-                                    Informaci\u00f3n de Niveles
+                                    Información de Niveles
                                   </DialogTitle>
                                   <DialogDescription>
-                                    Conoce los diferentes niveles de tecn\u00f3logos e investigadores disponibles en el sistema
+                                    Conoce los diferentes niveles de tecnólogos e investigadores disponibles en el sistema
                                   </DialogDescription>
                                 </DialogHeader>
                                 
                                 <div className="space-y-6 mt-4">
-                                  {/* Tecn\u00f3logos */}
+                                  {/* Tecnólogos */}
                                   <div>
                                     <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
                                       <Users2 className="h-5 w-5" />
-                                      Niveles de Tecn\u00f3logo
+                                      Niveles de Tecnólogo
                                     </h3>
                                     <div className="space-y-4">
                                       {nivelesCompletos.tecnologos.map((tecnologo, index) => (
@@ -1808,15 +1808,15 @@ export default function RegistroPage() {
                               <SelectValue placeholder="Selecciona nivel" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Tecn\u00f3logo Nivel A">
+                              <SelectItem value="Tecnólogo Nivel A">
                                 <div className="flex flex-col">
-                                  <span className="font-medium">Tecn\u00f3logo Nivel A</span>
+                                  <span className="font-medium">Tecnólogo Nivel A</span>
                                   <span className="text-xs text-gray-500">Estudiantes o egresados recientes</span>
                                 </div>
                               </SelectItem>
-                              <SelectItem value="Tecn\u00f3logo Nivel B">
+                              <SelectItem value="Tecnólogo Nivel B">
                                 <div className="flex flex-col">
-                                  <span className="font-medium">Tecn\u00f3logo Nivel B</span>
+                                  <span className="font-medium">Tecnólogo Nivel B</span>
                                   <span className="text-xs text-gray-500">Profesionales con experiencia comprobable</span>
                                 </div>
                               </SelectItem>
@@ -1861,7 +1861,7 @@ export default function RegistroPage() {
                       </div>
                     </div>
 
-                    {/* Fotograf\u00e1a de Perfil */}
+                    {/* Fotografáa de Perfil */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                       {/* Componente de subir foto - 2 columnas */}
                       <div className="md:col-span-2">
@@ -1881,7 +1881,7 @@ export default function RegistroPage() {
                           </AlertTitle>
                           <AlertDescription className="text-blue-700 text-xs space-y-1 mt-2">
                             <p>\u2713 Formato JPG, PNG o WEBP</p>
-                            <p>\u2713 Tama\u00f1o m\u00e9ximo: 2MB</p>
+                            <p>\u2713 Tamaño méximo: 2MB</p>
                             <p>\u2713 Foto profesional</p>
                           </AlertDescription>
                         </Alert>
@@ -1889,11 +1889,11 @@ export default function RegistroPage() {
                     </div>
                   </div>
 
-                  {/* Informaci\u00f3n Acad\u00e9mica y Profesional */}
+                  {/* Información Académica y Profesional */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
                       <GraduationCap className="h-5 w-5" />
-                      Informaci\u00f3n Acad\u00e9mica y Profesional
+                      Información Académica y Profesional
                     </h3>
                     <div className="space-y-4">
                       <div className="space-y-2">
@@ -1902,14 +1902,14 @@ export default function RegistroPage() {
                           className="text-blue-900 font-medium flex items-center gap-2"
                         >
                           <GraduationCap className="h-4 w-4" />
-                          \u00daltimo Grado de Estudios *
+                          Último Grado de Estudios *
                         </Label>
                         <Input
                           id="ultimo_grado_estudios"
                           name="ultimo_grado_estudios"
                           value={formData.ultimo_grado_estudios}
                           onChange={handleChange}
-                          placeholder="\u00daltimo grado de estudios"
+                          placeholder="Último grado de estudios"
                           className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
                             !formData.ultimo_grado_estudios.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
                           }`}
@@ -1939,11 +1939,11 @@ export default function RegistroPage() {
                     </div>
                   </div>
 
-                  {/* Informaci\u00f3n Fiscal */}
+                  {/* Información Fiscal */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
                       <CreditCard className="h-5 w-5" />
-                      Informaci\u00f3n Fiscal y de Registro
+                      Información Fiscal y de Registro
                     </h3>
                     {ocrCompleted && (!formData.curp.trim() || !formData.rfc.trim() || !formData.no_cvu.trim()) && (
                       <Alert className="bg-gradient-to-r from-orange-50 to-amber-50 border-orange-300 shadow-sm">
@@ -1959,7 +1959,7 @@ export default function RegistroPage() {
                           <br />
                           <strong>• RFC:</strong> Debe tener 10-13 caracteres (ej: TARC800101XYZ)
                           <br />
-                          <strong>• CVU/PU:</strong> Tu n\u00famero de identidad acad\u00e9mica
+                          <strong>• CVU/PU:</strong> Tu número de identidad académica
                         </AlertDescription>
                       </Alert>
                     )}
@@ -2042,9 +2042,9 @@ export default function RegistroPage() {
                     </h3>
                     <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-sm">
                       <Shield className="h-4 w-4 text-blue-600" />
-                      <AlertTitle className="text-blue-800 font-semibold">Contrase\u00f1a segura requerida</AlertTitle>
+                      <AlertTitle className="text-blue-800 font-semibold">Contraseña segura requerida</AlertTitle>
                       <AlertDescription className="text-blue-700">
-                        Crea una contrase\u00f1a segura para proteger tu cuenta. Debe cumplir con los requisitos de seguridad
+                        Crea una contraseña segura para proteger tu cuenta. Debe cumplir con los requisitos de seguridad
                         establecidos.
                       </AlertDescription>
                     </Alert>
@@ -2055,12 +2055,12 @@ export default function RegistroPage() {
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
-                        placeholder="Crea una contrase\u00f1a segura"
+                        placeholder="Crea una contraseña segura"
                         showPassword={showPassword}
                         onTogglePassword={() => setShowPassword(!showPassword)}
                         disabled={false}
                         hasError={!formData.password.trim() && ocrCompleted}
-                        label="Contrase\u00f1a *"
+                        label="Contraseña *"
                       />
 
                       <PasswordInput
@@ -2068,7 +2068,7 @@ export default function RegistroPage() {
                         name="confirm_password"
                         value={formData.confirm_password}
                         onChange={handleChange}
-                        placeholder="Confirma tu contrase\u00f1a"
+                        placeholder="Confirma tu contraseña"
                         showPassword={showConfirmPassword}
                         onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
                         disabled={false}
@@ -2078,7 +2078,7 @@ export default function RegistroPage() {
                             !!formData.password &&
                             formData.password !== formData.confirm_password)
                         }
-                        label="Confirmar Contrase\u00f1a *"
+                        label="Confirmar Contraseña *"
                       />
                     </div>
 
@@ -2091,7 +2091,7 @@ export default function RegistroPage() {
                     )}
                   </div>
 
-                    {/* \u00darea de Investigaci\u00f3n (selector SNII) */}
+                    {/* Úrea de Investigación (selector SNII) */}
                     <div className="space-y-2">
                       <AreaSNIISelector
                         value={formData.area_investigacion}
@@ -2108,13 +2108,13 @@ export default function RegistroPage() {
                       />
                     </div>
 
-                    {/* L\u00e1nea de Investigaci\u00f3n */}
+                    {/* Lánea de Investigación */}
                     <div className="space-y-2">
                       <TagsInput
                         value={formData.linea_investigacion}
                         onChange={(tags: string[]) => setFormData(prev => ({ ...prev, linea_investigacion: tags }))}
-                        label="L\u00e1nea de Investigaci\u00f3n Espec\u00e1fica"
-                        placeholder="Escribe una l\u00e1nea de investigaci\u00f3n y presiona Enter para agregarla"
+                        label="Lánea de Investigación Especáfica"
+                        placeholder="Escribe una lánea de investigación y presiona Enter para agregarla"
                         maxTags={5}
                         required
                         disabled={false}
@@ -2122,11 +2122,11 @@ export default function RegistroPage() {
                       />
                       {formData.linea_investigacion.length === 0 && (
                         <p className="text-sm text-red-600">
-                          Este campo es obligatorio. Agrega al menos una l\u00e1nea de investigaci\u00f3n.
+                          Este campo es obligatorio. Agrega al menos una lánea de investigación.
                         </p>
                       )}
                       <div className="text-xs text-blue-600">
-                        <p>Ejemplos: "Inteligencia Artificial", "Biotecnolog\u00e1a", "Energ\u00e1as Renovables", "Ciencias de Datos"</p>
+                        <p>Ejemplos: "Inteligencia Artificial", "Biotecnologáa", "Energáas Renovables", "Ciencias de Datos"</p>
                       </div>
                     </div>
                   {/* Fin de bloque principal del formulario */}
@@ -2162,7 +2162,7 @@ export default function RegistroPage() {
                         >
                           {isFormComplete && passwordValidation.isValid && passwordsMatch
                             ? "Formulario completo"
-                            : "Campos faltantes o contrase\u00f1a insegura"}
+                            : "Campos faltantes o contraseña insegura"}
                         </span>
                       </div>
                     </div>
@@ -2183,9 +2183,9 @@ export default function RegistroPage() {
                         }
                       }}
                       onExpired={() => {
-                        console.log("\u26a0\ufe0f CAPTCHA expir\u00f3")
+                        console.log("\u26a0\ufe0f CAPTCHA expiró")
                         setCaptchaValue(null)
-                        setError("El CAPTCHA expir\u00f3. Por favor, m\u00e9rcalo nuevamente.")
+                        setError("El CAPTCHA expiró. Por favor, mércalo nuevamente.")
                       }}
                       theme="light"
                     />
@@ -2206,7 +2206,7 @@ export default function RegistroPage() {
                   {/* Clerk CAPTCHA Container */}
                   <div id="clerk-captcha" className="flex justify-center"></div>
 
-                  {/* T\u00c9RMINOS Y CONDICIONES - Checkbox + Link */}
+                  {/* TÉRMINOS Y CONDICIONES - Checkbox + Link */}
                   <div className="space-y-3 p-4 rounded-lg bg-blue-50 border border-blue-200">
                     <div className="flex items-start gap-3">
                       <Checkbox
@@ -2214,22 +2214,22 @@ export default function RegistroPage() {
                         checked={termsAccepted}
                         onCheckedChange={(checked) => {
                           setTermsAccepted(checked as boolean)
-                          console.log(`[T\u00c9RMINOS] Checkbox: ${checked ? 'Aceptado' : 'No aceptado'}`)
+                          console.log(`[TÉRMINOS] Checkbox: ${checked ? 'Aceptado' : 'No aceptado'}`)
                         }}
                         className="mt-1"
                       />
                       <label htmlFor="accept-terms-checkbox" className="text-sm cursor-pointer flex-1 leading-relaxed">
                         <span className="text-gray-700">
-                          He le\u00e1do y acepto los{" "}
+                          He leádo y acepto los{" "}
                           <button
                             type="button"
                             onClick={() => {
-                              console.log("[T\u00c9RMINOS] Usuario abre modal")
+                              console.log("[TÉRMINOS] Usuario abre modal")
                               setShowTermsModal(true)
                             }}
                             className="text-blue-600 hover:text-blue-800 font-medium underline underline-offset-2 hover:underline-offset-4 transition-all"
                           >
-                            T\u00e9rminos y Condiciones
+                            Términos y Condiciones
                           </button>
                           {" "}de la Plataforma
                         </span>
@@ -2240,14 +2240,14 @@ export default function RegistroPage() {
                     {termsAccepted && (
                       <div className="flex items-center gap-2 text-green-600 text-xs pl-8">
                         <CheckCircle className="h-4 w-4" />
-                        <span>\u2713 T\u00e9rminos aceptados</span>
+                        <span>\u2713 Términos aceptados</span>
                       </div>
                     )}
                     
                     {!termsAccepted && (
                       <div className="flex items-center gap-2 text-amber-600 text-xs pl-8">
                         <AlertCircle className="h-4 w-4" />
-                        <span>Debes aceptar los T\u00e9rminos para continuar</span>
+                        <span>Debes aceptar los Términos para continuar</span>
                       </div>
                     )}
                   </div>
@@ -2273,7 +2273,7 @@ export default function RegistroPage() {
                     ) : !isFormComplete || !passwordValidation.isValid || !passwordsMatch ? (
                       <>
                         <AlertCircle className="mr-2 h-5 w-5" />
-                        Completa todos los campos y crea una contrase\u00f1a segura
+                        Completa todos los campos y crea una contraseña segura
                       </>
                     ) : (
                       <>
@@ -2294,7 +2294,7 @@ export default function RegistroPage() {
                 href="/iniciar-sesion"
                 className="text-blue-700 underline underline-offset-4 hover:text-blue-900 font-medium"
               >
-                Iniciar sesi\u00f3n
+                Iniciar sesión
               </Link>
             </p>
           </div>
@@ -2302,7 +2302,7 @@ export default function RegistroPage() {
       </div>
 
       {/* ============================================ */}
-      {/* MODAL - T\u00c9RMINOS Y CONDICIONES */}
+      {/* MODAL - TÉRMINOS Y CONDICIONES */}
       {/* ============================================ */}
       <TermsAndConditionsModal
         open={showTermsModal}
@@ -2310,13 +2310,13 @@ export default function RegistroPage() {
         onAccept={() => {
           setTermsAccepted(true)
           setShowTermsModal(false)
-          console.log("✅ [REGISTRO] T\u00e9rminos y Condiciones aceptados")
+          console.log("✅ [REGISTRO] Términos y Condiciones aceptados")
         }}
         onDecline={() => {
           setTermsAccepted(false)
           setShowTermsModal(false)
-          setError("Debes aceptar los T\u00e9rminos y Condiciones para continuar el registro")
-          console.log("❌ [REGISTRO] Registro cancelado - T\u00e9rminos y Condiciones rechazados")
+          setError("Debes aceptar los Términos y Condiciones para continuar el registro")
+          console.log("❌ [REGISTRO] Registro cancelado - Términos y Condiciones rechazados")
         }}
         isLoading={isLoading}
       />
