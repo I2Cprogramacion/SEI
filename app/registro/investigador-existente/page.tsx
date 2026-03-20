@@ -1373,16 +1373,6 @@ export default function RegistroPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:gap-8 max-w-6xl mx-auto">
-            {/* Step 1: Upload PDF */}
-            <FileUploadSection
-              selectedFile={selectedFile}
-              isProcessing={isProcessingPDF}
-              error={error}
-              ocrCompleted={ocrCompleted}
-              onFileChange={handleFileChange}
-              onProcess={handlePDFUpload}
-            />
-
             {/* CONSOLIDATED: All Document Uploads (PU + Dictamen + SNII) */}
             <Card className="bg-white/80 backdrop-blur-sm border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300">
               <CardHeader className="text-center pb-6">
@@ -1398,6 +1388,32 @@ export default function RegistroPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Requisitos */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+                  <h3 className="font-semibold mb-3 text-blue-900 flex items-center gap-2">
+                    <Info className="h-4 w-4" />
+                    Requisitos de los archivos
+                  </h3>
+                  <ul className="space-y-2 text-sm text-blue-700">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-green-600" />
+                      <span><strong>Formato:</strong> Solo archivos PDF</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-green-600" />
+                      <span><strong>Tamaño máximo:</strong> {FILE_CONSTRAINTS.MAX_SIZE_MB}MB</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-green-600" />
+                      <span><strong>Contenido:</strong> Perfil Único (PU) actualizado</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <AlertTriangle className="h-3 w-3 text-amber-600" />
+                      <span><strong>Verificación necesaria:</strong> Siempre revisa los datos extraídos</span>
+                    </li>
+                  </ul>
+                </div>
+
                 {/* Perfil Único Section */}
                 <div className="space-y-3 p-4 rounded-lg bg-blue-50 border border-blue-200">
                   <div className="flex items-center gap-2">
@@ -1453,8 +1469,9 @@ export default function RegistroPage() {
                     </div>
                   )}
                   {ocrCompleted && (
-                    <div className="ml-10 text-xs text-green-600">
-                      ✓ Datos extraídos exitosamente
+                    <div className="ml-10 p-3 bg-green-50 rounded border border-green-200">
+                      <p className="text-xs text-green-700 font-medium">✓ Datos extraídos exitosamente</p>
+                      <p className="text-xs text-green-600 mt-1">Verifica los datos en el formulario y corrrige si es necesario</p>
                     </div>
                   )}
                 </div>
