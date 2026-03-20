@@ -720,9 +720,3 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
     </div>
   )
 }
-
-export default function RegistroPage() {
-  return (
-    <div>Página de registro para investigadores existentes</div>
-  )
-}
