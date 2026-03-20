@@ -1880,9 +1880,9 @@ export default function RegistroPage() {
                             Recomendaciones para la foto
                           </AlertTitle>
                           <AlertDescription className="text-blue-700 text-xs space-y-1 mt-2">
-                            <p>\u2713 Formato JPG, PNG o WEBP</p>
-                            <p>\u2713 Tamaño méximo: 2MB</p>
-                            <p>\u2713 Foto profesional</p>
+                            <p>✓ Formato JPG, PNG o WEBP</p>
+                            <p>✓ Tamaño máximo: 2MB</p>
+                            <p>✓ Foto profesional</p>
                           </AlertDescription>
                         </Alert>
                       </div>
@@ -2289,7 +2289,7 @@ export default function RegistroPage() {
           {/* Footer */}
           <div className="text-center text-sm text-blue-600 max-w-md mx-auto">
             <p>
-              ┬┐Ya tienes una cuenta?{" "}
+              ¿Ya tienes una cuenta?{" "}
               <Link
                 href="/iniciar-sesion"
                 className="text-blue-700 underline underline-offset-4 hover:text-blue-900 font-medium"
