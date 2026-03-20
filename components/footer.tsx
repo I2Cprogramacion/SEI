@@ -99,7 +99,7 @@ export default function Footer() {
           {/* Copyright */}
           <div className="text-center text-blue-600 dark:text-blue-400">
             <p>
-              © {new Date().getFullYear()} SEI - Sistema de Evaluación de Investigadores.
+              © {new Date().getFullYear()} SEI - Sistema Estatal de Investigadores.
               Todos los derechos reservados.
             </p>
             <p className="text-xs text-gray-400 mt-2">Versión 1.0</p>
