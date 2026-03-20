@@ -304,7 +304,7 @@ const initialFormData: FormData = {
   empleo_actual: "",
   linea_investigacion: [],
   area_investigacion: "",
-  nivel_sni: "", // Se mantiene pero ya no es requerido, se determinar├í autom├íticamente
+  nivel_sni: "",
   nacionalidad: "Mexicana",
   fecha_nacimiento: "",
   genero: "",
@@ -392,19 +392,19 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
         </div>
         <CardTitle className="text-xl sm:text-2xl text-blue-900 flex items-center justify-center gap-2">
           <Upload className="h-5 w-5 sm:h-6 sm:w-6" />
-          Subir Perfil ├Ünico Completo (PUC)
+          Subir Perfil Único Completo (PUC)
         </CardTitle>
         <CardDescription className="text-sm sm:text-base text-blue-600 px-2">
-          Selecciona tu Perfil ├Ünico Completo (PUC) en formato PDF para extraer autom├íticamente tu informaci├│n acad├®mica
+          Selecciona tu Perfil Único Completo (PUC) en formato PDF para extraer automáticamente tu información académica
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-3">
           <Label htmlFor="pdf-upload" className="text-sm sm:text-base text-blue-900 font-medium">
-            Archivo PDF del Perfil ├Ünico Completo (PUC) * (M├íximo {FILE_CONSTRAINTS.MAX_SIZE_MB}MB)
+            Archivo PDF del Perfil Único Completo (PUC) * (Máximo {FILE_CONSTRAINTS.MAX_SIZE_MB}MB)
           </Label>
           <p className="text-xs text-blue-600">
-            Este documento se procesar├í autom├íticamente para extraer tu informaci├│n y se guardar├í como tu Perfil ├Ünico Completo (PUC) en el perfil.
+            Este documento se procesará automáticamente para extraer tu información y se guardará como tu Perfil Único Completo (PUC) en el perfil.
           </p>
           <div className="relative">
             <Input
@@ -412,7 +412,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
               type="file"
               accept=".pdf"
               onChange={onFileChange}
-              aria-label="Subir archivo PDF del Perfil ├Ünico Completo (PUC)"
+              aria-label="Subir archivo PDF del Perfil Único Completo (PUC)"
               aria-required="true"
               className="bg-white border-blue-200 text-blue-900 file:bg-blue-50 file:text-blue-700 file:border-0 file:rounded-md file:px-4 file:py-2 file:mr-4 hover:file:bg-blue-100 transition-colors h-14 py-2.5"
               required
@@ -431,7 +431,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
               <div className="flex-1">
                 <span className="text-sm text-green-700 font-medium block">{selectedFile.name}</span>
                 <span className="text-xs text-green-600">
-                  Archivo v├ílido - Tama├▒o: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                  Archivo válido - Tamaño: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                 </span>
               </div>
             </div>
@@ -451,7 +451,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
           ) : (
             <>
               <Upload className="mr-2 h-5 w-5" />
-              Procesar Perfil ├Ünico Completo (PUC)
+              Procesar Perfil Único Completo (PUC)
             </>
           )}
         </Button>
@@ -460,29 +460,29 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
           <div className="space-y-3">
             <Alert className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 shadow-sm">
               <CheckCircle className="h-5 w-5 text-green-600" />
-              <AlertTitle className="text-green-800 font-semibold">┬íDatos extra├¡dos exitosamente!</AlertTitle>
+              <AlertTitle className="text-green-800 font-semibold">¡Datos extraídos exitosamente!</AlertTitle>
               <AlertDescription className="text-green-700">
-                Se han extra├¡do los datos de tu Perfil ├Ünico. Revisa cuidadosamente la informaci├│n en el formulario
+                Se han extraído los datos de tu Perfil Único. Revisa cuidadosamente la información en el formulario
                 antes de continuar.
               </AlertDescription>
             </Alert>
 
             <Alert className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 shadow-sm">
               <AlertTriangle className="h-5 w-5 text-amber-600" />
-              <AlertTitle className="text-amber-800 font-semibold">ÔÜá´©Å Importante: Verificaci├│n requerida</AlertTitle>
+              <AlertTitle className="text-amber-800 font-semibold">Importante: Verificación requerida</AlertTitle>
               <AlertDescription className="text-amber-700">
                 <div className="space-y-2">
                   <p>
-                    El OCR puede contener errores de interpretaci├│n. Es <strong>fundamental</strong> que revises y
+                    El OCR puede contener errores de interpretación. Es <strong>fundamental</strong> que revises y
                     corrijas:
                   </p>
                   <ul className="list-disc list-inside space-y-1 text-sm">
-                    <li>N├║meros de identificaci├│n (CURP, RFC, CVU)</li>
+                    <li>Números de identificación (CURP, RFC, CVU)</li>
                     <li>
-                      <strong>L├¡nea de investigaci├│n (captura manual requerida)</strong>
+                      <strong>Línea de investigación (captura manual requerida)</strong>
                     </li>
                     <li>
-                      <strong>Contrase├▒a segura (captura manual requerida)</strong>
+                      <strong>Contraseña segura (captura manual requerida)</strong>
                     </li>
                   </ul>
                 </div>
@@ -506,19 +506,19 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
             <li className="flex items-center gap-2">
               <CheckCircle className="h-3 w-3 text-green-600" />
               <span>
-                <strong>Tama├▒o m├íximo:</strong> {FILE_CONSTRAINTS.MAX_SIZE_MB}MB
+                <strong>Tamaño máximo:</strong> {FILE_CONSTRAINTS.MAX_SIZE_MB}MB
               </span>
             </li>
             <li className="flex items-center gap-2">
               <CheckCircle className="h-3 w-3 text-green-600" />
               <span>
-                <strong>Contenido:</strong> Perfil ├Ünico (PU) actualizado
+                <strong>Contenido:</strong> Perfil Único (PU) actualizado
               </span>
             </li>
             <li className="flex items-center gap-2">
               <AlertTriangle className="h-3 w-3 text-amber-600" />
               <span>
-                <strong>Verificaci├│n necesaria:</strong> Siempre revisa los datos extra├¡dos
+                <strong>Verificación necesaria:</strong> Siempre revisa los datos extraídos
               </span>
             </li>
           </ul>
@@ -581,7 +581,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
           className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
           onClick={onTogglePassword}
           disabled={disabled}
-          aria-label={showPassword ? "Ocultar contrase├▒a" : "Mostrar contrase├▒a"}
+          aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
         >
           {showPassword ? <EyeOff className="h-4 w-4 text-gray-500" /> : <Eye className="h-4 w-4 text-gray-500" />}
         </Button>
@@ -604,7 +604,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
   return (
     <div className="space-y-3">
       <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-        <h4 className="text-sm font-medium text-gray-700 mb-2">Requisitos de contrase├▒a:</h4>
+        <h4 className="text-sm font-medium text-gray-700 mb-2">Requisitos de contraseña:</h4>
         <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 text-xs">
           <div
             className={`flex items-center gap-2 ${
@@ -616,7 +616,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
             ) : (
               <AlertCircle className="h-3 w-3" />
             )}
-            M├¡nimo 8 caracteres
+            Mínimo 8 caracteres
           </div>
           <div
             className={`flex items-center gap-2 ${
@@ -628,7 +628,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
             ) : (
               <AlertCircle className="h-3 w-3" />
             )}
-            Una may├║scula (A-Z)
+            Una mayúscula (A-Z)
           </div>
           <div
             className={`flex items-center gap-2 ${
@@ -640,7 +640,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
             ) : (
               <AlertCircle className="h-3 w-3" />
             )}
-            Una min├║scula (a-z)
+            Una minúscula (a-z)
           </div>
           <div
             className={`flex items-center gap-2 ${
@@ -652,7 +652,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
             ) : (
               <AlertCircle className="h-3 w-3" />
             )}
-            Un n├║mero (0-9)
+            Un número (0-9)
           </div>
           <div
             className={`flex items-center gap-2 ${
@@ -664,7 +664,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
             ) : (
               <AlertCircle className="h-3 w-3" />
             )}
-            Un car├ícter especial
+            Un carácter especial
           </div>
         </div>
         <div className="mt-3">
@@ -675,7 +675,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
                 validation.score >= 4 ? "text-green-600" : validation.score >= 3 ? "text-yellow-600" : "text-red-600"
               }`}
             >
-              {validation.score >= 4 ? "Fuerte" : validation.score >= 3 ? "Media" : "D├®bil"}
+              {validation.score >= 4 ? "Fuerte" : validation.score >= 3 ? "Media" : "Débil"}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
@@ -689,7 +689,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
         </div>
       </div>
 
-      {/* Indicador de coincidencia de contrase├▒as */}
+      {/* Indicador de coincidencia de contraseñas */}
       {showMatchIndicator && (
         <div
           className={`rounded-lg p-3 border ${
@@ -703,14 +703,14 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
               <>
                 <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
                 <span className="text-sm font-medium text-green-700">
-                  Ô£ô Las contrase├▒as coinciden
+                  Las contraseñas coinciden
                 </span>
               </>
             ) : (
               <>
                 <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
                 <span className="text-sm font-medium text-red-700">
-                  Ô£ù Las contrase├▒as no coinciden
+                  Las contraseñas no coinciden
                 </span>
               </>
             )}
@@ -721,1605 +721,8 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ validation, confirm
   )
 }
 
-// Main Component
 export default function RegistroPage() {
-  const router = useRouter()
-  const { isLoaded, signUp } = useSignUp()
-  const clerk = useClerk()
-
-  // Mounted state for hydration fix
-  const [isMounted, setIsMounted] = useState(false)
-
-  // State
-  const [formData, setFormData] = useState<FormData>(initialFormData)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [isProcessingPDF, setIsProcessingPDF] = useState(false)
-  const [ocrCompleted, setOcrCompleted] = useState(false) // false: no mostrar mensaje hasta procesar PDF
-  const [showNivelesModal, setShowNivelesModal] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [submitAttempts, setSubmitAttempts] = useState(0)
-  const [lastAttempt, setLastAttempt] = useState(0)
-  const [nacionalidadOtro, setNacionalidadOtro] = useState(false)
-  
-  // ============================================
-  // T├ëRMINOS Y CONDICIONES
-  // ============================================
-  const [showTermsModal, setShowTermsModal] = useState(false)
-  const [termsAccepted, setTermsAccepted] = useState(false)
-
-  // Hydration fix effect
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
-
-  // Inicializar estado de nacionalidad "Otro" basado en el valor inicial
-  useEffect(() => {
-    if (formData.nacionalidad && !nacionalidadesAmerica.includes(formData.nacionalidad)) {
-      setNacionalidadOtro(true)
-    }
-  }, [])
-
-  // Memoized values
-  const passwordValidation = useMemo(() => validatePassword(formData.password), [formData.password])
-
-  const passwordsMatch = formData.password === formData.confirm_password
-
-  // Campos requeridos din├ímicos seg├║n tipo de perfil
-  // Definir exactamente 17 campos requeridos, contando solo linea_investigacion y area_investigacion como un campo cada uno
-  const requiredFields = [
-    { field: "nombres", label: "Nombre(s)" },
-    { field: "apellidos", label: "Apellidos" },
-    { field: "correo", label: "Correo Electr├│nico" },
-    { field: "telefono", label: "Tel├®fono" },
-    { field: "ultimo_grado_estudios", label: "├Ültimo Grado de Estudios" },
-    { field: "empleo_actual", label: "Empleo Actual" },
-    { field: "linea_investigacion", label: "L├¡nea de Investigaci├│n" },
-    { field: "area_investigacion", label: "├ürea de Investigaci├│n" },
-    { field: "nacionalidad", label: "Nacionalidad" },
-    { field: "fecha_nacimiento", label: "Fecha de Nacimiento" },
-    { field: "genero", label: "G├®nero" },
-    { field: "tipo_perfil", label: "Tipo de Perfil" },
-    ...(formData.tipo_perfil === "INVESTIGADOR" 
-      ? [{ field: "nivel_investigador", label: "Nivel de Investigador" }]
-      : [{ field: "nivel_tecnologo", label: "Nivel de Tecn├│logo" }]
-    ),
-    { field: "municipio", label: "Municipio" },
-    { field: "no_cvu", label: "CVU/PU" },
-    { field: "curp", label: "CURP" },
-    { field: "rfc", label: "RFC" },
-    { field: "password", label: "Contrase├▒a" },
-    { field: "confirm_password", label: "Confirmar Contrase├▒a" },
-  ];
-
-  const emptyFields = requiredFields.filter((field) => {
-    const value = formData[field.field as keyof FormData];
-    if (field.field === "ultimo_grado_estudios") {
-      // Validar expl├¡citamente que no est├® vac├¡o ni sea solo espacios
-      return !value || (typeof value === 'string' && value.trim() === '');
-    }
-    if (Array.isArray(value)) {
-      return value.length === 0;
-    }
-    if (typeof value === 'string') {
-      return !value.trim();
-    }
-    return !value;
-  });
-
-  const isFormComplete = emptyFields.length === 0
-
-  // Handlers
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => {
-      const updated = {
-        ...prev,
-        [name]: value,
-      }
-      
-      // Generar nombre_completo autom├íticamente cuando cambien nombres o apellidos
-      if (name === 'nombres' || name === 'apellidos') {
-        const nombres = name === 'nombres' ? value : prev.nombres
-        const apellidos = name === 'apellidos' ? value : prev.apellidos
-        updated.nombre_completo = `${nombres} ${apellidos}`.trim()
-      }
-      
-      return updated
-    })
-  }, [])
-
-  const handleSelectChange = useCallback((name: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-  }, [])
-
-  const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0]
-      if (file) {
-        if (file.type !== FILE_CONSTRAINTS.ACCEPTED_TYPE) {
-          setError("Por favor selecciona un archivo PDF v├ílido")
-          setSelectedFile(null)
-          setOcrCompleted(false)
-          e.target.value = ""
-          return
-        }
-
-        const fileSizeMB = (file.size / 1024 / 1024).toFixed(2)
-        if (file.size > FILE_CONSTRAINTS.MAX_SIZE_BYTES) {
-          setError(
-            `El archivo es demasiado grande. El tama├▒o m├íximo permitido es ${FILE_CONSTRAINTS.MAX_SIZE_MB}MB. Tu archivo pesa ${fileSizeMB}MB`
-          )
-          setSelectedFile(null)
-          setOcrCompleted(false)
-          e.target.value = ""
-          return
-        }
-
-        setSelectedFile(file)
-        setError(null)
-        setOcrCompleted(false)
-        setFormData(initialFormData)
-      } else {
-        setSelectedFile(null)
-        setOcrCompleted(false)
-        setError(null)
-      }
-    },
-    []
-  )
-
-  const handleSavePDFAsCV = useCallback(async () => {
-    if (!selectedFile) return
-
-    try {
-      const formDataCV = new FormData()
-      formDataCV.append("file", selectedFile)
-
-      // Subir a Vercel Blob
-      let cvUrl: string | null = null
-      try {
-        console.log("­ƒôñ Subiendo Perfil ├Ünico a Vercel Blob...")
-        const response = await fetch("/api/upload-cv-vercel", {
-          method: "POST",
-          body: formDataCV,
-        })
-
-        if (response.ok) {
-          const result = await response.json()
-          cvUrl = result.url as string
-          console.log("Ô£à Perfil ├Ünico subido a Vercel Blob:", cvUrl)
-          
-          // Guardar la URL del CV en el estado del formulario
-          setFormData((prev) => ({
-            ...prev,
-            cv_url: cvUrl!,
-          }))
-          console.log("Ô£à Perfil ├Ünico URL guardada en formulario:", cvUrl)
-        } else {
-          const errorData = await response.json()
-          console.error("ÔØî Error en respuesta:", errorData)
-          throw new Error(errorData.error || "Error al subir el archivo")
-        }
-      } catch (error) {
-        console.error("ÔØî Error subiendo Perfil ├Ünico a Vercel Blob:", error)
-        setError(`Error al subir el Perfil ├Ünico: ${error instanceof Error ? error.message : "Error desconocido"}`)
-      }
-    } catch (error) {
-      console.error("ÔØî Error guardando PDF como Perfil ├Ünico:", error)
-    }
-  }, [selectedFile])
-
-  const handlePDFUpload = useCallback(async () => {
-    if (!selectedFile) return
-
-    setIsProcessingPDF(true)
-    setError(null)
-
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 30000)
-
-    try {
-      const formDataPDF = new FormData()
-      formDataPDF.append("file", selectedFile)
-
-      console.log("­ƒôñ [OCR] Enviando PDF para procesamiento...")
-      const response = await fetch("/api/ocr", {
-        method: "POST",
-        body: formDataPDF,
-        signal: controller.signal,
-      })
-
-      clearTimeout(timeoutId)
-
-      let result = null
-      try {
-        result = await response.json()
-        console.log("­ƒôÑ [OCR] Respuesta recibida:", result)
-      } catch (jsonErr) {
-        console.error("ÔØî [OCR] Error al parsear respuesta JSON:", jsonErr)
-        setError("Error inesperado procesando el PDF. Intenta de nuevo.")
-        setIsProcessingPDF(false)
-        return
-      }
-
-      // Ô£à El OCR ahora solo retorna datos extra├¡dos, no guarda en BD
-      // Extraer los datos de la respuesta (pueden estar en result directamente o en result.data)
-      const ocrData = result.data || result
-      
-      // Limpiar y sanitizar los datos recibidos
-      const sanitizedData = sanitizeOcrData(ocrData)
-
-      console.log("­ƒöì [OCR] Datos sanitizados:", sanitizedData)
-
-      // Verificar si se extrajeron datos ├║tiles
-      if (sanitizedData.curp || sanitizedData.rfc || sanitizedData.no_cvu || sanitizedData.telefono || sanitizedData.correo) {
-        console.log("Ô£à [OCR] Datos extra├¡dos exitosamente, actualizando formulario...")
-        
-        // Actualizar el formulario con los datos extra├¡dos
-        setFormData((prev) => ({
-          ...prev,
-          ...sanitizedData,
-        }))
-        
-        setOcrCompleted(true)
-        setError(null)
-        setIsProcessingPDF(false)
-        
-        // Guardar el PDF como Perfil ├Ünico autom├íticamente
-        await handleSavePDFAsCV()
-        
-        console.log("Ô£à [OCR] Proceso completado. El usuario debe completar los campos faltantes.")
-        return
-      } else {
-        console.warn("ÔÜá´©Å [OCR] No se extrajeron suficientes datos del PDF")
-        setError("No se pudieron extraer suficientes datos del PDF. Por favor, completa los campos manualmente.")
-        setOcrCompleted(true) // Permitir continuar con captura manual
-        setIsProcessingPDF(false)
-        return
-      }
-    } catch (error: any) {
-      clearTimeout(timeoutId)
-      console.error("ÔØî [OCR] Error durante el procesamiento:", error)
-      
-      if (error.name === "AbortError") {
-        setError("La solicitud tard├│ demasiado tiempo. Por favor intenta de nuevo.")
-      } else {
-        setError("Error al procesar el PDF. Por favor, completa los campos manualmente.")
-      }
-      
-      setOcrCompleted(true) // Permitir continuar con captura manual
-      setIsProcessingPDF(false)
-    }
-  }, [selectedFile, handleSavePDFAsCV])
-
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault()
-
-      // ============================================
-      // VALIDACI├ôN 1: T├ëRMINOS Y CONDICIONES
-      // ============================================
-      if (!termsAccepted) {
-        console.log("ÔÜá´©Å [REGISTRO] Usuario intenta registrarse sin aceptar T&C")
-        setShowTermsModal(true)
-        return
-      }
-
-      // Rate limiting check
-      const now = Date.now()
-      if (submitAttempts >= RATE_LIMITS.MAX_ATTEMPTS && now - lastAttempt < RATE_LIMITS.LOCKOUT_DURATION_MS) {
-        setError("Demasiados intentos. Por favor espera 1 minuto antes de intentar nuevamente.")
-        return
-      }
-
-      // CAPTCHA DESHABILITADO TEMPORALMENTE
-      // console.log("­ƒöì Verificando CAPTCHA en handleSubmit. captchaValue:", captchaValue)
-      // if (!captchaValue) {
-      //   console.log("ÔØî CAPTCHA no completado. Mostrando error.")
-      //   setError("Por favor, completa el CAPTCHA para continuar")
-      //   return
-      // }
-      // console.log("Ô£à CAPTCHA verificado. Continuando con el registro...")
-
-      if (!ocrCompleted) {
-  setError("El procesamiento autom├ítico de perfil (OCR) no est├í disponible temporalmente. Por favor, captura tus datos manualmente. Puedes continuar con el registro.")
-  // Permitir continuar aunque el OCR no est├® disponible
-      }
-
-      if (emptyFields.length > 0) {
-        const fieldNames = emptyFields.map((field) => field.label).join(", ")
-        setError(`Los siguientes campos son obligatorios y no pueden estar vac├¡os: ${fieldNames}`)
-        return
-      }
-
-      if (!passwordValidation.isValid) {
-        setError("La contrase├▒a no cumple con los requisitos de seguridad m├¡nimos")
-        return
-      }
-
-      if (formData.password !== formData.confirm_password) {
-        setError("Las contrase├▒as no coinciden")
-        return
-      }
-
-      setIsLoading(true)
-      setError(null)
-      setSubmitAttempts((prev) => prev + 1)
-      setLastAttempt(Date.now())
-
-      try {
-        if (!formData.correo.includes("@")) {
-          throw new Error("El correo electr├│nico debe tener un formato v├ílido")
-        }
-
-        // PRIMERO: Verificar que signUp est├® cargado y disponible
-        if (!isLoaded || !signUp) {
-          throw new Error("El sistema de registro no est├í listo. Intenta de nuevo.")
-        }
-
-        try {
-          console.log("­ƒöÁ [REGISTRO] Paso 1: Creando usuario en Clerk...")
-          
-          // PASO 1: Crear el usuario en Clerk primero (valida duplicados autom├íticamente)
-          const signUpAttempt = await signUp.create({
-            emailAddress: formData.correo,
-            password: formData.password,
-          })
-
-          // Obtener el clerk_user_id - puede estar en diferentes lugares seg├║n el estado
-          // Intentar en orden: createdUserId, id del usuario, o id del signUp
-          let clerkUserId: string | null = null
-          const signUpObj = signUpAttempt as any // Cast para acceder a propiedades din├ímicas
-          
-          // Opci├│n 1: createdUserId (cuando est├í completo)
-          if (signUpAttempt.createdUserId) {
-            clerkUserId = signUpAttempt.createdUserId
-          }
-          // Opci├│n 2: verificar si tiene propiedad user con id
-          else if (signUpObj.user?.id) {
-            clerkUserId = signUpObj.user.id
-          }
-          // Opci├│n 3: usar el id del signUp mismo
-          else if (signUpAttempt.id) {
-            clerkUserId = signUpAttempt.id
-          }
-          // Opci├│n 4: buscar en el objeto cualquier campo que parezca un user ID
-          else {
-            
-            // Intentar encontrar cualquier campo que contenga "user" y "id"
-            for (const key of Object.keys(signUpObj)) {
-              const value = signUpObj[key]
-              if (typeof value === 'string' && value.startsWith('user_')) {
-                clerkUserId = value
-                break
-              }
-            }
-          }
-
-          if (!clerkUserId) {
-            console.error("ÔØî [REGISTRO] No se pudo obtener clerk_user_id")
-            throw new Error("Error al crear usuario en Clerk: no se obtuvo ID del usuario. Por favor, intenta de nuevo.")
-          }
-          
-          await signUp.prepareEmailAddressVerification({
-            strategy: "email_code",
-          })
-
-          // PASO 2: Guardar datos en tabla temporal registros_pendientes
-          // Ô£à IMPORTANTE: Los datos se guardan en la BD temporal (no en sessionStorage)
-          // y se mover├ín a la tabla investigadores DESPU├ëS de verificar el email
-          const dataToSend = {
-            // Datos personales
-            nombre_completo: formData.nombre_completo || `${formData.nombres || ''} ${formData.apellidos || ''}`.trim(),
-            nombres: formData.nombres,
-            apellidos: formData.apellidos,
-            correo: formData.correo,
-            curp: formData.curp,
-            rfc: formData.rfc,
-            no_cvu: formData.no_cvu,
-            telefono: formData.telefono,
-            fotografia_url: formData.fotografia_url || "",
-            nacionalidad: formData.nacionalidad,
-            fecha_nacimiento: formData.fecha_nacimiento,
-            genero: formData.genero,
-            municipio: formData.municipio,
-            estado_nacimiento: formData.estado_nacimiento || "",
-            entidad_federativa: formData.entidad_federativa || "",
-
-            // Datos acad├®micos/profesionales
-            institucion_id: formData.institucion_id || null,
-            institucion: formData.institucion || "",
-            departamento: formData.departamento || "",
-            ubicacion: formData.ubicacion || "",
-            sitio_web: formData.sitio_web || "",
-            ultimo_grado_estudios: formData.ultimo_grado_estudios,
-            grado_maximo_estudios: formData.grado_maximo_estudios || "",
-            empleo_actual: formData.empleo_actual,
-            linea_investigacion: Array.isArray(formData.linea_investigacion) ? formData.linea_investigacion.join(', ') : formData.linea_investigacion,
-            area_investigacion: formData.area_investigacion,
-            nivel_sni: formData.nivel_sni,
-            disciplina: formData.disciplina || "",
-            especialidad: formData.especialidad || "",
-            orcid: formData.orcid || "",
-            nivel: formData.nivel || "",
-            nivel_investigador: formData.nivel_investigador || "",
-            nivel_actual_id: formData.nivel_actual_id || null,
-            fecha_asignacion_nivel: formData.fecha_asignacion_nivel || null,
-            puntaje_total: formData.puntaje_total || 0,
-            estado_evaluacion: formData.estado_evaluacion || "PENDIENTE",
-
-            // Producci├│n y experiencia
-            articulos: formData.articulos || "",
-            libros: formData.libros || "",
-            capitulos_libros: formData.capitulos_libros || "",
-            proyectos_investigacion: formData.proyectos_investigacion || "",
-            proyectos_vinculacion: formData.proyectos_vinculacion || "",
-            experiencia_docente: formData.experiencia_docente || "",
-            experiencia_laboral: formData.experiencia_laboral || "",
-            premios_distinciones: formData.premios_distinciones || "",
-            idiomas: formData.idiomas || "",
-            colaboracion_internacional: formData.colaboracion_internacional || "",
-            colaboracion_nacional: formData.colaboracion_nacional || "",
-            sni: formData.sni || "",
-            anio_sni: formData.anio_sni || null,
-            // Si se subi├│ un archivo PDF, usarlo como CV principal
-            cv_url: formData.cv_url || (selectedFile ? `/uploads/${selectedFile.name}` : ""),
-
-            // Control y sistema
-            tipo_perfil: formData.tipo_perfil,
-            nivel_tecnologo_id: formData.nivel_tecnologo_id || null,
-            nivel_tecnologo: formData.nivel_tecnologo || "",
-            archivo_procesado: selectedFile?.name || "",
-            fecha_registro: new Date().toISOString(),
-            origen: "ocr",
-            slug: formData.slug || "",
-            clerk_user_id: clerkUserId,
-            activo: true,
-            es_admin: false
-          };
-
-          // Ô£à PASO 3: Guardar en Neon (PostgreSQL)
-          // CR├ìTICO: El usuario DEBE guardarse en la BD
-          
-          try {
-            const response = await fetch("/api/registro", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(dataToSend),
-            });
-
-            const responseData = await response.json();
-
-            // ­ƒö┤ SI FALLA, MOSTRAR ERROR Y DETENER
-            if (!response.ok || !responseData.success) {
-              console.error("ÔØî [REGISTRO] ERROR AL GUARDAR EN NEON")
-              console.error("   Status HTTP:", response.status)
-              console.error("   Respuesta:", responseData)
-              console.error("   Detalles t├®cnicos:", responseData.error || responseData.message)
-              
-              // Mensaje m├ís espec├¡fico para campos faltantes
-              let mensajeError = responseData.message || responseData.error
-              
-              if (responseData.camposFaltantes && responseData.camposFaltantes.length > 0) {
-                mensajeError = `ÔØî CAMPOS OBLIGATORIOS VAC├ìOS:\n\n${responseData.camposFaltantes.join(', ')}\n\nPor favor, completa todos los campos requeridos.`
-              }
-              
-              // LANZAR error para detener el flujo
-              throw new Error(
-                mensajeError || 
-                `No se pudo guardar el registro (error ${response.status}). Por favor, verifica tus datos e intenta de nuevo.`
-              )
-            } else {
-              console.log("Ô£à [REGISTRO] Datos guardados en Neon exitosamente")
-              console.log("   - ID de investigador:", responseData.id)
-              console.log("   - Correo:", responseData.correo)
-            }
-          } catch (dbError) {
-            console.error("ÔØî [REGISTRO] Error cr├¡tico al guardar en BD:", dbError)
-            
-            // MOSTRAR ERROR AL USUARIO Y DETENER FLUJO
-            setError(
-              dbError instanceof Error ? dbError.message :
-              "No se pudo guardar tu registro en la base de datos. Por favor, intenta m├ís tarde."
-            )
-            
-            // IMPORTANTE: Salir aqu├¡, NO continuar con verificaci├│n de email
-            setIsLoading(false)
-            return
-          }
-
-          // PASO 4: Redirigir a verificaci├│n de email
-          // El usuario ya est├í en Neon, ahora falta verificar email en Clerk
-          
-          if (signUpAttempt.status === "complete") {
-            await clerk.setActive({ session: signUpAttempt.createdSessionId });
-            router.push("/admin");
-          } else if (signUpAttempt.status === "missing_requirements") {
-            router.push("/verificar-email");
-          } else {
-            router.push("/verificar-email");
-          }
-        } catch (clerkError: any) {
-          const errorMessage = clerkError.errors?.[0]?.message || ""
-          if (errorMessage.toLowerCase().includes("email address is taken")) {
-            throw new Error("Este correo electr├│nico ya est├í registrado en el sistema. Por favor, inicia sesi├│n.")
-          }
-          throw new Error(errorMessage || "Error al crear la cuenta")
-        }
-      } catch (error) {
-        setError(`Error al registrar: ${error instanceof Error ? error.message : "Error desconocido"}`)
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    [
-      ocrCompleted,
-      emptyFields,
-      passwordValidation,
-      formData,
-      selectedFile,
-      signUp,
-      router,
-      submitAttempts,
-      lastAttempt,
-    ]
-  )
-
-  // Prevent hydration mismatch
-  if (!isMounted || !isLoaded) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-            <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
-          </div>
-          <p className="text-blue-600 font-medium">Cargando formulario...</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
-      <div className="container max-w-5xl mx-auto py-6 md:py-12 px-4">
-        <div className="space-y-8">
-          {/* Header */}
-          <div className="text-center space-y-3 md:space-y-4">
-            <div className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-blue-100 rounded-full mb-3 md:mb-4">
-              <FileText className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
-            </div>
-            <h1 className="text-2xl md:text-4xl font-bold text-blue-900 dark:text-white">Reg├¡strate en SEI</h1>
-            <p className="text-sm md:text-lg text-blue-600 max-w-2xl mx-auto px-2">
-              Sube tu Perfil ├Ünico (PU) en PDF para crear tu cuenta de investigador de forma autom├ítica
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:gap-8 max-w-6xl mx-auto">
-            {/* Step 1: Upload PDF */}
-            <FileUploadSection
-              selectedFile={selectedFile}
-              isProcessing={isProcessingPDF}
-              error={error}
-              ocrCompleted={ocrCompleted}
-              onFileChange={handleFileChange}
-              onProcess={handlePDFUpload}
-            />
-
-            {/* Step 2: Review and Complete */}
-            <Card
-              className={`bg-white/80 backdrop-blur-sm border-blue-100 shadow-lg transition-all duration-300 ${
-                !ocrCompleted ? "opacity-50" : "hover:shadow-xl"
-              }`}
-            >
-              <CardHeader className="text-center pb-6">
-                <div
-                  className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 ${
-                    ocrCompleted ? "bg-amber-100" : "bg-gray-100"
-                  }`}
-                >
-                  <span className={`font-bold text-lg ${ocrCompleted ? "text-amber-600" : "text-gray-400"}`}>2</span>
-                </div>
-                <CardTitle className="text-2xl text-blue-900 flex items-center justify-center gap-2">
-                  <Eye className={`h-6 w-6 ${ocrCompleted ? "text-amber-600" : "text-gray-400"}`} />
-                  Revisar y Completar
-                </CardTitle>
-                <CardDescription className="text-blue-600">
-                  {ocrCompleted
-                    ? "ÔÜá´©Å IMPORTANTE: Revisa todos los datos y completa la informaci├│n faltante"
-                    : "Primero debes procesar un Perfil ├Ünico para continuar"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Alert className="mb-4 md:mb-6 bg-gradient-to-r from-red-50 to-pink-50 border-red-200 shadow-sm">
-                  <AlertCircle className="h-5 w-5 text-red-600" />
-                  <AlertTitle className="text-red-800 font-semibold">
-                    ­ƒöì Todos los campos son obligatorios
-                  </AlertTitle>
-                  <AlertDescription className="text-red-700">
-                    <strong>No puedes completar el registro si alg├║n campo est├í vac├¡o.</strong> Revisa cada campo cuidadosamente y aseg├║rate de que toda la informaci├│n est├® completa y correcta.
-                  </AlertDescription>
-                </Alert>
-
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Informaci├│n Personal */}
-                  <div className="space-y-3 md:space-y-4">
-                    <h3 className="text-base md:text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
-                      <User className="h-4 w-4 md:h-5 md:w-5" />
-                      Informaci├│n Personal
-                      {(
-                        <span className="text-xs md:text-sm text-amber-600 font-normal">(Verificar datos)</span>
-                      )}
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Columna 1: Nombres */}
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="nombres"
-                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
-                        >
-                          <User className="h-4 w-4" />
-                          Nombre(s) *
-                        </Label>
-                        <Input
-                          id="nombres"
-                          name="nombres"
-                          value={formData.nombres}
-                          onChange={handleChange}
-                          placeholder="Nombre(s)"
-                          className={`bg-white border-blue-200 text-blue-900 ${
-                            !formData.nombres.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
-                      </div>
-
-                      {/* Columna 2: Apellidos */}
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="apellidos"
-                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
-                        >
-                          <User className="h-4 w-4" />
-                          Apellidos *
-                        </Label>
-                        <Input
-                          id="apellidos"
-                          name="apellidos"
-                          value={formData.apellidos}
-                          onChange={handleChange}
-                          placeholder="Apellidos"
-                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.apellidos.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Columna 1: Tel├®fono */}
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="telefono"
-                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
-                        >
-                          <Phone className="h-4 w-4" />
-                          Tel├®fono *
-                        </Label>
-                        <Input
-                          id="telefono"
-                          name="telefono"
-                          type="tel"
-                          inputMode="numeric"
-                          value={formData.telefono}
-                          onChange={handleChange}
-                          placeholder="Tel├®fono"
-                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.telefono.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
-                      </div>
-
-                      {/* Columna 2: Fecha de Nacimiento */}
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="fecha_nacimiento"
-                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
-                        >
-                          <Calendar className="h-4 w-4" />
-                          Fecha de Nacimiento *
-                        </Label>
-                        <Input
-                          id="fecha_nacimiento"
-                          name="fecha_nacimiento"
-                          type="date"
-                          value={formData.fecha_nacimiento}
-                          onChange={handleChange}
-                          className={`bg-white border-blue-200 text-blue-900 ${
-                            !formData.fecha_nacimiento.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Columna 1: Correo Electr├│nico */}
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="correo"
-                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
-                        >
-                          <Mail className="h-4 w-4" />
-                          Correo Electr├│nico *
-                        </Label>
-                        <Input
-                          id="correo"
-                          name="correo"
-                          type="email"
-                          value={formData.correo}
-                          onChange={handleChange}
-                          placeholder="Correo electr├│nico"
-                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.correo.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
-                      </div>
-
-                      {/* Columna 2: Nacionalidad */}
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="nacionalidad"
-                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
-                        >
-                          <Flag className="h-4 w-4" />
-                          Nacionalidad *
-                        </Label>
-                        <Select
-                          value={nacionalidadOtro ? "Otro" : formData.nacionalidad}
-                          onValueChange={(value) => {
-                            if (value === "Otro") {
-                              setNacionalidadOtro(true)
-                              setFormData(prev => ({ ...prev, nacionalidad: "" }))
-                            } else {
-                              setNacionalidadOtro(false)
-                              setFormData(prev => ({ ...prev, nacionalidad: value }))
-                            }
-                          }}
-                        >
-                          <SelectTrigger className={`bg-white border-blue-200 text-blue-900 ${
-                            !formData.nacionalidad.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}>
-                            <SelectValue placeholder="Selecciona una nacionalidad" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {nacionalidadesAmerica.map((nacionalidad) => (
-                              <SelectItem key={nacionalidad} value={nacionalidad}>
-                                {nacionalidad}
-                              </SelectItem>
-                            ))}
-                            <SelectItem value="Otro">Otro</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {nacionalidadOtro && (
-                          <Input
-                            id="nacionalidad-otro"
-                            name="nacionalidad"
-                            value={formData.nacionalidad}
-                            onChange={handleChange}
-                            placeholder="Escribe tu nacionalidad"
-                            className={`bg-white border-blue-200 text-blue-900 mt-2 ${
-                              !formData.nacionalidad.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                            }`}
-                            required
-                          />
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Columna 1: G├®nero */}
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="genero"
-                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
-                        >
-                          <Users2 className="h-4 w-4" />
-                          G├®nero *
-                        </Label>
-                        <Select 
-                          value={formData.genero} 
-                          onValueChange={(value) => handleSelectChange("genero", value)}
-                        >
-                          <SelectTrigger 
-                            className={`bg-white border-blue-200 text-blue-900 ${
-                              !formData.genero && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                            }`}
-                          >
-                            <SelectValue placeholder="Selecciona g├®nero" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Masculino">Masculino</SelectItem>
-                            <SelectItem value="Femenino">Femenino</SelectItem>
-                            <SelectItem value="Prefiero no decirlo">Prefiero no decirlo</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Columna 2: Tipo de Perfil */}
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="tipo_perfil"
-                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
-                        >
-                          <Award className="h-4 w-4" />
-                          Tipo de Perfil *
-                        </Label>
-                        <Select 
-                          value={formData.tipo_perfil} 
-                          onValueChange={(value) => {
-                            handleSelectChange("tipo_perfil", value)
-                            // Limpiar el nivel cuando cambia el tipo
-                            if (value === "INVESTIGADOR") {
-                              handleSelectChange("nivel_tecnologo", "")
-                            } else {
-                              handleSelectChange("nivel_investigador", "")
-                            }
-                          }}
-                        >
-                          <SelectTrigger 
-                            className={`bg-white border-blue-200 text-blue-900 ${
-                              !formData.tipo_perfil && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                            }`}
-                          >
-                            <SelectValue placeholder="Selecciona tipo" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="INVESTIGADOR">Investigador</SelectItem>
-                            <SelectItem value="TECNOLOGO">Tecn├│logo</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    {/* Nivel din├ímico seg├║n tipo de perfil */}
-                    <div className="grid grid-cols-1 gap-4">
-                      {formData.tipo_perfil === "INVESTIGADOR" ? (
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Label
-                              htmlFor="nivel_investigador"
-                              className="text-blue-900 text-sm font-medium flex items-center gap-2"
-                            >
-                              <Award className="h-4 w-4" />
-                              Nivel de Investigador *
-                            </Label>
-                            <Dialog open={showNivelesModal} onOpenChange={setShowNivelesModal}>
-                              <DialogTrigger asChild>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-                                  onClick={(e) => {
-                                    e.preventDefault()
-                                    setShowNivelesModal(true)
-                                  }}
-                                >
-                                  <Info className="h-4 w-4" />
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                                <DialogHeader>
-                                  <DialogTitle className="text-2xl font-bold text-blue-900">
-                                    Informaci├│n de Niveles
-                                  </DialogTitle>
-                                  <DialogDescription>
-                                    Conoce los diferentes niveles de tecn├│logos e investigadores disponibles en el sistema
-                                  </DialogDescription>
-                                </DialogHeader>
-                                
-                                <div className="space-y-6 mt-4">
-                                  {/* Tecn├│logos */}
-                                  <div>
-                                    <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                                      <Users2 className="h-5 w-5" />
-                                      Niveles de Tecn├│logo
-                                    </h3>
-                                    <div className="space-y-4">
-                                      {nivelesCompletos.tecnologos.map((tecnologo, index) => (
-                                        <Card key={index} className="border-blue-200">
-                                          <CardHeader className="pb-3">
-                                            <CardTitle className="text-base text-blue-800">
-                                              {tecnologo.nombre}
-                                            </CardTitle>
-                                          </CardHeader>
-                                          <CardContent>
-                                            <p className="text-sm text-gray-700">
-                                              {tecnologo.descripcion}
-                                            </p>
-                                          </CardContent>
-                                        </Card>
-                                      ))}
-                                    </div>
-                                  </div>
-
-                                  {/* Investigadores */}
-                                  <div>
-                                    <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                                      <Award className="h-5 w-5" />
-                                      Niveles de Investigador
-                                    </h3>
-                                    <div className="space-y-4">
-                                      {nivelesCompletos.investigadores.map((investigador, index) => (
-                                        <Card key={index} className="border-blue-200">
-                                          <CardHeader className="pb-3">
-                                            <CardTitle className="text-base text-blue-800">
-                                              {investigador.nombre}
-                                            </CardTitle>
-                                          </CardHeader>
-                                          <CardContent>
-                                            <p className="text-sm text-gray-700">
-                                              {investigador.descripcion}
-                                            </p>
-                                          </CardContent>
-                                        </Card>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
-                          <Select 
-                            value={formData.nivel_investigador} 
-                            onValueChange={(value) => handleSelectChange("nivel_investigador", value)}
-                          >
-                            <SelectTrigger 
-                              className={`bg-white border-blue-200 text-blue-900 ${
-                                !formData.nivel_investigador && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                              }`}
-                            >
-                              <SelectValue placeholder="Selecciona nivel" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Object.keys(nivelesInvestigadorDescripciones).map((nivel) => (
-                                <SelectItem key={nivel} value={nivel}>
-                                  {nivel}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <p className="text-xs text-blue-600 mt-1">
-                            Selecciona el nivel que corresponda a tu trayectoria cient├¡fica
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Label
-                              htmlFor="nivel_tecnologo"
-                              className="text-blue-900 text-sm font-medium flex items-center gap-2"
-                            >
-                              <Award className="h-4 w-4" />
-                              Nivel de Tecn├│logo *
-                            </Label>
-                            <Dialog open={showNivelesModal} onOpenChange={setShowNivelesModal}>
-                              <DialogTrigger asChild>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-                                  onClick={(e) => {
-                                    e.preventDefault()
-                                    setShowNivelesModal(true)
-                                  }}
-                                >
-                                  <Info className="h-4 w-4" />
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                                <DialogHeader>
-                                  <DialogTitle className="text-2xl font-bold text-blue-900">
-                                    Informaci├│n de Niveles
-                                  </DialogTitle>
-                                  <DialogDescription>
-                                    Conoce los diferentes niveles de tecn├│logos e investigadores disponibles en el sistema
-                                  </DialogDescription>
-                                </DialogHeader>
-                                
-                                <div className="space-y-6 mt-4">
-                                  {/* Tecn├│logos */}
-                                  <div>
-                                    <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                                      <Users2 className="h-5 w-5" />
-                                      Niveles de Tecn├│logo
-                                    </h3>
-                                    <div className="space-y-4">
-                                      {nivelesCompletos.tecnologos.map((tecnologo, index) => (
-                                        <Card key={index} className="border-blue-200">
-                                          <CardHeader className="pb-3">
-                                            <CardTitle className="text-base text-blue-800">
-                                              {tecnologo.nombre}
-                                            </CardTitle>
-                                          </CardHeader>
-                                          <CardContent>
-                                            <p className="text-sm text-gray-700">
-                                              {tecnologo.descripcion}
-                                            </p>
-                                          </CardContent>
-                                        </Card>
-                                      ))}
-                                    </div>
-                                  </div>
-
-                                  {/* Investigadores */}
-                                  <div>
-                                    <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                                      <Award className="h-5 w-5" />
-                                      Niveles de Investigador
-                                    </h3>
-                                    <div className="space-y-4">
-                                      {nivelesCompletos.investigadores.map((investigador, index) => (
-                                        <Card key={index} className="border-blue-200">
-                                          <CardHeader className="pb-3">
-                                            <CardTitle className="text-base text-blue-800">
-                                              {investigador.nombre}
-                                            </CardTitle>
-                                          </CardHeader>
-                                          <CardContent>
-                                            <p className="text-sm text-gray-700">
-                                              {investigador.descripcion}
-                                            </p>
-                                          </CardContent>
-                                        </Card>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
-                          <Select 
-                            value={formData.nivel_tecnologo} 
-                            onValueChange={(value) => handleSelectChange("nivel_tecnologo", value)}
-                          >
-                            <SelectTrigger 
-                              className={`bg-white border-blue-200 text-blue-900 ${
-                                !formData.nivel_tecnologo && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                              }`}
-                            >
-                              <SelectValue placeholder="Selecciona nivel" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Tecn├│logo Nivel A">
-                                <div className="flex flex-col">
-                                  <span className="font-medium">Tecn├│logo Nivel A</span>
-                                  <span className="text-xs text-gray-500">Estudiantes o egresados recientes</span>
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="Tecn├│logo Nivel B">
-                                <div className="flex flex-col">
-                                  <span className="font-medium">Tecn├│logo Nivel B</span>
-                                  <span className="text-xs text-gray-500">Profesionales con experiencia comprobable</span>
-                                </div>
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <p className="text-xs text-blue-600 mt-1">
-                            Nivel A: Proyectos iniciales | Nivel B: Experiencia comprobable
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4">
-                      {/* Municipio */}
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="municipio"
-                          className="text-blue-900 text-sm font-medium flex items-center gap-2"
-                        >
-                          <MapPin className="h-4 w-4" />
-                          Municipio *
-                        </Label>
-                        <Select 
-                          value={formData.municipio} 
-                          onValueChange={(value) => handleSelectChange("municipio", value)}
-                        >
-                          <SelectTrigger 
-                            className={`bg-white border-blue-200 text-blue-900 ${
-                              !formData.municipio && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                            }`}
-                          >
-                            <SelectValue placeholder="Selecciona municipio" />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-[300px]">
-                            {MUNICIPIOS_CHIHUAHUA.map((municipio) => (
-                              <SelectItem key={municipio} value={municipio}>
-                                {municipio}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    {/* Fotograf├¡a de Perfil */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                      {/* Componente de subir foto - 2 columnas */}
-                      <div className="md:col-span-2">
-                        <UploadFotografia
-                          value={formData.fotografia_url}
-                          onChange={(url: string) => setFormData((prev) => ({ ...prev, fotografia_url: url }))}
-                          nombreCompleto={formData.nombre_completo}
-                        />
-                      </div>
-
-                      {/* Recomendaciones - 1 columna */}
-                      <div className="md:col-span-1">
-                        <Alert className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 h-full">
-                          <Info className="h-4 w-4 text-blue-600" />
-                          <AlertTitle className="text-blue-900 font-semibold text-sm">
-                            Recomendaciones para la foto
-                          </AlertTitle>
-                          <AlertDescription className="text-blue-700 text-xs space-y-1 mt-2">
-                            <p>Ô£ô Formato JPG, PNG o WEBP</p>
-                            <p>Ô£ô Tama├▒o m├íximo: 2MB</p>
-                            <p>Ô£ô Foto profesional</p>
-                          </AlertDescription>
-                        </Alert>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Informaci├│n Acad├®mica y Profesional */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
-                      <GraduationCap className="h-5 w-5" />
-                      Informaci├│n Acad├®mica y Profesional
-                    </h3>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="ultimo_grado_estudios"
-                          className="text-blue-900 font-medium flex items-center gap-2"
-                        >
-                          <GraduationCap className="h-4 w-4" />
-                          ├Ültimo Grado de Estudios *
-                        </Label>
-                        <Input
-                          id="ultimo_grado_estudios"
-                          name="ultimo_grado_estudios"
-                          value={formData.ultimo_grado_estudios}
-                          onChange={handleChange}
-                          placeholder="├Ültimo grado de estudios"
-                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.ultimo_grado_estudios.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="empleo_actual" className="text-blue-900 font-medium flex items-center gap-2">
-                          <Briefcase className="h-4 w-4" />
-                          Empleo Actual *
-                        </Label>
-                        <Input
-                          id="empleo_actual"
-                          name="empleo_actual"
-                          value={formData.empleo_actual}
-                          onChange={handleChange}
-                          placeholder="Empleo actual"
-                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.empleo_actual.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Informaci├│n Fiscal */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
-                      <CreditCard className="h-5 w-5" />
-                      Informaci├│n Fiscal y de Registro
-                    </h3>
-                    {ocrCompleted && (!formData.curp.trim() || !formData.rfc.trim() || !formData.no_cvu.trim()) && (
-                      <Alert className="bg-gradient-to-r from-orange-50 to-amber-50 border-orange-300 shadow-sm">
-                        <AlertCircle className="h-5 w-5 text-orange-600" />
-                        <AlertTitle className="text-orange-800 font-semibold">
-                          ÔÜá´©Å CAMPOS OBLIGATORIOS VAC├ìOS
-                        </AlertTitle>
-                        <AlertDescription className="text-orange-700">
-                          El OCR no pudo extraer tu CURP, RFC o CVU. <strong>Debes completarlos manualmente</strong> para continuar con el registro.
-                          <br />
-                          <br />
-                          <strong>ÔÇó CURP:</strong> Debe tener exactamente 18 caracteres (ej: TARC800101HDGRRL00)
-                          <br />
-                          <strong>ÔÇó RFC:</strong> Debe tener 10-13 caracteres (ej: TARC800101XYZ)
-                          <br />
-                          <strong>ÔÇó CVU/PU:</strong> Tu n├║mero de identidad acad├®mica
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="no_cvu" className="text-blue-900 font-medium flex items-center gap-2">
-                          <Hash className="h-4 w-4" />
-                          CVU/PU *
-                        </Label>
-                        <Input
-                          id="no_cvu"
-                          name="no_cvu"
-                          value={formData.no_cvu}
-                          onChange={handleChange}
-                          placeholder="CVU/PU"
-                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.no_cvu.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="curp" className="text-blue-900 font-medium flex items-center gap-2">
-                          <CreditCard className="h-4 w-4" />
-                          CURP * <span className="text-xs text-gray-500">(18 caracteres)</span>
-                        </Label>
-                        <Input
-                          id="curp"
-                          name="curp"
-                          value={formData.curp}
-                          onChange={handleChange}
-                          placeholder="CURP (18 caracteres)"
-                          maxLength={18}
-                          minLength={18}
-                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.curp.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
-                        {formData.curp && formData.curp.length < 18 && formData.curp.length > 0 && (
-                          <p className="text-xs text-amber-600">La CURP debe tener exactamente 18 caracteres</p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="rfc" className="text-blue-900 font-medium flex items-center gap-2">
-                          <CreditCard className="h-4 w-4" />
-                          RFC * <span className="text-xs text-gray-500">(10-13 caracteres)</span>
-                        </Label>
-                        <Input
-                          id="rfc"
-                          name="rfc"
-                          value={formData.rfc}
-                          onChange={handleChange}
-                          placeholder="RFC (10 o 13 caracteres)"
-                          maxLength={13}
-                          minLength={10}
-                          className={`bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 ${
-                            !formData.rfc.trim() && ocrCompleted ? "border-red-300 bg-red-50" : ""
-                          }`}
-                          required
-                          disabled={false}
-                        />
-                        {formData.rfc && (formData.rfc.length < 12 || formData.rfc.length > 13) && formData.rfc.length > 0 && (
-                          <p className="text-xs text-amber-600">El RFC debe tener 12 o 13 caracteres</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Seguridad de la Cuenta */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-blue-900 border-b border-blue-100 pb-2 flex items-center gap-2">
-                      <Shield className="h-5 w-5" />
-                      Seguridad de la Cuenta
-                      <span className="text-sm text-blue-600 font-normal">(Captura manual requerida)</span>
-                    </h3>
-                    <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-sm">
-                      <Shield className="h-4 w-4 text-blue-600" />
-                      <AlertTitle className="text-blue-800 font-semibold">Contrase├▒a segura requerida</AlertTitle>
-                      <AlertDescription className="text-blue-700">
-                        Crea una contrase├▒a segura para proteger tu cuenta. Debe cumplir con los requisitos de seguridad
-                        establecidos.
-                      </AlertDescription>
-                    </Alert>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <PasswordInput
-                        id="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="Crea una contrase├▒a segura"
-                        showPassword={showPassword}
-                        onTogglePassword={() => setShowPassword(!showPassword)}
-                        disabled={false}
-                        hasError={!formData.password.trim() && ocrCompleted}
-                        label="Contrase├▒a *"
-                      />
-
-                      <PasswordInput
-                        id="confirm_password"
-                        name="confirm_password"
-                        value={formData.confirm_password}
-                        onChange={handleChange}
-                        placeholder="Confirma tu contrase├▒a"
-                        showPassword={showConfirmPassword}
-                        onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
-                        disabled={false}
-                        hasError={
-                          (!formData.confirm_password.trim() && ocrCompleted) ||
-                          (!!formData.confirm_password &&
-                            !!formData.password &&
-                            formData.password !== formData.confirm_password)
-                        }
-                        label="Confirmar Contrase├▒a *"
-                      />
-                    </div>
-
-                    {formData.password && ocrCompleted && (
-                      <PasswordStrength
-                        validation={passwordValidation}
-                        confirmPassword={formData.confirm_password}
-                        password={formData.password}
-                      />
-                    )}
-                  </div>
-
-                    {/* ├ürea de Investigaci├│n (selector SNII) */}
-                    <div className="space-y-2">
-                      <AreaSNIISelector
-                        value={formData.area_investigacion}
-                        onChange={(value: string) => setFormData(prev => ({ ...prev, area_investigacion: value }))}
-                        error={!formData.area_investigacion && ocrCompleted}
-                      />
-                    </div>
-
-                    {/* Requisitos del Nivel de Investigador */}
-                    <div className="space-y-2">
-                      <RequisitosNivelInvestigador
-                        nivelInvestigador={formData.nivel_investigador}
-                        areaInvestigacion={formData.area_investigacion}
-                      />
-                    </div>
-
-                    {/* L├¡nea de Investigaci├│n */}
-                    <div className="space-y-2">
-                      <TagsInput
-                        value={formData.linea_investigacion}
-                        onChange={(tags: string[]) => setFormData(prev => ({ ...prev, linea_investigacion: tags }))}
-                        label="L├¡nea de Investigaci├│n Espec├¡fica"
-                        placeholder="Escribe una l├¡nea de investigaci├│n y presiona Enter para agregarla"
-                        maxTags={5}
-                        required
-                        disabled={false}
-                        className={formData.linea_investigacion.length === 0 ? "border-red-300" : ""}
-                      />
-                      {formData.linea_investigacion.length === 0 && (
-                        <p className="text-sm text-red-600">
-                          Este campo es obligatorio. Agrega al menos una l├¡nea de investigaci├│n.
-                        </p>
-                      )}
-                      <div className="text-xs text-blue-600">
-                        <p>Ejemplos: "Inteligencia Artificial", "Biotecnolog├¡a", "Energ├¡as Renovables", "Ciencias de Datos"</p>
-                      </div>
-                    </div>
-                  {/* Fin de bloque principal del formulario */}
-
-                  {error && (
-                    <Alert variant="destructive" className="bg-red-50 border-red-200 text-red-700">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>Error en el registro</AlertTitle>
-                      <AlertDescription className="whitespace-pre-wrap break-words">
-                        {error}
-                      </AlertDescription>
-                    </Alert>
-                  )}
-
-                  {/* Indicador de completitud del formulario */}
-                  <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-4 border border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700">
-                        Progreso del formulario: {requiredFields.length - emptyFields.length}/{requiredFields.length} campos completos
-                      </span>
-                      <div className="flex items-center gap-2">
-                        {isFormComplete && passwordValidation.isValid && passwordsMatch ? (
-                          <CheckCircle className="h-5 w-5 text-green-600" />
-                        ) : (
-                          <AlertCircle className="h-5 w-5 text-amber-600" />
-                        )}
-                        <span
-                          className={`text-sm font-medium ${
-                            isFormComplete && passwordValidation.isValid && passwordsMatch
-                              ? "text-green-600"
-                              : "text-amber-600"
-                          }`}
-                        >
-                          {isFormComplete && passwordValidation.isValid && passwordsMatch
-                            ? "Formulario completo"
-                            : "Campos faltantes o contrase├▒a insegura"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* CAPTCHA DESHABILITADO TEMPORALMENTE */}
-                  {/* <div className="flex justify-center my-6">
-                    <ReCAPTCHA
-                      ref={recaptchaRef}
-                      sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE!}
-                      onChange={(value) => {
-                        console.log("­ƒöÁ CAPTCHA onChange triggered. Value:", value)
-                        console.log("­ƒöÁ Setting captchaValue state to:", value)
-                        setCaptchaValue(value)
-                        if (value) {
-                          setError(null)
-                          console.log("Ô£à CAPTCHA completado, error limpiado")
-                        }
-                      }}
-                      onExpired={() => {
-                        console.log("ÔÜá´©Å CAPTCHA expir├│")
-                        setCaptchaValue(null)
-                        setError("El CAPTCHA expir├│. Por favor, m├írcalo nuevamente.")
-                      }}
-                      theme="light"
-                    />
-                  </div> */}
-
-                  {/* FEEDBACK VISUAL DEL CAPTCHA DESHABILITADO */}
-                  {/* {captchaValue && (
-                    <div className="text-center text-sm text-green-600 font-medium mb-2 animate-fadeIn">
-                      Ô£à CAPTCHA verificado correctamente
-                    </div>
-                  )}
-                  {!captchaValue && (
-                    <div className="text-center text-sm text-amber-600 mb-2">
-                      ÔÜá´©Å Marca el checkbox "No soy un robot" para continuar
-                    </div>
-                  )} */}
-
-                  {/* Clerk CAPTCHA Container */}
-                  <div id="clerk-captcha" className="flex justify-center"></div>
-
-                  {/* T├ëRMINOS Y CONDICIONES - Checkbox + Link */}
-                  <div className="space-y-3 p-4 rounded-lg bg-blue-50 border border-blue-200">
-                    <div className="flex items-start gap-3">
-                      <Checkbox
-                        id="accept-terms-checkbox"
-                        checked={termsAccepted}
-                        onCheckedChange={(checked) => {
-                          setTermsAccepted(checked as boolean)
-                          console.log(`[T├ëRMINOS] Checkbox: ${checked ? 'Aceptado' : 'No aceptado'}`)
-                        }}
-                        className="mt-1"
-                      />
-                      <label htmlFor="accept-terms-checkbox" className="text-sm cursor-pointer flex-1 leading-relaxed">
-                        <span className="text-gray-700">
-                          He le├¡do y acepto los{" "}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              console.log("[T├ëRMINOS] Usuario abre modal")
-                              setShowTermsModal(true)
-                            }}
-                            className="text-blue-600 hover:text-blue-800 font-medium underline underline-offset-2 hover:underline-offset-4 transition-all"
-                          >
-                            T├®rminos y Condiciones
-                          </button>
-                          {" "}de la Plataforma
-                        </span>
-                      </label>
-                    </div>
-                    
-                    {/* Visual feedback */}
-                    {termsAccepted && (
-                      <div className="flex items-center gap-2 text-green-600 text-xs pl-8">
-                        <CheckCircle className="h-4 w-4" />
-                        <span>Ô£ô T├®rminos aceptados</span>
-                      </div>
-                    )}
-                    
-                    {!termsAccepted && (
-                      <div className="flex items-center gap-2 text-amber-600 text-xs pl-8">
-                        <AlertCircle className="h-4 w-4" />
-                        <span>Debes aceptar los T├®rminos para continuar</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <Button
-                    type="submit"
-                    disabled={
-                      isLoading || !ocrCompleted || !isFormComplete || !passwordValidation.isValid || !passwordsMatch || !termsAccepted
-                      // || !captchaValue // CAPTCHA DESHABILITADO
-                    }
-                    className={`w-full shadow-md hover:shadow-lg transition-all duration-300 h-10 md:h-12 text-sm md:text-base ${
-                      isFormComplete && passwordValidation.isValid && passwordsMatch && termsAccepted
-                      // && captchaValue // CAPTCHA DESHABILITADO
-                        ? "bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800"
-                        : "bg-gray-400 text-gray-200 cursor-not-allowed"
-                    }`}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Registrando...
-                      </>
-                    ) : !isFormComplete || !passwordValidation.isValid || !passwordsMatch ? (
-                      <>
-                        <AlertCircle className="mr-2 h-5 w-5" />
-                        Completa todos los campos y crea una contrase├▒a segura
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle className="mr-2 h-5 w-5" />
-                        Completar Registro
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-          {/* Footer */}
-          <div className="text-center text-sm text-blue-600 max-w-md mx-auto">
-            <p>
-              ┬┐Ya tienes una cuenta?{" "}
-              <Link
-                href="/iniciar-sesion"
-                className="text-blue-700 underline underline-offset-4 hover:text-blue-900 font-medium"
-              >
-                Iniciar sesi├│n
-              </Link>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* ============================================ */}
-      {/* MODAL - T├ëRMINOS Y CONDICIONES */}
-      {/* ============================================ */}
-      <TermsAndConditionsModal
-        open={showTermsModal}
-        onOpenChange={setShowTermsModal}
-        onAccept={() => {
-          setTermsAccepted(true)
-          setShowTermsModal(false)
-          console.log("Ô£à [REGISTRO] T├®rminos y Condiciones aceptados")
-        }}
-        onDecline={() => {
-          setTermsAccepted(false)
-          setShowTermsModal(false)
-          setError("Debes aceptar los T├®rminos y Condiciones para continuar el registro")
-          console.log("ÔØî [REGISTRO] Registro cancelado - T├®rminos y Condiciones rechazados")
-        }}
-        isLoading={isLoading}
-      />
-    </div>
+    <div>Página de registro para investigadores existentes</div>
   )
 }
