@@ -675,19 +675,30 @@ export default function InvestigadorPage() {
                       </CardDescription>
                     </div>
                     <div className="flex items-center gap-2 w-full sm:w-auto">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs sm:text-sm">
-                            {tipoDocumento}
-                            <ChevronDown className="ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setTipoDocumento('PU')}>PU</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setTipoDocumento('Dictamen')}>Dictamen</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setTipoDocumento('SNI')}>SNI</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <Button
+                        variant={tipoDocumento === 'PU' ? "default" : "outline"}
+                        className={tipoDocumento === 'PU' ? "bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm" : "border-blue-300 text-blue-700 hover:bg-blue-50 text-xs sm:text-sm"}
+                        size="sm"
+                        onClick={() => setTipoDocumento('PU')}
+                      >
+                        Perfil Único
+                      </Button>
+                      <Button
+                        variant={tipoDocumento === 'Dictamen' ? "default" : "outline"}
+                        className={tipoDocumento === 'Dictamen' ? "bg-orange-600 hover:bg-orange-700 text-white text-xs sm:text-sm" : "border-orange-300 text-orange-700 hover:bg-orange-50 text-xs sm:text-sm"}
+                        size="sm"
+                        onClick={() => setTipoDocumento('Dictamen')}
+                      >
+                        Dictamen
+                      </Button>
+                      <Button
+                        variant={tipoDocumento === 'SNI' ? "default" : "outline"}
+                        className={tipoDocumento === 'SNI' ? "bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm" : "border-purple-300 text-purple-700 hover:bg-purple-50 text-xs sm:text-sm"}
+                        size="sm"
+                        onClick={() => setTipoDocumento('SNI')}
+                      >
+                        Grado SNII
+                      </Button>
                     </div>
                   </div>
                 </CardHeader>
@@ -695,21 +706,6 @@ export default function InvestigadorPage() {
                   {tipoDocumento === 'PU' ? (
                     validCvUrl ? (
                       <div className="w-full space-y-3 sm:space-y-4">
-                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
-                          <Button onClick={() => window.open(validCvUrl, '_blank')} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white w-full sm:w-auto text-xs sm:text-sm">
-                            <ExternalLink className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />Abrir PDF
-                          </Button>
-                          <Button variant="outline" onClick={() => { 
-                            const l = document.createElement('a')
-                            l.href = validCvUrl as string
-                            l.download = `${investigador?.name?.replace(/\s+/g, '_') || 'perfil'}.pdf`
-                            document.body.appendChild(l)
-                            l.click()
-                            document.body.removeChild(l)
-                          }} className="w-full sm:w-auto text-xs sm:text-sm">
-                            <Download className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />Descargar
-                          </Button>
-                        </div>
                         <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200 h-[50vh] md:h-[60vh] lg:h-[70vh]">
                           <iframe src={validCvUrl as string} className="w-full h-full" title="Vista previa" style={{ border: 'none' }} />
                         </div>
@@ -726,21 +722,6 @@ export default function InvestigadorPage() {
                   ) : tipoDocumento === 'Dictamen' ? (
                     validDictamenUrl ? (
                       <div className="w-full space-y-3 sm:space-y-4">
-                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
-                          <Button onClick={() => window.open(validDictamenUrl as string, '_blank')} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white w-full sm:w-auto text-xs sm:text-sm">
-                            <ExternalLink className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />Abrir PDF
-                          </Button>
-                          <Button variant="outline" onClick={() => { 
-                            const l = document.createElement('a')
-                            l.href = validDictamenUrl as string
-                            l.download = `${investigador?.name?.replace(/\s+/g, '_') || 'dictamen'}_dictamen.pdf`
-                            document.body.appendChild(l)
-                            l.click()
-                            document.body.removeChild(l)
-                          }} className="w-full sm:w-auto text-xs sm:text-sm">
-                            <Download className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />Descargar
-                          </Button>
-                        </div>
                         <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200 h-[50vh] md:h-[60vh] lg:h-[70vh]">
                           <iframe src={validDictamenUrl as string} className="w-full h-full" title="Vista previa dictamen" style={{ border: 'none' }} />
                         </div>
@@ -757,21 +738,11 @@ export default function InvestigadorPage() {
                   ) : (
                     validSniUrl ? (
                       <div className="w-full space-y-3 sm:space-y-4">
-                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
-                          <Button onClick={() => window.open(validSniUrl as string, '_blank')} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white w-full sm:w-auto text-xs sm:text-sm">
-                            <ExternalLink className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />Abrir PDF
-                          </Button>
-                          <Button variant="outline" onClick={() => { 
-                            const l = document.createElement('a')
-                            l.href = validSniUrl as string
-                            l.download = `${investigador?.name?.replace(/\s+/g, '_') || 'sni'}_sni.pdf`
-                            document.body.appendChild(l)
-                            l.click()
-                            document.body.removeChild(l)
-                          }} className="w-full sm:w-auto text-xs sm:text-sm">
-                            <Download className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />Descargar
-                          </Button>
+                        <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200 h-[50vh] md:h-[60vh] lg:h-[70vh]">
+                          <iframe src={validSniUrl as string} className="w-full h-full" title="Vista previa SNI" style={{ border: 'none' }} />
                         </div>
+                      </div>
+                    ) : (
                         <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200 h-[50vh] md:h-[60vh] lg:h-[70vh]">
                           <iframe src={validSniUrl as string} className="w-full h-full" title="Vista previa SNI" style={{ border: 'none' }} />
                         </div>

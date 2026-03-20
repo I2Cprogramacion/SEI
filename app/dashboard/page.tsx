@@ -459,6 +459,21 @@ export default function DashboardPage() {
                       ? investigadorData.nombre_completo
                       : user.fullName || user.firstName || "Usuario"}
                   </h2>
+                  {/* Correo y Teléfono */}
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-2 text-xs sm:text-sm">
+                    {investigadorData?.correo && (
+                      <p className="text-blue-600 flex items-center gap-1">
+                        <Mail className="h-3 w-3" />
+                        {investigadorData.correo}
+                      </p>
+                    )}
+                    {investigadorData?.telefono && (
+                      <p className="text-blue-600 flex items-center gap-1">
+                        <Phone className="h-3 w-3" />
+                        {investigadorData.telefono}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -860,39 +875,31 @@ export default function DashboardPage() {
                 </CardDescription>
               </div>
               <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-                {/* Botón desplegable para cambiar entre PU, Dictamen y SNI */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="border-blue-300 text-blue-700 hover:bg-blue-50 w-full sm:w-auto"
-                      size="sm"
-                    >
-                      {tipoDocumento === 'PU' ? 'PU' : tipoDocumento === 'Dictamen' ? 'Dictamen' : 'SNI'}
-                      <ChevronDown className="ml-2 h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => setTipoDocumento('PU')}
-                      className="cursor-pointer"
-                    >
-                      Cambiar PU
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => setTipoDocumento('Dictamen')}
-                      className="cursor-pointer"
-                    >
-                      Cambiar Dictamen
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => setTipoDocumento('SNI')}
-                      className="cursor-pointer"
-                    >
-                      Cambiar SNI
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {/* Botones para cambiar entre PU, Dictamen y SNII */}
+                <Button
+                  variant={tipoDocumento === 'PU' ? "default" : "outline"}
+                  className={tipoDocumento === 'PU' ? "bg-blue-600 hover:bg-blue-700 text-white" : "border-blue-300 text-blue-700 hover:bg-blue-50"}
+                  size="sm"
+                  onClick={() => setTipoDocumento('PU')}
+                >
+                  Perfil Único
+                </Button>
+                <Button
+                  variant={tipoDocumento === 'Dictamen' ? "default" : "outline"}
+                  className={tipoDocumento === 'Dictamen' ? "bg-orange-600 hover:bg-orange-700 text-white" : "border-orange-300 text-orange-700 hover:bg-orange-50"}
+                  size="sm"
+                  onClick={() => setTipoDocumento('Dictamen')}
+                >
+                  Dictamen
+                </Button>
+                <Button
+                  variant={tipoDocumento === 'SNI' ? "default" : "outline"}
+                  className={tipoDocumento === 'SNI' ? "bg-purple-600 hover:bg-purple-700 text-white" : "border-purple-300 text-purple-700 hover:bg-purple-50"}
+                  size="sm"
+                  onClick={() => setTipoDocumento('SNI')}
+                >
+                  Grado SNII
+                </Button>
                 {((tipoDocumento === 'PU' && validCvUrl) || (tipoDocumento === 'Dictamen' && validDictamenUrl) || (tipoDocumento === 'SNI' && validSniUrl)) && (
                   <Button
                     onClick={() => setGestionarCvDialogOpen(true)}
@@ -981,34 +988,6 @@ export default function DashboardPage() {
                   
                   {/* Vista previa del PDF - SOLUCIÓN SIMPLE */}
                   <div className="w-full space-y-4">
-                    {/* Botones de acción */}
-                    <div className="flex gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <div className="flex flex-col md:flex-row gap-3 w-full justify-center items-center">
-                        <Button
-                          onClick={() => window.open(validCvUrl, "_blank", "noopener,noreferrer")}
-                          className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
-                        >
-                          <ExternalLink className="mr-2 h-4 w-4" />
-                          Abrir PDF en Nueva Pestaña
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            const link = document.createElement('a')
-                            link.href = validCvUrl
-                            link.download = `${investigadorData?.nombre_completo?.replace(/\s+/g, '_') || 'perfil'}.pdf`
-                            document.body.appendChild(link)
-                            link.click()
-                            document.body.removeChild(link)
-                          }}
-                          className="w-full md:w-auto border-blue-300 text-blue-700 hover:bg-blue-50"
-                        >
-                          <Download className="mr-2 h-4 w-4" />
-                          Descargar PDF
-                        </Button>
-                      </div>
-                    </div>
-
                     {/* Vista previa del PDF con iframe simple */}
                     <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200" style={{ height: '650px' }}>
                       <iframe
@@ -1086,32 +1065,6 @@ export default function DashboardPage() {
                 <>
                   {/* Vista previa del PDF del Dictamen */}
                   <div className="w-full space-y-4">
-                    {/* Botones de acción mejorados */}
-                    <div className="flex flex-col md:flex-row flex-wrap gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200 min-w-0 max-w-full">
-                      <Button
-                        onClick={() => window.open(validDictamenUrl, "_blank", "noopener,noreferrer")}
-                        className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 min-w-0 max-w-full truncate"
-                      >
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        Abrir PDF en Nueva Pestaña
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          const link = document.createElement('a')
-                          link.href = validDictamenUrl
-                          link.download = `${investigadorData?.nombre_completo?.replace(/\s+/g, '_') || 'dictamen'}_dictamen.pdf`
-                          document.body.appendChild(link)
-                          link.click()
-                          document.body.removeChild(link)
-                        }}
-                        className="w-full md:w-auto border-blue-300 text-blue-700 hover:bg-blue-50 min-w-0 max-w-full truncate"
-                      >
-                        <Download className="mr-2 h-4 w-4" />
-                        Descargar PDF
-                      </Button>
-                    </div>
-
                     {/* Vista previa del PDF con iframe simple */}
                     <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200" style={{ height: '650px' }}>
                       <iframe
@@ -1181,32 +1134,6 @@ export default function DashboardPage() {
                 <>
                   {/* Vista previa del PDF del SNI */}
                   <div className="w-full space-y-4">
-                    {/* Botones de acción mejorados */}
-                    <div className="flex flex-col md:flex-row flex-wrap gap-3 justify-center p-4 bg-blue-50 rounded-lg border border-blue-200 min-w-0 max-w-full">
-                      <Button
-                        onClick={() => window.open(validSniUrl, "_blank", "noopener,noreferrer")}
-                        className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 min-w-0 max-w-full truncate"
-                      >
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        Abrir PDF en Nueva Pestaña
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          const link = document.createElement('a')
-                          link.href = validSniUrl
-                          link.download = `${investigadorData?.nombre_completo?.replace(/\s+/g, '_') || 'sni'}_sni.pdf`
-                          document.body.appendChild(link)
-                          link.click()
-                          document.body.removeChild(link)
-                        }}
-                        className="w-full md:w-auto border-blue-300 text-blue-700 hover:bg-blue-50 min-w-0 max-w-full truncate"
-                      >
-                        <Download className="mr-2 h-4 w-4" />
-                        Descargar PDF
-                      </Button>
-                    </div>
-
                     {/* Vista previa del PDF con iframe simple */}
                     <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200" style={{ height: '650px' }}>
                       <iframe
