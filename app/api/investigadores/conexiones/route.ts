@@ -47,11 +47,11 @@ export async function GET(request: NextRequest) {
     const miId = investigadorActual.rows[0].id
     console.log(`[CONEXIONES API] Usuario encontrado`)
 
-    // Obtener investigadores conectados (conexiones aceptadas en ambas direcciones)
+    // Obtener investigadores (todos, priorizando conectados)
     let investigadoresConectados
     
     if (query && query.length >= 2) {
-      // Búsqueda con filtro de nombre
+      // Búsqueda con filtro de nombre - buscar entre TODOS los investigadores
       const searchPattern = `%${query}%`
       investigadoresConectados = await sql`
         SELECT DISTINCT 
@@ -61,13 +61,7 @@ export async function GET(request: NextRequest) {
           i.fotografia_url,
           i.slug
         FROM investigadores i
-        INNER JOIN conexiones c ON (
-          (c.investigador_id = ${miId} AND c.investigador_destino_id = i.id)
-          OR 
-          (c.investigador_destino_id = ${miId} AND c.investigador_id = i.id)
-        )
-        WHERE c.estado = 'aceptada'
-          AND i.id != ${miId}
+        WHERE i.id != ${miId}
           AND i.activo != false
           AND (
             LOWER(i.nombre_completo) LIKE LOWER(${searchPattern})
@@ -77,7 +71,7 @@ export async function GET(request: NextRequest) {
         LIMIT ${limit}
       `
     } else {
-      // Sin filtro, obtener todos los conectados
+      // Sin filtro, obtener todos los investigadores
       investigadoresConectados = await sql`
         SELECT DISTINCT 
           i.id,
@@ -86,20 +80,14 @@ export async function GET(request: NextRequest) {
           i.fotografia_url,
           i.slug
         FROM investigadores i
-        INNER JOIN conexiones c ON (
-          (c.investigador_id = ${miId} AND c.investigador_destino_id = i.id)
-          OR 
-          (c.investigador_destino_id = ${miId} AND c.investigador_id = i.id)
-        )
-        WHERE c.estado = 'aceptada'
-          AND i.id != ${miId}
+        WHERE i.id != ${miId}
           AND i.activo != false
         ORDER BY i.nombre_completo ASC
         LIMIT ${limit}
       `
     }
 
-    console.log(`[CONEXIONES API] Conexiones encontradas: ${investigadoresConectados.rows.length}`)
+    console.log(`[CONEXIONES API] Investigadores encontrados: ${investigadoresConectados.rows.length}`)
 
     // Formatear respuesta
     const resultados = investigadoresConectados.rows.map((inv: any) => {
