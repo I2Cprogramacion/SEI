@@ -743,11 +743,6 @@ export default function InvestigadorPage() {
                         </div>
                       </div>
                     ) : (
-                        <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200 h-[50vh] md:h-[60vh] lg:h-[70vh]">
-                          <iframe src={validSniUrl as string} className="w-full h-full" title="Vista previa SNI" style={{ border: 'none' }} />
-                        </div>
-                      </div>
-                    ) : (
                       <div className="space-y-4 p-6">
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
                           <FileText className="h-12 w-12 text-blue-400 mx-auto mb-3" />
