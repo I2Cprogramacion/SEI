@@ -82,7 +82,7 @@ const faqCategories = [
       },
       {
         question: "¿Cómo funciona el sistema de niveles SNI?",
-        answer: "El sistema clasifica a los investigadores en niveles similares al Sistema Nacional de Investigadores (Candidato, Nivel I, II, III, Emérito), permitiendo identificar trayectorias académicas y reconocimiento científico.",
+        answer: "El sistema clasifica a los investigadores en niveles similares al Sistema Nacional de Investigadoras e Investigadores (Candidato, Nivel I, II, III, Emérito), permitiendo identificar trayectorias académicas y reconocimiento científico.",
       },
       {
         question: "¿Cómo puedo destacar mi perfil?",

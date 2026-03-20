@@ -269,7 +269,7 @@ const nivelesCompletos = {
     },
     {
       nombre: "Investigador Estatal Nivel III",
-      descripcion: "Miembros del Sistema Nacional de Investigadores (SNI) en el nivel II, con alto impacto en el estado."
+      descripcion: "Miembros del Sistema Nacional de Investigadoras e Investigadores (SNII) en el nivel II, con alto impacto en el estado."
     },
     {
       nombre: "Investigador Excepcional",
@@ -1436,7 +1436,7 @@ export default function RegistroPage() {
                   Sube tu Grado SNII
                 </CardTitle>
                 <CardDescription className="text-sm sm:text-base text-purple-600 px-2">
-                  Opcional: Si cuentas con grado del Sistema Nacional de Investigadores, sube el documento aquá
+                  Opcional: Si cuentas con grado del Sistema Nacional de Investigadoras e Investigadores, sube el documento aquá
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">

@@ -93,7 +93,7 @@
 
 | Función | Descripción | Valores |
 |---------|-------------|--------|
-| **Nivel SNI** | Sistema Nacional de Investigadores | Candidato, Nivel 1, Nivel 2, Nivel 3 |
+| **Nivel SNII** | Sistema Nacional de Investigadoras e Investigadores | Candidato, Nivel 1, Nivel 2, Nivel 3 |
 | **Año de Asignación** | Cuándo se asignó el nivel | Campo numérico |
 | **Tipo de Perfil** | Clasificación del investigador | Investigador, Tecnólogo, Ambos |
 

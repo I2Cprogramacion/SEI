@@ -29,7 +29,7 @@ model NivelInvestigador {
   /// - Candidato a Investigador Estatal: Personas con nivel mínimo de licenciatura que realizan actividades de producción científica, divulgación y promoción científica, adscritos a instituciones académicas o tecnológicas.
   /// - Investigador Estatal Nivel I: Profesionales con grado de maestría o estudiantes de doctorado que colaboran en proyectos de investigación, desarrollo tecnológico y/o innovación.
   /// - Investigador Estatal Nivel II: Investigadores con grado de doctorado hayan liderado proyectos científicos o tecnológicos con impacto en el estado y que sean miembros del SNII.
-  /// - Investigador Estatal Nivel III: Miembros del Sistema Nacional de Investigadores (SNI) en el nivel II, con alto impacto en el estado.
+  /// - Investigador Estatal Nivel III: Miembros del Sistema Nacional de Investigadoras e Investigadores (SNII) en el nivel II, con alto impacto en el estado.
   /// - Investigador Excepcional: Miembros del SNI en los niveles III o Emérito, reconocidos por su trayectoria científica y tecnológica como referentes estatales en su área de conocimiento, con más de 10 años de experiencia en el proceso ID+i.
   /// - Investigador Insigne: Distinción otorgada a aquellos investigadores que han alcanzado el más alto nivel de reconocimiento en su trayectoria científica, tecnológica y académica, con un impacto significativo en su área de conocimiento y en la sociedad.
 
