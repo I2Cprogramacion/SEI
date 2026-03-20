@@ -460,9 +460,9 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
           <div className="space-y-3">
             <Alert className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 shadow-sm">
               <CheckCircle className="h-5 w-5 text-green-600" />
-              <AlertTitle className="text-green-800 font-semibold">┬íDatos extraádos exitosamente!</AlertTitle>
+              <AlertTitle className="text-green-800 font-semibold">¡Datos extraídos exitosamente!</AlertTitle>
               <AlertDescription className="text-green-700">
-                Se han extraádo los datos de tu Perfil Único. Revisa cuidadosamente la información en el formulario
+                Se han extraído los datos de tu Perfil Único. Revisa cuidadosamente la información en el formulario
                 antes de continuar.
               </AlertDescription>
             </Alert>
