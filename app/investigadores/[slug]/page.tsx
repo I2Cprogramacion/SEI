@@ -339,7 +339,7 @@ export default function InvestigadorPage() {
                     <CardDescription className="text-blue-600 text-xs sm:text-sm break-words">Información del investigador</CardDescription>
                   </CardHeader>
                   <CardContent className="p-3 sm:p-4 md:p-6">
-                    <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="flex flex-col items-center gap-3 sm:gap-4">
                       <Avatar className="h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0">
                         {investigador?.fotografiaUrl && investigador.fotografiaUrl.trim() !== "" ? (
                           <AvatarImage src={investigador.fotografiaUrl} alt={investigador?.name || 'Usuario'} />
@@ -350,7 +350,7 @@ export default function InvestigadorPage() {
                         )}
                       </Avatar>
 
-                      <div className="flex-1 min-w-0">
+                      <div className="text-center w-full">
                         <h2 className="text-lg sm:text-xl font-bold text-blue-900 break-words">{investigador.name}</h2>
                         
                         {/* Badge de estado de conexión */}
