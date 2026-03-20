@@ -1383,29 +1383,90 @@ export default function RegistroPage() {
               onProcess={handlePDFUpload}
             />
 
-            {/* Step 1.5-1.7: Upload Additional Documents (Dictamen + Grado SNII) */}
+            {/* CONSOLIDATED: All Document Uploads (PU + Dictamen + SNII) */}
             <Card className="bg-white/80 backdrop-blur-sm border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300">
               <CardHeader className="text-center pb-6">
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-3">
-                  <span className="text-blue-600 font-bold text-lg">1.5</span>
+                  <span className="text-blue-600 font-bold text-lg">1</span>
                 </div>
                 <CardTitle className="text-xl sm:text-2xl text-blue-900 flex items-center justify-center gap-2">
                   <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
-                  Documentos Adicionales
+                  Carga tus Documentos
                 </CardTitle>
                 <CardDescription className="text-sm sm:text-base text-blue-600 px-2">
-                  Sube tu Dictamen SEI (obligatorio) y opcionalmente tu Grado SNII
+                  Sube los documentos requeridos para completar tu registro
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Perfil Único Section */}
+                <div className="space-y-3 p-4 rounded-lg bg-blue-50 border border-blue-200">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-full bg-blue-200 flex items-center justify-center">
+                      <span className="text-sm font-bold text-blue-700">1</span>
+                    </div>
+                    <Label htmlFor="pdf-upload" className="text-sm sm:text-base text-blue-900 font-semibold">
+                      Perfil Único Completo (PUC) - Obligatorio *
+                    </Label>
+                  </div>
+                  <p className="text-xs text-blue-700 ml-10">Se procesará automáticamente con OCR - Máximo {FILE_CONSTRAINTS.MAX_SIZE_MB}MB</p>
+                  <div className="ml-10">
+                    <Input
+                      id="pdf-upload"
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleFileChange}
+                      aria-label="Subir archivo PDF del Perfil Único Completo (PUC)"
+                      aria-required="true"
+                      className="bg-white border-blue-200 text-blue-900 file:bg-blue-50 file:text-blue-700 file:border-0 file:rounded-md file:px-3 file:py-1.5 file:text-sm file:mr-3 hover:file:bg-blue-100 transition-colors h-10"
+                      required
+                    />
+                  </div>
+                  {selectedFile && (
+                    <div className="flex items-center gap-2 p-2 bg-green-50 rounded border border-green-200 ml-10">
+                      <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <span className="text-xs text-green-700 font-medium block truncate">{selectedFile.name}</span>
+                        <span className="text-xs text-green-600">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</span>
+                      </div>
+                    </div>
+                  )}
+                  {selectedFile && !isProcessingPDF && (
+                    <div className="ml-10">
+                      <Button
+                        type="button"
+                        onClick={handlePDFUpload}
+                        disabled={isProcessingPDF}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 h-auto"
+                      >
+                        {isProcessingPDF ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Procesando...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Procesar con OCR
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                  {ocrCompleted && (
+                    <div className="ml-10 text-xs text-green-600">
+                      ✓ Datos extraídos exitosamente
+                    </div>
+                  )}
+                </div>
+
                 {/* Dictamen Section */}
                 <div className="space-y-3 p-4 rounded-lg bg-orange-50 border border-orange-200">
                   <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-orange-200 flex items-center justify-center">
-                      <span className="text-sm font-bold text-orange-700">*</span>
+                      <span className="text-sm font-bold text-orange-700">2</span>
                     </div>
                     <Label htmlFor="dictamen-upload" className="text-sm sm:text-base text-orange-900 font-semibold">
-                      Dictamen SEI (Obligatorio)
+                      Dictamen SEI - Obligatorio *
                     </Label>
                   </div>
                   <p className="text-xs text-orange-700 ml-10">Máximo {FILE_CONSTRAINTS.MAX_SIZE_MB}MB</p>
@@ -1436,10 +1497,10 @@ export default function RegistroPage() {
                 <div className="space-y-3 p-4 rounded-lg bg-purple-50 border border-purple-200">
                   <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-purple-200 flex items-center justify-center">
-                      <span className="text-sm font-bold text-purple-700">○</span>
+                      <span className="text-sm font-bold text-purple-700">3</span>
                     </div>
                     <Label htmlFor="grado-snii-upload" className="text-sm sm:text-base text-purple-900 font-semibold">
-                      Grado SNII (Opcional)
+                      Grado SNII - Opcional
                     </Label>
                   </div>
                   <p className="text-xs text-purple-700 ml-10">Sistema Nacional de Investigadoras e Investigadores - Máximo {FILE_CONSTRAINTS.MAX_SIZE_MB}MB</p>
