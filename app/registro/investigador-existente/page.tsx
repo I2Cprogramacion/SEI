@@ -1368,7 +1368,7 @@ export default function RegistroPage() {
             </div>
             <h1 className="text-2xl md:text-4xl font-bold text-blue-900 dark:text-white">Regístrate en SEI</h1>
             <p className="text-sm md:text-lg text-blue-600 max-w-2xl mx-auto px-2">
-              Sube tu Perfil Único (PU) en PDF para crear tu cuenta de investigador de forma automática
+              Sube tu Perfil Único (PU) en PDF para crear tu cuenta de investigador asistida por IA
             </p>
           </div>
 
