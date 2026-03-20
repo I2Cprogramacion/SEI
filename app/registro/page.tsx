@@ -15,7 +15,7 @@ export default function RegistroSelectorPage() {
             Sistema Estatal de Investigadores
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Bienvenido a la plataforma de investigadores de Chihuahua. ¿Cuál es tu situación?
+            Bienvenido a la plataforma de investigadores de Chihuahua. Â¿CuÃ¡l es tu situaciÃ³n?
           </p>
         </div>
 
@@ -40,9 +40,9 @@ export default function RegistroSelectorPage() {
                   Si ya tienes una cuenta registrada y necesitas actualizar tu perfil, subir tu dictamen o publicaciones.
                 </CardDescription>
                 <div className="space-y-2 mb-6 text-sm text-gray-600 dark:text-gray-400">
-                  <p>? Sube tu Dictamen SNII</p>
-                  <p>? Sube tu Perfil Único (PU)</p>
-                  <p>? Actualiza tu información</p>
+                  <p>âœ“ Sube tu Dictamen SNII</p>
+                  <p>âœ“ Sube tu Perfil Ãšnico (PU)</p>
+                  <p>âœ“ Actualiza tu informaciÃ³n</p>
                 </div>
                 <div className="pt-6 border-t border-gray-200 dark:border-slate-700">
                   <Button className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white">
@@ -73,9 +73,9 @@ export default function RegistroSelectorPage() {
                   Si eres investigador y deseas registrarte en el sistema estatal por primera vez.
                 </CardDescription>
                 <div className="space-y-2 mb-6 text-sm text-gray-600 dark:text-gray-400">
-                  <p>? Registro como nuevo investigador</p>
-                  <p>? Subir Perfil Único (PU)</p>
-                  <p>? Validación de datos académicos</p>
+                  <p>âœ“ Registro como nuevo investigador</p>
+                  <p>âœ“ Subir Perfil Ãšnico (PU)</p>
+                  <p>âœ“ ValidaciÃ³n de datos acadÃ©micos</p>
                 </div>
                 <div className="pt-6 border-t border-gray-200 dark:border-slate-700">
                   <Button className="w-full bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-800 text-white">
@@ -90,7 +90,7 @@ export default function RegistroSelectorPage() {
 
         {/* Footer Info */}
         <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-          <p>¿Tienes dudas? Consulta nuestras <Link href="/faq" className="text-blue-600 dark:text-blue-400 hover:underline">preguntas frecuentes</Link></p>
+          <p>Â¿Tienes dudas? Consulta nuestras <Link href="/faq" className="text-blue-600 dark:text-blue-400 hover:underline">preguntas frecuentes</Link></p>
         </div>
       </div>
     </div>
