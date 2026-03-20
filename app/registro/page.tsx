@@ -21,7 +21,7 @@ export default function RegistroSelectorPage() {
 
         {/* Options Grid */}
         <div className="grid md:grid-cols-2 gap-8 mb-8">
-          {/* Option 1: Ya formo parte */}
+          {/* Option 1: Ya cuento con dictamen */}
           <Link href="/registro/investigador-existente">
             <Card className="h-full bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700 hover:shadow-lg dark:hover:shadow-slate-900/50 hover:border-blue-400 dark:hover:border-blue-600 transition-all cursor-pointer group">
               <CardHeader>
@@ -32,17 +32,17 @@ export default function RegistroSelectorPage() {
                   <ArrowRight className="h-5 w-5 text-gray-400 dark:text-gray-600 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
                 </div>
                 <CardTitle className="text-2xl text-gray-900 dark:text-white">
-                  Ya formo parte del SEI
+                  Ya cuento con mi Dictamen
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-base text-gray-600 dark:text-gray-400 mb-6">
-                  Si ya tienes una cuenta registrada y necesitas actualizar tu perfil, subir tu dictamen o publicaciones.
+                  Si ya cuentas con tu dictamen y quieres acceder a la plataforma. Sube tu Dictamen SEI, PU y llena tu perfil.
                 </CardDescription>
                 <div className="space-y-2 mb-6 text-sm text-gray-600 dark:text-gray-400">
-                  <p>✓ Sube tu Dictamen SNII</p>
+                  <p>✓ Sube tu Dictamen SEI</p>
                   <p>✓ Sube tu Perfil Único (PU)</p>
-                  <p>✓ Actualiza tu información</p>
+                  <p>✓ Completa tu perfil</p>
                 </div>
                 <div className="pt-6 border-t border-gray-200 dark:border-slate-700">
                   <Button className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white">
@@ -55,7 +55,7 @@ export default function RegistroSelectorPage() {
           </Link>
 
           {/* Option 2: Quiero ser parte */}
-          <Link href="/registro/investigador-nuevo">
+          <a href="https://forms.gle/sAbAcXyB8Yime5pK7" target="_blank" rel="noopener noreferrer">
             <Card className="h-full bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700 hover:shadow-lg dark:hover:shadow-slate-900/50 hover:border-purple-400 dark:hover:border-purple-600 transition-all cursor-pointer group">
               <CardHeader>
                 <div className="flex items-center justify-between mb-4">
@@ -70,12 +70,12 @@ export default function RegistroSelectorPage() {
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-base text-gray-600 dark:text-gray-400 mb-6">
-                  Si eres investigador y deseas registrarte en el sistema estatal por primera vez.
+                  Si eres investigador y deseas ser parte del sistema estatal. Completa este formulario para comenzar.
                 </CardDescription>
                 <div className="space-y-2 mb-6 text-sm text-gray-600 dark:text-gray-400">
-                  <p>✓ Registro como nuevo investigador</p>
-                  <p>✓ Subir Perfil Único (PU)</p>
-                  <p>✓ Validación de datos académicos</p>
+                  <p>✓ Formulario de registro</p>
+                  <p>✓ Información académica</p>
+                  <p>✓ Validación de datos</p>
                 </div>
                 <div className="pt-6 border-t border-gray-200 dark:border-slate-700">
                   <Button className="w-full bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-800 text-white">
@@ -85,7 +85,7 @@ export default function RegistroSelectorPage() {
                 </div>
               </CardContent>
             </Card>
-          </Link>
+          </a>
         </div>
 
         {/* Footer Info */}
