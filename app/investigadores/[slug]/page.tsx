@@ -369,8 +369,6 @@ export default function InvestigadorPage() {
                             ) : null}
                           </div>
                         )}
-                          </p>
-                        )}
                       </div>
                     </div>
 
