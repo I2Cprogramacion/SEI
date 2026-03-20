@@ -79,10 +79,10 @@ export function ContactForm({ recipientName, recipientId, recipientType, open, o
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-white dark:bg-slate-950 border-blue-100 dark:border-slate-700">
+      <DialogContent className="sm:max-w-[500px] bg-white dark:bg-slate-900 border-gray-300 dark:border-slate-700">
         <DialogHeader>
-          <DialogTitle className="text-blue-900 dark:text-white">Contactar a {recipientName}</DialogTitle>
-          <DialogDescription className="text-blue-600 dark:text-blue-400">
+          <DialogTitle className="text-gray-900 dark:text-white">Contactar a {recipientName}</DialogTitle>
+          <DialogDescription className="text-gray-600 dark:text-gray-400">
             {recipientType === "investigador"
               ? "Envía un mensaje al investigador para consultas o posibles colaboraciones."
               : recipientType === "proyecto"
@@ -92,7 +92,7 @@ export function ContactForm({ recipientName, recipientId, recipientType, open, o
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-blue-900">
+            <Label htmlFor="name" className="text-gray-900 dark:text-white">
               Tu nombre
             </Label>
             <Input
@@ -105,7 +105,7 @@ export function ContactForm({ recipientName, recipientId, recipientType, open, o
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-blue-900">
+            <Label htmlFor="email" className="text-gray-900 dark:text-white">>
               Tu correo electrónico
             </Label>
             <Input
@@ -119,7 +119,7 @@ export function ContactForm({ recipientName, recipientId, recipientType, open, o
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="subject" className="text-blue-900">
+            <Label htmlFor="subject" className="text-gray-900 dark:text-white">>
               Asunto
             </Label>
             <Input
@@ -132,7 +132,7 @@ export function ContactForm({ recipientName, recipientId, recipientType, open, o
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="message" className="text-blue-900">
+            <Label htmlFor="message" className="text-gray-900 dark:text-white">>
               Mensaje
             </Label>
             <Textarea
@@ -140,7 +140,7 @@ export function ContactForm({ recipientName, recipientId, recipientType, open, o
               name="message"
               value={formData.message}
               onChange={handleChange}
-              className="bg-white border-blue-200 text-blue-900"
+              className="bg-white dark:bg-slate-900 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white"
               rows={5}
               required
             />
@@ -150,11 +150,11 @@ export function ContactForm({ recipientName, recipientId, recipientType, open, o
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="border-blue-200 text-blue-700 hover:bg-blue-50"
+              className="border-gray-300 dark:border-slate-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800"
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="bg-blue-700 text-white hover:bg-blue-800">
+            <Button type="submit" disabled={isSubmitting} className="bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-800">
               {isSubmitting ? "Enviando..." : "Enviar mensaje"}
             </Button>
           </DialogFooter>

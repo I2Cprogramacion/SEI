@@ -163,16 +163,16 @@ export default function AdminDashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
               Panel de Administración
             </h1>
-            <p className="text-sm md:text-base text-gray-600 mt-1">Gestiona la plataforma SEI desde aquí</p>
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">Gestiona la plataforma SEI desde aquí</p>
           </div>
           <div className="flex flex-wrap gap-3 w-full sm:w-auto">
             <Button 
               variant="outline" 
               size="sm"
-              className="border-gray-200 text-gray-700 hover:bg-gray-50 bg-white shadow-sm hover:shadow-md transition-all flex-1 sm:flex-initial" 
+              className="border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all flex-1 sm:flex-initial" 
               asChild
             >
               <Link href="/">
@@ -184,7 +184,7 @@ export default function AdminDashboard() {
             <Button 
               variant="outline" 
               size="sm"
-              className="border-gray-200 text-gray-700 hover:bg-gray-50 bg-white shadow-sm hover:shadow-md transition-all flex-1 sm:flex-initial"
+              className="border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all flex-1 sm:flex-initial"
               onClick={() => window.location.reload()}
             >
               <TrendingUp className="mr-2 h-4 w-4" />
@@ -199,14 +199,14 @@ export default function AdminDashboard() {
           {loading ? (
             <>
               {[...Array(4)].map((_, i) => (
-                <Card key={i} className="bg-white border-0 shadow-md">
+                <Card key={i} className="bg-white dark:bg-slate-900 border-0 dark:border-slate-800 shadow-md">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                    <div className="animate-pulse bg-gray-200 h-4 w-32 rounded"></div>
-                    <div className="animate-pulse bg-gray-200 h-12 w-12 rounded-xl"></div>
+                    <div className="animate-pulse bg-gray-200 dark:bg-slate-700 h-4 w-32 rounded"></div>
+                    <div className="animate-pulse bg-gray-200 dark:bg-slate-700 h-12 w-12 rounded-xl"></div>
                   </CardHeader>
                   <CardContent>
-                    <div className="animate-pulse bg-gray-200 h-8 w-16 rounded mb-2"></div>
-                    <div className="animate-pulse bg-gray-200 h-2 w-full rounded"></div>
+                    <div className="animate-pulse bg-gray-200 dark:bg-slate-700 h-8 w-16 rounded mb-2"></div>
+                    <div className="animate-pulse bg-gray-200 dark:bg-slate-700 h-2 w-full rounded"></div>
                   </CardContent>
                 </Card>
               ))}
@@ -268,10 +268,10 @@ export default function AdminDashboard() {
         {/* Alertas y acciones rápidas */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <Card className="bg-white border-0 shadow-md">
+            <Card className="bg-white dark:bg-slate-900 border-0 dark:border-slate-800 shadow-md">
               <CardHeader className="pb-4">
-                <CardTitle className="text-xl font-bold text-gray-900">Acciones Rápidas</CardTitle>
-                <CardDescription className="text-gray-500">
+                <CardTitle className="text-xl font-bold text-gray-900 dark:text-white">Acciones Rápidas</CardTitle>
+                <CardDescription className="text-gray-500 dark:text-gray-400">
                   Gestiona los elementos principales de la plataforma
                 </CardDescription>
               </CardHeader>
@@ -280,64 +280,64 @@ export default function AdminDashboard() {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 bg-white justify-start h-auto py-4 px-4 shadow-sm hover:shadow-md transition-all group"
+                    className="border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-slate-800 hover:border-blue-300 dark:hover:border-slate-600 hover:text-blue-700 dark:hover:text-blue-300 bg-white dark:bg-slate-900 justify-start h-auto py-4 px-4 shadow-sm hover:shadow-md transition-all group"
                     asChild
                   >
                     <Link href="/admin/investigadores">
-                      <div className="h-10 w-10 rounded-lg bg-blue-100 group-hover:bg-blue-600 flex items-center justify-center mr-3 transition-colors">
-                        <Users className="h-5 w-5 text-blue-600 group-hover:text-white transition-colors" />
+                      <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 group-hover:bg-blue-600 flex items-center justify-center mr-3 transition-colors">
+                        <Users className="h-5 w-5 text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors" />
                       </div>
                       <div className="text-left">
                         <div className="font-semibold">Investigadores</div>
-                        <div className="text-xs text-gray-500">Gestionar perfiles</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Gestionar perfiles</div>
                       </div>
                     </Link>
                   </Button>
                   <Button
                     variant="outline"
                     size="lg"
-                    className="border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 bg-white justify-start h-auto py-4 px-4 shadow-sm hover:shadow-md transition-all group"
+                    className="border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-slate-800 hover:border-blue-300 dark:hover:border-slate-600 hover:text-blue-700 dark:hover:text-blue-300 bg-white dark:bg-slate-900 justify-start h-auto py-4 px-4 shadow-sm hover:shadow-md transition-all group"
                     asChild
                   >
                     <Link href="/admin/proyectos">
-                      <div className="h-10 w-10 rounded-lg bg-blue-100 group-hover:bg-blue-600 flex items-center justify-center mr-3 transition-colors">
-                        <FileText className="h-5 w-5 text-blue-600 group-hover:text-white transition-colors" />
+                      <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 group-hover:bg-blue-600 flex items-center justify-center mr-3 transition-colors">
+                        <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors" />
                       </div>
                       <div className="text-left">
                         <div className="font-semibold">Proyectos</div>
-                        <div className="text-xs text-gray-500">Gestionar proyectos</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Gestionar proyectos</div>
                       </div>
                     </Link>
                   </Button>
                   <Button
                     variant="outline"
                     size="lg"
-                    className="border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 bg-white justify-start h-auto py-4 px-4 shadow-sm hover:shadow-md transition-all group"
+                    className="border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-slate-800 hover:border-blue-300 dark:hover:border-slate-600 hover:text-blue-700 dark:hover:text-blue-300 bg-white dark:bg-slate-900 justify-start h-auto py-4 px-4 shadow-sm hover:shadow-md transition-all group"
                     asChild
                   >
                     <Link href="/admin/publicaciones">
-                      <div className="h-10 w-10 rounded-lg bg-blue-100 group-hover:bg-blue-600 flex items-center justify-center mr-3 transition-colors">
-                        <Award className="h-5 w-5 text-blue-600 group-hover:text-white transition-colors" />
+                      <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 group-hover:bg-blue-600 flex items-center justify-center mr-3 transition-colors">
+                        <Award className="h-5 w-5 text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors" />
                       </div>
                       <div className="text-left">
                         <div className="font-semibold">Publicaciones</div>
-                        <div className="text-xs text-gray-500">Gestionar publicaciones</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Gestionar publicaciones</div>
                       </div>
                     </Link>
                   </Button>
                   <Button
                     variant="outline"
                     size="lg"
-                    className="border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 bg-white justify-start h-auto py-4 px-4 shadow-sm hover:shadow-md transition-all group"
+                    className="border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-slate-800 hover:border-blue-300 dark:hover:border-slate-600 hover:text-blue-700 dark:hover:text-blue-300 bg-white dark:bg-slate-900 justify-start h-auto py-4 px-4 shadow-sm hover:shadow-md transition-all group"
                     asChild
                   >
                     <Link href="/admin/instituciones">
-                      <div className="h-10 w-10 rounded-lg bg-blue-100 group-hover:bg-blue-600 flex items-center justify-center mr-3 transition-colors">
-                        <Building className="h-5 w-5 text-blue-600 group-hover:text-white transition-colors" />
+                      <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 group-hover:bg-blue-600 flex items-center justify-center mr-3 transition-colors">
+                        <Building className="h-5 w-5 text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors" />
                       </div>
                       <div className="text-left">
                         <div className="font-semibold">Instituciones</div>
-                        <div className="text-xs text-gray-500">Gestionar instituciones</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Gestionar instituciones</div>
                       </div>
                     </Link>
                   </Button>
@@ -346,11 +346,11 @@ export default function AdminDashboard() {
             </Card>
           </div>
 
-          <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-0 shadow-md">
+          <Card className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-0 dark:border-amber-800/30 shadow-md">
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-gray-900">
-                <div className="h-10 w-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                  <AlertTriangle className="h-5 w-5 text-amber-600" />
+              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                <div className="h-10 w-10 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                  <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 </div>
                 <span className="text-xl font-bold">Alertas</span>
               </CardTitle>
@@ -358,29 +358,29 @@ export default function AdminDashboard() {
             <CardContent>
               {loading ? (
                 <div className="space-y-2">
-                  <div className="h-4 bg-amber-100 rounded animate-pulse"></div>
-                  <div className="h-4 bg-amber-100 rounded animate-pulse"></div>
+                  <div className="h-4 bg-amber-100 dark:bg-slate-700 rounded animate-pulse"></div>
+                  <div className="h-4 bg-amber-100 dark:bg-slate-700 rounded animate-pulse"></div>
                 </div>
               ) : stats.alertas > 0 ? (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
-                    <span className="text-sm font-medium text-gray-700">Perfiles incompletos</span>
-                    <Badge className="bg-amber-500 text-white border-0 font-semibold">
+                  <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Perfiles incompletos</span>
+                    <Badge className="bg-amber-500 dark:bg-amber-600 text-white border-0 font-semibold">
                       {stats.alertas}
                     </Badge>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full border-amber-300 text-amber-700 hover:bg-amber-100 bg-white shadow-sm"
+                    className="w-full border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30 bg-white dark:bg-slate-800 shadow-sm"
                     asChild
                   >
                     <Link href="/admin/investigadores/incompletos">Ver detalles</Link>
                   </Button>
                 </div>
               ) : (
-                <div className="p-4 bg-white rounded-lg shadow-sm">
-                  <p className="text-sm text-gray-600 text-center">✨ No hay alertas pendientes</p>
+                <div className="p-4 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 text-center">✨ No hay alertas pendientes</p>
                 </div>
               )}
             </CardContent>
@@ -394,15 +394,15 @@ export default function AdminDashboard() {
         </div>
 
         {/* Métricas de crecimiento */}
-        <Card className="bg-white border-0 shadow-md">
+        <Card className="bg-white dark:bg-slate-900 border-0 dark:border-slate-800 shadow-md">
           <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-3 text-gray-900">
+            <CardTitle className="flex items-center gap-3 text-gray-900 dark:text-white">
               <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg shadow-green-500/30">
                 <TrendingUp className="h-5 w-5 text-white" />
               </div>
               <div>
                 <div className="text-xl font-bold">Métricas de Crecimiento</div>
-                <CardDescription className="text-gray-500 mt-0">Estadísticas de crecimiento de la plataforma</CardDescription>
+                <CardDescription className="text-gray-500 dark:text-gray-400 mt-0">Estadísticas de crecimiento de la plataforma</CardDescription>
               </div>
             </CardTitle>
           </CardHeader>
@@ -411,24 +411,24 @@ export default function AdminDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[...Array(3)].map((_, i) => (
                   <div key={i} className="text-center animate-pulse">
-                    <div className="h-10 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded"></div>
+                    <div className="h-10 bg-gray-200 dark:bg-slate-700 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-slate-700 rounded"></div>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
-                  <div className="text-3xl font-bold text-blue-700 mb-1">{stats.investigadoresNuevos}</div>
-                  <p className="text-sm text-gray-600 font-medium">Nuevos investigadores este mes</p>
+                <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/10 rounded-xl">
+                  <div className="text-3xl font-bold text-blue-700 dark:text-blue-300 mb-1">{stats.investigadoresNuevos}</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Nuevos investigadores este mes</p>
                 </div>
-                <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
-                  <div className="text-3xl font-bold text-purple-700 mb-1">{stats.publicacionesRecientes}</div>
-                  <p className="text-sm text-gray-600 font-medium">Publicaciones recientes</p>
+                <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/10 rounded-xl">
+                  <div className="text-3xl font-bold text-purple-700 dark:text-purple-300 mb-1">{stats.publicacionesRecientes}</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Publicaciones recientes</p>
                 </div>
-                <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
-                  <div className="text-3xl font-bold text-green-700 mb-1">{stats.proyectosActivos}</div>
-                  <p className="text-sm text-gray-600 font-medium">Proyectos activos</p>
+                <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-900/10 rounded-xl">
+                  <div className="text-3xl font-bold text-green-700 dark:text-green-300 mb-1">{stats.proyectosActivos}</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Proyectos activos</p>
                 </div>
               </div>
             )}

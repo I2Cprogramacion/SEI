@@ -156,3 +156,26 @@
 .cl-badgeSecuredByClerk {
   display: none !important;
 }
+/* NAVBAR DARK MODE FIX - Force visible dark text on navigation items */
+.dark [href="/investigadores"],
+.dark [href="/proyectos"],
+.dark [href="/publicaciones"],
+.dark [href="/instituciones"] {
+  color: rgb(15, 23, 42) !important; /* slate-900 */
+}
+
+.dark [href="/investigadores"]:hover,
+.dark [href="/proyectos"]:hover,
+.dark [href="/publicaciones"]:hover,
+.dark [href="/instituciones"]:hover {
+  color: rgb(15, 23, 42) !important; /* slate-900 */
+}
+
+/* Active navigation items - ensure dark text */
+.dark [href*="/investigadores"].dark\:bg-blue-300,
+.dark [href*="/proyectos"].dark\:bg-blue-300,
+.dark [href*="/publicaciones"].dark\:bg-blue-300,
+.dark [href*="/instituciones"].dark\:bg-blue-300 {
+  color: rgb(15, 23, 42) !important;
+  background-color: rgb(147, 197, 253) !important; /* blue-300 */
+}

@@ -110,7 +110,7 @@ export function AdminSidebar() {
 
   const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => (
     <>
-      <div className="p-6 border-b border-gray-200 bg-gradient-to-br from-blue-600 to-blue-700 flex-shrink-0">
+      <div className="p-6 border-b border-gray-200 dark:border-slate-700 bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 flex-shrink-0">
         <Link href="/admin" className="flex items-center gap-3" onClick={onItemClick}>
           <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center">
             <LayoutDashboard className="h-6 w-6 text-white" />
@@ -146,12 +146,12 @@ export function AdminSidebar() {
                     ? esEvaluador && !esAdmin
                       ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-500/30"
                       : "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/30"
-                    : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400"
                 )}
               >
                 <item.icon className={cn(
                   "mr-3 h-5 w-5 transition-transform group-hover:scale-110",
-                  isActive ? "text-white" : "text-gray-500 group-hover:text-blue-600"
+                  isActive ? "text-white" : "text-gray-500 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400"
                 )} />
                 <span className={isActive ? "font-semibold" : ""}>{item.title}</span>
                 {isActive && (
@@ -163,7 +163,7 @@ export function AdminSidebar() {
         {/* Separador para items solo de admin */}
         {esAdmin && adminOnlyItems.length > 0 && (
           <>
-            <div className="my-2 border-t border-gray-200"></div>
+            <div className="my-2 border-t border-gray-200 dark:border-slate-700"></div>
             {adminOnlyItems.map((item) => {
               const isActive = pathname === item.href
               return (
@@ -175,12 +175,12 @@ export function AdminSidebar() {
                     "flex items-center py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 group",
                     isActive
                       ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-500/30"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-purple-600"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-purple-600 dark:hover:text-purple-400"
                   )}
                 >
                   <item.icon className={cn(
                     "mr-3 h-5 w-5 transition-transform group-hover:scale-110",
-                    isActive ? "text-white" : "text-gray-500 group-hover:text-purple-600"
+                    isActive ? "text-white" : "text-gray-500 dark:text-gray-500 group-hover:text-purple-600 dark:group-hover:text-purple-400"
                   )} />
                   <span className={isActive ? "font-semibold" : ""}>{item.title}</span>
                   {isActive && (
@@ -192,13 +192,13 @@ export function AdminSidebar() {
           </>
         )}
       </div>
-      <div className="p-3 border-t border-gray-200 space-y-1 bg-gray-50 flex-shrink-0">
+      <div className="p-3 border-t border-gray-200 dark:border-slate-700 space-y-1 bg-gray-50 dark:bg-slate-800 flex-shrink-0">
         <Link
           href="/"
           onClick={onItemClick}
-          className="flex items-center py-2.5 px-4 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-all duration-200"
+          className="flex items-center py-2.5 px-4 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200"
         >
-          <Home className="mr-3 h-5 w-5 text-gray-500" />
+          <Home className="mr-3 h-5 w-5 text-gray-500 dark:text-gray-500" />
           Volver al sitio
         </Link>
         <button
@@ -206,7 +206,7 @@ export function AdminSidebar() {
             onItemClick?.()
             handleLogout()
           }}
-          className="w-full flex items-center py-2.5 px-4 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
+          className="w-full flex items-center py-2.5 px-4 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
         >
           <LogOut className="mr-3 h-5 w-5" />
           Cerrar sesión
@@ -222,7 +222,7 @@ export function AdminSidebar() {
         <Button
           variant="outline"
           size="icon"
-          className="bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-lg h-10 w-10"
+          className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 shadow-lg h-10 w-10"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -238,14 +238,14 @@ export function AdminSidebar() {
       )}
 
       {/* Sidebar Desktop */}
-      <div className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 shadow-sm h-screen fixed left-0 top-0 pt-16">
+      <div className="hidden md:flex flex-col w-64 bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-700 shadow-sm h-screen fixed left-0 top-0 pt-16">
         <SidebarContent />
       </div>
 
       {/* Sidebar Móvil */}
       <div
         className={cn(
-          "md:hidden fixed top-16 left-0 z-50 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 shadow-xl transform transition-transform duration-300 ease-in-out flex flex-col overflow-hidden",
+          "md:hidden fixed top-16 left-0 z-50 h-[calc(100vh-4rem)] w-64 bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-700 shadow-xl transform transition-transform duration-300 ease-in-out flex flex-col overflow-hidden",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
         style={{ WebkitOverflowScrolling: 'touch' }}

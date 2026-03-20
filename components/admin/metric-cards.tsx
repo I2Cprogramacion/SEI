@@ -27,9 +27,9 @@ export function MetricCard({
   description
 }: MetricCardProps) {
   return (
-    <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-white group cursor-pointer hover:-translate-y-1 min-h-[180px] flex flex-col">
+    <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-white dark:bg-slate-900 group cursor-pointer hover:-translate-y-1 min-h-[180px] flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <CardTitle className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+        <CardTitle className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
           {title}
         </CardTitle>
         <div className={`h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-blue-500/30`}>
@@ -37,7 +37,7 @@ export function MetricCard({
         </div>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between">
-        <div className="text-3xl font-bold text-gray-900 mb-2">{value.toLocaleString()}</div>
+        <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{value.toLocaleString()}</div>
         {change && (
           <Badge 
             className={cn(
@@ -51,7 +51,7 @@ export function MetricCard({
           </Badge>
         )}
         {description && (
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
             {description}
           </p>
         )}
@@ -78,9 +78,9 @@ export function ProgressCard({
   const percentage = total > 0 ? Math.round((current / total) * 100) : 0
 
   return (
-    <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-white group cursor-pointer hover:-translate-y-1 min-h-[180px] flex flex-col">
+    <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-white dark:bg-slate-900 group cursor-pointer hover:-translate-y-1 min-h-[180px] flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <CardTitle className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+        <CardTitle className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
           {title}
         </CardTitle>
         <div className={`h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-blue-500/30`}>
@@ -88,14 +88,14 @@ export function ProgressCard({
         </div>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between">
-        <div className="text-3xl font-bold text-gray-900 mb-3">{current.toLocaleString()}</div>
+        <div className="text-3xl font-bold text-gray-900 dark:text-white mb-3">{current.toLocaleString()}</div>
         <div className="mt-2 w-full bg-gray-100 rounded-full h-3 overflow-hidden">
           <div
             className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 shadow-sm"
             style={{ width: `${percentage}%` }}
           />
         </div>
-        <p className="text-xs text-gray-500 mt-2 font-medium">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 font-medium">
           {percentage}% de {total.toLocaleString()} total
         </p>
       </CardContent>

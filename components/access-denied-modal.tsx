@@ -242,9 +242,9 @@ export function AccessDeniedModal({ isOpen, onClose }: AccessDeniedModalProps) {
 
         <div className="space-y-4">
           {/* Mensaje de restricción */}
-          <Alert className="border-red-200 bg-red-50">
-            <AlertTriangle className="h-4 w-4 text-red-600" />
-            <AlertDescription className="text-red-800">
+          <Alert className="border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20">
+            <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+            <AlertDescription className="text-red-800 dark:text-red-300">
               <strong>Acceso Denegado:</strong> Esta área está restringida únicamente al administrador principal del sistema.
             </AlertDescription>
           </Alert>
@@ -334,7 +334,7 @@ export function AccessDeniedModal({ isOpen, onClose }: AccessDeniedModalProps) {
                   maxLength={6}
                   required
                 />
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-400">
                   Ingresa el código de 6 dígitos enviado a tu email
                 </p>
               </div>
@@ -385,9 +385,9 @@ export function AccessDeniedModal({ isOpen, onClose }: AccessDeniedModalProps) {
 
           {/* Debug logs */}
           {debugLogs.length > 0 && (
-            <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+            <div className="mt-4 p-3 bg-gray-100 dark:bg-slate-800 rounded-lg">
               <div className="flex justify-between items-center mb-2">
-                <p className="text-xs font-semibold text-gray-700">Logs de depuración:</p>
+                <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">Logs de depuración:</p>
                 <Button
                   type="button"
                   variant="ghost"
@@ -403,14 +403,14 @@ export function AccessDeniedModal({ isOpen, onClose }: AccessDeniedModalProps) {
               </div>
               <div className="max-h-40 overflow-y-auto space-y-1">
                 {debugLogs.map((log, index) => (
-                  <p key={index} className="text-xs text-gray-600 font-mono break-all">{log}</p>
+                  <p key={index} className="text-xs text-gray-600 dark:text-gray-400 font-mono break-all">{log}</p>
                 ))}
               </div>
             </div>
           )}
 
           {/* Información adicional */}
-          <div className="text-center text-sm text-gray-600">
+          <div className="text-center text-sm text-gray-600 dark:text-gray-400">
             <p>¿No tienes acceso? Contacta al administrador del sistema.</p>
           </div>
         </div>

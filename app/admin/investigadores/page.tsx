@@ -710,10 +710,10 @@ export default function InvestigadoresAdmin() {
                   setCurrentPage(1)
                 }}
               >
-                <SelectTrigger className="w-[70px] bg-white border-2 border-blue-200">
+                <SelectTrigger className="w-[70px] bg-white dark:bg-slate-900 border-2 border-blue-200 dark:border-slate-700 text-gray-900 dark:text-white">
                   <SelectValue placeholder="5" />
                 </SelectTrigger>
-                <SelectContent className="bg-white">
+                <SelectContent className="bg-white dark:bg-slate-900 dark:border-slate-700">
                   <SelectItem value="5">5</SelectItem>
                   <SelectItem value="10">10</SelectItem>
                   <SelectItem value="20">20</SelectItem>

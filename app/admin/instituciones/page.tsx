@@ -371,16 +371,16 @@ export default function InstitucionesAdmin() {
 
             {/* Vista de tabla para desktop */}
             <div className="hidden lg:block w-full -mx-4 md:mx-0">
-              <div className="rounded-md border border-blue-100 overflow-x-auto w-full">
+              <div className="rounded-md border border-gray-300 dark:border-slate-700 overflow-x-auto w-full">
                 <Table className="w-full min-w-full">
-                  <TableHeader className="bg-blue-50">
-                    <TableRow className="hover:bg-blue-50 border-b border-blue-100">
-                      <TableHead className="text-blue-700">Nombre</TableHead>
-                      <TableHead className="text-blue-700">Tipo</TableHead>
-                      <TableHead className="text-blue-700">Ubicación</TableHead>
-                      <TableHead className="text-blue-700">Estado</TableHead>
-                      <TableHead className="text-blue-700">Sitio Web</TableHead>
-                      <TableHead className="text-blue-700 text-right">Acciones</TableHead>
+                  <TableHeader className="bg-gray-100 dark:bg-slate-800">
+                    <TableRow className="hover:bg-gray-100 dark:hover:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
+                      <TableHead className="text-gray-900 dark:text-white">Nombre</TableHead>
+                      <TableHead className="text-gray-900 dark:text-white">Tipo</TableHead>
+                      <TableHead className="text-gray-900 dark:text-white">Ubicación</TableHead>
+                      <TableHead className="text-gray-900 dark:text-white">Estado</TableHead>
+                      <TableHead className="text-gray-900 dark:text-white">Sitio Web</TableHead>
+                      <TableHead className="text-gray-900 dark:text-white text-right">Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -401,12 +401,12 @@ export default function InstitucionesAdmin() {
                       </TableRow>
                     ) : (
                       currentItems.map((institucion) => (
-                        <TableRow key={institucion.id} className="hover:bg-blue-50 border-b border-blue-100">
-                          <TableCell className="text-blue-900 font-medium">
+                        <TableRow key={institucion.id} className="hover:bg-gray-50 dark:hover:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
+                          <TableCell className="text-gray-900 dark:text-white font-medium">
                             <div>
                               <div className="font-semibold">{institucion.nombre || "N/A"}</div>
                               {institucion.siglas && (
-                                <div className="text-xs text-blue-500">{institucion.siglas}</div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">{institucion.siglas}</div>
                               )}
                             </div>
                           </TableCell>

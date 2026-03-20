@@ -265,12 +265,12 @@ export function GestionarCvDialog({
                         )}
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="sm:max-w-[425px]">
+                    <AlertDialogContent className="sm:max-w-[425px] bg-white dark:bg-slate-900 border-gray-300 dark:border-slate-700">
                       <AlertDialogHeader>
-                        <AlertDialogTitle className="text-xl font-bold text-gray-900">
+                        <AlertDialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
                           ¿Eliminar {tipoDocumento === 'Dictamen' ? 'Dictamen' : tipoDocumento === 'SNI' ? 'SNI' : 'CV'}?
                         </AlertDialogTitle>
-                        <AlertDialogDescription className="text-gray-600">
+                        <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
                           {(() => {
                             const docName = tipoDocumento === 'Dictamen' ? 'dictamen' : tipoDocumento === 'SNI' ? 'SNI' : 'CV'
                             return `Esta acción no se puede deshacer. El ${docName} será eliminado permanentemente.`

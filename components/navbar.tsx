@@ -185,9 +185,9 @@ export default function Navbar() {
                     <Link 
                       href="/investigadores" 
                       className={cn(
-                        navigationMenuTriggerStyle(), 
-                        "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium",
-                        currentSection === 'investigadores' && "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800"
+                        "px-4 py-2 rounded-md text-sm font-medium transition-colors",
+                        "text-gray-700 dark:!text-slate-900 hover:text-blue-600 dark:hover:!text-slate-900",
+                        currentSection === 'investigadores' && "bg-blue-50 dark:!bg-blue-300 text-blue-700 dark:!text-slate-900"
                       )}
                     > 
                       Investigadores
@@ -200,9 +200,9 @@ export default function Navbar() {
                     <Link 
                       href="/proyectos" 
                       className={cn(
-                        navigationMenuTriggerStyle(), 
-                        "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium",
-                        currentSection === 'proyectos' && "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800"
+                        "px-4 py-2 rounded-md text-sm font-medium transition-colors",
+                        "text-gray-700 dark:!text-slate-900 hover:text-blue-600 dark:hover:!text-slate-900",
+                        currentSection === 'proyectos' && "bg-blue-50 dark:!bg-blue-300 text-blue-700 dark:!text-slate-900"
                       )}
                     > 
                       Proyectos
@@ -212,7 +212,7 @@ export default function Navbar() {
                 
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
-                    <Link href="/publicaciones" className={cn(navigationMenuTriggerStyle(), "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium")}> 
+                    <Link href="/publicaciones" className={cn("px-4 py-2 rounded-md text-sm font-medium transition-colors", "text-gray-700 dark:!text-slate-900 hover:text-blue-600 dark:hover:!text-slate-900")}> 
                       Publicaciones
                     </Link>
                   </NavigationMenuLink>
@@ -223,9 +223,9 @@ export default function Navbar() {
                     <Link
                       href="/instituciones"
                       className={cn(
-                        navigationMenuTriggerStyle(),
-                        "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium",
-                        currentSection === 'instituciones' && "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800"
+                        "px-4 py-2 rounded-md text-sm font-medium transition-colors",
+                        "text-gray-700 dark:!text-slate-900 hover:text-blue-600 dark:hover:!text-slate-900",
+                        currentSection === 'instituciones' && "bg-blue-50 dark:!bg-blue-300 text-blue-700 dark:!text-slate-900"
                       )}
                     >
                       Instituciones
@@ -257,7 +257,7 @@ export default function Navbar() {
               {/* Admin Button - Visible para admins (prioridad sobre evaluador) */}
               {isSignedIn && isAdmin && (
                 <Button 
-                  className="hidden lg:flex bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 shadow-md hover:shadow-lg transition-all px-4 h-10 gap-2" 
+                  className="hidden lg:flex bg-gradient-to-r from-red-600 to-red-700 dark:from-red-700 dark:to-red-800 text-white hover:from-red-700 hover:to-red-800 dark:hover:from-red-800 dark:hover:to-red-900 shadow-md hover:shadow-lg transition-all px-4 h-10 gap-2" 
                   asChild
                 >
                   <Link href="/admin">
@@ -270,7 +270,7 @@ export default function Navbar() {
               {/* Evaluador Button - Solo visible para evaluadores que NO sean admin */}
               {isSignedIn && isEvaluador && !isAdmin && (
                 <Button 
-                  className="hidden lg:flex bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 shadow-md hover:shadow-lg transition-all px-4 h-10 gap-2" 
+                  className="hidden lg:flex bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-700 dark:to-purple-800 text-white hover:from-purple-700 hover:to-purple-800 dark:hover:from-purple-800 dark:hover:to-purple-900 shadow-md hover:shadow-lg transition-all px-4 h-10 gap-2" 
                   asChild
                 >
                   <Link href="/admin">
@@ -282,7 +282,7 @@ export default function Navbar() {
 
               {/* IIC Button */}
               <Button 
-                className="hidden lg:flex bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all px-4 h-10" 
+                className="hidden lg:flex bg-gradient-to-r from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700 text-white hover:from-purple-600 hover:to-purple-700 dark:hover:from-purple-700 dark:hover:to-purple-800 shadow-md hover:shadow-lg transition-all px-4 h-10" 
                 asChild
               >
                 <a href="https://i2c.com.mx/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
@@ -449,8 +449,8 @@ export default function Navbar() {
                         variant="ghost" 
                         size="default" 
                         className={cn(
-                          "w-full justify-start text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors font-medium h-11 rounded-lg",
-                          currentSection === 'explorar' && "bg-blue-50 text-blue-700"
+                          "w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-700 dark:hover:text-blue-400 transition-colors font-medium h-11 rounded-lg",
+                          currentSection === 'explorar' && "bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-400"
                         )}
                         asChild
                       >
@@ -463,8 +463,8 @@ export default function Navbar() {
                         variant="ghost" 
                         size="default" 
                         className={cn(
-                          "w-full justify-start text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors font-medium h-11 rounded-lg",
-                          currentSection === 'investigadores' && "bg-blue-50 text-blue-700"
+                          "w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-700 dark:hover:text-blue-400 transition-colors font-medium h-11 rounded-lg",
+                          currentSection === 'investigadores' && "bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-400"
                         )}
                         asChild
                       >
@@ -477,8 +477,8 @@ export default function Navbar() {
                         variant="ghost" 
                         size="default" 
                         className={cn(
-                          "w-full justify-start text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors font-medium h-11 rounded-lg",
-                          currentSection === 'proyectos' && "bg-blue-50 text-blue-700"
+                          "w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-700 dark:hover:text-blue-400 transition-colors font-medium h-11 rounded-lg",
+                          currentSection === 'proyectos' && "bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-400"
                         )}
                         asChild
                       >
@@ -491,8 +491,8 @@ export default function Navbar() {
                         variant="ghost" 
                         size="default" 
                         className={cn(
-                          "w-full justify-start text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors font-medium h-11 rounded-lg",
-                          currentSection === 'publicaciones' && "bg-blue-50 text-blue-700"
+                          "w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-700 dark:hover:text-blue-400 transition-colors font-medium h-11 rounded-lg",
+                          currentSection === 'publicaciones' && "bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-400"
                         )}
                         asChild
                       >
@@ -505,8 +505,8 @@ export default function Navbar() {
                         variant="ghost" 
                         size="default" 
                         className={cn(
-                          "w-full justify-start text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors font-medium h-11 rounded-lg",
-                          currentSection === 'instituciones' && "bg-blue-50 text-blue-700"
+                          "w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-700 dark:hover:text-blue-400 transition-colors font-medium h-11 rounded-lg",
+                          currentSection === 'instituciones' && "bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-400"
                         )}
                         asChild
                       >
@@ -519,11 +519,11 @@ export default function Navbar() {
 
                     {/* Enlaces Externos */}
                     <div className="space-y-2">
-                      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-3">Enlaces</h3>
+                      <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-3 mb-3">Enlaces</h3>
                       
                       {/* Admin Button móvil - Visible para admins (prioridad sobre evaluador) */}
                       {isSignedIn && isAdmin && (
-                        <Button className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 shadow-md h-11 font-medium rounded-lg" asChild>
+                        <Button className="w-full bg-gradient-to-r from-red-600 to-red-700 dark:from-red-700 dark:to-red-800 text-white hover:from-red-700 hover:to-red-800 dark:hover:from-red-800 dark:hover:to-red-900 shadow-md h-11 font-medium rounded-lg" asChild>
                           <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
                             <LayoutDashboard className="mr-3 h-5 w-5" />
                             Panel de Administración
@@ -533,7 +533,7 @@ export default function Navbar() {
 
                       {/* Evaluador Button móvil - Solo visible para evaluadores que NO sean admin */}
                       {isSignedIn && isEvaluador && !isAdmin && (
-                        <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 shadow-md h-11 font-medium rounded-lg" asChild>
+                        <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-700 dark:to-purple-800 text-white hover:from-purple-700 hover:to-purple-800 dark:hover:from-purple-800 dark:hover:to-purple-900 shadow-md h-11 font-medium rounded-lg" asChild>
                           <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
                             <Shield className="mr-3 h-5 w-5" />
                             Panel de Evaluador

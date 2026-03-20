@@ -119,10 +119,10 @@ export default function GestionarEvaluadoresPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <div className="p-6 space-y-8 max-w-7xl mx-auto">
         {/* Header with gradient background */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-lg p-8 text-white">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-700 dark:to-purple-700 rounded-2xl shadow-lg p-8 text-white">
           <div className="flex items-center gap-3 mb-2">
             <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
               <Shield className="h-8 w-8" />
@@ -187,15 +187,15 @@ export default function GestionarEvaluadoresPage() {
         </div>
 
       {/* Lista de evaluadores actuales con diseño mejorado */}
-      <Card className="border-0 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b">
+      <Card className="border-0 dark:border-slate-800 shadow-lg dark:bg-slate-900">
+        <CardHeader className="bg-gradient-to-r from-gray-50 to-white dark:from-slate-800 dark:to-slate-900 border-b dark:border-slate-700">
           <div className="flex items-center gap-3">
-            <div className="bg-blue-100 p-2 rounded-lg">
-              <Shield className="h-5 w-5 text-blue-600" />
+            <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
+              <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <CardTitle className="text-xl">Evaluadores Actuales</CardTitle>
-              <CardDescription className="mt-1">
+              <CardTitle className="text-xl text-gray-900 dark:text-white">Evaluadores Actuales</CardTitle>
+              <CardDescription className="mt-1 text-gray-600 dark:text-gray-400">
                 Lista de investigadores con rol de evaluador activo
               </CardDescription>
             </div>
@@ -204,40 +204,40 @@ export default function GestionarEvaluadoresPage() {
         <CardContent className="p-6">
           {evaluadores.length === 0 ? (
             <div className="text-center py-16">
-              <div className="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Shield className="h-12 w-12 text-gray-400" />
+              <div className="bg-gray-100 dark:bg-slate-800 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Shield className="h-12 w-12 text-gray-400 dark:text-gray-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No hay evaluadores asignados</h3>
-              <p className="text-gray-500 max-w-md mx-auto">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No hay evaluadores asignados</h3>
+              <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
                 Utiliza la sección de abajo para asignar el rol de evaluador a investigadores del sistema
               </p>
             </div>
           ) : (
-            <div className="overflow-hidden rounded-lg border border-gray-200">
+            <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-slate-700">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50 hover:bg-gray-50">
-                    <TableHead className="font-semibold">Nombre</TableHead>
-                    <TableHead className="font-semibold">Email</TableHead>
-                    <TableHead className="font-semibold">Roles</TableHead>
-                    <TableHead className="font-semibold">Estado</TableHead>
-                    <TableHead className="font-semibold text-right">Acciones</TableHead>
+                  <TableRow className="bg-gray-50 dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800">
+                    <TableHead className="font-semibold text-gray-900 dark:text-white">Nombre</TableHead>
+                    <TableHead className="font-semibold text-gray-900 dark:text-white">Email</TableHead>
+                    <TableHead className="font-semibold text-gray-900 dark:text-white">Roles</TableHead>
+                    <TableHead className="font-semibold text-gray-900 dark:text-white">Estado</TableHead>
+                    <TableHead className="font-semibold text-gray-900 dark:text-white text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {evaluadores.map((evaluador) => (
-                    <TableRow key={evaluador.id} className="hover:bg-gray-50 transition-colors">
-                      <TableCell className="font-medium text-gray-900">{evaluador.nombre}</TableCell>
-                      <TableCell className="text-gray-600">{evaluador.email}</TableCell>
+                    <TableRow key={evaluador.id} className="hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors border-b dark:border-slate-700">
+                      <TableCell className="font-medium text-gray-900 dark:text-white">{evaluador.nombre}</TableCell>
+                      <TableCell className="text-gray-600 dark:text-gray-400">{evaluador.email}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
                           {evaluador.esAdmin && (
-                            <Badge className="bg-purple-500 hover:bg-purple-600 text-white border-0 shadow-sm">
+                            <Badge className="bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white border-0 shadow-sm">
                               <Shield className="h-3 w-3 mr-1" />
                               Admin
                             </Badge>
                           )}
-                          <Badge className="bg-blue-500 hover:bg-blue-600 text-white border-0 shadow-sm">
+                          <Badge className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white border-0 shadow-sm">
                             <CheckCircle2 className="h-3 w-3 mr-1" />
                             Evaluador
                           </Badge>
@@ -247,8 +247,8 @@ export default function GestionarEvaluadoresPage() {
                         <Badge 
                           variant={evaluador.activo ? "default" : "secondary"} 
                           className={evaluador.activo 
-                            ? "bg-green-500 hover:bg-green-600 text-white border-0 shadow-sm" 
-                            : "bg-gray-300 text-gray-700 border-0"
+                            ? "bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white border-0 shadow-sm" 
+                            : "bg-gray-300 dark:bg-slate-700 text-gray-700 dark:text-gray-300 border-0"
                           }
                         >
                           {evaluador.activo ? "Activo" : "Inactivo"}
@@ -259,7 +259,7 @@ export default function GestionarEvaluadoresPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => toggleEvaluador(evaluador.id, evaluador.esEvaluador)}
-                          className="text-red-600 hover:text-white hover:bg-red-600 border-red-200 hover:border-red-600 transition-all shadow-sm"
+                          className="text-red-600 dark:text-red-400 hover:text-white hover:bg-red-600 border-red-200 dark:border-red-800 hover:border-red-600 transition-all shadow-sm dark:bg-slate-900"
                         >
                           <UserX className="h-4 w-4 mr-1" />
                           Remover
@@ -275,15 +275,15 @@ export default function GestionarEvaluadoresPage() {
       </Card>
 
       {/* Asignar nuevos evaluadores con diseño mejorado */}
-      <Card className="border-0 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b">
+      <Card className="border-0 dark:border-slate-800 shadow-lg dark:bg-slate-900">
+        <CardHeader className="bg-gradient-to-r from-gray-50 to-white dark:from-slate-800 dark:to-slate-900 border-b dark:border-slate-700">
           <div className="flex items-center gap-3">
-            <div className="bg-green-100 p-2 rounded-lg">
-              <UserCheck className="h-5 w-5 text-green-600" />
+            <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg">
+              <UserCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <CardTitle className="text-xl">Asignar Nuevos Evaluadores</CardTitle>
-              <CardDescription className="mt-1">
+              <CardTitle className="text-xl text-gray-900 dark:text-white">Asignar Nuevos Evaluadores</CardTitle>
+              <CardDescription className="mt-1 text-gray-600 dark:text-gray-400">
                 Busca investigadores en el sistema para asignarles el rol de evaluador
               </CardDescription>
             </div>
@@ -292,24 +292,24 @@ export default function GestionarEvaluadoresPage() {
         <CardContent className="p-6">
           <div className="mb-6">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-600 h-5 w-5" />
               <Input
                 placeholder="Buscar por nombre o email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm"
+                className="pl-12 h-12 border-gray-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:border-blue-500 dark:focus:border-blue-500 focus:ring-blue-500 dark:focus:ring-blue-500 shadow-sm"
               />
             </div>
           </div>
 
-          <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+          <div className="border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden shadow-sm">
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-50 hover:bg-gray-50">
-                  <TableHead className="font-semibold">Nombre</TableHead>
-                  <TableHead className="font-semibold">Email</TableHead>
-                  <TableHead className="font-semibold">Roles Actuales</TableHead>
-                  <TableHead className="font-semibold text-right">Acciones</TableHead>
+                <TableRow className="bg-gray-50 dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800">
+                  <TableHead className="font-semibold text-gray-900 dark:text-white">Nombre</TableHead>
+                  <TableHead className="font-semibold text-gray-900 dark:text-white">Email</TableHead>
+                  <TableHead className="font-semibold text-gray-900 dark:text-white">Roles Actuales</TableHead>
+                  <TableHead className="font-semibold text-gray-900 dark:text-white text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -319,19 +319,19 @@ export default function GestionarEvaluadoresPage() {
                   .map((investigador) => {
                     const esEvaluador = evaluadores.some(e => e.id === investigador.id)
                     return (
-                      <TableRow key={investigador.id} className="hover:bg-blue-50/50 transition-colors">
-                        <TableCell className="font-medium text-gray-900">
+                      <TableRow key={investigador.id} className="hover:bg-blue-50 dark:hover:bg-slate-800/50 transition-colors border-b dark:border-slate-700">
+                        <TableCell className="font-medium text-gray-900 dark:text-white">
                           {investigador.nombre_completo || 'Sin nombre'}
                         </TableCell>
-                        <TableCell className="text-gray-600">{investigador.correo || 'Sin email'}</TableCell>
+                        <TableCell className="text-gray-600 dark:text-gray-400">{investigador.correo || 'Sin email'}</TableCell>
                         <TableCell>
                           {investigador.es_admin ? (
-                            <Badge className="bg-purple-500 hover:bg-purple-600 text-white border-0 shadow-sm">
+                            <Badge className="bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white border-0 shadow-sm">
                               <Shield className="h-3 w-3 mr-1" />
                               Admin
                             </Badge>
                           ) : (
-                            <Badge variant="secondary" className="bg-gray-200 text-gray-700 border-0">
+                            <Badge variant="secondary" className="bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 border-0">
                               Investigador
                             </Badge>
                           )}
@@ -341,7 +341,7 @@ export default function GestionarEvaluadoresPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => toggleEvaluador(investigador.id, esEvaluador)}
-                            className="text-blue-600 hover:text-white hover:bg-blue-600 border-blue-200 hover:border-blue-600 transition-all shadow-sm"
+                            className="text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 border-blue-200 dark:border-blue-800 hover:border-blue-600 transition-all shadow-sm dark:bg-slate-900"
                           >
                             <UserCheck className="h-4 w-4 mr-1" />
                             Asignar Evaluador
@@ -353,12 +353,12 @@ export default function GestionarEvaluadoresPage() {
               </TableBody>
             </Table>
             {investigadoresFiltrados.filter(inv => !evaluadores.some(e => e.id === inv.id)).length === 0 && (
-              <div className="text-center py-16 bg-gray-50">
-                <div className="bg-gray-200 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <AlertCircle className="h-12 w-12 text-gray-400" />
+              <div className="text-center py-16 bg-gray-50 dark:bg-slate-800">
+                <div className="bg-gray-200 dark:bg-slate-700 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <AlertCircle className="h-12 w-12 text-gray-400 dark:text-gray-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No se encontraron investigadores</h3>
-                <p className="text-gray-500 max-w-md mx-auto">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No se encontraron investigadores</h3>
+                <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
                   Todos los investigadores ya tienen rol de evaluador o no coinciden con tu búsqueda
                 </p>
               </div>
