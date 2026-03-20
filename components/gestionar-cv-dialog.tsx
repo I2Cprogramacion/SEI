@@ -311,8 +311,13 @@ export function GestionarCvDialog({
             <h3 className="font-semibold text-base text-gray-900 flex items-center gap-2">
               <Upload className="h-4 w-4" />
               {(() => {
-                const docName = tipoDocumento === 'Dictamen' ? 'Dictamen' : tipoDocumento === 'SNI' ? 'SNI' : 'CV'
-                return cvUrlActual ? `Reemplazar ${docName}` : `Subir ${docName}`
+                if (tipoDocumento === 'Dictamen') {
+                  return cvUrlActual ? 'Reemplazar Dictamen SEI' : 'Subir Dictamen SEI'
+                } else if (tipoDocumento === 'SNI') {
+                  return cvUrlActual ? 'Reemplazar Grado SNII' : 'Subir Grado SNII'
+                } else {
+                  return cvUrlActual ? 'Reemplazar Perfil Único Completo (PUC)' : 'Subir Perfil Único Completo (PUC)'
+                }
               })()}
             </h3>
             
