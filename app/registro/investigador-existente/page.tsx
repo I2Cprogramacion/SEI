@@ -129,6 +129,8 @@ interface FormData {
   sni?: string;
   anio_sni?: string | null;
   cv_url?: string;
+  dictamen_url?: string;
+  grado_snii?: string;
   tipo_perfil: string;
   nivel_tecnologo_id?: string | null;
   nivel_tecnologo?: string;
@@ -315,6 +317,8 @@ const initialFormData: FormData = {
   password: "",
   confirm_password: "",
   fotografia_url: "",
+  dictamen_url: "",
+  grado_snii: "",
 }
 
 // Utility functions
@@ -737,6 +741,8 @@ export default function RegistroPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isProcessingPDF, setIsProcessingPDF] = useState(false)
   const [ocrCompleted, setOcrCompleted] = useState(false) // false: no mostrar mensaje hasta procesar PDF
+  const [selectedDictamenFile, setSelectedDictamenFile] = useState<File | null>(null)
+  const [selectedGradoSNIIFile, setSelectedGradoSNIIFile] = useState<File | null>(null)
   const [showNivelesModal, setShowNivelesModal] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -998,6 +1004,55 @@ export default function RegistroPage() {
     }
   }, [selectedFile, handleSavePDFAsCV])
 
+  // Handlers para Dictamen y Grado SNII
+  const handleDictamenChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.type !== FILE_CONSTRAINTS.ACCEPTED_TYPE) {
+        setError("Por favor selecciona un archivo PDF vélido")
+        setSelectedDictamenFile(null)
+        e.target.value = ""
+        return
+      }
+      const fileSizeMB = (file.size / 1024 / 1024).toFixed(2)
+      if (file.size > FILE_CONSTRAINTS.MAX_SIZE_BYTES) {
+        setError(
+          `El archivo es demasiado grande. El tamaño méximo permitido es ${FILE_CONSTRAINTS.MAX_SIZE_MB}MB. Tu archivo pesa ${fileSizeMB}MB`
+        )
+        setSelectedDictamenFile(null)
+        e.target.value = ""
+        return
+      }
+      setSelectedDictamenFile(file)
+      setFormData(prev => ({ ...prev, dictamen_url: `/uploads/${file.name}` }))
+      setError(null)
+    }
+  }, [])
+
+  const handleGradoSNIIChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.type !== FILE_CONSTRAINTS.ACCEPTED_TYPE) {
+        setError("Por favor selecciona un archivo PDF vélido")
+        setSelectedGradoSNIIFile(null)
+        e.target.value = ""
+        return
+      }
+      const fileSizeMB = (file.size / 1024 / 1024).toFixed(2)
+      if (file.size > FILE_CONSTRAINTS.MAX_SIZE_BYTES) {
+        setError(
+          `El archivo es demasiado grande. El tamaño méximo permitido es ${FILE_CONSTRAINTS.MAX_SIZE_MB}MB. Tu archivo pesa ${fileSizeMB}MB`
+        )
+        setSelectedGradoSNIIFile(null)
+        e.target.value = ""
+        return
+      }
+      setSelectedGradoSNIIFile(file)
+      setFormData(prev => ({ ...prev, grado_snii: `/uploads/${file.name}` }))
+      setError(null)
+    }
+  }, [])
+
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault()
@@ -1008,6 +1063,19 @@ export default function RegistroPage() {
       if (!termsAccepted) {
         console.log("\u26a0\ufe0f [REGISTRO] Usuario intenta registrarse sin aceptar T&C")
         setShowTermsModal(true)
+        return
+      }
+
+      // ============================================
+      // VALIDACIÓN 2: ARCHIVOS OBLIGATORIOS
+      // ============================================
+      if (!formData.cv_url && !selectedFile) {
+        setError("Debes subir tu Perfil Único (PU) para continuar.")
+        return
+      }
+
+      if (!formData.dictamen_url && !selectedDictamenFile) {
+        setError("Debes subir tu Dictamen SEI para continuar.")
         return
       }
 
@@ -1170,6 +1238,8 @@ export default function RegistroPage() {
             anio_sni: formData.anio_sni || null,
             // Si se subió un archivo PDF, usarlo como CV principal
             cv_url: formData.cv_url || (selectedFile ? `/uploads/${selectedFile.name}` : ""),
+            dictamen_url: formData.dictamen_url || (selectedDictamenFile ? `/uploads/${selectedDictamenFile.name}` : ""),
+            grado_snii: formData.grado_snii || (selectedGradoSNIIFile ? `/uploads/${selectedGradoSNIIFile.name}` : ""),
 
             // Control y sistema
             tipo_perfil: formData.tipo_perfil,
@@ -1312,6 +1382,88 @@ export default function RegistroPage() {
               onFileChange={handleFileChange}
               onProcess={handlePDFUpload}
             />
+
+            {/* Step 1.5: Upload Dictamen (OBLIGATORIO) */}
+            <Card className="bg-white/80 backdrop-blur-sm border-orange-100 shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardHeader className="text-center pb-6">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-orange-100 rounded-full mb-3">
+                  <span className="text-orange-600 font-bold text-lg">1.5</span>
+                </div>
+                <CardTitle className="text-xl sm:text-2xl text-orange-900 flex items-center justify-center gap-2">
+                  <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
+                  Subir Dictamen SEI
+                </CardTitle>
+                <CardDescription className="text-sm sm:text-base text-orange-600 px-2">
+                  Sube tu Dictamen SEI en formato PDF (obligatorio para completar el registro)
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Label htmlFor="dictamen-upload" className="text-sm sm:text-base text-orange-900 font-medium">
+                  Archivo PDF del Dictamen SEI * (Máximo {FILE_CONSTRAINTS.MAX_SIZE_MB}MB)
+                </Label>
+                <Input
+                  id="dictamen-upload"
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleDictamenChange}
+                  aria-label="Subir archivo PDF del Dictamen SEI"
+                  aria-required="true"
+                  className="bg-white border-orange-200 text-orange-900 file:bg-orange-50 file:text-orange-700 file:border-0 file:rounded-md file:px-4 file:py-2 file:mr-4 hover:file:bg-orange-100 transition-colors h-12 py-2"
+                  required
+                />
+                {selectedDictamenFile && (
+                  <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <div className="flex-1">
+                      <span className="text-sm text-green-700 font-medium block">{selectedDictamenFile.name}</span>
+                      <span className="text-xs text-green-600">
+                        Archivo vélido - Tamaño: {(selectedDictamenFile.size / 1024 / 1024).toFixed(2)} MB
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Step 1.7: Upload Grado SNII (OPCIONAL) */}
+            <Card className="bg-white/80 backdrop-blur-sm border-purple-100 shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardHeader className="text-center pb-6">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mb-3">
+                  <span className="text-purple-600 font-bold text-lg">1.7</span>
+                </div>
+                <CardTitle className="text-xl sm:text-2xl text-purple-900 flex items-center justify-center gap-2">
+                  <Award className="h-5 w-5 sm:h-6 sm:w-6" />
+                  Sube tu Grado SNII
+                </CardTitle>
+                <CardDescription className="text-sm sm:text-base text-purple-600 px-2">
+                  Opcional: Si cuentas con grado del Sistema Nacional de Investigadores, sube el documento aquá
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Label htmlFor="grado-snii-upload" className="text-sm sm:text-base text-purple-900 font-medium">
+                  Archivo PDF del Grado SNII (Máximo {FILE_CONSTRAINTS.MAX_SIZE_MB}MB)
+                </Label>
+                <Input
+                  id="grado-snii-upload"
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleGradoSNIIChange}
+                  aria-label="Subir archivo PDF del Grado SNII"
+                  className="bg-white border-purple-200 text-purple-900 file:bg-purple-50 file:text-purple-700 file:border-0 file:rounded-md file:px-4 file:py-2 file:mr-4 hover:file:bg-purple-100 transition-colors h-12 py-2"
+                />
+                {selectedGradoSNIIFile && (
+                  <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <div className="flex-1">
+                      <span className="text-sm text-green-700 font-medium block">{selectedGradoSNIIFile.name}</span>
+                      <span className="text-xs text-green-600">
+                        Archivo vélido - Tamaño: {(selectedGradoSNIIFile.size / 1024 / 1024).toFixed(2)} MB
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Step 2: Review and Complete */}
             <Card
