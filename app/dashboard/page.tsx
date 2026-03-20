@@ -442,7 +442,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Foto y datos básicos */}
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+              <div className="flex flex-col items-center gap-4">
                 <Avatar className="h-20 w-20 md:h-24 md:w-24 flex-shrink-0">
                   {investigadorData?.fotografia_url && investigadorData.fotografia_url.trim() !== "" ? (
                     <AvatarImage src={investigadorData.fotografia_url} alt={investigadorData?.nombre_completo || "Usuario"} />
@@ -453,22 +453,22 @@ export default function DashboardPage() {
                       : user.fullName || "U").charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 min-w-0 text-center sm:text-left w-full">
+                <div className="text-center w-full">
                   <h2 className="text-lg md:text-xl font-bold text-blue-900 break-words">
                     {(investigadorData?.nombre_completo && investigadorData.nombre_completo.trim() !== "")
                       ? investigadorData.nombre_completo
                       : user.fullName || user.firstName || "Usuario"}
                   </h2>
                   {/* Correo y Teléfono */}
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-2 text-xs sm:text-sm">
+                  <div className="flex flex-col gap-1 mt-2 text-xs sm:text-sm">
                     {investigadorData?.correo && (
-                      <p className="text-blue-600 flex items-center gap-1">
+                      <p className="text-blue-600 flex items-center justify-center gap-1">
                         <Mail className="h-3 w-3" />
                         {investigadorData.correo}
                       </p>
                     )}
                     {investigadorData?.telefono && (
-                      <p className="text-blue-600 flex items-center gap-1">
+                      <p className="text-blue-600 flex items-center justify-center gap-1">
                         <Phone className="h-3 w-3" />
                         {investigadorData.telefono}
                       </p>
