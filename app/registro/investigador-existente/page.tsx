@@ -1421,7 +1421,7 @@ export default function RegistroPage() {
                       <span className="text-sm font-bold text-blue-700">1</span>
                     </div>
                     <Label htmlFor="pdf-upload" className="text-sm sm:text-base text-blue-900 font-semibold">
-                      Perfil Único Completo (PUC) - Obligatorio *
+                      1.1 Perfil Único Completo (PUC) - Obligatorio *
                     </Label>
                   </div>
                   <p className="text-xs text-blue-700 ml-10">Se procesará automáticamente con OCR - Máximo {FILE_CONSTRAINTS.MAX_SIZE_MB}MB</p>
@@ -1483,7 +1483,7 @@ export default function RegistroPage() {
                       <span className="text-sm font-bold text-orange-700">2</span>
                     </div>
                     <Label htmlFor="dictamen-upload" className="text-sm sm:text-base text-orange-900 font-semibold">
-                      Dictamen SEI - Obligatorio *
+                      1.2 Dictamen SEI - Obligatorio *
                     </Label>
                   </div>
                   <p className="text-xs text-orange-700 ml-10">Máximo {FILE_CONSTRAINTS.MAX_SIZE_MB}MB</p>
@@ -1517,7 +1517,7 @@ export default function RegistroPage() {
                       <span className="text-sm font-bold text-purple-700">3</span>
                     </div>
                     <Label htmlFor="grado-snii-upload" className="text-sm sm:text-base text-purple-900 font-semibold">
-                      Grado SNII - Opcional
+                      1.3 Grado SNII - Opcional
                     </Label>
                   </div>
                   <p className="text-xs text-purple-700 ml-10">Sistema Nacional de Investigadoras e Investigadores - Máximo {FILE_CONSTRAINTS.MAX_SIZE_MB}MB</p>
