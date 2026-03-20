@@ -451,20 +451,6 @@ export default function DashboardPage() {
                       ? investigadorData.nombre_completo
                       : user.fullName || user.firstName || "Usuario"}
                   </h2>
-                  <p className="text-xs md:text-sm text-blue-600 flex items-center justify-center sm:justify-start gap-2 mt-1">
-                    <Mail className="h-3.5 w-3.5 flex-shrink-0" />
-                    <span className="truncate">
-                      {(investigadorData?.correo && investigadorData.correo.trim() !== "")
-                        ? investigadorData.correo
-                        : user.primaryEmailAddress?.emailAddress || "No disponible"}
-                    </span>
-                  </p>
-                  {investigadorData?.telefono && investigadorData.telefono.trim() !== "" && (
-                    <p className="text-xs md:text-sm text-blue-600 flex items-center justify-center sm:justify-start gap-2 mt-1">
-                      <Phone className="h-3.5 w-3.5 flex-shrink-0" />
-                      {investigadorData.telefono}
-                    </p>
-                  )}
                 </div>
               </div>
 
