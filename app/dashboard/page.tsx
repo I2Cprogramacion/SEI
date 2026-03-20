@@ -167,6 +167,12 @@ export default function DashboardPage() {
 
   // Función para eliminar cuenta
   const handleEliminarCuenta = async () => {
+    const confirmar = window.confirm(
+      "¿Estás seguro de que deseas eliminar tu cuenta?\n\nEsta acción eliminará permanentemente:\n• Tu perfil de investigador\n• Todos tus datos del sistema\n• Tu usuario de Clerk\n\nEsta acción NO se puede deshacer."
+    );
+    
+    if (!confirmar) return;
+
     setIsDeletingAccount(true);
     try {
       const response = await fetch("/api/usuario/eliminar", {
@@ -174,10 +180,10 @@ export default function DashboardPage() {
       });
       const data = await response.json();
       if (data.success) {
-        await signOut();
-        router.push("/");
+        alert("Tu cuenta ha sido eliminada completamente.");
+        await signOut({ redirectUrl: "/" });
       } else {
-        alert(`Error al eliminar cuenta: ${data.error || data.warning}`);
+        alert(`Error al eliminar cuenta: ${data.error || data.warning || "Error desconocido"}`);
       }
     } catch (error) {
       console.error("Error al eliminar cuenta:", error);
@@ -815,23 +821,7 @@ export default function DashboardPage() {
                       variant="destructive"
                       className="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white border-none"
                       disabled={isDeletingAccount}
-                      onClick={async () => {
-                        setIsDeletingAccount(true);
-                        try {
-                          const response = await fetch("/api/investigadores/eliminar", { method: "POST" });
-                          const result = await response.json();
-                          if (response.ok && result.success) {
-                            alert("Tu usuario ha sido eliminado completamente de la base de datos.");
-                            router.push("/iniciar-sesion");
-                          } else {
-                            alert("Error al eliminar usuario: " + (result.error || "Error desconocido"));
-                          }
-                        } catch (error) {
-                          alert("Error al eliminar usuario. Por favor, intenta de nuevo.");
-                        } finally {
-                          setIsDeletingAccount(false);
-                        }
-                      }}
+                      onClick={handleEliminarCuenta}
                     >
                       {isDeletingAccount ? (
                         <>

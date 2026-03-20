@@ -1,20 +1,59 @@
 import { NextResponse } from "next/server"
-import { getAuth } from "@clerk/nextjs/server"
-import { prisma } from "@/lib/prisma"
+import { auth, clerkClient } from "@clerk/nextjs/server"
+import { sql } from "@vercel/postgres"
 
 export async function POST(req: Request) {
   try {
-  // @ts-ignore
-  const { userId } = getAuth(req)
+    const { userId } = await auth()
+
     if (!userId) {
-      return NextResponse.json({ success: false, error: "No autenticado" }, { status: 401 })
+      return NextResponse.json(
+        { success: false, error: "No autenticado" },
+        { status: 401 }
+      )
     }
-    // Eliminar investigador por clerk_user_id
-  await prisma.profile.deleteMany({ where: { userId: userId } })
-    // Eliminar usuario de Clerk (opcional, si tienes lógica para esto)
-    // ...
-    return NextResponse.json({ success: true })
+
+    // 1. Eliminar datos del investigador de PostgreSQL
+    const deleteResult = await sql`
+      DELETE FROM investigadores 
+      WHERE clerk_user_id = ${userId}
+      RETURNING id
+    `
+
+    console.log(`Usuario ${userId} eliminado de PostgreSQL:`, deleteResult)
+
+    // 2. Eliminar usuario de Clerk
+    try {
+      const client = await clerkClient()
+      await client.users.deleteUser(userId)
+      console.log(`Usuario ${userId} eliminado de Clerk`)
+    } catch (clerkError) {
+      console.error("Error al eliminar de Clerk:", clerkError)
+      return NextResponse.json(
+        {
+          success: true,
+          warning: "Datos eliminados de la base de datos, pero hubo un error al eliminar de Clerk",
+          clerkError: clerkError instanceof Error ? clerkError.message : "Error desconocido"
+        },
+        { status: 200 }
+      )
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Usuario eliminado completamente (PostgreSQL + Clerk)"
+      },
+      { status: 200 }
+    )
   } catch (error) {
-  return NextResponse.json({ success: false, error: (error as Error)?.message || "Error al eliminar" }, { status: 500 })
+    console.error("Error al eliminar usuario:", error)
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Error desconocido al eliminar usuario"
+      },
+      { status: 500 }
+    )
   }
 }
