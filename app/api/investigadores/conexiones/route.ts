@@ -31,60 +31,63 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50')
 
     // Buscar el ID del investigador actual por email
-    const investigadorActual = await sql`
-      SELECT id FROM investigadores WHERE correo = ${userEmail} LIMIT 1
-    `
-
-    if (investigadorActual.rows.length === 0) {
-      console.log(`[CONEXIONES API] Usuario no encontrado en BD`)
-      return NextResponse.json({ 
-        investigadores: [],
-        total: 0,
-        mensaje: "No se encontró tu perfil de investigador. Por favor completa tu registro."
-      })
+    let investigadorActual
+    try {
+      investigadorActual = await sql`
+        SELECT id FROM investigadores WHERE correo = ${userEmail} LIMIT 1
+      `
+    } catch (dbError) {
+      console.log(`[CONEXIONES API] Error buscando investigador actual:`, dbError)
+      // Permitir búsqueda sin usuario registrado
+      investigadorActual = { rows: [] }
     }
 
-    const miId = investigadorActual.rows[0].id
-    console.log(`[CONEXIONES API] Usuario encontrado`)
+    const miId = investigadorActual.rows[0]?.id || 0
+    console.log(`[CONEXIONES API] miId = ${miId}`)
 
-    // Obtener investigadores (todos, priorizando conectados)
+    // Obtener investigadores (todos registrados y activos)
     let investigadoresConectados
     
-    if (query && query.length >= 2) {
-      // Búsqueda con filtro de nombre - buscar entre TODOS los investigadores
-      const searchPattern = `%${query}%`
-      investigadoresConectados = await sql`
-        SELECT DISTINCT 
-          i.id,
-          i.nombre_completo,
-          i.correo,
-          i.fotografia_url,
-          i.slug
-        FROM investigadores i
-        WHERE i.id != ${miId}
-          AND i.activo != false
-          AND (
-            LOWER(i.nombre_completo) LIKE LOWER(${searchPattern})
-            OR LOWER(i.correo) LIKE LOWER(${searchPattern})
-          )
-        ORDER BY i.nombre_completo ASC
-        LIMIT ${limit}
-      `
-    } else {
-      // Sin filtro, obtener todos los investigadores
-      investigadoresConectados = await sql`
-        SELECT DISTINCT 
-          i.id,
-          i.nombre_completo,
-          i.correo,
-          i.fotografia_url,
-          i.slug
-        FROM investigadores i
-        WHERE i.id != ${miId}
-          AND i.activo != false
-        ORDER BY i.nombre_completo ASC
-        LIMIT ${limit}
-      `
+    try {
+      if (query && query.length >= 2) {
+        // Búsqueda con filtro de nombre - buscar entre TODOS los investigadores
+        const searchPattern = `%${query}%`
+        investigadoresConectados = await sql`
+          SELECT DISTINCT 
+            i.id,
+            i.nombre_completo,
+            i.correo,
+            i.fotografia_url,
+            i.slug
+          FROM investigadores i
+          WHERE (${miId} = 0 OR i.id != ${miId})
+            AND i.activo IS NOT FALSE
+            AND (
+              LOWER(i.nombre_completo) LIKE LOWER(${searchPattern})
+              OR LOWER(i.correo) LIKE LOWER(${searchPattern})
+            )
+          ORDER BY i.nombre_completo ASC
+          LIMIT ${limit}
+        `
+      } else {
+        // Sin filtro, obtener todos los investigadores activos
+        investigadoresConectados = await sql`
+          SELECT DISTINCT 
+            i.id,
+            i.nombre_completo,
+            i.correo,
+            i.fotografia_url,
+            i.slug
+          FROM investigadores i
+          WHERE (${miId} = 0 OR i.id != ${miId})
+            AND i.activo IS NOT FALSE
+          ORDER BY i.nombre_completo ASC
+          LIMIT ${limit}
+        `
+      }
+    } catch (searchError) {
+      console.error("[CONEXIONES API] Error en búsqueda SQL:", searchError)
+      throw searchError
     }
 
     console.log(`[CONEXIONES API] Investigadores encontrados: ${investigadoresConectados.rows.length}`)
