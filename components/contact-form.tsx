@@ -105,7 +105,7 @@ export function ContactForm({ recipientName, recipientId, recipientType, open, o
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-gray-900 dark:text-white">>
+            <Label htmlFor="email" className="text-gray-900 dark:text-white">
               Tu correo electrónico
             </Label>
             <Input
@@ -119,7 +119,7 @@ export function ContactForm({ recipientName, recipientId, recipientType, open, o
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="subject" className="text-gray-900 dark:text-white">>
+            <Label htmlFor="subject" className="text-gray-900 dark:text-white">
               Asunto
             </Label>
             <Input
@@ -132,7 +132,7 @@ export function ContactForm({ recipientName, recipientId, recipientType, open, o
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="message" className="text-gray-900 dark:text-white">>
+            <Label htmlFor="message" className="text-gray-900 dark:text-white">
               Mensaje
             </Label>
             <Textarea
