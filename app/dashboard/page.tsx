@@ -72,6 +72,7 @@ export default function DashboardPage() {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isLoadingSugerencias, setIsLoadingSugerencias] = useState(true);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [gestionarCvDialogOpen, setGestionarCvDialogOpen] = useState(false);
   const [sugerencias, setSugerencias] = useState<any>(null);
   const [isDesactivando, setIsDesactivando] = useState(false);
@@ -165,14 +166,8 @@ export default function DashboardPage() {
   }, [isLoaded, user]);
 
 
-  // Función para eliminar cuenta
-  const handleEliminarCuenta = async () => {
-    const confirmar = window.confirm(
-      "¿Estás seguro de que deseas eliminar tu cuenta?\n\nEsta acción eliminará permanentemente:\n• Tu perfil de investigador\n• Todos tus datos del sistema\n• Tu usuario de Clerk\n\nEsta acción NO se puede deshacer."
-    );
-    
-    if (!confirmar) return;
-
+  // Función para eliminar cuenta (segunda confirmación)
+  const confirmarEliminarCuenta = async () => {
     setIsDeletingAccount(true);
     try {
       const response = await fetch("/api/usuario/eliminar", {
@@ -184,13 +179,20 @@ export default function DashboardPage() {
         await signOut({ redirectUrl: "/" });
       } else {
         alert(`Error al eliminar cuenta: ${data.error || data.warning || "Error desconocido"}`);
+        setShowDeleteConfirmation(false);
       }
     } catch (error) {
       console.error("Error al eliminar cuenta:", error);
       alert("Error al eliminar la cuenta. Por favor, intenta de nuevo.");
+      setShowDeleteConfirmation(false);
     } finally {
       setIsDeletingAccount(false);
     }
+  };
+
+  // Función para abrir diálogo de confirmación
+  const handleEliminarCuenta = () => {
+    setShowDeleteConfirmation(true);
   };
 
   // Depuración visual y de consola
@@ -1316,6 +1318,48 @@ export default function DashboardPage() {
           }
         }}
       />
+
+      {/* Diálogo de confirmación para eliminar cuenta */}
+      <AlertDialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>
+        <AlertDialogContent className="bg-white border-red-200">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-red-900 text-xl">
+              ⚠️ Eliminar Cuenta Permanentemente
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-red-800 mt-3">
+              <div className="space-y-2">
+                <p className="font-semibold">Esta acción es irreversible y eliminará permanentemente:</p>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li>Tu perfil de investigador</li>
+                  <li>Todos tus datos del sistema</li>
+                  <li>Tu usuario de Clerk y tu acceso</li>
+                  <li>Todas tus publicaciones y proyectos</li>
+                </ul>
+                <p className="font-semibold mt-3">¿Estás completamente seguro?</p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel className="bg-gray-200 hover:bg-gray-300 text-gray-900">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmarEliminarCuenta}
+              disabled={isDeletingAccount}
+              className="bg-red-600 hover:bg-red-700 text-white border-none"
+            >
+              {isDeletingAccount ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Eliminando...
+                </>
+              ) : (
+                "Eliminar Cuenta"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
