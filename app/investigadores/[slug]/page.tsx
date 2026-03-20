@@ -369,15 +369,6 @@ export default function InvestigadorPage() {
                             ) : null}
                           </div>
                         )}
-                        
-                        <p className="text-xs sm:text-sm text-blue-600 flex items-center gap-2 mt-1 break-words">
-                          <Mail className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
-                          {investigador.email || 'No disponible'}
-                        </p>
-                        {investigador.telefono && investigador.telefono.trim() !== "" && (
-                          <p className="text-xs sm:text-sm text-blue-600 flex items-center gap-2 mt-1 break-words">
-                            <Phone className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
-                            {investigador.telefono}
                           </p>
                         )}
                       </div>
