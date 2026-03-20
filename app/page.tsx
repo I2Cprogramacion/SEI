@@ -30,11 +30,11 @@ export default function Home() {
             <FadeCarousel
               images={[
                 {
-                  src: "/images/cuenta-conmigo-logo.png",
+                  src: "/images/cuentaconmigo.png",
                   alt: "Cuenta Conmigo"
                 },
                 {
-                  src: "/images/IIC_logo_letras-removebg-preview.png",
+                  src: "/images/IIC.png",
                   alt: "IIC - Instituto de Innovación y Competitividad"
                 }
               ]}
