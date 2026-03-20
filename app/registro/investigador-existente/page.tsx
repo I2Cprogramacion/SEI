@@ -159,28 +159,28 @@ const MUNICIPIOS_CHIHUAHUA = [
   "Ahumada",
   "Aldama",
   "Allende",
-  "Aquiles Serd├ín",
-  "Ascensi├│n",
-  "Bach├¡niva",
+  "Aquiles Serdán",
+  "Ascensión",
+  "Bachíniva",
   "Balleza",
-  "Batopilas de Manuel G├│mez Mor├¡n",
+  "Batopilas de Manuel Gómez Morán",
   "Bocoyna",
   "Buenaventura",
   "Camargo",
-  "Carich├¡",
+  "Carichí",
   "Casas Grandes",
   "Coronado",
   "Coyame del Sotol",
   "La Cruz",
-  "Cuauht├®moc",
+  "Cuauhtémoc",
   "Cusihuiriachi",
   "Chihuahua",
-  "Ch├¡nipas",
+  "Chápipas",
   "Delicias",
-  "Dr. Belisario Dom├¡nguez",
+  "Dr. Belisario Domínguez",
   "Galeana",
   "Santa Isabel",
-  "G├│mez Far├¡as",
+  "Gómez Farías",
   "Gran Morelos",
   "Guachochi",
   "Guadalupe",
@@ -188,17 +188,17 @@ const MUNICIPIOS_CHIHUAHUA = [
   "Guazapares",
   "Guerrero",
   "Hidalgo del Parral",
-  "Huejotit├ín",
+  "Huejoitín",
   "Ignacio Zaragoza",
   "Janos",
-  "Jim├®nez",
-  "Ju├írez",
+  "Jiménez",
+  "Juárez",
   "Julimes",
-  "L├│pez",
+  "López",
   "Madera",
   "Maguarichi",
   "Manuel Benavides",
-  "Matach├¡",
+  "Matachí",
   "Matamoros",
   "Meoqui",
   "Morelos",
@@ -215,10 +215,10 @@ const MUNICIPIOS_CHIHUAHUA = [
   "San Francisco de Borja",
   "San Francisco de Conchos",
   "San Francisco del Oro",
-  "Santa B├írbara",
-  "Satev├│",
+  "Santa Bárbara",
+  "Satevó",
   "Saucillo",
-  "Tem├│sachic",
+  "Temósachic",
   "El Tule",
   "Urique",
   "Uruachi",
@@ -227,43 +227,43 @@ const MUNICIPIOS_CHIHUAHUA = [
 
 // Nacionalidades del continente americano
 const nacionalidadesAmerica = [
-  // Am├®rica del Norte
+  // América del Norte
   "Estadounidense", "Canadiense", "Mexicana",
-  // Am├®rica Central
-  "Belice├▒a", "Costarricense", "Salvadore├▒a", "Guatemalteca", "Hondure├▒a", "Nicarag├╝ense", "Paname├▒a",
+  // América Central
+  "Beliceña", "Costarricense", "Salvadoreña", "Guatemalteca", "Hondureña", "Nicaragüense", "Panameña",
   // Caribe
-  "Antiguana", "Bahame├▒a", "Barbadense", "Cubana", "Dominiquesa", "Dominicana", "Granadina", "Haitiana",
-  "Jamaiquina", "Kittiana", "Luciana", "Puertorrique├▒a", "Santalucense", "Sanvicentina", "Trinitense",
-  "Barbudense", "Arubana", "Curazole├▒a", "Sintmaartense",
-  // Am├®rica del Sur
-  "Argentina", "Boliviana", "Brasile├▒a", "Chilena", "Colombiana", "Ecuatoriana", "Guyanesa", "Paraguaya",
+  "Antiguana", "Bahamena", "Barbadense", "Cubana", "Dominiquesa", "Dominicana", "Granadina", "Haitiana",
+  "Jamaiquina", "Kittiana", "Luciana", "Puertorriqueña", "Santalucense", "Sanvicentina", "Trinitense",
+  "Barbudense", "Arubana", "Curazoleña", "Sintmaartense",
+  // América del Sur
+  "Argentina", "Boliviana", "Brasileña", "Chilena", "Colombiana", "Ecuatoriana", "Guyanesa", "Paraguaya",
   "Peruana", "Surinamesa", "Uruguaya", "Venezolana"
 ];
 
-// Informaci├│n completa de niveles de tecn├│logo e investigador
+// Información completa de niveles de tecnólogo e investigador
 const nivelesCompletos = {
   tecnologos: [
     {
-      nombre: "Tecn├│logo Nivel A",
-      descripcion: "Estudiantes o egresados recientes de licenciaturas en ├íreas de humanidades, ciencias, tecnolog├¡a e innovaci├│n, con experiencia en proyectos iniciales de desarrollo tecnol├│gico, adscritos a empresas, instituciones acad├®micas o centros de investigaci├│n."
+      nombre: "Tecnólogo Nivel A",
+      descripcion: "Estudiantes o egresados recientes de licenciaturas en áreas de humanidades, ciencias, tecnología e innovación, con experiencia en proyectos iniciales de desarrollo tecnológico, adscritos a empresas, instituciones académicas o centros de investigación."
     },
     {
-      nombre: "Tecn├│logo Nivel B",
-      descripcion: "Profesionales con experiencia comprobable en el desarrollo tecnol├│gico o la innovaci├│n en las ├íreas de humanidades, ciencias, tecnolog├¡a e innovaci├│n, adscritos a empresas, instituciones de educaci├│n superior, centros de investigaci├│n, o entidades equivalentes. Incluye a quienes cuenten con t├¡tulos de propiedad industrial otorgados por el IMPI."
+      nombre: "Tecnólogo Nivel B",
+      descripcion: "Profesionales con experiencia comprobable en el desarrollo tecnológico o la innovación en las áreas de humanidades, ciencias, tecnología e innovación, adscritos a empresas, instituciones de educación superior, centros de investigación, o entidades equivalentes. Incluye a quienes cuenten con títulos de propiedad industrial otorgados por el IMPI."
     }
   ],
   investigadores: [
     {
       nombre: "Candidato a Investigador Estatal",
-      descripcion: "Personas con nivel m├¡nimo de licenciatura que realizan actividades de producci├│n cient├¡fica, divulgaci├│n y promoci├│n cient├¡fica, adscritos a instituciones acad├®micas o tecnol├│gicas."
+      descripcion: "Personas con nivel mínimo de licenciatura que realizan actividades de producción científica, divulgación y promoción científica, adscritos a instituciones académicas o tecnológicas."
     },
     {
       nombre: "Investigador Estatal Nivel I",
-      descripcion: "Profesionales con grado de maestr├¡a o estudiantes de doctorado que colaboran en proyectos de investigaci├│n, desarrollo tecnol├│gico y/o innovaci├│n."
+      descripcion: "Profesionales con grado de maestría o estudiantes de doctorado que colaboran en proyectos de investigación, desarrollo tecnológico y/o innovación."
     },
     {
       nombre: "Investigador Estatal Nivel II",
-      descripcion: "Investigadores con grado de doctorado que han liderado proyectos cient├¡ficos o tecnol├│gicos con impacto en el estado y que sean miembros del SNI."
+      descripcion: "Investigadores con grado de doctorado que han liderado proyectos científicos o tecnológicos con impacto en el estado y que sean miembros del SNI."
     },
     {
       nombre: "Investigador Estatal Nivel III",
@@ -271,11 +271,11 @@ const nivelesCompletos = {
     },
     {
       nombre: "Investigador Excepcional",
-      descripcion: "Miembros del SNI en los niveles III o Em├®rito, reconocidos por su trayectoria cient├¡fica y tecnol├│gica como referentes estatales en su ├írea de conocimiento, con m├ís de 10 a├▒os de experiencia en el proceso ID+i."
+      descripcion: "Miembros del SNI en los niveles III o Emérito, reconocidos por su trayectoria científica y tecnológica como referentes estatales en su área de conocimiento, con más de 10 años de experiencia en el proceso ID+i."
     },
     {
       nombre: "Investigador Insigne",
-      descripcion: "Distinci├│n otorgada a aquellos investigadores que han alcanzado el m├ís alto nivel de reconocimiento en su trayectoria cient├¡fica, tecnol├│gica y acad├®mica, con un impacto significativo en su ├írea de conocimiento y en la sociedad."
+      descripcion: "Distinción otorgada a aquellos investigadores que han alcanzado el más alto nivel de reconocimiento en su trayectoria científica, tecnológica y académica, con un impacto significativo en su área de conocimiento y en la sociedad."
     }
   ]
 }
