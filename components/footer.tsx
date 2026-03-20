@@ -49,7 +49,7 @@ export default function Footer() {
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
             <div className="flex justify-center">
               <Image
-                src="/images/cuenta-conmigo-logo.png"
+                src="/images/cuentaconmigo.png"
                 alt="Cuenta Conmigo"
                 width={200}
                 height={80}
@@ -59,7 +59,7 @@ export default function Footer() {
             </div>
             <div className="flex justify-center">
               <Image
-                src="/images/image-removebg-preview (2).png"
+                src="/images/chih-iic.png"
                 alt="Gobierno del Estado de Chihuahua - Instituto de Innovación y Competitividad"
                 width={400}
                 height={120}
