@@ -100,7 +100,7 @@ export default function InvestigadorPage() {
   const [redirecting, setRedirecting] = useState(false)
   const [conectarDialogOpen, setConectarDialogOpen] = useState(false)
   const [mensajeDialogOpen, setMensajeDialogOpen] = useState(false)
-  const [tipoDocumento, setTipoDocumento] = useState<'PU' | 'Dictamen' | 'SNI'>('PU')
+  const [tipoDocumento, setTipoDocumento] = useState<'PU' | 'Dictamen' | 'SNI'>('Dictamen')
   const [estanConectados, setEstanConectados] = useState(false)
   const [solicitudPendiente, setSolicitudPendiente] = useState(false)
   const [cargandoConexion, setCargandoConexion] = useState(true)
@@ -704,17 +704,13 @@ export default function InvestigadorPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="px-3 sm:px-6 pb-4 sm:pb-6">
-                  {!isLoaded || !userId ? (
-                    // Usuario NO autenticado
+                  {tipoDocumento === 'PU' && (!isLoaded || !userId) ? (
+                    // Usuario NO autenticado intenta ver Perfil Único
                     <div className="space-y-4 p-6">
                       <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
                         <Lock className="h-12 w-12 text-red-400 mx-auto mb-3" />
                         <p className="text-red-700 font-medium mb-2">
-                          {tipoDocumento === 'PU' 
-                            ? 'Debes ser investigador para poder ver Perfil Único Completo (PUC)' 
-                            : tipoDocumento === 'Dictamen' 
-                            ? 'Debes ser investigador para poder ver Dictamen SEI' 
-                            : 'Debes ser investigador para poder ver Grado SNII'}
+                          Debes ser investigador para poder ver Perfil Único Completo (PUC)
                         </p>
                         <p className="text-sm text-red-600 mb-4">
                           Por favor, inicia sesión o completa tu registro como investigador para acceder a este documento.
