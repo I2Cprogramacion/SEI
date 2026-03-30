@@ -32,6 +32,7 @@ import {
   BookOpen,
   User as UserIcon,
   ChevronDown,
+  Lock,
 } from "lucide-react"
 import { ConectarInvestigadorDialog } from "@/components/conectar-investigador-dialog"
 import { EnviarMensajeDialog } from "@/components/enviar-mensaje-dialog"
@@ -703,7 +704,29 @@ export default function InvestigadorPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="px-3 sm:px-6 pb-4 sm:pb-6">
-                  {tipoDocumento === 'PU' ? (
+                  {!isLoaded || !userId ? (
+                    // Usuario NO autenticado
+                    <div className="space-y-4 p-6">
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                        <Lock className="h-12 w-12 text-red-400 mx-auto mb-3" />
+                        <p className="text-red-700 font-medium mb-2">
+                          {tipoDocumento === 'PU' 
+                            ? 'Debes ser investigador para poder ver Perfil Único Completo (PUC)' 
+                            : tipoDocumento === 'Dictamen' 
+                            ? 'Debes ser investigador para poder ver Dictamen SEI' 
+                            : 'Debes ser investigador para poder ver Grado SNII'}
+                        </p>
+                        <p className="text-sm text-red-600 mb-4">
+                          Por favor, inicia sesión o completa tu registro como investigador para acceder a este documento.
+                        </p>
+                        <Link href="/iniciar-sesion">
+                          <Button className="bg-red-600 hover:bg-red-700 text-white">
+                            Iniciar Sesión
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  ) : tipoDocumento === 'PU' ? (
                     validCvUrl ? (
                       <div className="w-full space-y-3 sm:space-y-4">
                         <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-200 h-[50vh] md:h-[60vh] lg:h-[70vh]">
