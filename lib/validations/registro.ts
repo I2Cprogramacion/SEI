@@ -72,9 +72,9 @@ export const registroInvestigadorSchema = z.object({
   nivel_tecnologo: z.string().optional(),
   nivel_tecnologo_id: z.string().nullable().optional(),
   
-  // URLs - Permitir cadena vacía O URL válida
-  fotografia_url: z.union([z.literal(''), z.string().url()]).optional(),
-  cv_url: z.union([z.literal(''), z.string().url()]).optional().nullable(),
+  // URLs - CV es OBLIGATORIO, foto es opcional
+  fotografia_url: z.string().url().optional().or(z.literal('')),
+  cv_url: z.string().url('CV URL debe ser una URL válida'),
   
   // Metadata
   fecha_registro: z.string().optional(),
