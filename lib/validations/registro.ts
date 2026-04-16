@@ -72,9 +72,9 @@ export const registroInvestigadorSchema = z.object({
   nivel_tecnologo: z.string().optional(),
   nivel_tecnologo_id: z.string().nullable().optional(),
   
-  // URLs
-  fotografia_url: z.string().url().optional().or(z.literal('')),
-  cv_url: z.string().url().optional().or(z.literal('')).nullable(),
+  // URLs - Permitir cadena vacía O URL válida
+  fotografia_url: z.union([z.literal(''), z.string().url()]).optional(),
+  cv_url: z.union([z.literal(''), z.string().url()]).optional().nullable(),
   
   // Metadata
   fecha_registro: z.string().optional(),
@@ -148,8 +148,8 @@ export const actualizarPerfilSchema = z.object({
   tipo_perfil: z.enum(['INVESTIGADOR', 'TECNOLOGO', 'AMBOS']).optional(),
   nivel_tecnologo: z.string().optional(),
   nivel_tecnologo_id: z.string().optional(),
-  fotografia_url: z.string().url().optional().or(z.literal('')),
-  cv_url: z.string().url().optional().or(z.literal('')),
+  fotografia_url: z.union([z.literal(''), z.string().url()]).optional(),
+  cv_url: z.union([z.literal(''), z.string().url()]).optional(),
   experiencia_docente: z.string().optional(),
   experiencia_laboral: z.string().optional(),
   proyectos_investigacion: z.string().optional(),
