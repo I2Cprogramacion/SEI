@@ -45,28 +45,31 @@ export async function GET(request: NextRequest) {
     const miId = investigadorActual.rows[0]?.id || 0
     console.log(`[CONEXIONES API] miId = ${miId}`)
 
-    // Obtener investigadores (todos registrados y activos)
+    // Obtener investigadores (todos registrados, incluidos inactivos para búsqueda)
     let investigadoresConectados
     
     try {
       if (query && query.length >= 2) {
-        // Búsqueda con filtro de nombre - buscar entre TODOS los investigadores
+        // 🔍 Búsqueda con filtro de nombre - buscar entre TODOS los investigadores (activos e inactivos)
         const searchPattern = `%${query}%`
+        console.log(`[CONEXIONES API] Buscando investigadores con patrón: ${searchPattern}`)
+        
         investigadoresConectados = await sql`
           SELECT DISTINCT 
             i.id,
             i.nombre_completo,
             i.correo,
             i.fotografia_url,
-            i.slug
+            i.slug,
+            i.activo
           FROM investigadores i
-          WHERE (${miId} = 0 OR i.id != ${miId})
-            AND i.activo IS NOT FALSE
-            AND (
+          WHERE (
               LOWER(i.nombre_completo) LIKE LOWER(${searchPattern})
               OR LOWER(i.correo) LIKE LOWER(${searchPattern})
             )
-          ORDER BY i.nombre_completo ASC
+          ORDER BY 
+            CASE WHEN i.activo IS NOT FALSE THEN 0 ELSE 1 END,
+            i.nombre_completo ASC
           LIMIT ${limit}
         `
       } else {
@@ -77,10 +80,10 @@ export async function GET(request: NextRequest) {
             i.nombre_completo,
             i.correo,
             i.fotografia_url,
-            i.slug
+            i.slug,
+            i.activo
           FROM investigadores i
-          WHERE (${miId} = 0 OR i.id != ${miId})
-            AND i.activo IS NOT FALSE
+          WHERE i.activo IS NOT FALSE
           ORDER BY i.nombre_completo ASC
           LIMIT ${limit}
         `

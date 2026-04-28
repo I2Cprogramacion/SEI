@@ -212,8 +212,8 @@ export function InvestigadorAutocomplete({
                 <CommandEmpty>
                   <div className="py-4">
                     <Users className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground mb-2">No se encontraron conexiones con ese nombre</p>
-                    <p className="text-xs text-muted-foreground">Solo puedes seleccionar investigadores conectados</p>
+                    <p className="text-sm text-muted-foreground mb-2">No se encontraron investigadores con ese nombre</p>
+                    <p className="text-xs text-muted-foreground">Busca entre todos los investigadores registrados</p>
                   </div>
                 </CommandEmpty>
               )}
@@ -221,8 +221,8 @@ export function InvestigadorAutocomplete({
               {!isLoading && !error && investigadores.length === 0 && searchTerm.length < 2 && (
                 <div className="p-4 text-center text-sm text-muted-foreground">
                   <Users className="h-8 w-8 mx-auto mb-2" />
-                  <p className="mb-2">No tienes conexiones aún</p>
-                  <p className="text-xs">Conecta con otros investigadores primero</p>
+                  <p className="mb-2">Escribe al menos 2 caracteres para buscar investigadores</p>
+                  <p className="text-xs">Puedes buscar a cualquier investigador registrado, incluso si no estás conectado</p>
                 </div>
               )}
               
@@ -231,8 +231,8 @@ export function InvestigadorAutocomplete({
                   <div className="px-2 py-1.5 text-xs text-muted-foreground flex items-center gap-1">
                     <Users className="h-3 w-3" />
                     {searchTerm.length >= 2 
-                      ? `${investigadores.length} conexión${investigadores.length !== 1 ? 'es' : ''} encontrada${investigadores.length !== 1 ? 's' : ''}`
-                      : `${investigadores.length} conexión${investigadores.length !== 1 ? 'es' : ''} disponible${investigadores.length !== 1 ? 's' : ''}`
+                      ? `${investigadores.length} investigador${investigadores.length !== 1 ? 'es' : ''} encontrado${investigadores.length !== 1 ? 's' : ''}`
+                      : `${investigadores.length} investigador${investigadores.length !== 1 ? 'es' : ''} disponible${investigadores.length !== 1 ? 's' : ''}`
                     }
                   </div>
                   {investigadores.map((investigador) => (
