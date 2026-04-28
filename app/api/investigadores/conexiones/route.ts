@@ -87,7 +87,13 @@ export async function GET(request: NextRequest) {
       }
     } catch (searchError) {
       console.error("[CONEXIONES API] Error en búsqueda SQL:", searchError)
-      throw searchError
+      // No relanzar el error - devolver lista vacía con error específico
+      console.log("[CONEXIONES API] Devolviendo lista vacía por error de búsqueda")
+      return NextResponse.json({
+        investigadores: [],
+        total: 0,
+        error: "Error en la búsqueda - intenta de nuevo"
+      }, { status: 200 })
     }
 
     console.log(`[CONEXIONES API] Investigadores encontrados: ${investigadoresConectados.rows.length}`)

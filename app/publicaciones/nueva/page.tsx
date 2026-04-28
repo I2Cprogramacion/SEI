@@ -860,51 +860,31 @@ export default function NuevaPublicacionPage() {
       if (formData.archivo) {
         toast.loading('Subiendo archivo...', { id: 'upload' })
 
-        // Solicitar presign al servidor
-        const presignResp = await fetch('/api/upload/presign', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            filename: formData.archivo.name,
-            contentType: formData.archivo.type,
-            size: formData.archivo.size
+        try {
+          // Usar el mismo endpoint /api/upload que funciona en registro
+          const formDataFile = new FormData()
+          formDataFile.append('file', formData.archivo)
+
+          const uploadResp = await fetch('/api/upload', {
+            method: 'POST',
+            body: formDataFile
           })
-        })
 
-        if (!presignResp.ok) {
-          const err = await presignResp.json().catch(() => ({ error: 'Error al solicitar presign' }))
-          toast.error('Error al preparar la subida', { id: 'upload', description: err.error || 'No se pudo obtener URL de subida' })
-          throw new Error(err.error || 'Error al solicitar presign')
+          if (!uploadResp.ok) {
+            const err = await uploadResp.json().catch(() => ({ error: 'Error al subir archivo' }))
+            toast.error('Error al subir el archivo', { id: 'upload', description: err.error || 'No se pudo subir' })
+            throw new Error(err.error || 'Error al subir archivo')
+          }
+
+          const uploadData = await uploadResp.json()
+          archivoUrl = uploadData.url
+          archivoNombre = formData.archivo.name
+          
+          toast.success('Archivo subido correctamente', { id: 'upload' })
+        } catch (uploadError) {
+          console.error('Error subiendo archivo:', uploadError)
+          throw uploadError
         }
-
-        const presignData = await presignResp.json()
-        const uploadUrl: string | undefined = presignData.uploadUrl || presignData.uploadURL
-        const publicUrl: string | undefined = presignData.url || presignData.publicUrl
-
-        if (!uploadUrl) {
-          toast.error('Presign inválido: no se recibió uploadUrl', { id: 'upload' })
-          throw new Error('Respuesta inválida de presign')
-        }
-
-        // Hacer PUT directo a la URL de Vercel Blob
-        const putResp = await fetch(uploadUrl, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': formData.archivo.type
-          },
-          body: formData.archivo
-        })
-
-        if (!putResp.ok) {
-          const text = await putResp.text().catch(() => '')
-          toast.error('Error al subir el archivo', { id: 'upload', description: text || 'Fallo en la transferencia' })
-          throw new Error('Error al subir archivo a Vercel Blob')
-        }
-
-        // Determinar URL pública final (presign puede devolverla; si no, derivar de uploadUrl)
-        archivoUrl = publicUrl || (uploadUrl.split('?')[0])
-        archivoNombre = formData.archivo.name
-        toast.success('Archivo subido correctamente', { id: 'upload' })
       }
 
       // Preparar datos para enviar a la API

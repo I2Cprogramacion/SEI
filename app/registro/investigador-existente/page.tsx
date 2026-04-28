@@ -1005,6 +1005,85 @@ export default function RegistroPage() {
   }, [selectedFile, handleSavePDFAsCV])
 
   // Handlers para Dictamen y Grado SNII
+  // 🔥 FUNCIÓN CRÍTICA: Subir todos los archivos a Vercel Blob
+  const uploadAllFiles = useCallback(async () => {
+    const uploadedUrls: {
+      cv_url?: string
+      dictamen_url?: string
+      grado_snii?: string
+    } = {}
+
+    try {
+      // Subir CV (Perfil Único)
+      if (selectedFile && !formData.cv_url) {
+        console.log("📤 Subiendo Perfil Único...")
+        const formDataCV = new FormData()
+        formDataCV.append("file", selectedFile)
+        
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formDataCV,
+        })
+
+        if (response.ok) {
+          const result = await response.json()
+          uploadedUrls.cv_url = result.url
+          console.log("✅ Perfil Único subido:", uploadedUrls.cv_url)
+        } else {
+          const error = await response.json()
+          throw new Error(`Error subiendo CV: ${error.error}`)
+        }
+      }
+
+      // Subir Dictamen
+      if (selectedDictamenFile && !formData.dictamen_url) {
+        console.log("📤 Subiendo Dictamen...")
+        const formDataDictamen = new FormData()
+        formDataDictamen.append("file", selectedDictamenFile)
+        
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formDataDictamen,
+        })
+
+        if (response.ok) {
+          const result = await response.json()
+          uploadedUrls.dictamen_url = result.url
+          console.log("✅ Dictamen subido:", uploadedUrls.dictamen_url)
+        } else {
+          const error = await response.json()
+          throw new Error(`Error subiendo Dictamen: ${error.error}`)
+        }
+      }
+
+      // Subir Grado SNII (si existe)
+      if (selectedGradoSNIIFile && !formData.grado_snii) {
+        console.log("📤 Subiendo Grado SNII...")
+        const formDataSNII = new FormData()
+        formDataSNII.append("file", selectedGradoSNIIFile)
+        
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formDataSNII,
+        })
+
+        if (response.ok) {
+          const result = await response.json()
+          uploadedUrls.grado_snii = result.url
+          console.log("✅ Grado SNII subido:", uploadedUrls.grado_snii)
+        } else {
+          const error = await response.json()
+          throw new Error(`Error subiendo Grado SNII: ${error.error}`)
+        }
+      }
+
+      return uploadedUrls
+    } catch (error) {
+      console.error("❌ Error subiendo archivos:", error)
+      throw new Error(`Error subiendo archivos: ${error instanceof Error ? error.message : "Error desconocido"}`)
+    }
+  }, [selectedFile, selectedDictamenFile, selectedGradoSNIIFile, formData.cv_url, formData.dictamen_url, formData.grado_snii])
+
   const handleDictamenChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -1024,7 +1103,7 @@ export default function RegistroPage() {
         return
       }
       setSelectedDictamenFile(file)
-      setFormData(prev => ({ ...prev, dictamen_url: `/uploads/${file.name}` }))
+      // No establecer la URL aquí - se subirá del formulario
       setError(null)
     }
   }, [])
@@ -1048,7 +1127,7 @@ export default function RegistroPage() {
         return
       }
       setSelectedGradoSNIIFile(file)
-      setFormData(prev => ({ ...prev, grado_snii: `/uploads/${file.name}` }))
+      // No establecer la URL aquí - se subirá en el formulario
       setError(null)
     }
   }, [])
@@ -1129,6 +1208,19 @@ export default function RegistroPage() {
         // PRIMERO: Verificar que signUp esté cargado y disponible
         if (!isLoaded || !signUp) {
           throw new Error("El sistema de registro no esté listo. Intenta de nuevo.")
+        }
+
+        // 🔥 PASO 0: Subir todos los archivos PRIMERO
+        console.log("📤 [REGISTRO] Paso 0: Verificando archivos para subir...")
+        setError("Subiendo tus archivos (esto puede tomar unos segundos)...")
+        
+        let uploadedUrls: any = {}
+        try {
+          uploadedUrls = await uploadAllFiles()
+          console.log("✅ [REGISTRO] Archivos subidos exitosamente:", uploadedUrls)
+          setError(null) // Limpiar el mensaje de "Subiendo..."
+        } catch (uploadError) {
+          throw new Error(`Error critico subiendo archivos: ${uploadError instanceof Error ? uploadError.message : "Error desconocido"}`)
         }
 
         try {
@@ -1236,10 +1328,10 @@ export default function RegistroPage() {
             colaboracion_nacional: formData.colaboracion_nacional || "",
             sni: formData.sni || "",
             anio_sni: formData.anio_sni || null,
-            // Si se subió un archivo PDF, usarlo como CV principal
-            cv_url: formData.cv_url || (selectedFile ? `/uploads/${selectedFile.name}` : ""),
-            dictamen_url: formData.dictamen_url || (selectedDictamenFile ? `/uploads/${selectedDictamenFile.name}` : ""),
-            grado_snii: formData.grado_snii || (selectedGradoSNIIFile ? `/uploads/${selectedGradoSNIIFile.name}` : ""),
+            // Usar las URLs de los archivos subidos a Vercel Blob
+            cv_url: uploadedUrls.cv_url || formData.cv_url || "",
+            dictamen_url: uploadedUrls.dictamen_url || formData.dictamen_url || "",
+            grado_snii: uploadedUrls.grado_snii || formData.grado_snii || "",
 
             // Control y sistema
             tipo_perfil: formData.tipo_perfil,
@@ -1336,10 +1428,16 @@ export default function RegistroPage() {
       passwordValidation,
       formData,
       selectedFile,
+      selectedDictamenFile,
+      selectedGradoSNIIFile,
+      uploadAllFiles,
       signUp,
       router,
+      clerk,
       submitAttempts,
       lastAttempt,
+      termsAccepted,
+      isLoaded,
     ]
   )
 
