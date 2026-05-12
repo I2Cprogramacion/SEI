@@ -225,6 +225,7 @@ const MUNICIPIOS_CHIHUAHUA = [
   "Urique",
   "Uruachi",
   "Valle de Zaragoza",
+  "Otro",
 ];
 
 // Nacionalidades del continente americano
