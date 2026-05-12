@@ -1,12 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search, Building, MapPin, Phone, Filter, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, Building, MapPin, Filter, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { AnimatedCard } from "@/components/ui/animated-card"
 import { AnimatedBadge } from "@/components/ui/animated-badge"
@@ -348,17 +348,7 @@ export default function InvestigadoresPage() {
                             </div>
                           )}
 
-                          {investigador.telefono ? (
-                            <div className="flex items-center justify-center gap-2 text-blue-700 max-w-full bg-blue-50/50 rounded-lg px-3 py-2 border border-blue-100">
-                              <Phone className="h-4 w-4 flex-shrink-0 text-blue-500" />
-                              <span className="text-xs font-semibold text-center truncate min-w-0 flex-1">{investigador.telefono}</span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center justify-center gap-2 text-gray-400 max-w-full bg-gray-50/50 rounded-lg px-3 py-2 border border-gray-200">
-                              <Phone className="h-4 w-4 flex-shrink-0" />
-                              <span className="text-xs font-medium text-center truncate min-w-0 flex-1">Sin teléfono</span>
-                            </div>
-                          )}
+
                         </div>
 
                         {/* Badge de líneas de investigación - Rediseñado */}
@@ -378,16 +368,7 @@ export default function InvestigadoresPage() {
                       </div>
                     </CardContent>
                     
-                    {/* Footer con email - Rediseñado */}
-                    <CardFooter className="border-t-2 border-blue-100 flex justify-center py-4 sm:py-5 px-5 sm:px-6 bg-gradient-to-r from-blue-50/50 via-indigo-50/30 to-blue-50/50 relative overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <div className="text-center w-full max-w-full overflow-hidden relative z-10">
-                        <p className="text-xs sm:text-sm text-blue-600 px-2 truncate font-semibold flex items-center justify-center gap-2">
-                          <span className="text-blue-400">✉</span>
-                          <span>{investigador.email || 'Sin email'}</span>
-                        </p>
-                      </div>
-                    </CardFooter>
+
                   </AnimatedCard>
                 </InvestigadorLink>
               ))}
