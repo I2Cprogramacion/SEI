@@ -5,13 +5,27 @@
 
 import { z } from 'zod'
 
+// Validar que el email sea válido y acepte dominios institucionales como @uacj
+const emailValidation = z.string()
+  .email('Correo inválido')
+  .refine(
+    (email) => {
+      // Validar que tenga @ y un dominio válido (incluyendo @uacj.mx, @edu.mx, etc)
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      return emailRegex.test(email)
+    },
+    'El correo electrónico debe tener un formato válido con dominio'
+  )
+
 // Schema para validar registro de investigador
 export const registroInvestigadorSchema = z.object({
-  // Clerk ID (requerido)
-  clerk_user_id: z.string().min(1, 'clerk_user_id es requerido'),
+  // Clerk ID (requerido) - Validar que sea un string no vacío y válido
+  clerk_user_id: z.string()
+    .min(1, 'clerk_user_id es requerido')
+    .regex(/^[a-zA-Z0-9_-]+$/, 'clerk_user_id tiene un formato inválido'),
   
   // Datos personales básicos
-  correo: z.string().email('Correo inválido'),
+  correo: emailValidation,
   nombre_completo: z.string().min(1, 'Nombre completo es requerido'),
   nombres: z.string().optional(),
   apellidos: z.string().optional(),

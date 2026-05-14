@@ -42,8 +42,40 @@ export default clerkMiddleware(async (auth, req) => {
   // Crear response para manipular headers
   const response = NextResponse.next();
   
-  // Configurar headers de seguridad y política de cookies
+  // ============================================
+  // HEADERS DE SEGURIDAD - CRÍTICO
+  // ============================================
+  
+  // 1. Prevenir MIME type sniffing
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  
+  // 2. Protección contra clickjacking
+  response.headers.set('X-Frame-Options', 'DENY');
+  
+  // 3. Protección XSS (más moderna que X-XSS-Protection)
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  
+  // 4. Referrer Policy
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  // 5. Permissions-Policy (previamente Feature-Policy)
   response.headers.set('Permissions-Policy', 'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()');
+  
+  // 6. Strict-Transport-Security (HSTS) - HTTPS obligatorio
+  // Nota: Solo en producción. En desarrollo comentar si no tienes HTTPS
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set(
+      'Strict-Transport-Security',
+      'max-age=31536000; includeSubDomains; preload'
+    );
+  }
+  
+  // 7. Content-Security-Policy - Prevenir inyección de contenido
+  const cspHeader = process.env.NODE_ENV === 'production'
+    ? "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.clerk.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' cdn.clerk.com; frame-ancestors 'none';"
+    : "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.clerk.com localhost:*; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: localhost:*; font-src 'self' data:; connect-src 'self' cdn.clerk.com localhost:*; frame-ancestors 'none';";
+  
+  response.headers.set('Content-Security-Policy', cspHeader);
   
   return response;
 }, {

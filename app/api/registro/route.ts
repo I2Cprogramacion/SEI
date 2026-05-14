@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server"
 import { guardarRegistroPendiente } from "@/lib/db"
 import { registroInvestigadorSchema } from "@/lib/validations/registro"
 import { z } from "zod"
+import { auth } from "@clerk/nextjs/server"
 
 /**
  * POST /api/registro
@@ -121,19 +122,38 @@ export async function POST(request: NextRequest) {
     }
 
     // ============================================
-    // CAPA 3: Validar clerk_user_id
+    // CAPA 3: Validar clerk_user_id CONTRA USUARIO AUTENTICADO
     // ============================================
-    // ⚠️ ARQUITECTURA: No validamos con Clerk aquí porque:
-    // - El user acaba de ser creado pero AÚN NO verificó email
-    // - Clerk aún no lo ha completamente inicializado
-    // - Solo verificamos que tiene un formato válido (no vacío)
-    // - La verdadera validación ocurre cuando el user verifica email
+    // SEGURIDAD CRÍTICA: Validar que el clerk_user_id coincida con el usuario autenticado
+    // Previene que Usuario A cree registro con el ID de Usuario B
     
+    let authenticatedUserId: string | null = null
+    try {
+      const { userId } = await auth()
+      authenticatedUserId = userId
+    } catch (authError) {
+      console.warn("⚠️ [REGISTRO] No se pudo obtener usuario autenticado, continuando sin validación de auth")
+    }
+
     if (!data.clerk_user_id || typeof data.clerk_user_id !== 'string' || data.clerk_user_id.trim().length === 0) {
       console.error("❌ [REGISTRO] clerk_user_id inválido o vacío")
       return NextResponse.json(
         { error: "No se recibió un ID de usuario válido" },
         { status: 400 }
+      )
+    }
+
+    // ⚠️ ARQUITECTURA: Validation de ownership
+    // Si tenemos usuario autenticado, validar que clerk_user_id coincida
+    // Si no hay usuario autenticado, es el flujo de registro anónimo (permitido)
+    if (authenticatedUserId && data.clerk_user_id !== authenticatedUserId) {
+      console.error("❌ [REGISTRO SEGURIDAD] Intento de registrar con ID diferente al autenticado", {
+        autenticado: authenticatedUserId ? '****' + authenticatedUserId.slice(-4) : 'none',
+        solicitado: '****' + data.clerk_user_id.slice(-4)
+      })
+      return NextResponse.json(
+        { error: "El ID de usuario no coincide. No puedes registrar datos de otro usuario." },
+        { status: 403 }
       )
     }
 
@@ -167,6 +187,60 @@ export async function POST(request: NextRequest) {
         delete (data as any)[campo]
       }
     })
+
+    // ============================================
+    // CAPA 5B: Sanitización de strings - Prevenir XSS
+    // ============================================
+    // Sanitizar campos de texto para remover potenciales XSS
+    const sanitizeString = (str: string): string => {
+      if (!str || typeof str !== 'string') return str
+      return str
+        .trim()
+        .replace(/[<>]/g, '') // Remover < y >
+        .substring(0, 500) // Limitar longitud
+    }
+
+    // Sanitizar campos de texto
+    if (typeof data.nombre_completo === 'string') data.nombre_completo = sanitizeString(data.nombre_completo)
+    if (typeof data.nombres === 'string') data.nombres = sanitizeString(data.nombres)
+    if (typeof data.apellidos === 'string') data.apellidos = sanitizeString(data.apellidos)
+    if (typeof data.telefono === 'string') data.telefono = sanitizeString(data.telefono)
+    if (typeof data.empleo_actual === 'string') data.empleo_actual = sanitizeString(data.empleo_actual)
+    if (typeof data.linea_investigacion === 'string') data.linea_investigacion = sanitizeString(data.linea_investigacion)
+    if (typeof data.area_investigacion === 'string') data.area_investigacion = sanitizeString(data.area_investigacion)
+
+    // CURP: 18 caracteres alfanuméricos mayúsculas (validar formato)
+    if (data.curp && typeof data.curp === 'string') {
+      data.curp = data.curp.toUpperCase().substring(0, 18)
+      if (!/^[A-Z0-9]{18}$/.test(data.curp)) {
+        return NextResponse.json(
+          { error: "CURP debe tener exactamente 18 caracteres alfanuméricos" },
+          { status: 400 }
+        )
+      }
+    }
+
+    // RFC: máximo 13 caracteres alfanuméricos mayúsculas
+    if (data.rfc && typeof data.rfc === 'string') {
+      data.rfc = data.rfc.toUpperCase().substring(0, 13)
+      if (!/^[A-Z0-9]{10,13}$/.test(data.rfc)) {
+        return NextResponse.json(
+          { error: "RFC debe tener 10 a 13 caracteres alfanuméricos" },
+          { status: 400 }
+        )
+      }
+    }
+
+    // CVU: debe ser numérico
+    if (data.no_cvu && typeof data.no_cvu === 'string') {
+      data.no_cvu = data.no_cvu.substring(0, 20)
+      if (!/^[0-9]+$/.test(data.no_cvu)) {
+        return NextResponse.json(
+          { error: "CVU debe contener solo números" },
+          { status: 400 }
+        )
+      }
+    }
 
     // ============================================
     // CAPA 6: Enmascaramiento para logs

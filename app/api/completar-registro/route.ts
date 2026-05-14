@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { guardarInvestigador, obtenerRegistroPendiente, eliminarRegistroPendiente } from "@/lib/db"
+import { auth } from "@clerk/nextjs/server"
 
 /**
  * API para completar el registro DESPUÉS de verificar el email en Clerk
@@ -17,6 +18,32 @@ export async function POST(request: NextRequest) {
     const data = await request.json()
     
     console.log("📥 ========== COMPLETANDO REGISTRO DESPUÉS DE VERIFICACIÓN ==========")
+    
+    // ============================================
+    // VALIDACIÓN CRÍTICA: Verificar usuario autenticado
+    // ============================================
+    let authenticatedUserId: string | null = null
+    try {
+      const { userId } = await auth()
+      authenticatedUserId = userId
+    } catch (authError) {
+      console.warn("⚠️ [COMPLETAR REGISTRO] No se pudo verificar usuario autenticado")
+    }
+
+    // Validar que clerk_user_id coincida con usuario autenticado
+    if (authenticatedUserId && data.clerk_user_id !== authenticatedUserId) {
+      console.error("❌ [COMPLETAR REGISTRO SEGURIDAD] Intento de completar registro con ID diferente", {
+        autenticado: '****' + authenticatedUserId.slice(-4),
+        solicitado: '****' + data.clerk_user_id.slice(-4)
+      })
+      return NextResponse.json(
+        { 
+          error: "El ID de usuario no coincide. No puedes completar el registro de otro usuario.",
+          details: "Validación de seguridad fallida."
+        },
+        { status: 403 }
+      )
+    }
     
     // VALIDACIÓN CRÍTICA: Debe tener clerk_user_id
     if (!data.clerk_user_id) {
