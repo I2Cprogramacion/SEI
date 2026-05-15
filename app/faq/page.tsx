@@ -220,7 +220,7 @@ export default function FAQPage() {
           </p>
           <div className="flex flex-col items-center gap-4">
             <a
-              href="mailto:daron.tarin@i2c.com.mx"
+              href="mailto:sistemas@i2c.com.mx"
               className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors w-fit"
             >
               Enviar Email
@@ -228,10 +228,10 @@ export default function FAQPage() {
             <div className="text-center">
               <p className="text-sm text-muted-foreground mb-1">O escríbenos directamente a:</p>
               <a 
-                href="mailto:daron.tarin@i2c.com.mx" 
+                href="mailto:sistemas@i2c.com.mx" 
                 className="text-base font-semibold text-blue-600 hover:text-blue-700 hover:underline"
               >
-                daron.tarin@i2c.com.mx
+                sistemas@i2c.com.mx
               </a>
             </div>
           </div>

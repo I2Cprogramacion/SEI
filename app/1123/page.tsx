@@ -25,7 +25,7 @@ export default function Page1123() {
               <h3 className="text-2xl font-bold text-purple-300">Daron Tarín</h3>
               <p className="text-sm text-gray-400">El que arregla lo que los otros dos rompen</p>
               <div className="space-y-1 text-sm">
-                <p className="text-gray-300">📧 daron.tarin@i2c.com.mx</p>
+                <p className="text-gray-300">📧 sistemas@i2c.com.mx</p>
                 <p className="text-gray-300">💼 "Full Stack" (= hace de todo)</p>
                 <p className="text-purple-300 italic">* Promedio de café: 5 tazas/día</p>
               </div>
