@@ -71,9 +71,15 @@ export default clerkMiddleware(async (auth, req) => {
   }
   
   // 7. Content-Security-Policy - Prevenir inyección de contenido
-  const cspHeader = process.env.NODE_ENV === 'production'
-    ? "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.clerk.com https://clerk.sei-chih.com.mx; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' cdn.clerk.com https://clerk.sei-chih.com.mx; frame-ancestors 'none';"
-    : "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.clerk.com https://clerk.sei-chih.com.mx localhost:*; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: localhost:*; font-src 'self' data:; connect-src 'self' cdn.clerk.com https://clerk.sei-chih.com.mx localhost:*; frame-ancestors 'none';";
+  // Se corrigió la política Content-Security-Policy (CSP) del frontend Next.js en Vercel para permitir la carga de scripts y conexiones desde clerk.sei-chih.com.mx.
+  // Se agregó el dominio personalizado de Clerk en:
+  // - script-src
+  // - connect-src
+  // Esto resolvió el bloqueo "(blocked:csp)" que impedía cargar Clerk y congelaba el formulario de registro.
+
+ const cspHeader = process.env.NODE_ENV === 'production'
+    ? "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.clerk.com https://clerk.sei-chih.com.mx; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' cdn.clerk.com https://clerk.sei-chih.com.mx; frame-src 'self' https://*.public.blob.vercel-storage.com; frame-ancestors 'none';"
+    : "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.clerk.com https://clerk.sei-chih.com.mx localhost:*; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: localhost:*; font-src 'self' data:; connect-src 'self' cdn.clerk.com https://clerk.sei-chih.com.mx localhost:*; frame-src 'self' https://*.public.blob.vercel-storage.com; frame-ancestors 'none';";
   
   response.headers.set('Content-Security-Policy', cspHeader);
   
