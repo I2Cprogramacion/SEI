@@ -72,8 +72,8 @@ export default clerkMiddleware(async (auth, req) => {
   
   // 7. Content-Security-Policy - Prevenir inyección de contenido
   const cspHeader = process.env.NODE_ENV === 'production'
-    ? "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.clerk.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' cdn.clerk.com; frame-ancestors 'none';"
-    : "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.clerk.com localhost:*; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: localhost:*; font-src 'self' data:; connect-src 'self' cdn.clerk.com localhost:*; frame-ancestors 'none';";
+    ? "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.clerk.com https://clerk.sei-chih.com.mx; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' cdn.clerk.com https://clerk.sei-chih.com.mx; frame-ancestors 'none';"
+    : "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.clerk.com https://clerk.sei-chih.com.mx localhost:*; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: localhost:*; font-src 'self' data:; connect-src 'self' cdn.clerk.com https://clerk.sei-chih.com.mx localhost:*; frame-ancestors 'none';";
   
   response.headers.set('Content-Security-Policy', cspHeader);
   
