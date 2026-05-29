@@ -38,29 +38,29 @@ export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
     await auth.protect();
   }
-  
+
   // Crear response para manipular headers
   const response = NextResponse.next();
-  
+
   // ============================================
   // HEADERS DE SEGURIDAD - CRÍTICO
   // ============================================
-  
+
   // 1. Prevenir MIME type sniffing
   response.headers.set('X-Content-Type-Options', 'nosniff');
-  
+
   // 2. Protección contra clickjacking
   response.headers.set('X-Frame-Options', 'DENY');
-  
+
   // 3. Protección XSS (más moderna que X-XSS-Protection)
   response.headers.set('X-XSS-Protection', '1; mode=block');
-  
+
   // 4. Referrer Policy
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
+
   // 5. Permissions-Policy (previamente Feature-Policy)
   response.headers.set('Permissions-Policy', 'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()');
-  
+
   // 6. Strict-Transport-Security (HSTS) - HTTPS obligatorio
   // Nota: Solo en producción. En desarrollo comentar si no tienes HTTPS
   if (process.env.NODE_ENV === 'production') {
@@ -69,7 +69,7 @@ export default clerkMiddleware(async (auth, req) => {
       'max-age=31536000; includeSubDomains; preload'
     );
   }
-  
+
   // 7. Content-Security-Policy - Prevenir inyección de contenido
   // Se corrigió la política Content-Security-Policy (CSP) del frontend Next.js en Vercel para permitir la carga de scripts y conexiones desde clerk.sei-chih.com.mx.
   // Se agregó el dominio personalizado de Clerk en:
@@ -77,12 +77,12 @@ export default clerkMiddleware(async (auth, req) => {
   // - connect-src
   // Esto resolvió el bloqueo "(blocked:csp)" que impedía cargar Clerk y congelaba el formulario de registro.
 
- const cspHeader = process.env.NODE_ENV === 'production'
-    ? "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.clerk.com https://clerk.sei-chih.com.mx; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' cdn.clerk.com https://clerk.sei-chih.com.mx; frame-src 'self' https://*.public.blob.vercel-storage.com; frame-ancestors 'none';"
-    : "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.clerk.com https://clerk.sei-chih.com.mx localhost:*; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: localhost:*; font-src 'self' data:; connect-src 'self' cdn.clerk.com https://clerk.sei-chih.com.mx localhost:*; frame-src 'self' https://*.public.blob.vercel-storage.com; frame-ancestors 'none';";
-  
+  const cspHeader = process.env.NODE_ENV === 'production'
+    ? "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.clerk.com https://clerk.sei-chih.com.mx https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' cdn.clerk.com https://clerk.sei-chih.com.mx https://challenges.cloudflare.com; frame-src 'self' https://*.public.blob.vercel-storage.com https://challenges.cloudflare.com; frame-ancestors 'none';"
+    : "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.clerk.com https://clerk.sei-chih.com.mx https://challenges.cloudflare.com localhost:*; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: localhost:*; font-src 'self' data:; connect-src 'self' cdn.clerk.com https://clerk.sei-chih.com.mx https://challenges.cloudflare.com localhost:*; frame-src 'self' https://*.public.blob.vercel-storage.com https://challenges.cloudflare.com localhost:*; frame-ancestors 'none';";
+
   response.headers.set('Content-Security-Policy', cspHeader);
-  
+
   return response;
 }, {
   // Configuración de duración de sesión (12 horas)
